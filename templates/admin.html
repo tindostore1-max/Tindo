@@ -540,7 +540,25 @@
 
         function hideCreateProductForm() {
             document.getElementById('create-product-form').style.display = 'none';
-            document.getElementById('product-form').reset();
+            const form = document.getElementById('product-form');
+            form.reset();
+            
+            // Resetear estado de edición
+            form.removeAttribute('data-product-id');
+            form.removeAttribute('data-editing');
+            
+            // Restaurar título y texto del botón
+            document.querySelector('#create-product-form h3').textContent = 'Crear Nuevo Producto';
+            document.querySelector('#product-form button[type="submit"]').innerHTML = '💾 Guardar Producto';
+            
+            // Limpiar paquetes y agregar uno vacío
+            const container = document.getElementById('paquetes-container');
+            container.innerHTML = `
+                <div class="paquete-item">
+                    <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre">
+                    <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio">
+                </div>
+            `;
         }
 
         function addPaquete() {
@@ -571,31 +589,110 @@
                 }
             });
             
+            const form = document.getElementById('product-form');
+            const isEditing = form.getAttribute('data-editing') === 'true';
+            const productId = form.getAttribute('data-product-id');
+            
             try {
-                const response = await fetch('/admin/producto', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        nombre,
-                        descripcion,
-                        imagen,
-                        paquetes
-                    })
-                });
+                let response;
+                
+                if (isEditing) {
+                    // Actualizar producto existente
+                    response = await fetch(`/admin/producto/${productId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            nombre,
+                            descripcion,
+                            imagen,
+                            paquetes
+                        })
+                    });
+                } else {
+                    // Crear nuevo producto
+                    response = await fetch('/admin/producto', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            nombre,
+                            descripcion,
+                            imagen,
+                            paquetes
+                        })
+                    });
+                }
                 
                 if (response.ok) {
-                    showAlert('Producto creado correctamente');
+                    showAlert(isEditing ? 'Producto actualizado correctamente' : 'Producto creado correctamente');
                     hideCreateProductForm();
                     loadProductos();
                 } else {
-                    showAlert('Error al crear producto', 'error');
+                    showAlert(isEditing ? 'Error al actualizar producto' : 'Error al crear producto', 'error');
                 }
             } catch (error) {
-                showAlert('Error al crear producto', 'error');
+                showAlert(isEditing ? 'Error al actualizar producto' : 'Error al crear producto', 'error');
             }
         });
+
+        async function editProduct(productId) {
+            try {
+                // Cargar datos del producto
+                const response = await fetch('/admin/productos');
+                const productos = await response.json();
+                const producto = productos.find(p => p.id === productId);
+                
+                if (!producto) {
+                    showAlert('Producto no encontrado', 'error');
+                    return;
+                }
+                
+                // Mostrar formulario de edición
+                showCreateProductForm();
+                
+                // Llenar formulario con datos existentes
+                document.getElementById('product-name').value = producto.nombre;
+                document.getElementById('product-description').value = producto.descripcion || '';
+                document.getElementById('product-image').value = producto.imagen || '';
+                
+                // Limpiar paquetes existentes y agregar los del producto
+                const container = document.getElementById('paquetes-container');
+                container.innerHTML = '';
+                
+                if (producto.paquetes && producto.paquetes.length > 0) {
+                    producto.paquetes.forEach(paquete => {
+                        const paqueteDiv = document.createElement('div');
+                        paqueteDiv.className = 'paquete-item';
+                        paqueteDiv.innerHTML = `
+                            <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre" value="${paquete.nombre}">
+                            <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio" value="${paquete.precio}">
+                            <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()">❌ Quitar</button>
+                        `;
+                        container.appendChild(paqueteDiv);
+                    });
+                } else {
+                    // Agregar un paquete vacío si no hay ninguno
+                    addPaquete();
+                }
+                
+                // Cambiar el título del formulario
+                document.querySelector('#create-product-form h3').textContent = 'Editar Producto';
+                
+                // Cambiar el comportamiento del formulario para actualizar en lugar de crear
+                const form = document.getElementById('product-form');
+                form.setAttribute('data-product-id', productId);
+                form.setAttribute('data-editing', 'true');
+                
+                // Cambiar texto del botón
+                document.querySelector('#product-form button[type="submit"]').innerHTML = '💾 Actualizar Producto';
+                
+            } catch (error) {
+                showAlert('Error al cargar datos del producto', 'error');
+            }
+        }
 
         async function deleteProduct(productId) {
             if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
