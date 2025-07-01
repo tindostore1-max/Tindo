@@ -12,7 +12,21 @@ document.addEventListener('DOMContentLoaded', function() {
     cargarConfiguracion();
     cargarProductos();
     inicializarEventos();
+    verificarSesion();
 });
+
+// Verificar si hay sesión activa
+async function verificarSesion() {
+    try {
+        const response = await fetch('/usuario');
+        if (response.ok) {
+            const data = await response.json();
+            actualizarInterfazUsuario(data.usuario);
+        }
+    } catch (error) {
+        console.log('No hay sesión activa');
+    }
+}
 
 // Funciones de navegación
 function mostrarTab(tabName) {
@@ -116,14 +130,11 @@ function mostrarProductos() {
         }
         
         html += `
-            <div class="product-card" onclick="verDetalleProducto(${producto.id})">
+            <div class="product-card">
                 <img src="${imagenUrl}" alt="${producto.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
                 <div class="product-name">${producto.nombre || 'Producto sin nombre'}</div>
                 <div class="product-description">${producto.descripcion || 'Sin descripción'}</div>
                 <div class="price-desde">Desde $${precioMinimo.toFixed(2)} = Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)}</div>
-                <button class="btn btn-primary" style="width: 100%; margin-top: 15px;">
-                    Ver detalles
-                </button>
             </div>
         `;
     });
@@ -425,25 +436,99 @@ async function procesarPago() {
     }
 }
 
-// Procesar login (funcionalidad básica)
+// Procesar login
 async function procesarLogin() {
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
     
-    // Aquí puedes implementar la lógica de autenticación real
-    mostrarAlerta('Función de login en desarrollo');
-    document.getElementById('form-login').reset();
+    try {
+        const response = await fetch('/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            mostrarAlerta('Sesión iniciada correctamente');
+            document.getElementById('form-login').reset();
+            // Actualizar interfaz para usuario logueado
+            actualizarInterfazUsuario(data.usuario);
+        } else {
+            mostrarAlerta(data.error || 'Error al iniciar sesión', 'error');
+        }
+    } catch (error) {
+        console.error('Error al iniciar sesión:', error);
+        mostrarAlerta('Error de conexión', 'error');
+    }
 }
 
-// Procesar registro (funcionalidad básica)
+// Procesar registro
 async function procesarRegistro() {
     const nombre = document.getElementById('registro-nombre').value;
     const email = document.getElementById('registro-email').value;
     const password = document.getElementById('registro-password').value;
     
-    // Aquí puedes implementar la lógica de registro real
-    mostrarAlerta('Función de registro en desarrollo');
-    document.getElementById('form-registro').reset();
+    try {
+        const response = await fetch('/registro', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ nombre, email, password })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            mostrarAlerta('Usuario registrado correctamente');
+            document.getElementById('form-registro').reset();
+            // Cambiar a pestaña de login
+            mostrarAuthTab('login-form');
+        } else {
+            mostrarAlerta(data.error || 'Error al registrarse', 'error');
+        }
+    } catch (error) {
+        console.error('Error al registrarse:', error);
+        mostrarAlerta('Error de conexión', 'error');
+    }
+}
+
+// Actualizar interfaz para usuario logueado
+function actualizarInterfazUsuario(usuario) {
+    // Cambiar contenido de la pestaña de cuenta
+    const loginSection = document.getElementById('login');
+    loginSection.innerHTML = `
+        <h2>👤 Mi Cuenta</h2>
+        <div style="background: #e8f5e8; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+            <h3>Bienvenido, ${usuario.nombre}</h3>
+            <p><strong>Email:</strong> ${usuario.email}</p>
+            <p><strong>Miembro desde:</strong> ${new Date(usuario.fecha_registro).toLocaleDateString()}</p>
+        </div>
+        <button class="btn btn-danger" onclick="cerrarSesion()" style="width: 100%; padding: 15px;">
+            🚪 Cerrar Sesión
+        </button>
+    `;
+}
+
+// Cerrar sesión
+async function cerrarSesion() {
+    try {
+        const response = await fetch('/logout', {
+            method: 'POST'
+        });
+        
+        if (response.ok) {
+            mostrarAlerta('Sesión cerrada correctamente');
+            location.reload(); // Recargar página
+        }
+    } catch (error) {
+        console.error('Error al cerrar sesión:', error);
+        mostrarAlerta('Error al cerrar sesión', 'error');
+    }
 }
 
 // Función para manejar tabs de autenticación
