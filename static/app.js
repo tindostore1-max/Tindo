@@ -222,7 +222,7 @@ function verDetalleProducto(productoId) {
                             <div class="package-name">${paquete.nombre || 'Paquete'}</div>
                             <div class="package-price">${precio}</div>
                         </div>
-                        <button class="btn btn-success" onclick="agregarAlCarrito(${producto.id}, '${nombrePaquete}', ${parseFloat(paquete.precio) || 0})" style="padding: 12px 25px; font-size: 16px; font-weight: 600; border-radius: 25px; background: linear-gradient(135deg, #28a745, #20c997); border: none; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); transition: all 0.3s ease;">
+                        <button class="btn btn-success" onclick="agregarAlCarrito(${producto.id}, '${nombrePaquete}', ${parseFloat(paquete.precio) || 0}, event)" style="padding: 12px 25px; font-size: 16px; font-weight: 600; border-radius: 25px; background: linear-gradient(135deg, #28a745, #20c997); border: none; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); transition: all 0.3s ease;">
                             ✨ Agregar al carrito
                         </button>
                     </div>
@@ -254,7 +254,7 @@ function convertirPrecio(precioUSD) {
 }
 
 // Agregar producto al carrito
-function agregarAlCarrito(productoId, paqueteNombre, precio) {
+function agregarAlCarrito(productoId, paqueteNombre, precio, event) {
     // Verificar que se haya ingresado el ID de usuario
     const usuarioIdInput = document.getElementById('usuario-id-juego');
     if (!usuarioIdInput) {
@@ -311,13 +311,19 @@ function agregarAlCarrito(productoId, paqueteNombre, precio) {
     actualizarContadorCarrito();
     
     // Efecto visual en el botón
-    const btn = event.target;
-    if (btn) {
+    if (event && event.target) {
+        const btn = event.target;
+        const originalText = btn.innerHTML;
+        const originalBackground = btn.style.background;
+        
         btn.innerHTML = '✅ ¡Agregado!';
         btn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+        btn.disabled = true;
+        
         setTimeout(() => {
-            btn.innerHTML = '✨ Agregar al carrito';
-            btn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+            btn.innerHTML = originalText;
+            btn.style.background = originalBackground;
+            btn.disabled = false;
         }, 2000);
     }
 }
