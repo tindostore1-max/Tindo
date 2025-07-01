@@ -338,16 +338,25 @@ def delete_producto(producto_id):
     conn = get_db_connection()
     cur = conn.cursor()
     
-    # Eliminar paquetes primero
-    cur.execute('DELETE FROM paquetes WHERE juego_id = %s', (producto_id,))
-    # Eliminar producto
-    cur.execute('DELETE FROM juegos WHERE id = %s', (producto_id,))
-    
-    conn.commit()
-    cur.close()
-    conn.close()
-    
-    return jsonify({'message': 'Producto eliminado correctamente'})
+    try:
+        # Eliminar órdenes relacionadas primero
+        cur.execute('DELETE FROM ordenes WHERE juego_id = %s', (producto_id,))
+        # Eliminar paquetes
+        cur.execute('DELETE FROM paquetes WHERE juego_id = %s', (producto_id,))
+        # Eliminar producto
+        cur.execute('DELETE FROM juegos WHERE id = %s', (producto_id,))
+        
+        conn.commit()
+        cur.close()
+        conn.close()
+        
+        return jsonify({'message': 'Producto eliminado correctamente'})
+        
+    except Exception as e:
+        conn.rollback()
+        cur.close()
+        conn.close()
+        return jsonify({'error': f'Error al eliminar producto: {str(e)}'}), 500
 
 # ENDPOINT PÚBLICO PARA PRODUCTOS (FRONTEND DE USUARIOS)
 @app.route('/productos', methods=['GET'])
