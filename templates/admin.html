@@ -1,0 +1,722 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrador - Inefablestore</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 3px solid #e9ecef;
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 20px 30px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 16px;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .tab:hover {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .tab.active {
+            color: #007bff;
+            background: white;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #007bff;
+        }
+
+        .tab-content {
+            padding: 30px;
+            min-height: 600px;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border: 1px solid #e9ecef;
+        }
+
+        .card h3 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .table th,
+        .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-procesando {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-procesado {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .paquete-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .paquete-item input {
+            margin-bottom: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                padding: 15px 20px;
+                text-align: center;
+            }
+            
+            .container {
+                margin: 10px;
+            }
+            
+            .tab-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ Panel Administrador</h1>
+            <p>Inefablestore Management System</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('ordenes')">📦 Órdenes</button>
+            <button class="tab" onclick="showTab('productos')">🎮 Productos</button>
+            <button class="tab" onclick="showTab('imagenes')">🖼️ Imágenes</button>
+            <button class="tab" onclick="showTab('configuracion')">⚙️ Configuración</button>
+        </div>
+
+        <div class="tab-content">
+            <!-- TAB ÓRDENES -->
+            <div id="ordenes" class="tab-pane active">
+                <div class="card">
+                    <h3>📦 Gestión de Órdenes</h3>
+                    <button class="btn btn-primary" onclick="loadOrdenes()">🔄 Actualizar</button>
+                    <div id="ordenes-list" class="loading">Cargando órdenes...</div>
+                </div>
+            </div>
+
+            <!-- TAB PRODUCTOS -->
+            <div id="productos" class="tab-pane">
+                <div class="card">
+                    <h3>🎮 Gestión de Productos</h3>
+                    <button class="btn btn-success" onclick="showCreateProductForm()">➕ Nuevo Producto</button>
+                    <button class="btn btn-primary" onclick="loadProductos()">🔄 Actualizar</button>
+                </div>
+
+                <div id="create-product-form" style="display: none;" class="card">
+                    <h3>Crear Nuevo Producto</h3>
+                    <form id="product-form">
+                        <div class="form-group">
+                            <label>Nombre del Juego</label>
+                            <input type="text" id="product-name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Descripción</label>
+                            <textarea id="product-description" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>URL de la Imagen</label>
+                            <input type="text" id="product-image" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Paquetes</label>
+                            <div id="paquetes-container">
+                                <div class="paquete-item">
+                                    <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre">
+                                    <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio">
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-warning" onclick="addPaquete()">➕ Agregar Paquete</button>
+                        </div>
+                        <button type="submit" class="btn btn-success">💾 Guardar Producto</button>
+                        <button type="button" class="btn btn-danger" onclick="hideCreateProductForm()">❌ Cancelar</button>
+                    </form>
+                </div>
+
+                <div id="productos-list" class="loading">Cargando productos...</div>
+            </div>
+
+            <!-- TAB IMÁGENES -->
+            <div id="imagenes" class="tab-pane">
+                <div class="card">
+                    <h3>🖼️ Gestión de Imágenes</h3>
+                    <form id="upload-form" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label>Tipo de Imagen</label>
+                            <select id="image-type" class="form-control">
+                                <option value="logo">Logo</option>
+                                <option value="carrusel">Carrusel</option>
+                                <option value="producto">Producto</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Seleccionar Imagen</label>
+                            <input type="file" id="image-file" class="form-control" accept="image/*" required>
+                        </div>
+                        <button type="submit" class="btn btn-success">📤 Subir Imagen</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h3>Imágenes Subidas</h3>
+                    <button class="btn btn-primary" onclick="loadImagenes()">🔄 Actualizar</button>
+                    <div id="imagenes-list" class="loading">Cargando imágenes...</div>
+                </div>
+            </div>
+
+            <!-- TAB CONFIGURACIÓN -->
+            <div id="configuracion" class="tab-pane">
+                <div class="card">
+                    <h3>⚙️ Configuración del Sistema</h3>
+                    <form id="config-form">
+                        <div class="form-group">
+                            <label>Logo Principal (URL)</label>
+                            <input type="text" id="config-logo" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Tasa USD a VES</label>
+                            <input type="number" step="0.01" id="config-tasa" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Datos Pago Móvil</label>
+                            <textarea id="config-pago-movil" class="form-control" rows="3" placeholder="Número: 0424-1234567&#10;Titular: Juan Pérez&#10;Banco: Banesco"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Datos Binance</label>
+                            <textarea id="config-binance" class="form-control" rows="3" placeholder="Email: usuario@email.com&#10;ID: 123456789"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success">💾 Guardar Configuración</button>
+                        <button type="button" class="btn btn-primary" onclick="loadConfig()">🔄 Cargar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Funciones para cambiar pestañas
+        function showTab(tabName) {
+            // Ocultar todas las pestañas
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.remove('active');
+            });
+            
+            // Quitar clase active de todos los tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Mostrar pestaña seleccionada
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            // Cargar datos según la pestaña
+            if (tabName === 'ordenes') loadOrdenes();
+            if (tabName === 'productos') loadProductos();
+            if (tabName === 'imagenes') loadImagenes();
+            if (tabName === 'configuracion') loadConfig();
+        }
+
+        // Funciones para mostrar alertas
+        function showAlert(message, type = 'success') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            
+            const container = document.querySelector('.tab-pane.active .card');
+            container.insertBefore(alertDiv, container.firstChild);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+
+        // FUNCIONES PARA ÓRDENES
+        async function loadOrdenes() {
+            try {
+                const response = await fetch('/admin/ordenes');
+                const ordenes = await response.json();
+                
+                let html = '<table class="table"><thead><tr><th>ID</th><th>Juego</th><th>Paquete</th><th>Monto</th><th>Usuario</th><th>Método</th><th>Referencia</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr></thead><tbody>';
+                
+                ordenes.forEach(orden => {
+                    html += `
+                        <tr>
+                            <td>${orden.id}</td>
+                            <td>${orden.juego_nombre || 'N/A'}</td>
+                            <td>${orden.paquete}</td>
+                            <td>$${orden.monto}</td>
+                            <td>${orden.usuario_email}</td>
+                            <td>${orden.metodo_pago}</td>
+                            <td>${orden.referencia_pago}</td>
+                            <td><span class="status-badge status-${orden.estado}">${orden.estado}</span></td>
+                            <td>${new Date(orden.fecha).toLocaleString()}</td>
+                            <td>
+                                <button class="btn btn-warning" onclick="updateEstado(${orden.id}, '${orden.estado === 'procesando' ? 'procesado' : 'procesando'}')">
+                                    ${orden.estado === 'procesando' ? '✅ Procesar' : '⏳ Desprocesar'}
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                html += '</tbody></table>';
+                document.getElementById('ordenes-list').innerHTML = html;
+            } catch (error) {
+                document.getElementById('ordenes-list').innerHTML = '<p>Error al cargar órdenes</p>';
+            }
+        }
+
+        async function updateEstado(ordenId, nuevoEstado) {
+            try {
+                const response = await fetch(`/admin/orden/${ordenId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ estado: nuevoEstado })
+                });
+                
+                if (response.ok) {
+                    showAlert('Estado actualizado correctamente');
+                    loadOrdenes();
+                } else {
+                    showAlert('Error al actualizar estado', 'error');
+                }
+            } catch (error) {
+                showAlert('Error al actualizar estado', 'error');
+            }
+        }
+
+        // FUNCIONES PARA PRODUCTOS
+        async function loadProductos() {
+            try {
+                const response = await fetch('/admin/productos');
+                const productos = await response.json();
+                
+                let html = '';
+                
+                productos.forEach(producto => {
+                    html += `
+                        <div class="card">
+                            <h4>${producto.nombre}</h4>
+                            <p><strong>Descripción:</strong> ${producto.descripcion || 'Sin descripción'}</p>
+                            <p><strong>Imagen:</strong> ${producto.imagen || 'Sin imagen'}</p>
+                            <h5>Paquetes:</h5>
+                            <ul>
+                    `;
+                    
+                    if (producto.paquetes) {
+                        producto.paquetes.forEach(paquete => {
+                            html += `<li>${paquete.nombre} - $${paquete.precio}</li>`;
+                        });
+                    }
+                    
+                    html += `
+                            </ul>
+                            <button class="btn btn-warning" onclick="editProduct(${producto.id})">✏️ Editar</button>
+                            <button class="btn btn-danger" onclick="deleteProduct(${producto.id})">🗑️ Eliminar</button>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('productos-list').innerHTML = html || '<p>No hay productos disponibles</p>';
+            } catch (error) {
+                document.getElementById('productos-list').innerHTML = '<p>Error al cargar productos</p>';
+            }
+        }
+
+        function showCreateProductForm() {
+            document.getElementById('create-product-form').style.display = 'block';
+        }
+
+        function hideCreateProductForm() {
+            document.getElementById('create-product-form').style.display = 'none';
+            document.getElementById('product-form').reset();
+        }
+
+        function addPaquete() {
+            const container = document.getElementById('paquetes-container');
+            const paqueteDiv = document.createElement('div');
+            paqueteDiv.className = 'paquete-item';
+            paqueteDiv.innerHTML = `
+                <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre">
+                <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio">
+                <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()">❌ Quitar</button>
+            `;
+            container.appendChild(paqueteDiv);
+        }
+
+        document.getElementById('product-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const nombre = document.getElementById('product-name').value;
+            const descripcion = document.getElementById('product-description').value;
+            const imagen = document.getElementById('product-image').value;
+            
+            const paquetes = [];
+            document.querySelectorAll('.paquete-item').forEach(item => {
+                const nombrePaquete = item.querySelector('.paquete-nombre').value;
+                const precio = item.querySelector('.paquete-precio').value;
+                if (nombrePaquete && precio) {
+                    paquetes.push({ nombre: nombrePaquete, precio: parseFloat(precio) });
+                }
+            });
+            
+            try {
+                const response = await fetch('/admin/producto', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        nombre,
+                        descripcion,
+                        imagen,
+                        paquetes
+                    })
+                });
+                
+                if (response.ok) {
+                    showAlert('Producto creado correctamente');
+                    hideCreateProductForm();
+                    loadProductos();
+                } else {
+                    showAlert('Error al crear producto', 'error');
+                }
+            } catch (error) {
+                showAlert('Error al crear producto', 'error');
+            }
+        });
+
+        async function deleteProduct(productId) {
+            if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+                try {
+                    const response = await fetch(`/admin/producto/${productId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (response.ok) {
+                        showAlert('Producto eliminado correctamente');
+                        loadProductos();
+                    } else {
+                        showAlert('Error al eliminar producto', 'error');
+                    }
+                } catch (error) {
+                    showAlert('Error al eliminar producto', 'error');
+                }
+            }
+        }
+
+        // FUNCIONES PARA IMÁGENES
+        async function loadImagenes() {
+            try {
+                const response = await fetch('/admin/imagenes');
+                const imagenes = await response.json();
+                
+                let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">';
+                
+                imagenes.forEach(imagen => {
+                    html += `
+                        <div class="card" style="text-align: center;">
+                            <img src="/static/${imagen.ruta}" alt="${imagen.tipo}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px;">
+                            <p><strong>Tipo:</strong> ${imagen.tipo}</p>
+                            <p><small>${imagen.ruta}</small></p>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+                document.getElementById('imagenes-list').innerHTML = html || '<p>No hay imágenes disponibles</p>';
+            } catch (error) {
+                document.getElementById('imagenes-list').innerHTML = '<p>Error al cargar imágenes</p>';
+            }
+        }
+
+        document.getElementById('upload-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            const file = document.getElementById('image-file').files[0];
+            const tipo = document.getElementById('image-type').value;
+            
+            formData.append('imagen', file);
+            formData.append('tipo', tipo);
+            
+            try {
+                const response = await fetch('/admin/imagenes', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    showAlert('Imagen subida correctamente');
+                    document.getElementById('upload-form').reset();
+                    loadImagenes();
+                } else {
+                    showAlert('Error al subir imagen', 'error');
+                }
+            } catch (error) {
+                showAlert('Error al subir imagen', 'error');
+            }
+        });
+
+        // FUNCIONES PARA CONFIGURACIÓN
+        async function loadConfig() {
+            try {
+                const response = await fetch('/admin/config');
+                const config = await response.json();
+                
+                document.getElementById('config-logo').value = config.logo || '';
+                document.getElementById('config-tasa').value = config.tasa_usd_ves || '';
+                document.getElementById('config-pago-movil').value = config.pago_movil || '';
+                document.getElementById('config-binance').value = config.binance || '';
+            } catch (error) {
+                showAlert('Error al cargar configuración', 'error');
+            }
+        }
+
+        document.getElementById('config-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const config = {
+                logo: document.getElementById('config-logo').value,
+                tasa_usd_ves: document.getElementById('config-tasa').value,
+                pago_movil: document.getElementById('config-pago-movil').value,
+                binance: document.getElementById('config-binance').value
+            };
+            
+            try {
+                const response = await fetch('/admin/config', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(config)
+                });
+                
+                if (response.ok) {
+                    showAlert('Configuración guardada correctamente');
+                } else {
+                    showAlert('Error al guardar configuración', 'error');
+                }
+            } catch (error) {
+                showAlert('Error al guardar configuración', 'error');
+            }
+        });
+
+        // Cargar datos iniciales
+        document.addEventListener('DOMContentLoaded', function() {
+            loadOrdenes();
+        });
+    </script>
+</body>
+</html>
