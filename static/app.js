@@ -217,13 +217,13 @@ function verDetalleProducto(productoId) {
                 const precio = convertirPrecio(parseFloat(paquete.precio) || 0);
                 const nombrePaquete = (paquete.nombre || 'Paquete').replace(/'/g, "\\'");
                 html += `
-                    <div class="package-item" style="margin-bottom: 15px; padding: 15px;">
-                        <div>
-                            <div style="font-weight: 600; font-size: 16px;">${paquete.nombre || 'Paquete'}</div>
-                            <div style="color: #28a745; font-weight: 700; font-size: 18px;">${precio}</div>
+                    <div class="package-item" style="margin-bottom: 20px;">
+                        <div class="package-info">
+                            <div class="package-name">${paquete.nombre || 'Paquete'}</div>
+                            <div class="package-price">${precio}</div>
                         </div>
-                        <button class="btn btn-success" onclick="agregarAlCarrito(${producto.id}, '${nombrePaquete}', ${parseFloat(paquete.precio) || 0})">
-                            🛒 Agregar al carrito
+                        <button class="btn btn-success" onclick="agregarAlCarrito(${producto.id}, '${nombrePaquete}', ${parseFloat(paquete.precio) || 0})" style="padding: 12px 25px; font-size: 16px; font-weight: 600; border-radius: 25px; background: linear-gradient(135deg, #28a745, #20c997); border: none; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); transition: all 0.3s ease;">
+                            ✨ Agregar al carrito
                         </button>
                     </div>
                 `;
@@ -290,7 +290,7 @@ function agregarAlCarrito(productoId, paqueteNombre, precio) {
     }
 
     actualizarContadorCarrito();
-    mostrarAlerta(`${paqueteNombre} agregado al carrito`);
+    mostrarAlerta(`🎉 ¡Genial! ${paqueteNombre} se agregó exitosamente a tu carrito. ¡Continúa comprando o procede al pago! 🛒✨`);
 }
 
 // Actualizar contador del carrito
