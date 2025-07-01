@@ -30,18 +30,35 @@ async function verificarSesion() {
 // Funciones de navegación
 function mostrarTab(tabName) {
     // Ocultar todas las secciones
-    document.querySelectorAll('.tab-section').forEach(section => {
+    const sections = document.querySelectorAll('.tab-section');
+    sections.forEach(section => {
         section.classList.remove('active');
     });
 
     // Quitar clase active de todos los botones
-    document.querySelectorAll('.nav-btn').forEach(btn => {
+    const navBtns = document.querySelectorAll('.nav-btn');
+    navBtns.forEach(btn => {
         btn.classList.remove('active');
     });
 
     // Mostrar sección seleccionada
-    document.getElementById(tabName).classList.add('active');
-    event.target.classList.add('active');
+    const targetSection = document.getElementById(tabName);
+    if (targetSection) {
+        targetSection.classList.add('active');
+    }
+
+    // Activar botón correspondiente - verificar que event existe
+    if (typeof event !== 'undefined' && event.target) {
+        event.target.classList.add('active');
+    } else {
+        // Buscar el botón correspondiente por el texto o atributo
+        const correspondingBtn = Array.from(navBtns).find(btn => 
+            btn.onclick && btn.onclick.toString().includes(tabName)
+        );
+        if (correspondingBtn) {
+            correspondingBtn.classList.add('active');
+        }
+    }
 
     // Cargar datos específicos según la pestaña
     if (tabName === 'carrito') {
@@ -69,11 +86,20 @@ function mostrarAlerta(mensaje, tipo = 'success') {
 async function cargarConfiguracion() {
     try {
         const response = await fetch('/config');
+        
+        if (!response.ok) {
+            console.warn('No se pudo cargar la configuración del servidor');
+            return;
+        }
+        
         configuracion = await response.json();
 
         // Actualizar logo si existe
         if (configuracion.logo) {
-            document.getElementById('logo-img').src = configuracion.logo;
+            const logoImg = document.getElementById('logo-img');
+            if (logoImg) {
+                logoImg.src = configuracion.logo;
+            }
         }
 
         // Actualizar tasa de cambio
@@ -81,23 +107,42 @@ async function cargarConfiguracion() {
             tasaUSDVES = parseFloat(configuracion.tasa_usd_ves);
         }
     } catch (error) {
-        console.error('Error al cargar configuración:', error);
+        console.warn('Error al cargar configuración:', error.message || 'Error desconocido');
+        // Usar configuración por defecto
+        configuracion = {
+            tasa_usd_ves: '36.50',
+            pago_movil: 'Información no disponible',
+            binance: 'Información no disponible'
+        };
+        tasaUSDVES = 36.50;
     }
 }
 
 // Cargar productos del backend
 async function cargarProductos() {
+    const productosGrid = document.getElementById('productos-grid');
+    
     try {
         const response = await fetch('/productos');
+        
         if (!response.ok) {
             throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
+        
         productos = await response.json();
         console.log('Productos cargados:', productos);
         mostrarProductos();
     } catch (error) {
-        console.error('Error al cargar productos:', error);
-        document.getElementById('productos-grid').innerHTML = '<p>Error al cargar productos. Verifica la conexión.</p>';
+        console.error('Error al cargar productos:', error.message || 'Error desconocido');
+        if (productosGrid) {
+            productosGrid.innerHTML = `
+                <div class="no-products">
+                    <h3>Error al cargar productos</h3>
+                    <p>No se pudieron cargar los productos. Verifica la conexión e intenta recargar la página.</p>
+                    <button class="btn btn-primary" onclick="cargarProductos()">🔄 Reintentar</button>
+                </div>
+            `;
+        }
     }
 }
 
@@ -437,8 +482,21 @@ async function procesarPago() {
 
 // Procesar login
 async function procesarLogin() {
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
+    const emailElement = document.getElementById('login-email');
+    const passwordElement = document.getElementById('login-password');
+    
+    if (!emailElement || !passwordElement) {
+        mostrarAlerta('Error en el formulario de login', 'error');
+        return;
+    }
+
+    const email = emailElement.value;
+    const password = passwordElement.value;
+
+    if (!email || !password) {
+        mostrarAlerta('Por favor completa todos los campos', 'error');
+        return;
+    }
 
     try {
         const response = await fetch('/login', {
@@ -453,7 +511,10 @@ async function procesarLogin() {
 
         if (response.ok) {
             mostrarAlerta('Sesión iniciada correctamente');
-            document.getElementById('form-login').reset();
+            const formElement = document.getElementById('form-login');
+            if (formElement) {
+                formElement.reset();
+            }
             // Actualizar interfaz para usuario logueado
             actualizarInterfazUsuario(data.usuario);
         } else {
@@ -467,9 +528,23 @@ async function procesarLogin() {
 
 // Procesar registro
 async function procesarRegistro() {
-    const nombre = document.getElementById('registro-nombre').value;
-    const email = document.getElementById('registro-email').value;
-    const password = document.getElementById('registro-password').value;
+    const nombreElement = document.getElementById('registro-nombre');
+    const emailElement = document.getElementById('registro-email');
+    const passwordElement = document.getElementById('registro-password');
+    
+    if (!nombreElement || !emailElement || !passwordElement) {
+        mostrarAlerta('Error en el formulario de registro', 'error');
+        return;
+    }
+
+    const nombre = nombreElement.value;
+    const email = emailElement.value;
+    const password = passwordElement.value;
+
+    if (!nombre || !email || !password) {
+        mostrarAlerta('Por favor completa todos los campos', 'error');
+        return;
+    }
 
     try {
         const response = await fetch('/registro', {
@@ -484,7 +559,10 @@ async function procesarRegistro() {
 
         if (response.ok) {
             mostrarAlerta('Usuario registrado correctamente');
-            document.getElementById('form-registro').reset();
+            const formElement = document.getElementById('form-registro');
+            if (formElement) {
+                formElement.reset();
+            }
             // Cambiar a pestaña de login
             mostrarAuthTab('login-form');
         } else {
@@ -507,9 +585,22 @@ function actualizarInterfazUsuario(usuario) {
             <p><strong>Email:</strong> ${usuario.email}</p>
             <p><strong>Miembro desde:</strong> ${new Date(usuario.fecha_registro).toLocaleDateString()}</p>
         </div>
-        <button class="btn btn-danger" onclick="cerrarSesion()" style="width: 100%; padding: 15px;">
-            🚪 Cerrar Sesión
-        </button>
+        
+        <div style="margin-bottom: 20px;">
+            <button class="btn btn-primary" onclick="mostrarHistorialCompras()" style="width: 100%; padding: 15px; margin-bottom: 10px;">
+                📋 Ver Historial de Compras
+            </button>
+            <button class="btn btn-danger" onclick="cerrarSesion()" style="width: 100%; padding: 15px;">
+                🚪 Cerrar Sesión
+            </button>
+        </div>
+        
+        <div id="historial-compras" style="display: none;">
+            <h3>📋 Historial de Compras</h3>
+            <div id="lista-compras">
+                <div class="loading">Cargando historial...</div>
+            </div>
+        </div>
     `;
 }
 
@@ -530,19 +621,113 @@ async function cerrarSesion() {
     }
 }
 
+// Mostrar historial de compras
+async function mostrarHistorialCompras() {
+    const historialDiv = document.getElementById('historial-compras');
+    const listaCompras = document.getElementById('lista-compras');
+    
+    if (!historialDiv) return;
+    
+    // Mostrar el contenedor del historial
+    historialDiv.style.display = 'block';
+    listaCompras.innerHTML = '<div class="loading">Cargando historial...</div>';
+
+    try {
+        const response = await fetch('/usuario/historial');
+        
+        if (!response.ok) {
+            throw new Error('Error al cargar historial');
+        }
+
+        const historial = await response.json();
+        
+        if (historial.length === 0) {
+            listaCompras.innerHTML = `
+                <div class="no-purchases">
+                    <i>🛒</i>
+                    <h3>No tienes compras aún</h3>
+                    <p>Cuando realices tu primera compra, aparecerá aquí.</p>
+                </div>
+            `;
+            return;
+        }
+
+        let html = '';
+        historial.forEach(compra => {
+            const fecha = new Date(compra.fecha).toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            let imagenUrl = compra.juego_imagen || '';
+            if (imagenUrl && !imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
+                imagenUrl = `/static/${imagenUrl}`;
+            }
+            if (!imagenUrl) {
+                imagenUrl = 'https://via.placeholder.com/60x60/007bff/ffffff?text=Juego';
+            }
+
+            html += `
+                <div class="purchase-card">
+                    <div class="purchase-header">
+                        <img src="${imagenUrl}" alt="${compra.juego_nombre || 'Juego'}" class="purchase-game-image" onerror="this.src='https://via.placeholder.com/60x60/007bff/ffffff?text=Juego'">
+                        <div class="purchase-info">
+                            <h4>${compra.juego_nombre || 'Juego'}</h4>
+                            <p class="purchase-package">${compra.paquete}</p>
+                            <p class="purchase-date">${fecha}</p>
+                        </div>
+                    </div>
+                    <div class="purchase-details">
+                        <span class="purchase-amount">$${parseFloat(compra.monto).toFixed(2)}</span>
+                        <span class="purchase-status ${compra.estado}">${compra.estado.toUpperCase()}</span>
+                    </div>
+                    <div class="purchase-payment">
+                        <small><strong>Método:</strong> ${compra.metodo_pago}</small>
+                        <small><strong>Referencia:</strong> ${compra.referencia_pago}</small>
+                    </div>
+                    ${compra.usuario_id ? `<div style="margin-top: 10px;"><small><strong>ID Usuario:</strong> ${compra.usuario_id}</small></div>` : ''}
+                </div>
+            `;
+        });
+
+        listaCompras.innerHTML = html;
+
+    } catch (error) {
+        console.error('Error al cargar historial:', error);
+        listaCompras.innerHTML = '<p style="color: #dc3545;">Error al cargar el historial de compras</p>';
+    }
+}
+
 // Función para manejar tabs de autenticación
 function mostrarAuthTab(tabName) {
+    // Verificar que los elementos existen antes de manipularlos
+    const authContents = document.querySelectorAll('.auth-content');
+    const authTabs = document.querySelectorAll('.auth-tab');
+    const targetContent = document.getElementById(tabName);
+    
+    if (!authContents.length || !authTabs.length || !targetContent) {
+        console.error('Elementos de autenticación no encontrados');
+        return;
+    }
+
     // Ocultar todos los contenidos
-    document.querySelectorAll('.auth-content').forEach(content => {
+    authContents.forEach(content => {
         content.classList.remove('active');
     });
 
     // Quitar clase active de todos los tabs
-    document.querySelectorAll('.auth-tab').forEach(tab => {
+    authTabs.forEach(tab => {
         tab.classList.remove('active');
     });
 
     // Mostrar contenido seleccionado
-    document.getElementById(tabName).classList.add('active');
-    event.target.classList.add('active');
+    targetContent.classList.add('active');
+    
+    // Verificar que event y event.target existen
+    if (typeof event !== 'undefined' && event.target) {
+        event.target.classList.add('active');
+    }
 }
