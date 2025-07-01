@@ -218,14 +218,20 @@ def admin():
 # ENDPOINT PARA CREAR ÓRDENES DESDE EL FRONTEND
 @app.route('/orden', methods=['POST'])
 def create_orden():
+    # Verificar si el usuario está logueado
+    if 'user_id' not in session:
+        return jsonify({'error': 'Debes iniciar sesión para realizar una compra'}), 401
+
     data = request.get_json()
     juego_id = data.get('juego_id')
     paquete = data.get('paquete')
     monto = data.get('monto')
-    usuario_email = data.get('usuario_email')
     usuario_id = data.get('usuario_id')  # ID del usuario en el juego
     metodo_pago = data.get('metodo_pago')
     referencia_pago = data.get('referencia_pago')
+
+    # Usar el email del usuario logueado
+    usuario_email = session['user_email']
 
     conn = get_db_connection()
     cur = conn.cursor()
@@ -638,6 +644,30 @@ def get_usuario():
         })
     else:
         return jsonify({'error': 'Usuario no encontrado'}), 404
+
+@app.route('/usuario/historial', methods=['GET'])
+def get_historial_compras():
+    if 'user_id' not in session:
+        return jsonify({'error': 'No hay sesión activa'}), 401
+
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    # Obtener historial de compras del usuario logueado
+    cur.execute('''
+        SELECT o.*, j.nombre as juego_nombre, j.imagen as juego_imagen
+        FROM ordenes o 
+        LEFT JOIN juegos j ON o.juego_id = j.id 
+        LEFT JOIN usuarios u ON o.usuario_email = u.email
+        WHERE u.id = %s
+        ORDER BY o.fecha DESC
+    ''', (session['user_id'],))
+    
+    historial = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    return jsonify([dict(compra) for compra in historial])
 
 if __name__ == '__main__':
     # Crear directorio para imágenes

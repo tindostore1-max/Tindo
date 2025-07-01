@@ -1,4 +1,3 @@
-
 // Variables globales
 let productos = [];
 let carrito = [];
@@ -34,16 +33,16 @@ function mostrarTab(tabName) {
     document.querySelectorAll('.tab-section').forEach(section => {
         section.classList.remove('active');
     });
-    
+
     // Quitar clase active de todos los botones
     document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.classList.remove('active');
     });
-    
+
     // Mostrar sección seleccionada
     document.getElementById(tabName).classList.add('active');
     event.target.classList.add('active');
-    
+
     // Cargar datos específicos según la pestaña
     if (tabName === 'carrito') {
         mostrarCarrito();
@@ -57,10 +56,10 @@ function mostrarAlerta(mensaje, tipo = 'success') {
     const alertDiv = document.createElement('div');
     alertDiv.className = `alert alert-${tipo}`;
     alertDiv.textContent = mensaje;
-    
+
     const contenido = document.querySelector('.content');
     contenido.insertBefore(alertDiv, contenido.firstChild);
-    
+
     setTimeout(() => {
         alertDiv.remove();
     }, 4000);
@@ -71,12 +70,12 @@ async function cargarConfiguracion() {
     try {
         const response = await fetch('/config');
         configuracion = await response.json();
-        
+
         // Actualizar logo si existe
         if (configuracion.logo) {
             document.getElementById('logo-img').src = configuracion.logo;
         }
-        
+
         // Actualizar tasa de cambio
         if (configuracion.tasa_usd_ves) {
             tasaUSDVES = parseFloat(configuracion.tasa_usd_ves);
@@ -106,12 +105,12 @@ async function cargarProductos() {
 function mostrarProductos() {
     const grid = document.getElementById('productos-grid');
     grid.className = 'product-grid';
-    
+
     if (!productos || productos.length === 0) {
         grid.innerHTML = '<p>No hay productos disponibles</p>';
         return;
     }
-    
+
     let html = '';
     productos.forEach(producto => {
         // Corregir ruta de imagen
@@ -122,13 +121,13 @@ function mostrarProductos() {
         if (!imagenUrl) {
             imagenUrl = 'https://via.placeholder.com/300x200/007bff/ffffff?text=Producto';
         }
-        
+
         // Calcular precio más bajo
         let precioMinimo = 0;
         if (producto.paquetes && Array.isArray(producto.paquetes) && producto.paquetes.length > 0) {
             precioMinimo = Math.min(...producto.paquetes.map(p => parseFloat(p.precio) || 0));
         }
-        
+
         html += `
             <div class="product-card" onclick="verDetalleProducto(${producto.id})">
                 <img src="${imagenUrl}" alt="${producto.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
@@ -138,7 +137,7 @@ function mostrarProductos() {
             </div>
         `;
     });
-    
+
     grid.innerHTML = html;
 }
 
@@ -146,9 +145,9 @@ function mostrarProductos() {
 function verDetalleProducto(productoId) {
     const producto = productos.find(p => p.id === productoId);
     if (!producto) return;
-    
+
     productoSeleccionado = producto;
-    
+
     // Corregir ruta de imagen
     let imagenUrl = producto.imagen || '';
     if (imagenUrl && !imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
@@ -157,7 +156,7 @@ function verDetalleProducto(productoId) {
     if (!imagenUrl) {
         imagenUrl = 'https://via.placeholder.com/400x300/007bff/ffffff?text=Producto';
     }
-    
+
     let html = `
         <div style="margin-top: 20px;">
             <img src="${imagenUrl}" alt="${producto.nombre || 'Producto'}" style="width: 100%; max-width: 400px; height: 300px; object-fit: cover; border-radius: 15px; margin-bottom: 20px;" onerror="this.src='https://via.placeholder.com/400x300/007bff/ffffff?text=Producto'">
@@ -166,7 +165,7 @@ function verDetalleProducto(productoId) {
             <h3>📦 Paquetes Disponibles</h3>
             <div class="package-list" style="margin-top: 20px;">
     `;
-    
+
     if (producto.paquetes && Array.isArray(producto.paquetes) && producto.paquetes.length > 0) {
         producto.paquetes.forEach(paquete => {
             try {
@@ -190,12 +189,12 @@ function verDetalleProducto(productoId) {
     } else {
         html += '<p>No hay paquetes disponibles para este producto.</p>';
     }
-    
+
     html += '</div></div>';
-    
+
     document.getElementById('producto-detalle').innerHTML = html;
     mostrarTab('detalles');
-    
+
     // Actualizar botón activo manualmente
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
 }
@@ -218,10 +217,10 @@ function agregarAlCarrito(productoId, paqueteNombre, precio) {
         document.getElementById('usuario-id-juego').focus();
         return;
     }
-    
+
     const producto = productos.find(p => p.id === productoId);
     if (!producto) return;
-    
+
     const item = {
         id: Date.now(), // ID único para el item del carrito
         productoId,
@@ -231,20 +230,20 @@ function agregarAlCarrito(productoId, paqueteNombre, precio) {
         cantidad: 1,
         usuarioId: usuarioId // Guardar el ID del usuario
     };
-    
+
     // Verificar si ya existe el mismo item con el mismo ID de usuario
     const existeItem = carrito.find(item => 
         item.productoId === productoId && 
         item.paqueteNombre === paqueteNombre && 
         item.usuarioId === usuarioId
     );
-    
+
     if (existeItem) {
         existeItem.cantidad += 1;
     } else {
         carrito.push(item);
     }
-    
+
     actualizarContadorCarrito();
     mostrarAlerta(`${paqueteNombre} agregado al carrito`);
 }
@@ -258,20 +257,20 @@ function actualizarContadorCarrito() {
 // Mostrar carrito
 function mostrarCarrito() {
     const container = document.getElementById('carrito-items');
-    
+
     if (carrito.length === 0) {
         container.innerHTML = '<p style="text-align: center; color: #6c757d; padding: 40px;">Tu carrito está vacío</p>';
         document.getElementById('carrito-total').textContent = 'Total: $0.00';
         return;
     }
-    
+
     let html = '';
     let total = 0;
-    
+
     carrito.forEach(item => {
         const subtotal = item.precio * item.cantidad;
         total += subtotal;
-        
+
         html += `
             <div class="cart-item">
                 <div>
@@ -289,7 +288,7 @@ function mostrarCarrito() {
             </div>
         `;
     });
-    
+
     container.innerHTML = html;
     document.getElementById('carrito-total').textContent = `Total: ${convertirPrecio(total)}`;
 }
@@ -298,9 +297,9 @@ function mostrarCarrito() {
 function cambiarCantidad(itemId, cambio) {
     const item = carrito.find(i => i.id === itemId);
     if (!item) return;
-    
+
     item.cantidad += cambio;
-    
+
     if (item.cantidad <= 0) {
         eliminarDelCarrito(itemId);
     } else {
@@ -332,12 +331,12 @@ function procederAlPago() {
 function prepararPago() {
     // Cargar total del carrito
     const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-    
+
     // Mostrar información según método seleccionado
     const metodoSelect = document.getElementById('metodo-pago');
     metodoSelect.addEventListener('change', function() {
         const infoPago = document.getElementById('info-pago');
-        
+
         if (this.value === 'Pago Móvil' && configuracion.pago_movil) {
             infoPago.innerHTML = `
                 <h4>📱 Información de Pago Móvil</h4>
@@ -366,19 +365,19 @@ function inicializarEventos() {
         mostrarProductos();
         mostrarCarrito();
     });
-    
+
     // Formulario de pago
     document.getElementById('form-pago').addEventListener('submit', async function(e) {
         e.preventDefault();
         await procesarPago();
     });
-    
+
     // Formulario de login
     document.getElementById('form-login').addEventListener('submit', async function(e) {
         e.preventDefault();
         await procesarLogin();
     });
-    
+
     // Formulario de registro
     document.getElementById('form-registro').addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -391,12 +390,12 @@ async function procesarPago() {
     const email = document.getElementById('pago-email').value;
     const metodoPago = document.getElementById('metodo-pago').value;
     const referencia = document.getElementById('referencia-pago').value;
-    
+
     if (carrito.length === 0) {
         mostrarAlerta('Tu carrito está vacío', 'error');
         return;
     }
-    
+
     try {
         // Crear una orden por cada item del carrito
         for (const item of carrito) {
@@ -409,7 +408,7 @@ async function procesarPago() {
                 metodo_pago: metodoPago,
                 referencia_pago: referencia
             };
-            
+
             const response = await fetch('/orden', {
                 method: 'POST',
                 headers: {
@@ -417,19 +416,19 @@ async function procesarPago() {
                 },
                 body: JSON.stringify(orden)
             });
-            
+
             if (!response.ok) {
                 throw new Error('Error al procesar la orden');
             }
         }
-        
+
         // Limpiar carrito y mostrar éxito
         carrito = [];
         actualizarContadorCarrito();
         document.getElementById('form-pago').reset();
         mostrarAlerta('¡Pago procesado correctamente! Te contactaremos pronto.');
         mostrarTab('catalogo');
-        
+
     } catch (error) {
         console.error('Error al procesar pago:', error);
         mostrarAlerta('Error al procesar el pago. Inténtalo de nuevo.', 'error');
@@ -440,7 +439,7 @@ async function procesarPago() {
 async function procesarLogin() {
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
-    
+
     try {
         const response = await fetch('/login', {
             method: 'POST',
@@ -449,9 +448,9 @@ async function procesarLogin() {
             },
             body: JSON.stringify({ email, password })
         });
-        
+
         const data = await response.json();
-        
+
         if (response.ok) {
             mostrarAlerta('Sesión iniciada correctamente');
             document.getElementById('form-login').reset();
@@ -471,7 +470,7 @@ async function procesarRegistro() {
     const nombre = document.getElementById('registro-nombre').value;
     const email = document.getElementById('registro-email').value;
     const password = document.getElementById('registro-password').value;
-    
+
     try {
         const response = await fetch('/registro', {
             method: 'POST',
@@ -480,9 +479,9 @@ async function procesarRegistro() {
             },
             body: JSON.stringify({ nombre, email, password })
         });
-        
+
         const data = await response.json();
-        
+
         if (response.ok) {
             mostrarAlerta('Usuario registrado correctamente');
             document.getElementById('form-registro').reset();
@@ -520,7 +519,7 @@ async function cerrarSesion() {
         const response = await fetch('/logout', {
             method: 'POST'
         });
-        
+
         if (response.ok) {
             mostrarAlerta('Sesión cerrada correctamente');
             location.reload(); // Recargar página
@@ -537,12 +536,12 @@ function mostrarAuthTab(tabName) {
     document.querySelectorAll('.auth-content').forEach(content => {
         content.classList.remove('active');
     });
-    
+
     // Quitar clase active de todos los tabs
     document.querySelectorAll('.auth-tab').forEach(tab => {
         tab.classList.remove('active');
     });
-    
+
     // Mostrar contenido seleccionado
     document.getElementById(tabName).classList.add('active');
     event.target.classList.add('active');
