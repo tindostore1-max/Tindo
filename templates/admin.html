@@ -727,6 +727,7 @@
                             <img src="/static/${imagen.ruta}" alt="${imagen.tipo}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px;">
                             <p><strong>Tipo:</strong> ${imagen.tipo}</p>
                             <p><small>${imagen.ruta}</small></p>
+                            <button class="btn btn-danger" onclick="deleteImagen(${imagen.id})" style="margin-top: 10px;">🗑️ Eliminar</button>
                         </div>
                     `;
                 });
@@ -809,6 +810,27 @@
                 showAlert('Error al guardar configuración', 'error');
             }
         });
+
+        // Función para eliminar imagen
+        async function deleteImagen(imagenId) {
+            if (confirm('¿Estás seguro de que quieres eliminar esta imagen?')) {
+                try {
+                    const response = await fetch(`/admin/imagen/${imagenId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (response.ok) {
+                        showAlert('Imagen eliminada correctamente');
+                        loadImagenes();
+                    } else {
+                        const error = await response.json();
+                        showAlert(error.error || 'Error al eliminar imagen', 'error');
+                    }
+                } catch (error) {
+                    showAlert('Error al eliminar imagen', 'error');
+                }
+            }
+        }
 
         // Cargar datos iniciales
         document.addEventListener('DOMContentLoaded', function() {
