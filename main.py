@@ -98,7 +98,38 @@ def init_db():
 
 @app.route('/')
 def index():
+    return render_template('index.html')
+
+@app.route('/admin')
+def admin():
     return render_template('admin.html')
+
+# ENDPOINT PARA CREAR ÓRDENES DESDE EL FRONTEND
+@app.route('/orden', methods=['POST'])
+def create_orden():
+    data = request.get_json()
+    juego_id = data.get('juego_id')
+    paquete = data.get('paquete')
+    monto = data.get('monto')
+    usuario_email = data.get('usuario_email')
+    metodo_pago = data.get('metodo_pago')
+    referencia_pago = data.get('referencia_pago')
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    cur.execute('''
+        INSERT INTO ordenes (juego_id, paquete, monto, usuario_email, metodo_pago, referencia_pago, estado, fecha)
+        VALUES (%s, %s, %s, %s, %s, %s, 'procesando', CURRENT_TIMESTAMP)
+        RETURNING id
+    ''', (juego_id, paquete, monto, usuario_email, metodo_pago, referencia_pago))
+    
+    orden_id = cur.fetchone()[0]
+    conn.commit()
+    cur.close()
+    conn.close()
+    
+    return jsonify({'message': 'Orden creada correctamente', 'id': orden_id})
 
 # ENDPOINTS PARA ÓRDENES
 @app.route('/admin/ordenes', methods=['GET'])
