@@ -93,31 +93,46 @@ function mostrarProductos() {
     const grid = document.getElementById('productos-grid');
     grid.className = 'product-grid';
     
-    if (productos.length === 0) {
+    if (!productos || productos.length === 0) {
         grid.innerHTML = '<p>No hay productos disponibles</p>';
         return;
     }
     
     let html = '';
     productos.forEach(producto => {
+        // Corregir ruta de imagen
+        let imagenUrl = producto.imagen || '';
+        if (imagenUrl && !imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
+            imagenUrl = `/static/${imagenUrl}`;
+        }
+        if (!imagenUrl) {
+            imagenUrl = 'https://via.placeholder.com/300x200/007bff/ffffff?text=Producto';
+        }
+        
         html += `
             <div class="product-card" onclick="verDetalleProducto(${producto.id})">
-                <img src="${producto.imagen || 'https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'}" alt="${producto.nombre}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
-                <div class="product-name">${producto.nombre}</div>
+                <img src="${imagenUrl}" alt="${producto.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
+                <div class="product-name">${producto.nombre || 'Producto sin nombre'}</div>
                 <div class="product-description">${producto.descripcion || 'Sin descripción'}</div>
                 <div class="package-list">
         `;
         
-        if (producto.paquetes && producto.paquetes.length > 0) {
+        if (producto.paquetes && Array.isArray(producto.paquetes) && producto.paquetes.length > 0) {
             producto.paquetes.slice(0, 3).forEach(paquete => {
-                const precio = convertirPrecio(paquete.precio);
-                html += `
-                    <div class="package-item">
-                        <span>${paquete.nombre}</span>
-                        <span class="package-price">${precio}</span>
-                    </div>
-                `;
+                try {
+                    const precio = convertirPrecio(parseFloat(paquete.precio) || 0);
+                    html += `
+                        <div class="package-item">
+                            <span>${paquete.nombre || 'Paquete'}</span>
+                            <span class="package-price">${precio}</span>
+                        </div>
+                    `;
+                } catch (error) {
+                    console.error('Error al procesar paquete:', error, paquete);
+                }
             });
+        } else {
+            html += `<div class="package-item"><span>Sin paquetes disponibles</span></div>`;
         }
         
         html += `
@@ -139,29 +154,43 @@ function verDetalleProducto(productoId) {
     
     productoSeleccionado = producto;
     
+    // Corregir ruta de imagen
+    let imagenUrl = producto.imagen || '';
+    if (imagenUrl && !imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
+        imagenUrl = `/static/${imagenUrl}`;
+    }
+    if (!imagenUrl) {
+        imagenUrl = 'https://via.placeholder.com/400x300/007bff/ffffff?text=Producto';
+    }
+    
     let html = `
         <div style="margin-top: 20px;">
-            <img src="${producto.imagen || 'https://via.placeholder.com/400x300/007bff/ffffff?text=Producto'}" alt="${producto.nombre}" style="width: 100%; max-width: 400px; height: 300px; object-fit: cover; border-radius: 15px; margin-bottom: 20px;" onerror="this.src='https://via.placeholder.com/400x300/007bff/ffffff?text=Producto'">
-            <h2>${producto.nombre}</h2>
+            <img src="${imagenUrl}" alt="${producto.nombre || 'Producto'}" style="width: 100%; max-width: 400px; height: 300px; object-fit: cover; border-radius: 15px; margin-bottom: 20px;" onerror="this.src='https://via.placeholder.com/400x300/007bff/ffffff?text=Producto'">
+            <h2>${producto.nombre || 'Producto sin nombre'}</h2>
             <p style="margin: 15px 0; color: #6c757d; font-size: 16px;">${producto.descripcion || 'Sin descripción disponible'}</p>
             <h3>📦 Paquetes Disponibles</h3>
             <div class="package-list" style="margin-top: 20px;">
     `;
     
-    if (producto.paquetes && producto.paquetes.length > 0) {
+    if (producto.paquetes && Array.isArray(producto.paquetes) && producto.paquetes.length > 0) {
         producto.paquetes.forEach(paquete => {
-            const precio = convertirPrecio(paquete.precio);
-            html += `
-                <div class="package-item" style="margin-bottom: 15px; padding: 15px;">
-                    <div>
-                        <div style="font-weight: 600; font-size: 16px;">${paquete.nombre}</div>
-                        <div style="color: #28a745; font-weight: 700; font-size: 18px;">${precio}</div>
+            try {
+                const precio = convertirPrecio(parseFloat(paquete.precio) || 0);
+                const nombrePaquete = (paquete.nombre || 'Paquete').replace(/'/g, "\\'");
+                html += `
+                    <div class="package-item" style="margin-bottom: 15px; padding: 15px;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 16px;">${paquete.nombre || 'Paquete'}</div>
+                            <div style="color: #28a745; font-weight: 700; font-size: 18px;">${precio}</div>
+                        </div>
+                        <button class="btn btn-success" onclick="agregarAlCarrito(${producto.id}, '${nombrePaquete}', ${parseFloat(paquete.precio) || 0})">
+                            🛒 Agregar al carrito
+                        </button>
                     </div>
-                    <button class="btn btn-success" onclick="agregarAlCarrito(${producto.id}, '${paquete.nombre}', ${paquete.precio})">
-                        🛒 Agregar al carrito
-                    </button>
-                </div>
-            `;
+                `;
+            } catch (error) {
+                console.error('Error al procesar paquete en detalles:', error, paquete);
+            }
         });
     } else {
         html += '<p>No hay paquetes disponibles para este producto.</p>';
