@@ -211,6 +211,7 @@ def create_orden():
     paquete = data.get('paquete')
     monto = data.get('monto')
     usuario_email = data.get('usuario_email')
+    usuario_id = data.get('usuario_id')  # ID del usuario en el juego
     metodo_pago = data.get('metodo_pago')
     referencia_pago = data.get('referencia_pago')
     
@@ -218,10 +219,10 @@ def create_orden():
     cur = conn.cursor()
     
     cur.execute('''
-        INSERT INTO ordenes (juego_id, paquete, monto, usuario_email, metodo_pago, referencia_pago, estado, fecha)
-        VALUES (%s, %s, %s, %s, %s, %s, 'procesando', CURRENT_TIMESTAMP)
+        INSERT INTO ordenes (juego_id, paquete, monto, usuario_email, usuario_id, metodo_pago, referencia_pago, estado, fecha)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, 'procesando', CURRENT_TIMESTAMP)
         RETURNING id
-    ''', (juego_id, paquete, monto, usuario_email, metodo_pago, referencia_pago))
+    ''', (juego_id, paquete, monto, usuario_email, usuario_id, metodo_pago, referencia_pago))
     
     orden_id = cur.fetchone()[0]
     conn.commit()

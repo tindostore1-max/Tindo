@@ -216,6 +216,14 @@ function convertirPrecio(precioUSD) {
 
 // Agregar producto al carrito
 function agregarAlCarrito(productoId, paqueteNombre, precio) {
+    // Verificar que se haya ingresado el ID de usuario
+    const usuarioId = document.getElementById('usuario-id-juego').value.trim();
+    if (!usuarioId) {
+        mostrarAlerta('Por favor ingresa tu ID de usuario del juego antes de agregar al carrito', 'error');
+        document.getElementById('usuario-id-juego').focus();
+        return;
+    }
+    
     const producto = productos.find(p => p.id === productoId);
     if (!producto) return;
     
@@ -225,12 +233,15 @@ function agregarAlCarrito(productoId, paqueteNombre, precio) {
         productoNombre: producto.nombre,
         paqueteNombre,
         precio: precio,
-        cantidad: 1
+        cantidad: 1,
+        usuarioId: usuarioId // Guardar el ID del usuario
     };
     
-    // Verificar si ya existe el mismo item
+    // Verificar si ya existe el mismo item con el mismo ID de usuario
     const existeItem = carrito.find(item => 
-        item.productoId === productoId && item.paqueteNombre === paqueteNombre
+        item.productoId === productoId && 
+        item.paqueteNombre === paqueteNombre && 
+        item.usuarioId === usuarioId
     );
     
     if (existeItem) {
@@ -271,6 +282,7 @@ function mostrarCarrito() {
                 <div>
                     <div style="font-weight: 600;">${item.productoNombre}</div>
                     <div style="color: #6c757d;">${item.paqueteNombre}</div>
+                    <div style="color: #007bff; font-size: 14px; font-weight: 500;">🎮 ID: ${item.usuarioId || 'No especificado'}</div>
                     <div style="color: #28a745; font-weight: 600;">${convertirPrecio(item.precio)} x ${item.cantidad}</div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -398,6 +410,7 @@ async function procesarPago() {
                 paquete: item.paqueteNombre,
                 monto: item.precio * item.cantidad,
                 usuario_email: email,
+                usuario_id: item.usuarioId, // Incluir el ID del usuario del juego
                 metodo_pago: metodoPago,
                 referencia_pago: referencia
             };
