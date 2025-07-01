@@ -69,11 +69,18 @@ def init_db():
             paquete VARCHAR(100),
             monto NUMERIC(10,2),
             usuario_email VARCHAR(100),
+            usuario_id VARCHAR(100),
             metodo_pago VARCHAR(50),
             referencia_pago VARCHAR(100),
             estado VARCHAR(20) DEFAULT 'procesando',
             fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
+    ''')
+    
+    # Agregar columna usuario_id si no existe (migración)
+    cur.execute('''
+        ALTER TABLE ordenes 
+        ADD COLUMN IF NOT EXISTS usuario_id VARCHAR(100);
     ''')
     
     cur.execute('''
