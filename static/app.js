@@ -256,15 +256,32 @@ function convertirPrecio(precioUSD) {
 // Agregar producto al carrito
 function agregarAlCarrito(productoId, paqueteNombre, precio) {
     // Verificar que se haya ingresado el ID de usuario
-    const usuarioId = document.getElementById('usuario-id-juego').value.trim();
+    const usuarioIdInput = document.getElementById('usuario-id-juego');
+    if (!usuarioIdInput) {
+        mostrarAlerta('Error: No se encontró el campo de ID de usuario', 'error');
+        return;
+    }
+
+    const usuarioId = usuarioIdInput.value.trim();
     if (!usuarioId) {
-        mostrarAlerta('Por favor ingresa tu ID de usuario del juego antes de agregar al carrito', 'error');
-        document.getElementById('usuario-id-juego').focus();
+        mostrarAlerta('⚠️ Por favor ingresa tu ID de usuario del juego antes de agregar al carrito', 'error');
+        usuarioIdInput.focus();
+        usuarioIdInput.style.borderColor = '#dc3545';
+        usuarioIdInput.style.boxShadow = '0 0 15px rgba(220, 53, 69, 0.3)';
+        
+        // Quitar el estilo de error después de 3 segundos
+        setTimeout(() => {
+            usuarioIdInput.style.borderColor = '#2196f3';
+            usuarioIdInput.style.boxShadow = 'inset 0 2px 8px rgba(33, 150, 243, 0.1)';
+        }, 3000);
         return;
     }
 
     const producto = productos.find(p => p.id === productoId);
-    if (!producto) return;
+    if (!producto) {
+        mostrarAlerta('Error: Producto no encontrado', 'error');
+        return;
+    }
 
     const item = {
         id: Date.now(), // ID único para el item del carrito
@@ -285,12 +302,24 @@ function agregarAlCarrito(productoId, paqueteNombre, precio) {
 
     if (existeItem) {
         existeItem.cantidad += 1;
+        mostrarAlerta(`✨ Se aumentó la cantidad de ${paqueteNombre} en tu carrito (${existeItem.cantidad} unidades)`, 'success');
     } else {
         carrito.push(item);
+        mostrarAlerta(`🎉 ¡Perfecto! ${paqueteNombre} se agregó exitosamente a tu carrito. ¡Continúa comprando o procede al pago! 🛒✨`, 'success');
     }
 
     actualizarContadorCarrito();
-    mostrarAlerta(`🎉 ¡Genial! ${paqueteNombre} se agregó exitosamente a tu carrito. ¡Continúa comprando o procede al pago! 🛒✨`);
+    
+    // Efecto visual en el botón
+    const btn = event.target;
+    if (btn) {
+        btn.innerHTML = '✅ ¡Agregado!';
+        btn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+        setTimeout(() => {
+            btn.innerHTML = '✨ Agregar al carrito';
+            btn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+        }, 2000);
+    }
 }
 
 // Actualizar contador del carrito
