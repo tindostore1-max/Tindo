@@ -130,7 +130,7 @@ function mostrarProductos() {
         }
         
         html += `
-            <div class="product-card">
+            <div class="product-card" onclick="verDetalleProducto(${producto.id})">
                 <img src="${imagenUrl}" alt="${producto.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
                 <div class="product-name">${producto.nombre || 'Producto sin nombre'}</div>
                 <div class="product-description">${producto.descripcion || 'Sin descripción'}</div>
