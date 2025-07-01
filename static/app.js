@@ -167,10 +167,31 @@ function mostrarProductos() {
             imagenUrl = 'https://via.placeholder.com/300x200/007bff/ffffff?text=Producto';
         }
 
-        // Calcular precio más bajo
+        // Calcular precio mínimo y máximo
         let precioMinimo = 0;
+        let precioMaximo = 0;
         if (producto.paquetes && Array.isArray(producto.paquetes) && producto.paquetes.length > 0) {
-            precioMinimo = Math.min(...producto.paquetes.map(p => parseFloat(p.precio) || 0));
+            const precios = producto.paquetes.map(p => parseFloat(p.precio) || 0);
+            precioMinimo = Math.min(...precios);
+            precioMaximo = Math.max(...precios);
+        }
+
+        // Mostrar rango de precios según la moneda
+        let rangoPrecio = '';
+        if (precioMinimo === precioMaximo) {
+            // Si solo hay un precio
+            if (monedaActual === 'VES') {
+                rangoPrecio = `Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)}`;
+            } else {
+                rangoPrecio = `$${precioMinimo.toFixed(2)}`;
+            }
+        } else {
+            // Si hay rango de precios
+            if (monedaActual === 'VES') {
+                rangoPrecio = `Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)} - Bs. ${(precioMaximo * tasaUSDVES).toFixed(2)}`;
+            } else {
+                rangoPrecio = `$${precioMinimo.toFixed(2)} - $${precioMaximo.toFixed(2)}`;
+            }
         }
 
         html += `
@@ -178,7 +199,7 @@ function mostrarProductos() {
                 <img src="${imagenUrl}" alt="${producto.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
                 <div class="product-name">${producto.nombre || 'Producto sin nombre'}</div>
                 <div class="product-description">${producto.descripcion || 'Sin descripción'}</div>
-                <div class="price-desde">Desde $${precioMinimo.toFixed(2)} = Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)}</div>
+                <div class="price-desde">${rangoPrecio}</div>
             </div>
         `;
     });
