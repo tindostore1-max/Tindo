@@ -639,6 +639,29 @@ def get_usuario():
     else:
         return jsonify({'error': 'Usuario no encontrado'}), 404
 
+@app.route('/usuario/historial', methods=['GET'])
+def get_historial_usuario():
+    if 'user_id' not in session:
+        return jsonify({'error': 'No hay sesión activa'}), 401
+
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    # Obtener órdenes del usuario usando su email de sesión
+    cur.execute('''
+        SELECT o.*, j.nombre as juego_nombre 
+        FROM ordenes o 
+        LEFT JOIN juegos j ON o.juego_id = j.id 
+        WHERE o.usuario_email = %s 
+        ORDER BY o.fecha DESC
+    ''', (session['user_email'],))
+    
+    ordenes = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    return jsonify([dict(orden) for orden in ordenes])
+
 if __name__ == '__main__':
     # Crear directorio para imágenes
     os.makedirs('static/images', exist_ok=True)
