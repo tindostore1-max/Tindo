@@ -445,7 +445,7 @@
                 const response = await fetch('/admin/ordenes');
                 const ordenes = await response.json();
                 
-                let html = '<table class="table"><thead><tr><th>ID</th><th>Juego</th><th>Paquete</th><th>Monto</th><th>Usuario</th><th>Método</th><th>Referencia</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr></thead><tbody>';
+                let html = '<table class="table"><thead><tr><th>ID</th><th>Juego</th><th>Paquete</th><th>Monto</th><th>Usuario Email</th><th>ID Usuario Juego</th><th>Método</th><th>Referencia</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr></thead><tbody>';
                 
                 ordenes.forEach(orden => {
                     html += `
@@ -455,6 +455,7 @@
                             <td>${orden.paquete}</td>
                             <td>$${orden.monto}</td>
                             <td>${orden.usuario_email}</td>
+                            <td style="font-weight: 600; color: #007bff;">🎮 ${orden.usuario_id || 'No especificado'}</td>
                             <td>${orden.metodo_pago}</td>
                             <td>${orden.referencia_pago}</td>
                             <td><span class="status-badge status-${orden.estado}">${orden.estado}</span></td>
