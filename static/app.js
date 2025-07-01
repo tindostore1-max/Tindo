@@ -212,25 +212,36 @@ function verDetalleProducto(productoId) {
     `;
 
     if (producto.paquetes && Array.isArray(producto.paquetes) && producto.paquetes.length > 0) {
-        producto.paquetes.forEach(paquete => {
+        producto.paquetes.forEach((paquete, index) => {
             try {
                 const precio = convertirPrecio(parseFloat(paquete.precio) || 0);
-                const nombrePaquete = (paquete.nombre || 'Paquete').replace(/'/g, "\\'");
                 html += `
-                    <div class="package-item" style="margin-bottom: 20px;">
+                    <div class="package-item package-selectable" data-package-id="${paquete.id}" data-package-name="${paquete.nombre}" data-package-price="${paquete.precio}" onclick="seleccionarPaquete(this)" style="margin-bottom: 15px; cursor: pointer; transition: all 0.3s ease;">
                         <div class="package-info">
-                            <div class="package-name">${paquete.nombre || 'Paquete'}</div>
+                            <div class="package-name">
+                                <span class="package-radio">⚪</span>
+                                ${paquete.nombre || 'Paquete'}
+                            </div>
                             <div class="package-price">${precio}</div>
                         </div>
-                        <button class="btn btn-success" onclick="agregarAlCarrito(${producto.id}, '${nombrePaquete}', ${parseFloat(paquete.precio) || 0}, event)" style="padding: 12px 25px; font-size: 16px; font-weight: 600; border-radius: 25px; background: linear-gradient(135deg, #28a745, #20c997); border: none; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); transition: all 0.3s ease;">
-                            ✨ Agregar al carrito
-                        </button>
                     </div>
                 `;
             } catch (error) {
                 console.error('Error al procesar paquete en detalles:', error, paquete);
             }
         });
+        
+        // Agregar botón único de agregar al carrito
+        html += `
+            <div style="margin-top: 30px; text-align: center; padding: 20px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 15px; border: 2px dashed #28a745;">
+                <div id="paquete-seleccionado" style="margin-bottom: 15px; font-size: 16px; color: #6c757d; font-weight: 600;">
+                    🎯 Selecciona un paquete arriba para continuar
+                </div>
+                <button id="btn-agregar-carrito" class="btn btn-success" onclick="agregarPaqueteSeleccionado()" disabled style="padding: 15px 35px; font-size: 18px; font-weight: 700; border-radius: 30px; background: linear-gradient(135deg, #28a745, #20c997); border: none; box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3); transition: all 0.3s ease; opacity: 0.5;">
+                    ✨ Agregar al Carrito
+                </button>
+            </div>
+        `;
     } else {
         html += '<p>No hay paquetes disponibles para este producto.</p>';
     }
@@ -251,6 +262,65 @@ function convertirPrecio(precioUSD) {
         return `Bs. ${precioVES}`;
     }
     return `$${precioUSD.toFixed(2)}`;
+}
+
+// Variables para el paquete seleccionado
+let paqueteSeleccionado = null;
+
+// Función para seleccionar un paquete
+function seleccionarPaquete(elemento) {
+    // Remover selección anterior
+    document.querySelectorAll('.package-selectable').forEach(pkg => {
+        pkg.classList.remove('selected');
+        pkg.querySelector('.package-radio').textContent = '⚪';
+        pkg.style.background = '';
+        pkg.style.borderColor = '';
+        pkg.style.transform = '';
+    });
+    
+    // Seleccionar el paquete actual
+    elemento.classList.add('selected');
+    elemento.querySelector('.package-radio').textContent = '🔵';
+    elemento.style.background = 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)';
+    elemento.style.borderColor = '#2196f3';
+    elemento.style.transform = 'translateY(-3px)';
+    elemento.style.boxShadow = '0 8px 25px rgba(33, 150, 243, 0.2)';
+    
+    // Guardar información del paquete seleccionado
+    paqueteSeleccionado = {
+        id: elemento.getAttribute('data-package-id'),
+        nombre: elemento.getAttribute('data-package-name'),
+        precio: parseFloat(elemento.getAttribute('data-package-price'))
+    };
+    
+    // Actualizar información del paquete seleccionado
+    const infoDiv = document.getElementById('paquete-seleccionado');
+    const botonAgregar = document.getElementById('btn-agregar-carrito');
+    
+    if (infoDiv && botonAgregar) {
+        infoDiv.innerHTML = `
+            <div style="color: #2196f3; font-weight: 700; font-size: 18px;">
+                🎮 Paquete seleccionado: <span style="color: #28a745;">${paqueteSeleccionado.nombre}</span>
+            </div>
+            <div style="color: #6c757d; font-size: 14px; margin-top: 5px;">
+                Precio: ${convertirPrecio(paqueteSeleccionado.precio)}
+            </div>
+        `;
+        
+        botonAgregar.disabled = false;
+        botonAgregar.style.opacity = '1';
+        botonAgregar.style.cursor = 'pointer';
+    }
+}
+
+// Función para agregar el paquete seleccionado al carrito
+function agregarPaqueteSeleccionado() {
+    if (!paqueteSeleccionado) {
+        mostrarAlerta('⚠️ Por favor selecciona un paquete primero', 'error');
+        return;
+    }
+    
+    agregarAlCarrito(productoSeleccionado.id, paqueteSeleccionado.nombre, paqueteSeleccionado.precio);
 }
 
 // Agregar producto al carrito
@@ -310,20 +380,22 @@ function agregarAlCarrito(productoId, paqueteNombre, precio, event) {
 
     actualizarContadorCarrito();
     
-    // Efecto visual en el botón
-    if (event && event.target) {
-        const btn = event.target;
-        const originalText = btn.innerHTML;
-        const originalBackground = btn.style.background;
+    // Efecto visual en el botón único
+    const btnAgregar = document.getElementById('btn-agregar-carrito');
+    if (btnAgregar) {
+        const originalText = btnAgregar.innerHTML;
+        const originalBackground = btnAgregar.style.background;
         
-        btn.innerHTML = '✅ ¡Agregado!';
-        btn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
-        btn.disabled = true;
+        btnAgregar.innerHTML = '✅ ¡Agregado al Carrito!';
+        btnAgregar.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+        btnAgregar.disabled = true;
+        btnAgregar.style.opacity = '0.8';
         
         setTimeout(() => {
-            btn.innerHTML = originalText;
-            btn.style.background = originalBackground;
-            btn.disabled = false;
+            btnAgregar.innerHTML = originalText;
+            btnAgregar.style.background = originalBackground;
+            btnAgregar.disabled = false;
+            btnAgregar.style.opacity = '1';
         }, 2000);
     }
 }
