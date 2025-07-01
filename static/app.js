@@ -86,12 +86,12 @@ function mostrarAlerta(mensaje, tipo = 'success') {
 async function cargarConfiguracion() {
     try {
         const response = await fetch('/config');
-        
+
         if (!response.ok) {
             console.warn('No se pudo cargar la configuración del servidor');
             return;
         }
-        
+
         configuracion = await response.json();
 
         // Actualizar logo si existe
@@ -121,14 +121,14 @@ async function cargarConfiguracion() {
 // Cargar productos del backend
 async function cargarProductos() {
     const productosGrid = document.getElementById('productos-grid');
-    
+
     try {
         const response = await fetch('/productos');
-        
+
         if (!response.ok) {
             throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
-        
+
         productos = await response.json();
         console.log('Productos cargados:', productos);
         mostrarProductos();
@@ -251,7 +251,7 @@ function verDetalleProducto(productoId) {
                 console.error('Error al procesar paquete en detalles:', error, paquete);
             }
         });
-        
+
         // Agregar botón único de agregar al carrito
         html += `
             <div style="margin-top: 30px; text-align: center; padding: 20px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 15px; border: 2px dashed #28a745;">
@@ -298,7 +298,7 @@ function seleccionarPaquete(elemento) {
         pkg.style.borderColor = '';
         pkg.style.transform = '';
     });
-    
+
     // Seleccionar el paquete actual
     elemento.classList.add('selected');
     elemento.querySelector('.package-radio').textContent = '🔵';
@@ -306,18 +306,18 @@ function seleccionarPaquete(elemento) {
     elemento.style.borderColor = '#2196f3';
     elemento.style.transform = 'translateY(-3px)';
     elemento.style.boxShadow = '0 8px 25px rgba(33, 150, 243, 0.2)';
-    
+
     // Guardar información del paquete seleccionado
     paqueteSeleccionado = {
         id: elemento.getAttribute('data-package-id'),
         nombre: elemento.getAttribute('data-package-name'),
         precio: parseFloat(elemento.getAttribute('data-package-price'))
     };
-    
+
     // Actualizar información del paquete seleccionado
     const infoDiv = document.getElementById('paquete-seleccionado');
     const botonAgregar = document.getElementById('btn-agregar-carrito');
-    
+
     if (infoDiv && botonAgregar) {
         infoDiv.innerHTML = `
             <div style="color: #2196f3; font-weight: 700; font-size: 18px;">
@@ -327,7 +327,7 @@ function seleccionarPaquete(elemento) {
                 Precio: ${convertirPrecio(paqueteSeleccionado.precio)}
             </div>
         `;
-        
+
         botonAgregar.disabled = false;
         botonAgregar.style.opacity = '1';
         botonAgregar.style.cursor = 'pointer';
@@ -340,7 +340,7 @@ function agregarPaqueteSeleccionado() {
         mostrarAlerta('⚠️ Por favor selecciona un paquete primero', 'error');
         return;
     }
-    
+
     agregarAlCarrito(productoSeleccionado.id, paqueteSeleccionado.nombre, paqueteSeleccionado.precio);
 }
 
@@ -359,7 +359,7 @@ function agregarAlCarrito(productoId, paqueteNombre, precio, event) {
         usuarioIdInput.focus();
         usuarioIdInput.style.borderColor = '#dc3545';
         usuarioIdInput.style.boxShadow = '0 0 15px rgba(220, 53, 69, 0.3)';
-        
+
         // Quitar el estilo de error después de 3 segundos
         setTimeout(() => {
             usuarioIdInput.style.borderColor = '#2196f3';
@@ -400,18 +400,18 @@ function agregarAlCarrito(productoId, paqueteNombre, precio, event) {
     }
 
     actualizarContadorCarrito();
-    
+
     // Efecto visual en el botón único
     const btnAgregar = document.getElementById('btn-agregar-carrito');
     if (btnAgregar) {
         const originalText = btnAgregar.innerHTML;
         const originalBackground = btnAgregar.style.background;
-        
+
         btnAgregar.innerHTML = '✅ ¡Agregado al Carrito!';
         btnAgregar.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
         btnAgregar.disabled = true;
         btnAgregar.style.opacity = '0.8';
-        
+
         setTimeout(() => {
             btnAgregar.innerHTML = originalText;
             btnAgregar.style.background = originalBackground;
@@ -612,7 +612,7 @@ async function procesarPago() {
 async function procesarLogin() {
     const emailElement = document.getElementById('login-email');
     const passwordElement = document.getElementById('login-password');
-    
+
     if (!emailElement || !passwordElement) {
         mostrarAlerta('Error en el formulario de login', 'error');
         return;
@@ -659,7 +659,7 @@ async function procesarRegistro() {
     const nombreElement = document.getElementById('registro-nombre');
     const emailElement = document.getElementById('registro-email');
     const passwordElement = document.getElementById('registro-password');
-    
+
     if (!nombreElement || !emailElement || !passwordElement) {
         mostrarAlerta('Error en el formulario de registro', 'error');
         return;
@@ -713,7 +713,7 @@ function actualizarInterfazUsuario(usuario) {
             <p><strong>Email:</strong> ${usuario.email}</p>
             <p><strong>Miembro desde:</strong> ${new Date(usuario.fecha_registro).toLocaleDateString()}</p>
         </div>
-        
+
         <div style="margin-bottom: 20px;">
             <button class="btn btn-primary" onclick="mostrarHistorialCompras()" style="width: 100%; padding: 15px; margin-bottom: 10px;">
                 📋 Ver Historial de Compras
@@ -722,7 +722,7 @@ function actualizarInterfazUsuario(usuario) {
                 🚪 Cerrar Sesión
             </button>
         </div>
-        
+
         <div id="historial-compras" style="display: none;">
             <h3>📋 Historial de Compras</h3>
             <div id="lista-compras">
@@ -753,22 +753,22 @@ async function cerrarSesion() {
 async function mostrarHistorialCompras() {
     const historialDiv = document.getElementById('historial-compras');
     const listaCompras = document.getElementById('lista-compras');
-    
+
     if (!historialDiv) return;
-    
+
     // Mostrar el contenedor del historial
     historialDiv.style.display = 'block';
     listaCompras.innerHTML = '<div class="loading">Cargando historial...</div>';
 
     try {
         const response = await fetch('/usuario/historial');
-        
+
         if (!response.ok) {
             throw new Error('Error al cargar historial');
         }
 
         const historial = await response.json();
-        
+
         if (historial.length === 0) {
             listaCompras.innerHTML = `
                 <div class="no-purchases">
@@ -835,7 +835,7 @@ function mostrarAuthTab(tabName) {
     const authContents = document.querySelectorAll('.auth-content');
     const authTabs = document.querySelectorAll('.auth-tab');
     const targetContent = document.getElementById(tabName);
-    
+
     if (!authContents.length || !authTabs.length || !targetContent) {
         console.error('Elementos de autenticación no encontrados');
         return;
@@ -852,8 +852,8 @@ function mostrarAuthTab(tabName) {
     });
 
     // Mostrar contenido seleccionado
-    targetContent.classList.add('active');
-    
+targetContent.classList.add('active');
+
     // Verificar que event y event.target existen
     if (typeof event !== 'undefined' && event.target) {
         event.target.classList.add('active');
