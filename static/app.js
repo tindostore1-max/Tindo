@@ -55,7 +55,7 @@ function mostrarAlerta(mensaje, tipo = 'success') {
 // Cargar configuración del sistema
 async function cargarConfiguracion() {
     try {
-        const response = await fetch('/admin/config');
+        const response = await fetch('/config');
         configuracion = await response.json();
         
         // Actualizar logo si existe
@@ -75,11 +75,16 @@ async function cargarConfiguracion() {
 // Cargar productos del backend
 async function cargarProductos() {
     try {
-        const response = await fetch('/admin/productos');
+        const response = await fetch('/productos');
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
         productos = await response.json();
+        console.log('Productos cargados:', productos);
         mostrarProductos();
     } catch (error) {
-        document.getElementById('productos-grid').innerHTML = '<p>Error al cargar productos</p>';
+        console.error('Error al cargar productos:', error);
+        document.getElementById('productos-grid').innerHTML = '<p>Error al cargar productos. Verifica la conexión.</p>';
     }
 }
 

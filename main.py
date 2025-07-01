@@ -349,6 +349,40 @@ def delete_producto(producto_id):
     
     return jsonify({'message': 'Producto eliminado correctamente'})
 
+# ENDPOINT PÚBLICO PARA PRODUCTOS (FRONTEND DE USUARIOS)
+@app.route('/productos', methods=['GET'])
+def get_productos_publico():
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute('SELECT * FROM juegos ORDER BY id DESC')
+    productos = cur.fetchall()
+    
+    # Obtener paquetes para cada producto
+    for producto in productos:
+        cur.execute('SELECT * FROM paquetes WHERE juego_id = %s ORDER BY precio ASC', (producto['id'],))
+        producto['paquetes'] = cur.fetchall()
+    
+    cur.close()
+    conn.close()
+    return jsonify([dict(producto) for producto in productos])
+
+# ENDPOINT PÚBLICO PARA CONFIGURACIÓN (FRONTEND DE USUARIOS)
+@app.route('/config', methods=['GET'])
+def get_config_publico():
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute('SELECT * FROM configuracion')
+    configs = cur.fetchall()
+    cur.close()
+    conn.close()
+    
+    # Convertir a diccionario
+    config_dict = {}
+    for config in configs:
+        config_dict[config['campo']] = config['valor']
+    
+    return jsonify(config_dict)
+
 # ENDPOINTS PARA IMÁGENES
 @app.route('/admin/imagenes', methods=['GET'])
 def get_imagenes():
