@@ -97,7 +97,7 @@ function mostrarProductos() {
     productos.forEach(producto => {
         html += `
             <div class="product-card" onclick="verDetalleProducto(${producto.id})">
-                <img src="${producto.imagen || '/static/images/default-product.jpg'}" alt="${producto.nombre}" class="product-image">
+                <img src="${producto.imagen || 'https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'}" alt="${producto.nombre}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
                 <div class="product-name">${producto.nombre}</div>
                 <div class="product-description">${producto.descripcion || 'Sin descripción'}</div>
                 <div class="package-list">
@@ -136,7 +136,7 @@ function verDetalleProducto(productoId) {
     
     let html = `
         <div style="margin-top: 20px;">
-            <img src="${producto.imagen || '/static/images/default-product.jpg'}" alt="${producto.nombre}" style="width: 100%; max-width: 400px; height: 300px; object-fit: cover; border-radius: 15px; margin-bottom: 20px;">
+            <img src="${producto.imagen || 'https://via.placeholder.com/400x300/007bff/ffffff?text=Producto'}" alt="${producto.nombre}" style="width: 100%; max-width: 400px; height: 300px; object-fit: cover; border-radius: 15px; margin-bottom: 20px;" onerror="this.src='https://via.placeholder.com/400x300/007bff/ffffff?text=Producto'">
             <h2>${producto.nombre}</h2>
             <p style="margin: 15px 0; color: #6c757d; font-size: 16px;">${producto.descripcion || 'Sin descripción disponible'}</p>
             <h3>📦 Paquetes Disponibles</h3>

@@ -92,6 +92,98 @@ def init_db():
         );
     ''')
     
+    # Verificar si ya hay productos
+    cur.execute('SELECT COUNT(*) FROM juegos')
+    product_count = cur.fetchone()[0]
+    
+    # Insertar productos de ejemplo si no existen
+    if product_count == 0:
+        # Free Fire
+        cur.execute('''
+            INSERT INTO juegos (nombre, descripcion, imagen) 
+            VALUES (%s, %s, %s) RETURNING id
+        ''', ('Free Fire', 'Juego de batalla real con acción intensa y gráficos increíbles', '/static/images/20250701_212818_free_fire.webp'))
+        
+        ff_id = cur.fetchone()[0]
+        
+        # Paquetes de Free Fire
+        ff_packages = [
+            ('100 Diamantes', 2.99),
+            ('310 Diamantes', 9.99),
+            ('520 Diamantes', 14.99),
+            ('1080 Diamantes', 29.99),
+            ('2200 Diamantes', 59.99)
+        ]
+        
+        for nombre, precio in ff_packages:
+            cur.execute('''
+                INSERT INTO paquetes (juego_id, nombre, precio) 
+                VALUES (%s, %s, %s)
+            ''', (ff_id, nombre, precio))
+        
+        # PUBG Mobile
+        cur.execute('''
+            INSERT INTO juegos (nombre, descripcion, imagen) 
+            VALUES (%s, %s, %s) RETURNING id
+        ''', ('PUBG Mobile', 'Battle royale de última generación con mecánicas realistas', '/static/images/default-product.jpg'))
+        
+        pubg_id = cur.fetchone()[0]
+        
+        # Paquetes de PUBG
+        pubg_packages = [
+            ('60 UC', 0.99),
+            ('325 UC', 4.99),
+            ('660 UC', 9.99),
+            ('1800 UC', 24.99),
+            ('3850 UC', 49.99)
+        ]
+        
+        for nombre, precio in pubg_packages:
+            cur.execute('''
+                INSERT INTO paquetes (juego_id, nombre, precio) 
+                VALUES (%s, %s, %s)
+            ''', (pubg_id, nombre, precio))
+        
+        # Call of Duty Mobile
+        cur.execute('''
+            INSERT INTO juegos (nombre, descripcion, imagen) 
+            VALUES (%s, %s, %s) RETURNING id
+        ''', ('Call of Duty Mobile', 'FPS de acción con multijugador competitivo y battle royale', '/static/images/default-product.jpg'))
+        
+        cod_id = cur.fetchone()[0]
+        
+        # Paquetes de COD
+        cod_packages = [
+            ('80 CP', 0.99),
+            ('400 CP', 4.99),
+            ('800 CP', 9.99),
+            ('2000 CP', 19.99),
+            ('5000 CP', 49.99)
+        ]
+        
+        for nombre, precio in cod_packages:
+            cur.execute('''
+                INSERT INTO paquetes (juego_id, nombre, precio) 
+                VALUES (%s, %s, %s)
+            ''', (cod_id, nombre, precio))
+    
+    # Insertar configuración básica si no existe
+    cur.execute('SELECT COUNT(*) FROM configuracion')
+    config_count = cur.fetchone()[0]
+    
+    if config_count == 0:
+        configs = [
+            ('tasa_usd_ves', '36.50'),
+            ('pago_movil', 'Banco: Banesco\nTelefono: 0412-1234567\nCédula: V-12345678\nNombre: Store Admin'),
+            ('binance', 'Email: admin@inefablestore.com\nID Binance: 123456789')
+        ]
+        
+        for campo, valor in configs:
+            cur.execute('''
+                INSERT INTO configuracion (campo, valor) 
+                VALUES (%s, %s)
+            ''', (campo, valor))
+    
     conn.commit()
     cur.close()
     conn.close()
