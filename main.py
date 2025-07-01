@@ -6,21 +6,36 @@ import os
 from werkzeug.utils import secure_filename
 from datetime import datetime
 import json
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'tu_clave_secreta_aqui'
 app.config['UPLOAD_FOLDER'] = 'static/images'
 
-# Configuración de la base de datos
-DB_CONFIG = {
-    'host': 'localhost',
-    'database': 'inefablestore',
-    'user': 'postgres',
-    'password': 'password'
-}
+# Configuración de la base de datos usando variables de entorno de Replit
+def get_db_config():
+    database_url = os.environ.get('DATABASE_URL')
+    if database_url:
+        # Usar la URL de la base de datos de Replit
+        return {'dsn': database_url}
+    else:
+        # Fallback a configuración manual
+        return {
+            'host': os.environ.get('DB_HOST', 'localhost'),
+            'database': os.environ.get('DB_NAME', 'inefablestore'),
+            'user': os.environ.get('DB_USER', 'postgres'),
+            'password': os.environ.get('DB_PASSWORD', 'password'),
+            'port': os.environ.get('DB_PORT', '5432')
+        }
 
 def get_db_connection():
-    conn = psycopg2.connect(**DB_CONFIG)
+    config = get_db_config()
+    if 'dsn' in config:
+        conn = psycopg2.connect(config['dsn'])
+    else:
+        conn = psycopg2.connect(**config)
     return conn
 
 def init_db():
