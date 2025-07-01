@@ -1,0 +1,121 @@
+---
+
+🧾 Especificaciones para el Panel Administrador – Inefablestore (PostgreSQL)
+
+Objetivo del proyecto:  
+Diseñar e implementar un panel web administrativo en Python (Flask) con PostgreSQL como base de datos. El panel debe gestionar el contenido y configuración del sitio Inefablestore mediante pestañas tipo Suis, cada una con funciones específicas.
+
+---
+
+🧩 Estructura del Panel (Pestañas)
+
+1. ÓRDENES
+- Visualización de órdenes enviadas por los usuarios.
+- Datos por orden:
+  - Juego seleccionado
+  - Paquete
+  - Monto total
+  - ID del usuario
+  - Método de pago
+  - Referencia de pago
+  - Estado: procesando / procesado
+  - Fecha y hora
+- Botón para actualizar el estado.
+- Endpoints backend:
+  - GET /admin/ordenes
+  - PATCH /admin/orden/:id
+
+2. PRODUCTOS
+- Crear, editar y eliminar productos.
+- Cada producto puede tener múltiples paquetes con precios.
+- Subir imagen por producto.
+- Ejemplo:
+  - Producto: Free Fire  
+  - Paquete: “110 + 10 diamantes” → $1
+- Endpoints backend:
+  - POST /admin/producto
+  - PUT /admin/producto/:id
+  - DELETE /admin/producto/:id
+
+3. IMÁGENES
+- Subida de imágenes para:
+  - Logo principal
+  - Carrusel
+  - Productos
+- Almacenamiento en /static/images/ o con ruta en la BD.
+- Endpoints backend:
+  - POST /admin/imagenes
+  - GET /admin/imagenes
+
+4. CONFIGURACIÓN
+- Ajustes modificables:
+  - Logo del index
+  - Imágenes del carrusel
+  - Tasa de conversión USD ↔ VES
+  - Datos de pago (Pago móvil, Binance…)
+  - Botón para añadir nuevos métodos de pago
+- Endpoints backend:
+  - GET /admin/config
+  - PUT /admin/config
+
+---
+
+🗃 Esquema de Base de Datos PostgreSQL
+
+`sql
+-- Tabla de Juegos
+CREATE TABLE juegos (
+  id SERIAL PRIMARY KEY,
+  nombre VARCHAR(100),
+  descripcion TEXT,
+  imagen VARCHAR(255)
+);
+
+-- Tabla de Paquetes
+CREATE TABLE paquetes (
+  id SERIAL PRIMARY KEY,
+  juego_id INTEGER REFERENCES juegos(id),
+  nombre VARCHAR(100),
+  precio NUMERIC(10,2)
+);
+
+-- Tabla de Órdenes
+CREATE TABLE ordenes (
+  id SERIAL PRIMARY KEY,
+  juego_id INTEGER REFERENCES juegos(id),
+  paquete VARCHAR(100),
+  monto NUMERIC(10,2),
+  usuario_email VARCHAR(100),
+  metodo_pago VARCHAR(50),
+  referencia_pago VARCHAR(100),
+  estado VARCHAR(20) DEFAULT 'procesando',
+  fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabla de Imágenes
+CREATE TABLE imagenes (
+  id SERIAL PRIMARY KEY,
+  tipo VARCHAR(50), -- logo, carrusel, producto
+  ruta VARCHAR(255)
+);
+
+-- Tabla de Configuración
+CREATE TABLE configuracion (
+  id SERIAL PRIMARY KEY,
+  campo VARCHAR(50),
+  valor TEXT
+);
+`
+
+---
+
+🛠 Requisitos Técnicos
+
+- Lenguaje: Python  
+- Framework: Flask  
+- Base de datos: PostgreSQL  
+- Plantillas HTML con pestañas tipo Suis  
+- CRUD desde formularios y paneles  
+- Backend RESTful con rutas organizadas  
+- Panel responsivo y adaptable a dispositivos móviles  
+- Validación básica de formularios y control de estados
