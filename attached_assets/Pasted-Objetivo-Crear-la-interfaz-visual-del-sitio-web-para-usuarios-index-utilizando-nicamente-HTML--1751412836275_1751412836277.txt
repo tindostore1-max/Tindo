@@ -1,0 +1,104 @@
+Objetivo: 
+Crear la interfaz visual del sitio web para usuarios (index) utilizando únicamente HTML. El index debe tener estructura modular tipo Suis con pestañas dinámicas para:
+
+1. Catálogo de productos 
+2. Detalles del producto 
+3. Carrito 
+4. Pago 
+5. Inicio de sesión 
+6. Registro 
+
+Cada sección deberá conectarse por medio de fetch() al backend ya implementado en Flask con PostgreSQL.
+
+---
+
+🗂 Estructura General del index.html
+
+`html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inefablestore</title>
+  <link rel="stylesheet" href="estilos.css" />
+</head>
+<body>
+
+  <!-- Header con logo y selector de moneda -->
+  <header>
+    <img src="/static/images/logo.png" alt="Logo Inefablestore" />
+    <select id="selector-moneda">
+      <option value="USD">USD</option>
+      <option value="VES">VES</option>
+    </select>
+  </header>
+
+  <!-- Navegación tipo Suis -->
+  <nav>
+    <button onclick="mostrarTab('catalogo')">Productos</button>
+    <button onclick="mostrarTab('carrito')">Carrito</button>
+    <button onclick="mostrarTab('pago')">Pagar</button>
+    <button onclick="mostrarTab('login')">Iniciar sesión</button>
+    <button onclick="mostrarTab('registro')">Registrarse</button>
+  </nav>
+
+  <!-- Secciones visuales -->
+  <section id="catalogo">
+    <!-- Listado de productos cargados desde backend -->
+  </section>
+
+  <section id="detalles" style="display:none;">
+    <!-- Detalles y paquetes del producto -->
+  </section>
+
+  <section id="carrito" style="display:none;">
+    <!-- Productos agregados por el usuario -->
+  </section>
+
+  <section id="pago" style="display:none;">
+    <!-- Formulario de método de pago y referencia -->
+  </section>
+
+  <section id="login" style="display:none;">
+    <form id="form-login">
+      <input type="email" placeholder="Correo" required />
+      <input type="password" placeholder="Contraseña" required />
+      <button type="submit">Entrar</button>
+    </form>
+  </section>
+
+  <section id="registro" style="display:none;">
+    <form id="form-registro">
+      <input type="text" placeholder="Nombre" required />
+      <input type="email" placeholder="Correo" required />
+      <input type="password" placeholder="Contraseña" required />
+      <button type="submit">Registrarse</button>
+    </form>
+  </section>
+
+  <!-- Scripts para manejar pestañas y conexión al backend -->
+  <script src="app.js"></script>
+</body>
+</html>
+`
+
+---
+
+🧠 Lógica esperada en app.js
+
+- fetch('/api/juegos') → carga catálogo en la pestaña de productos 
+- fetch('/api/juego/:id') → muestra los paquetes en la pestaña de detalles 
+- POST /orden → envía la compra con referencia desde la pestaña de pago 
+- POST /login y POST /registro → autenticación básica con conexión al panel
+
+---
+
+🧱 El asistente de Replit debe hacer lo siguiente:
+
+1. Construir el index.html estructurado como arriba.
+2. Crear el archivo app.js para controlar:
+   - El cambio de pestañas tipo Suis
+   - Las peticiones al backend (usando fetch())
+3. Asegurarse de que el HTML esté conectado a las rutas del backend en Flask.
+4. Dejar el diseño visual básico, tú lo personalizas con CSS después.
