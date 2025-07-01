@@ -293,7 +293,8 @@
     <div class="container">
         <!-- Header con logo y selector de moneda -->
         <header>
-            <img src="/static/images/logo.png" alt="Logo Inefablestore" class="logo" id="logo-img">
+            <img src="/static/images/logo.png" alt="Logo Inefablestore" class="logo" id="logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <div style="display: none; font-size: 28px; font-weight: 900; color: #007bff;">🎮 INEFABLESTORE</div>
             <select id="selector-moneda" class="currency-selector">
                 <option value="USD">💵 USD</option>
                 <option value="VES">💰 VES</option>

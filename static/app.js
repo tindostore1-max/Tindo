@@ -290,7 +290,7 @@ function procederAlPago() {
 // Preparar información de pago
 function prepararPago() {
     // Cargar total del carrito
-    const total = carrito.reduce((sum, item) => sum.precio * item.cantidad, 0);
+    const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
     
     // Mostrar información según método seleccionado
     const metodoSelect = document.getElementById('metodo-pago');

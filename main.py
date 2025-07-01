@@ -87,7 +87,7 @@ def init_db():
     cur.execute('''
         CREATE TABLE IF NOT EXISTS configuracion (
             id SERIAL PRIMARY KEY,
-            campo VARCHAR(50),
+            campo VARCHAR(50) UNIQUE,
             valor TEXT
         );
     ''')
@@ -363,10 +363,10 @@ def update_config():
     cur = conn.cursor()
     
     for campo, valor in data.items():
-        cur.execute(
-            'INSERT INTO configuracion (campo, valor) VALUES (%s, %s) ON CONFLICT (campo) DO UPDATE SET valor = EXCLUDED.valor',
-            (campo, valor)
-        )
+        cur.execute('''
+            INSERT INTO configuracion (campo, valor) VALUES (%s, %s) 
+            ON CONFLICT (campo) DO UPDATE SET valor = EXCLUDED.valor
+        ''', (campo, valor))
     
     conn.commit()
     cur.close()
