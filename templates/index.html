@@ -164,6 +164,46 @@
             color: #28a745;
         }
 
+        .price-desde {
+            font-size: 18px;
+            font-weight: 700;
+            color: #007bff;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            color: #6c757d;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .auth-tab.active {
+            color: #007bff;
+            border-bottom: 2px solid #007bff;
+        }
+
+        .auth-content {
+            display: none;
+        }
+
+        .auth-content.active {
+            display: block;
+        }
+
         .btn {
             padding: 10px 20px;
             border: none;
@@ -305,9 +345,7 @@
         <nav>
             <button class="nav-btn active" onclick="mostrarTab('catalogo')">🎮 Productos</button>
             <button class="nav-btn" onclick="mostrarTab('carrito')">🛒 Carrito (<span id="cart-count">0</span>)</button>
-            <button class="nav-btn" onclick="mostrarTab('pago')">💳 Pagar</button>
-            <button class="nav-btn" onclick="mostrarTab('login')">🔐 Iniciar sesión</button>
-            <button class="nav-btn" onclick="mostrarTab('registro')">📝 Registrarse</button>
+            <button class="nav-btn" onclick="mostrarTab('login')">🔐 Cuenta</button>
         </nav>
 
         <!-- Contenido principal -->
@@ -379,44 +417,54 @@
                 </form>
             </section>
 
-            <!-- Sección Login -->
+            <!-- Sección Login/Registro integrada -->
             <section id="login" class="tab-section">
-                <h2>🔐 Iniciar Sesión</h2>
-                <form id="form-login">
-                    <div class="form-group">
-                        <label>Correo Electrónico</label>
-                        <input type="email" id="login-email" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Contraseña</label>
-                        <input type="password" id="login-password" class="form-control" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px;">
-                        🔑 Entrar
-                    </button>
-                </form>
+                <h2>🔐 Mi Cuenta</h2>
+                
+                <div class="auth-tabs">
+                    <button class="auth-tab active" onclick="mostrarAuthTab('login-form')">Iniciar Sesión</button>
+                    <button class="auth-tab" onclick="mostrarAuthTab('registro-form')">Registrarse</button>
+                </div>
+
+                <div id="login-form" class="auth-content active">
+                    <form id="form-login">
+                        <div class="form-group">
+                            <label>Correo Electrónico</label>
+                            <input type="email" id="login-email" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Contraseña</label>
+                            <input type="password" id="login-password" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px;">
+                            🔑 Entrar
+                        </button>
+                    </form>
+                </div>
+
+                <div id="registro-form" class="auth-content">
+                    <form id="form-registro">
+                        <div class="form-group">
+                            <label>Nombre Completo</label>
+                            <input type="text" id="registro-nombre" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Correo Electrónico</label>
+                            <input type="email" id="registro-email" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Contraseña</label>
+                            <input type="password" id="registro-password" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-success" style="width: 100%; padding: 15px;">
+                            ✨ Registrarse
+                        </button>
+                    </form>
+                </div>
             </section>
 
-            <!-- Sección Registro -->
-            <section id="registro" class="tab-section">
-                <h2>📝 Crear Cuenta</h2>
-                <form id="form-registro">
-                    <div class="form-group">
-                        <label>Nombre Completo</label>
-                        <input type="text" id="registro-nombre" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Correo Electrónico</label>
-                        <input type="email" id="registro-email" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Contraseña</label>
-                        <input type="password" id="registro-password" class="form-control" required>
-                    </div>
-                    <button type="submit" class="btn btn-success" style="width: 100%; padding: 15px;">
-                        ✨ Registrarse
-                    </button>
-                </form>
+            <!-- Sección Registro (mantener para compatibilidad) -->
+            <section id="registro" class="tab-section" style="display: none;">
             </section>
         </div>
     </div>

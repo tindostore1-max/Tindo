@@ -109,34 +109,18 @@ function mostrarProductos() {
             imagenUrl = 'https://via.placeholder.com/300x200/007bff/ffffff?text=Producto';
         }
         
+        // Calcular precio más bajo
+        let precioMinimo = 0;
+        if (producto.paquetes && Array.isArray(producto.paquetes) && producto.paquetes.length > 0) {
+            precioMinimo = Math.min(...producto.paquetes.map(p => parseFloat(p.precio) || 0));
+        }
+        
         html += `
             <div class="product-card" onclick="verDetalleProducto(${producto.id})">
                 <img src="${imagenUrl}" alt="${producto.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
                 <div class="product-name">${producto.nombre || 'Producto sin nombre'}</div>
                 <div class="product-description">${producto.descripcion || 'Sin descripción'}</div>
-                <div class="package-list">
-        `;
-        
-        if (producto.paquetes && Array.isArray(producto.paquetes) && producto.paquetes.length > 0) {
-            producto.paquetes.slice(0, 3).forEach(paquete => {
-                try {
-                    const precio = convertirPrecio(parseFloat(paquete.precio) || 0);
-                    html += `
-                        <div class="package-item">
-                            <span>${paquete.nombre || 'Paquete'}</span>
-                            <span class="package-price">${precio}</span>
-                        </div>
-                    `;
-                } catch (error) {
-                    console.error('Error al procesar paquete:', error, paquete);
-                }
-            });
-        } else {
-            html += `<div class="package-item"><span>Sin paquetes disponibles</span></div>`;
-        }
-        
-        html += `
-                </div>
+                <div class="price-desde">Desde $${precioMinimo.toFixed(2)} = Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)}</div>
                 <button class="btn btn-primary" style="width: 100%; margin-top: 15px;">
                     Ver detalles
                 </button>
@@ -460,4 +444,21 @@ async function procesarRegistro() {
     // Aquí puedes implementar la lógica de registro real
     mostrarAlerta('Función de registro en desarrollo');
     document.getElementById('form-registro').reset();
+}
+
+// Función para manejar tabs de autenticación
+function mostrarAuthTab(tabName) {
+    // Ocultar todos los contenidos
+    document.querySelectorAll('.auth-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    
+    // Quitar clase active de todos los tabs
+    document.querySelectorAll('.auth-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Mostrar contenido seleccionado
+    document.getElementById(tabName).classList.add('active');
+    event.target.classList.add('active');
 }
