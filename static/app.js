@@ -697,6 +697,9 @@ function prepararPago() {
     // Cargar total del carrito
     const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
 
+    // Mostrar el total en la página de pago
+    mostrarTotalPago(total);
+
     // Mostrar información según método seleccionado
     const metodoSelect = document.getElementById('metodo-pago');
     metodoSelect.addEventListener('change', function() {
@@ -767,6 +770,14 @@ function prepararPago() {
         infoPago.style.display = 'none';
     }
     });
+}
+
+// Mostrar total del pago
+function mostrarTotalPago(total) {
+    const totalPagoElement = document.getElementById('total-pago');
+    if (totalPagoElement) {
+        totalPagoElement.textContent = `Total a pagar: ${convertirPrecio(total)}`;
+    }
 }
 
 // Inicializar eventos
