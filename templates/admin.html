@@ -908,6 +908,39 @@
                 showAlert('Ruta copiada al portapapeles: ' + rutaCompleta);
             });
         }
+
+        // Función para mostrar pestañas
+        function showTab(tabName) {
+            // Ocultar todas las pestañas
+            const tabs = document.querySelectorAll('.tab-pane');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Mostrar la pestaña seleccionada
+            const targetTab = document.getElementById(tabName);
+            if (targetTab) {
+                targetTab.classList.add('active');
+            }
+            
+            // Actualizar botones de navegación
+            const navBtns = document.querySelectorAll('.nav-btn');
+            navBtns.forEach(btn => btn.classList.remove('active'));
+            
+            // Buscar y activar el botón correspondiente
+            const activeBtn = document.querySelector(`[onclick="showTab('${tabName}')"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
+            
+            // Cargar datos específicos según la pestaña
+            if (tabName === 'ordenes') {
+                loadOrdenes();
+            } else if (tabName === 'productos') {
+                loadProductos();
+            } else if (tabName === 'imagenes') {
+                loadImagenes();
+            } else if (tabName === 'configuracion') {
+                loadConfig();
+            }
         }
 
         // Cargar datos iniciales
