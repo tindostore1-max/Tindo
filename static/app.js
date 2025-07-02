@@ -800,7 +800,6 @@ function seleccionarMetodoPago(metodo) {
         let nombre = 'No especificado';
 
         // Extraer información de cada línea
-        ```javascript
         lineasPagoMovil.forEach(linea => {
             if (linea.includes('Banco:')) {
                 banco = linea.replace('Banco:', '').trim();
