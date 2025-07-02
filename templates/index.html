@@ -730,6 +730,77 @@
         .purchase-payment small {
             color: #6c757d;
         }
+
+        /* Estilos del carrusel */
+        .carousel-container {
+            position: relative;
+            max-width: 100%;
+            margin: 0 auto;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .carousel {
+            position: relative;
+            width: 100%;
+            height: 300px;
+        }
+
+        .carousel-slide {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .carousel-slide.active {
+            display: block;
+        }
+
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .carousel-dots {
+            text-align: center;
+            padding: 15px 0;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .dot {
+            cursor: pointer;
+            height: 15px;
+            width: 15px;
+            margin: 0 5px;
+            background-color: #bbb;
+            border-radius: 50%;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+
+        .dot.active, .dot:hover {
+            background-color: #007bff;
+        }
+
+        @media (max-width: 768px) {
+            .carousel {
+                height: 200px;
+            }
+            
+            .carousel-dots {
+                padding: 10px 0;
+            }
+            
+            .dot {
+                height: 12px;
+                width: 12px;
+                margin: 0 3px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -771,6 +842,27 @@
             <!-- Sección Catálogo -->
             <section id="catalogo" class="tab-section active">
                 <h2>🎮 Catálogo de Productos</h2>
+                
+                <!-- Carrusel de imágenes -->
+                <div class="carousel-container" style="margin-bottom: 30px;">
+                    <div class="carousel">
+                        <div class="carousel-slide active">
+                            <img src="/static/images/carousel1.jpg" alt="Oferta 1" onerror="this.src='https://via.placeholder.com/800x300/007bff/ffffff?text=Oferta+Especial+1'">
+                        </div>
+                        <div class="carousel-slide">
+                            <img src="/static/images/carousel2.jpg" alt="Oferta 2" onerror="this.src='https://via.placeholder.com/800x300/28a745/ffffff?text=Oferta+Especial+2'">
+                        </div>
+                        <div class="carousel-slide">
+                            <img src="/static/images/carousel3.jpg" alt="Oferta 3" onerror="this.src='https://via.placeholder.com/800x300/dc3545/ffffff?text=Oferta+Especial+3'">
+                        </div>
+                    </div>
+                    <div class="carousel-dots">
+                        <span class="dot active" onclick="currentSlide(1)"></span>
+                        <span class="dot" onclick="currentSlide(2)"></span>
+                        <span class="dot" onclick="currentSlide(3)"></span>
+                    </div>
+                </div>
+                
                 <div id="productos-grid" class="product-grid loading">
                     Cargando productos...
                 </div>

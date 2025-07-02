@@ -12,7 +12,43 @@ document.addEventListener('DOMContentLoaded', function() {
     cargarProductos();
     inicializarEventos();
     verificarSesion();
+    inicializarCarrusel();
 });
+
+// Funciones del carrusel
+let slideIndex = 1;
+
+function inicializarCarrusel() {
+    // Cambiar slide automáticamente cada 5 segundos
+    setInterval(function() {
+        slideIndex++;
+        if (slideIndex > 3) slideIndex = 1;
+        currentSlide(slideIndex);
+    }, 5000);
+}
+
+function currentSlide(n) {
+    slideIndex = n;
+    showSlide(slideIndex);
+}
+
+function showSlide(n) {
+    const slides = document.querySelectorAll('.carousel-slide');
+    const dots = document.querySelectorAll('.dot');
+    
+    if (n > slides.length) slideIndex = 1;
+    if (n < 1) slideIndex = slides.length;
+    
+    slides.forEach(slide => slide.classList.remove('active'));
+    dots.forEach(dot => dot.classList.remove('active'));
+    
+    if (slides[slideIndex - 1]) {
+        slides[slideIndex - 1].classList.add('active');
+    }
+    if (dots[slideIndex - 1]) {
+        dots[slideIndex - 1].classList.add('active');
+    }
+}
 
 // Verificar si hay sesión activa
 async function verificarSesion() {
