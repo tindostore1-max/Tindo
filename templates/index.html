@@ -620,25 +620,10 @@
                 <button class="btn btn-primary" onclick="mostrarTab('catalogo')">← Volver al catálogo</button>
 
                 <!-- Campo para ID de usuario -->
-                <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border: 2px solid #2196f3; border-radius: 20px; padding: 25px; margin: 25px 0; box-shadow: 0 8px 25px rgba(33, 150, 243, 0.15); position: relative; overflow: hidden;">
-                    <div style="position: absolute; top: -20px; right: -20px; width: 80px; height: 80px; background: rgba(33, 150, 243, 0.1); border-radius: 50%; z-index: 1;"></div>
-                    <div style="position: absolute; bottom: -30px; left: -30px; width: 100px; height: 100px; background: rgba(33, 150, 243, 0.08); border-radius: 50%; z-index: 1;"></div>
-                    <div class="form-group" style="margin-bottom: 15px; position: relative; z-index: 2;">
-                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                            <div style="background: #2196f3; color: white; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-right: 15px; box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);">🎮</div>
-                            <div>
-                                <label style="font-weight: 700; color: #1565c0; font-size: 18px; margin: 0; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">ID de Usuario en el Juego</label>
-                                <div style="color: #e53935; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">⚡ REQUERIDO</div>
-                            </div>
-                        </div>
-                        <input type="text" id="usuario-id-juego" class="form-control" placeholder="🎯 Escribe tu ID de usuario aquí..." style="border: 2px solid #2196f3; border-radius: 15px; padding: 15px 20px; font-size: 16px; background: white; box-shadow: inset 0 2px 8px rgba(33, 150, 243, 0.1); transition: all 0.3s ease; font-weight: 500;">
-                        <div style="margin-top: 12px; padding: 12px 18px; background: rgba(76, 175, 80, 0.1); border-left: 4px solid #4caf50; border-radius: 0 10px 10px 0;">
-                            <small style="color: #2e7d32; font-size: 14px; font-weight: 500; display: flex; align-items: center;">
-                                <span style="margin-right: 8px;">💡</span>
-                                Este ID será usado para entregar los recursos directamente a tu cuenta del juego
-                            </small>
-                        </div>
-                    </div>
+                <div class="form-group" style="margin: 15px 0;">
+                    <label style="font-weight: 600; color: #495057; margin-bottom: 8px; display: block;">🎮 ID de Usuario en el Juego <span style="color: #dc3545;">*</span></label>
+                    <input type="text" id="usuario-id-juego" class="form-control" placeholder="Escribe tu ID de usuario aquí..." required>
+                    <small style="color: #6c757d; margin-top: 5px; display: block;">Este ID será usado para entregar los recursos a tu cuenta del juego</small>
                 </div>
 
                 <div id="producto-detalle">
