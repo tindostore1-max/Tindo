@@ -729,13 +729,13 @@ def get_productos_publico():
 def get_config_publico():
     conn = get_db_connection()
     try:
-        result = conn.execute(text('SELECT * FROM configuracion'))
+        result = conn.execute(text('SELECT campo, valor FROM configuracion'))
         configs = result.fetchall()
 
-        # Convertir a diccionario
+        # Convertir a diccionario usando índices numéricos
         config_dict = {}
         for config in configs:
-            config_dict[config['campo']] = config['valor']
+            config_dict[config[0]] = config[1]  # campo, valor
 
         return jsonify(config_dict)
     finally:
@@ -745,12 +745,19 @@ def get_config_publico():
 @app.route('/admin/imagenes', methods=['GET'])
 def get_imagenes():
     conn = get_db_connection()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute('SELECT * FROM imagenes ORDER BY tipo, id')
-    imagenes = cur.fetchall()
-    cur.close()
-    conn.close()
-    return jsonify([dict(imagen) for imagen in imagenes])
+    try:
+        result = conn.execute(text('SELECT * FROM imagenes ORDER BY tipo, id'))
+        imagenes = result.fetchall()
+        
+        # Convertir a lista de diccionarios
+        imagenes_list = []
+        for imagen in imagenes:
+            imagen_dict = dict(imagen._mapping)
+            imagenes_list.append(imagen_dict)
+        
+        return jsonify(imagenes_list)
+    finally:
+        conn.close()
 
 @app.route('/admin/imagenes', methods=['POST'])
 def upload_imagen():
@@ -776,15 +783,15 @@ def upload_imagen():
 
         # Guardar en base de datos
         conn = get_db_connection()
-        cur = conn.cursor()
-        cur.execute(
-            'INSERT INTO imagenes (tipo, ruta) VALUES (%s, %s) RETURNING id',
-            (tipo, f'images/{filename}')
-        )
-        imagen_id = cur.fetchone()[0]
-        conn.commit()
-        cur.close()
-        conn.close()
+        try:
+            result = conn.execute(text('''
+                INSERT INTO imagenes (tipo, ruta) 
+                VALUES (:tipo, :ruta) RETURNING id
+            '''), {'tipo': tipo, 'ruta': f'images/{filename}'})
+            imagen_id = result.fetchone()[0]
+            conn.commit()
+        finally:
+            conn.close()
 
         return jsonify({
             'message': 'Imagen subida correctamente',
@@ -795,68 +802,67 @@ def upload_imagen():
 @app.route('/admin/imagen/<int:imagen_id>', methods=['DELETE'])
 def delete_imagen(imagen_id):
     conn = get_db_connection()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
+    try:
+        # Obtener información de la imagen antes de eliminarla
+        result = conn.execute(text('SELECT * FROM imagenes WHERE id = :imagen_id'), 
+                             {'imagen_id': imagen_id})
+        imagen = result.fetchone()
 
-    # Obtener información de la imagen antes de eliminarla
-    cur.execute('SELECT * FROM imagenes WHERE id = %s', (imagen_id,))
-    imagen = cur.fetchone()
+        if not imagen:
+            return jsonify({'error': 'Imagen no encontrada'}), 404
 
-    if not imagen:
-        cur.close()
+        # Eliminar archivo físico
+        imagen_dict = dict(imagen._mapping)
+        file_path = os.path.join('static', imagen_dict['ruta'])
+        if os.path.exists(file_path):
+            try:
+                os.remove(file_path)
+            except Exception as e:
+                print(f"Error al eliminar archivo: {e}")
+
+        # Eliminar de la base de datos
+        conn.execute(text('DELETE FROM imagenes WHERE id = :imagen_id'), 
+                    {'imagen_id': imagen_id})
+        conn.commit()
+
+        return jsonify({'message': 'Imagen eliminada correctamente'})
+    finally:
         conn.close()
-        return jsonify({'error': 'Imagen no encontrada'}), 404
-
-    # Eliminar archivo físico
-    file_path = os.path.join('static', imagen['ruta'])
-    if os.path.exists(file_path):
-        try:
-            os.remove(file_path)
-        except Exception as e:
-            print(f"Error al eliminar archivo: {e}")
-
-    # Eliminar de la base de datos
-    cur.execute('DELETE FROM imagenes WHERE id = %s', (imagen_id,))
-    conn.commit()
-    cur.close()
-    conn.close()
-
-    return jsonify({'message': 'Imagen eliminada correctamente'})
 
 # ENDPOINTS PARA CONFIGURACIÓN
 @app.route('/admin/config', methods=['GET'])
 def get_config():
     conn = get_db_connection()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute('SELECT * FROM configuracion')
-    configs = cur.fetchall()
-    cur.close()
-    conn.close()
+    try:
+        result = conn.execute(text('SELECT campo, valor FROM configuracion'))
+        configs = result.fetchall()
 
-    # Convertir a diccionario
-    config_dict = {}
-    for config in configs:
-        config_dict[config['campo']] = config['valor']
+        # Convertir a diccionario usando índices numéricos
+        config_dict = {}
+        for config in configs:
+            config_dict[config[0]] = config[1]  # campo, valor
 
-    return jsonify(config_dict)
+        return jsonify(config_dict)
+    finally:
+        conn.close()
 
 @app.route('/config', methods=['PUT'])
 def update_config():
     data = request.get_json()
 
     conn = get_db_connection()
-    cur = conn.cursor()
+    try:
+        for campo, valor in data.items():
+            # Usar UPSERT con SQLAlchemy
+            conn.execute(text('''
+                INSERT INTO configuracion (campo, valor) VALUES (:campo, :valor) 
+                ON CONFLICT (campo) DO UPDATE SET valor = EXCLUDED.valor
+            '''), {'campo': campo, 'valor': valor})
 
-    for campo, valor in data.items():
-        cur.execute('''
-            INSERT INTO configuracion (campo, valor) VALUES (%s, %s) 
-            ON CONFLICT (campo) DO UPDATE SET valor = EXCLUDED.valor
-        ''', (campo, valor))
-
-    conn.commit()
-    cur.close()
-    conn.close()
-
-    return jsonify({'message': 'Configuración actualizada correctamente'})
+        conn.commit()
+        return jsonify({'message': 'Configuración actualizada correctamente'})
+    finally:
+        conn.close()
 
 # ENDPOINTS DE AUTENTICACIÓN
 @app.route('/registro', methods=['POST'])
@@ -871,35 +877,30 @@ def registro():
 
     # Verificar si el email ya existe
     conn = get_db_connection()
-    cur = conn.cursor()
-
-    cur.execute('SELECT id FROM usuarios WHERE email = %s', (email,))
-    if cur.fetchone():
-        cur.close()
-        conn.close()
-        return jsonify({'error': 'El email ya está registrado'}), 400
-
-    # Crear nuevo usuario
-    password_hash = generate_password_hash(password)
-
     try:
-        cur.execute('''
-            INSERT INTO usuarios (nombre, email, password_hash)
-            VALUES (%s, %s, %s) RETURNING id
-        ''', (nombre, email, password_hash))
+        result = conn.execute(text('SELECT id FROM usuarios WHERE email = :email'), 
+                             {'email': email})
+        if result.fetchone():
+            return jsonify({'error': 'El email ya está registrado'}), 400
 
-        user_id = cur.fetchone()[0]
+        # Crear nuevo usuario
+        password_hash = generate_password_hash(password)
+
+        result = conn.execute(text('''
+            INSERT INTO usuarios (nombre, email, password_hash)
+            VALUES (:nombre, :email, :password_hash) RETURNING id
+        '''), {'nombre': nombre, 'email': email, 'password_hash': password_hash})
+
+        user_id = result.fetchone()[0]
         conn.commit()
-        cur.close()
-        conn.close()
 
         return jsonify({'message': 'Usuario registrado correctamente', 'user_id': user_id})
 
     except Exception as e:
         conn.rollback()
-        cur.close()
-        conn.close()
         return jsonify({'error': 'Error al registrar usuario'}), 500
+    finally:
+        conn.close()
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -911,31 +912,30 @@ def login():
         return jsonify({'error': 'Email y contraseña son requeridos'}), 400
 
     conn = get_db_connection()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
+    try:
+        result = conn.execute(text('SELECT * FROM usuarios WHERE email = :email'), 
+                             {'email': email})
+        usuario = result.fetchone()
 
-    cur.execute('SELECT * FROM usuarios WHERE email = %s', (email,))
-    usuario = cur.fetchone()
+        if usuario and check_password_hash(usuario[3], password):  # password_hash es índice 3
+            # Guardar sesión
+            session['user_id'] = usuario[0]      # id
+            session['user_email'] = usuario[2]   # email
+            session['user_name'] = usuario[1]    # nombre
 
-    cur.close()
-    conn.close()
-
-    if usuario and check_password_hash(usuario['password_hash'], password):
-        # Guardar sesión
-        session['user_id'] = usuario['id']
-        session['user_email'] = usuario['email']
-        session['user_name'] = usuario['nombre']
-
-        return jsonify({
-            'message': 'Sesión iniciada correctamente',
-            'usuario': {
-                'id': usuario['id'],
-                'nombre': usuario['nombre'],
-                'email': usuario['email'],
-                'fecha_registro': usuario['fecha_registro'].isoformat()
-            }
-        })
-    else:
-        return jsonify({'error': 'Email o contraseña incorrectos'}), 401
+            return jsonify({
+                'message': 'Sesión iniciada correctamente',
+                'usuario': {
+                    'id': usuario[0],
+                    'nombre': usuario[1],
+                    'email': usuario[2],
+                    'fecha_registro': usuario[4].isoformat()
+                }
+            })
+        else:
+            return jsonify({'error': 'Email o contraseña incorrectos'}), 401
+    finally:
+        conn.close()
 
 @app.route('/logout', methods=['POST'])
 def logout():
@@ -948,25 +948,24 @@ def get_usuario():
         return jsonify({'error': 'No hay sesión activa'}), 401
 
     conn = get_db_connection()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
+    try:
+        result = conn.execute(text('SELECT id, nombre, email, fecha_registro FROM usuarios WHERE id = :user_id'), 
+                             {'user_id': session['user_id']})
+        usuario = result.fetchone()
 
-    cur.execute('SELECT id, nombre, email, fecha_registro FROM usuarios WHERE id = %s', (session['user_id'],))
-    usuario = cur.fetchone()
-
-    cur.close()
-    conn.close()
-
-    if usuario:
-        return jsonify({
-            'usuario': {
-                'id': usuario['id'],
-                'nombre': usuario['nombre'],
-                'email': usuario['email'],
-                'fecha_registro': usuario['fecha_registro'].isoformat()
-            }
-        })
-    else:
-        return jsonify({'error': 'Usuario no encontrado'}), 404
+        if usuario:
+            return jsonify({
+                'usuario': {
+                    'id': usuario[0],
+                    'nombre': usuario[1],
+                    'email': usuario[2],
+                    'fecha_registro': usuario[3].isoformat()
+                }
+            })
+        else:
+            return jsonify({'error': 'Usuario no encontrado'}), 404
+    finally:
+        conn.close()
 
 @app.route('/usuario/historial', methods=['GET'])
 def get_historial_compras():
@@ -974,23 +973,28 @@ def get_historial_compras():
         return jsonify({'error': 'No hay sesión activa'}), 401
 
     conn = get_db_connection()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
+    try:
+        # Obtener historial de compras del usuario logueado
+        result = conn.execute(text('''
+            SELECT o.*, j.nombre as juego_nombre, j.imagen as juego_imagen
+            FROM ordenes o 
+            LEFT JOIN juegos j ON o.juego_id = j.id 
+            LEFT JOIN usuarios u ON o.usuario_email = u.email
+            WHERE u.id = :user_id
+            ORDER BY o.fecha DESC
+        '''), {'user_id': session['user_id']})
+        
+        historial = result.fetchall()
+        
+        # Convertir a lista de diccionarios
+        historial_list = []
+        for compra in historial:
+            compra_dict = dict(compra._mapping)
+            historial_list.append(compra_dict)
 
-    # Obtener historial de compras del usuario logueado
-    cur.execute('''
-        SELECT o.*, j.nombre as juego_nombre, j.imagen as juego_imagen
-        FROM ordenes o 
-        LEFT JOIN juegos j ON o.juego_id = j.id 
-        LEFT JOIN usuarios u ON o.usuario_email = u.email
-        WHERE u.id = %s
-        ORDER BY o.fecha DESC
-    ''', (session['user_id'],))
-    
-    historial = cur.fetchall()
-    cur.close()
-    conn.close()
-
-    return jsonify([dict(compra) for compra in historial])
+        return jsonify(historial_list)
+    finally:
+        conn.close()
 
 if __name__ == '__main__':
     # Crear directorio para imágenes
