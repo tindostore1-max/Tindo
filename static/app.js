@@ -700,76 +700,42 @@ function prepararPago() {
     // Mostrar el total en la página de pago
     mostrarTotalPago(total);
 
-        // Mostrar información según método seleccionado
-    const metodoSelect = document.getElementById('metodo-pago');
-    metodoSelect.addEventListener('change', function() {
-        const infoPago = document.getElementById('info-pago');
-        const metodo = this.value;
-    // Mostrar información del método de pago
-    if (metodo === 'Pago Móvil') {
-        // Procesar datos de pago móvil
-        const pagoMovilData = configuracion.pago_movil || 'Información no disponible';
-        const lineasPagoMovil = pagoMovilData.split('\n');
+    // Actualizar métodos de pago según la moneda
+    actualizarMetodosPagoSegunMoneda();
+}
 
-        let banco = 'No especificado';
-        let telefono = 'No especificado';
-        let cedula = 'No especificado';
-        let nombre = 'No especificado';
+// Función para actualizar métodos de pago según la moneda seleccionada
+function actualizarMetodosPagoSegunMoneda() {
+    const btnPagoMovil = document.getElementById('btn-pago-movil');
+    const btnBinance = document.getElementById('btn-binance');
+    const infoPago = document.getElementById('info-pago');
+    const metodoPagoInput = document.getElementById('metodo-pago');
 
-        // Extraer información de cada línea
-        lineasPagoMovil.forEach(linea => {
-            if (linea.includes('Banco:')) {
-                banco = linea.replace('Banco:', '').trim();
-            } else if (linea.includes('Telefono:')) {
-                telefono = linea.replace('Telefono:', '').trim();
-            } else if (linea.includes('Cédula:')) {
-                cedula = linea.replace('Cédula:', '').trim();
-            } else if (linea.includes('Nombre:')) {
-                nombre = linea.replace('Nombre:', '').trim();
-            }
-        });
+    // Limpiar selección anterior
+    if (btnPagoMovil) btnPagoMovil.classList.remove('selected');
+    if (btnBinance) btnBinance.classList.remove('selected');
+    if (infoPago) infoPago.style.display = 'none';
+    if (metodoPagoInput) metodoPagoInput.value = '';
 
-        infoPago.innerHTML = `
-            <h4>📱 Datos para Pago Móvil:</h4>
-            <p><strong>🏦 Banco:</strong> ${banco}</p>
-            <p><strong>📞 Teléfono:</strong> ${telefono}</p>
-            <p><strong>🆔 Cédula:</strong> ${cedula}</p>
-            <p><strong>👤 Nombre:</strong> ${nombre}</p>
-            <p style="margin-top: 15px; color: #20c997; font-weight: 600;">
-                💡 Realiza el pago y coloca la referencia en el campo de abajo
-            </p>
-        `;
-        infoPago.style.display = 'block';
-    } else if (metodo === 'Binance') {
-        // Procesar datos de Binance
-        const binanceData = configuracion.binance || 'Información no disponible';
-        const lineasBinance = binanceData.split('\n');
-
-        let email = 'No especificado';
-        let idBinance = 'No especificado';
-
-        // Extraer información de cada línea
-        lineasBinance.forEach(linea => {
-            if (linea.includes('Email:')) {
-                email = linea.replace('Email:', '').trim();
-            } else if (linea.includes('ID Binance:')) {
-                idBinance = linea.replace('ID Binance:', '').trim();
-            }
-        });
-
-        infoPago.innerHTML = `
-            <h4>🟡 Datos para Binance:</h4>
-            <p><strong>📧 Email:</strong> ${email}</p>
-            <p><strong>🆔 ID Binance:</strong> ${idBinance}</p>
-            <p style="margin-top: 15px; color: #20c997; font-weight: 600;">
-                💡 Realiza la transferencia y coloca el ID de transacción en el campo de abajo
-            </p>
-        `;
-        infoPago.style.display = 'block';
-    } else {
-        infoPago.style.display = 'none';
+    if (monedaActual === 'VES') {
+        // Mostrar solo Pago Móvil para VES
+        if (btnPagoMovil) {
+            btnPagoMovil.style.display = 'flex';
+            btnPagoMovil.style.gridColumn = '1 / -1'; // Ocupar todo el ancho
+        }
+        if (btnBinance) {
+            btnBinance.style.display = 'none';
+        }
+    } else if (monedaActual === 'USD') {
+        // Mostrar solo Binance para USD
+        if (btnBinance) {
+            btnBinance.style.display = 'flex';
+            btnBinance.style.gridColumn = '1 / -1'; // Ocupar todo el ancho
+        }
+        if (btnPagoMovil) {
+            btnPagoMovil.style.display = 'none';
+        }
     }
-    });
 }
 
 // Función para seleccionar método de pago
@@ -873,6 +839,8 @@ function inicializarEventos() {
         if (pagoSection && pagoSection.classList.contains('active')) {
             const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
             mostrarTotalPago(total);
+            // Actualizar métodos de pago según la nueva moneda
+            actualizarMetodosPagoSegunMoneda();
         }
 
         mostrarAlerta(`💱 Moneda cambiada a ${monedaActual}`, 'success');
