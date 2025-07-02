@@ -431,7 +431,41 @@ def index():
 
 @app.route('/admin')
 def admin():
+    # Verificar si el admin está logueado
+    if 'admin_logged_in' not in session:
+        return redirect(url_for('admin_login'))
     return render_template('admin.html')
+
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    if request.method == 'POST':
+        data = request.get_json()
+        email = data.get('email')
+        password = data.get('password')
+        
+        # Obtener credenciales del admin desde secretos
+        admin_email = os.environ.get('ADMIN_EMAIL')
+        admin_password = os.environ.get('ADMIN_PASSWORD')
+        
+        if not admin_email or not admin_password:
+            return jsonify({'error': 'Credenciales de administrador no configuradas'}), 500
+        
+        # Verificar credenciales
+        if email == admin_email and password == admin_password:
+            session['admin_logged_in'] = True
+            session['admin_email'] = email
+            return jsonify({'message': 'Login exitoso', 'redirect': '/admin'})
+        else:
+            return jsonify({'error': 'Credenciales incorrectas'}), 401
+    
+    # Mostrar formulario de login
+    return render_template('admin_login.html')
+
+@app.route('/admin/logout', methods=['POST'])
+def admin_logout():
+    session.pop('admin_logged_in', None)
+    session.pop('admin_email', None)
+    return jsonify({'message': 'Sesión cerrada', 'redirect': '/admin/login'})
 
 # ENDPOINT PARA CREAR ÓRDENES DESDE EL FRONTEND
 @app.route('/orden', methods=['POST'])
@@ -508,8 +542,18 @@ def create_orden():
 
     return jsonify({'message': 'Orden creada correctamente', 'id': orden_id})
 
+# Decorador para proteger endpoints de admin
+def admin_required(f):
+    def decorated_function(*args, **kwargs):
+        if 'admin_logged_in' not in session:
+            return jsonify({'error': 'Acceso no autorizado'}), 401
+        return f(*args, **kwargs)
+    decorated_function.__name__ = f.__name__
+    return decorated_function
+
 # ENDPOINTS PARA ÓRDENES
 @app.route('/admin/ordenes', methods=['GET'])
+@admin_required
 def get_ordenes():
     conn = get_db_connection()
     try:
@@ -532,6 +576,7 @@ def get_ordenes():
         conn.close()
 
 @app.route('/admin/orden/<int:orden_id>', methods=['PATCH'])
+@admin_required
 def update_orden(orden_id):
     data = request.get_json()
     nuevo_estado = data.get('estado')
@@ -573,6 +618,7 @@ def update_orden(orden_id):
 
 # ENDPOINTS PARA PRODUCTOS
 @app.route('/admin/productos', methods=['GET'])
+@admin_required
 def get_productos():
     conn = get_db_connection()
     try:
@@ -597,6 +643,7 @@ def get_productos():
         conn.close()
 
 @app.route('/admin/producto', methods=['POST'])
+@admin_required
 def create_producto():
     data = request.get_json()
     nombre = data.get('nombre')
@@ -634,6 +681,7 @@ def create_producto():
         conn.close()
 
 @app.route('/admin/producto/<int:producto_id>', methods=['PUT'])
+@admin_required
 def update_producto(producto_id):
     data = request.get_json()
     nombre = data.get('nombre')
@@ -677,6 +725,7 @@ def update_producto(producto_id):
         conn.close()
 
 @app.route('/admin/producto/<int:producto_id>', methods=['DELETE'])
+@admin_required
 def delete_producto(producto_id):
     conn = get_db_connection()
     try:
@@ -743,6 +792,7 @@ def get_config_publico():
 
 # ENDPOINTS PARA IMÁGENES
 @app.route('/admin/imagenes', methods=['GET'])
+@admin_required
 def get_imagenes():
     conn = get_db_connection()
     try:
@@ -760,6 +810,7 @@ def get_imagenes():
         conn.close()
 
 @app.route('/admin/imagenes', methods=['POST'])
+@admin_required
 def upload_imagen():
     if 'imagen' not in request.files:
         return jsonify({'error': 'No se seleccionó archivo'}), 400
@@ -800,6 +851,7 @@ def upload_imagen():
         })
 
 @app.route('/admin/imagen/<int:imagen_id>', methods=['DELETE'])
+@admin_required
 def delete_imagen(imagen_id):
     conn = get_db_connection()
     try:
@@ -831,6 +883,7 @@ def delete_imagen(imagen_id):
 
 # ENDPOINTS PARA CONFIGURACIÓN
 @app.route('/admin/config', methods=['GET'])
+@admin_required
 def get_config():
     conn = get_db_connection()
     try:
@@ -847,6 +900,7 @@ def get_config():
         conn.close()
 
 @app.route('/config', methods=['PUT'])
+@admin_required
 def update_config():
     data = request.get_json()
 

@@ -284,6 +284,11 @@
         <div class="header">
             <h1>🛡️ Panel Administrador</h1>
             <p>Inefablestore Management System</p>
+            <div style="position: absolute; top: 20px; right: 20px;">
+                <button onclick="adminLogout()" class="btn btn-danger" style="padding: 8px 15px; font-size: 14px;">
+                    🚪 Cerrar Sesión
+                </button>
+            </div>
         </div>
 
         <div class="tabs">
@@ -940,6 +945,27 @@
                 loadImagenes();
             } else if (tabName === 'configuracion') {
                 loadConfig();
+            }
+        }
+
+        // Función para cerrar sesión del admin
+        async function adminLogout() {
+            if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+                try {
+                    const response = await fetch('/admin/logout', {
+                        method: 'POST'
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        showAlert('Sesión cerrada correctamente', 'success');
+                        setTimeout(() => {
+                            window.location.href = data.redirect || '/admin/login';
+                        }, 1500);
+                    }
+                } catch (error) {
+                    showAlert('Error al cerrar sesión', 'error');
+                }
             }
         }
 
