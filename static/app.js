@@ -512,7 +512,8 @@ function agregarPaqueteSeleccionado() {
         paqueteNombre: paqueteSeleccionado.nombre,
         precio: paqueteSeleccionado.precio,
         cantidad: 1,
-        usuarioId: usuarioId // Guardar el ID del usuario
+        usuarioId: usuarioId, // Guardar el ID del usuario
+        imagen: producto.imagen // Agregar imagen del producto
     };
 
     // Verificar si ya existe el mismo item con el mismo ID de usuario
@@ -587,9 +588,18 @@ function mostrarCarrito() {
         const subtotal = parseFloat(item.precio) * item.cantidad;
         total += subtotal;
 
+        // Corregir ruta de imagen del item
+        let imagenUrl = item.imagen || '';
+        if (imagenUrl && !imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
+            imagenUrl = `/static/${imagenUrl}`;
+        }
+        if (!imagenUrl) {
+            imagenUrl = 'https://via.placeholder.com/80x80/007bff/ffffff?text=Juego';
+        }
+
         html += `
             <div class="cart-item">
-                <img src="${item.imagen || '/static/images/default-product.jpg'}" alt="${item.juego}" class="cart-item-image">
+                <img src="${imagenUrl}" alt="${item.productoNombre}" class="cart-item-image" onerror="this.src='https://via.placeholder.com/80x80/007bff/ffffff?text=Juego'">
                 <div class="cart-item-info">
                     <div class="cart-item-name">${item.productoNombre}</div>
                     <div class="cart-item-package">${item.paqueteNombre}</div>
