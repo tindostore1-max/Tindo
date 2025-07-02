@@ -364,7 +364,7 @@ function verDetalleProducto(productoId) {
                     <p style="margin: 0; color: #6c757d; font-size: 16px; line-height: 1.6;">${producto.descripcion || 'Sin descripción disponible'}</p>
                 </div>
             </div>
-            <h3>📦 Paquetes Disponibles</h3>
+            <h3 style="color: #28a745;">Paquetes Disponibles</h3>
             <div class="package-list" style="margin-top: 20px;">
     `;
 

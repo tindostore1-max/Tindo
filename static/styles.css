@@ -254,38 +254,20 @@ header {
     align-items: center;
     text-align: center;
     padding: 25px 15px;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    background: #2a2a2a;
     border-radius: 15px;
-    border: 2px solid transparent;
-    background-clip: padding-box;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    border: 1px solid #444;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
     min-height: 120px;
 }
 
-.package-item::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, #28a745, #20c997);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 1;
-}
-
 .package-item:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.2);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
     border-color: #28a745;
-}
-
-.package-item:hover::before {
-    opacity: 0.03;
 }
 
 .package-selectable {
@@ -300,7 +282,7 @@ header {
 }
 
 .package-selectable.selected {
-    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    background: #2a2a2a;
     border-color: #2196f3;
     transform: translateY(-3px);
     box-shadow: 0 8px 25px rgba(33, 150, 243, 0.2);
@@ -320,16 +302,10 @@ header {
 .package-name {
     font-weight: 700;
     font-size: 18px;
-    color: #2c3e50;
+    color: #ffffff;
     margin-bottom: 5px;
     display: flex;
     align-items: center;
-}
-
-.package-name::before {
-    content: '💎';
-    margin-right: 10px;
-    font-size: 20px;
 }
 
 .package-price {
