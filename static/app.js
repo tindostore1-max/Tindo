@@ -627,7 +627,7 @@ function cambiarCantidad(itemId, cambio) {
     // Convertir itemId a número para comparar correctamente
     const numericItemId = parseInt(itemId);
     const item = carrito.find(i => parseInt(i.id) === numericItemId);
-    
+
     if (!item) {
         console.log('Item no encontrado:', itemId, 'en carrito:', carrito);
         return;
@@ -640,7 +640,7 @@ function cambiarCantidad(itemId, cambio) {
     } else {
         mostrarCarrito();
         actualizarContadorCarrito();
-        
+
         // Mostrar mensaje de actualización
         if (cambio > 0) {
             mostrarAlerta(`✅ Cantidad aumentada a ${item.cantidad}`, 'success');
@@ -655,16 +655,16 @@ function eliminarDelCarrito(itemId) {
     // Convertir itemId a número para comparar correctamente
     const numericItemId = parseInt(itemId);
     const itemAEliminar = carrito.find(item => parseInt(item.id) === numericItemId);
-    
+
     if (!itemAEliminar) {
         console.log('Item no encontrado para eliminar:', itemId);
         return;
     }
-    
+
     carrito = carrito.filter(item => parseInt(item.id) !== numericItemId);
     mostrarCarrito();
     actualizarContadorCarrito();
-    
+
     // Mostrar mensaje de confirmación
     mostrarAlerta(`🗑️ ${itemAEliminar.paqueteNombre} eliminado del carrito`, 'success');
 }
@@ -700,7 +700,7 @@ function prepararPago() {
     // Mostrar el total en la página de pago
     mostrarTotalPago(total);
 
-    // Mostrar información según método seleccionado
+        // Mostrar información según método seleccionado
     const metodoSelect = document.getElementById('metodo-pago');
     metodoSelect.addEventListener('change', function() {
         const infoPago = document.getElementById('info-pago');
@@ -710,12 +710,12 @@ function prepararPago() {
         // Procesar datos de pago móvil
         const pagoMovilData = configuracion.pago_movil || 'Información no disponible';
         const lineasPagoMovil = pagoMovilData.split('\n');
-        
+
         let banco = 'No especificado';
         let telefono = 'No especificado';
         let cedula = 'No especificado';
         let nombre = 'No especificado';
-        
+
         // Extraer información de cada línea
         lineasPagoMovil.forEach(linea => {
             if (linea.includes('Banco:')) {
@@ -744,10 +744,10 @@ function prepararPago() {
         // Procesar datos de Binance
         const binanceData = configuracion.binance || 'Información no disponible';
         const lineasBinance = binanceData.split('\n');
-        
+
         let email = 'No especificado';
         let idBinance = 'No especificado';
-        
+
         // Extraer información de cada línea
         lineasBinance.forEach(linea => {
             if (linea.includes('Email:')) {
@@ -772,7 +772,86 @@ function prepararPago() {
     });
 }
 
+// Función para seleccionar método de pago
+function seleccionarMetodoPago(metodo) {
+    // Remover selección anterior
+    document.querySelectorAll('.payment-method-btn').forEach(btn => {
+        btn.classList.remove('selected');
+    });
 
+    // Seleccionar botón actual
+    const btnId = metodo === 'Pago Móvil' ? 'btn-pago-movil' : 'btn-binance';
+    document.getElementById(btnId).classList.add('selected');
+
+    // Actualizar campo oculto
+    document.getElementById('metodo-pago').value = metodo;
+
+    // Mostrar información del método de pago
+    const infoPago = document.getElementById('info-pago');
+
+    if (metodo === 'Pago Móvil') {
+        // Procesar datos de pago móvil
+        const pagoMovilData = configuracion.pago_movil || 'Información no disponible';
+        const lineasPagoMovil = pagoMovilData.split('\n');
+
+        let banco = 'No especificado';
+        let telefono = 'No especificado';
+        let cedula = 'No especificado';
+        let nombre = 'No especificado';
+
+        // Extraer información de cada línea
+        ```javascript
+        lineasPagoMovil.forEach(linea => {
+            if (linea.includes('Banco:')) {
+                banco = linea.replace('Banco:', '').trim();
+            } else if (linea.includes('Telefono:')) {
+                telefono = linea.replace('Telefono:', '').trim();
+            } else if (linea.includes('Cédula:')) {
+                cedula = linea.replace('Cédula:', '').trim();
+            } else if (linea.includes('Nombre:')) {
+                nombre = linea.replace('Nombre:', '').trim();
+            }
+        });
+
+        infoPago.innerHTML = `
+            <h4>📱 Datos para Pago Móvil:</h4>
+            <p><strong>🏦 Banco:</strong> ${banco}</p>
+            <p><strong>📞 Teléfono:</strong> ${telefono}</p>
+            <p><strong>🆔 Cédula:</strong> ${cedula}</p>
+            <p><strong>👤 Nombre:</strong> ${nombre}</p>
+            <p style="margin-top: 15px; color: #20c997; font-weight: 600;">
+                💡 Realiza el pago y coloca la referencia en el campo de abajo
+            </p>
+        `;
+        infoPago.style.display = 'block';
+    } else if (metodo === 'Binance') {
+        // Procesar datos de Binance
+        const binanceData = configuracion.binance || 'Información no disponible';
+        const lineasBinance = binanceData.split('\n');
+
+        let email = 'No especificado';
+        let idBinance = 'No especificado';
+
+        // Extraer información de cada línea
+        lineasBinance.forEach(linea => {
+            if (linea.includes('Email:')) {
+                email = linea.replace('Email:', '').trim();
+            } else if (linea.includes('ID Binance:')) {
+                idBinance = linea.replace('ID Binance:', '').trim();
+            }
+        });
+
+        infoPago.innerHTML = `
+            <h4>🟡 Datos para Binance:</h4>
+            <p><strong>📧 Email:</strong> ${email}</p>
+            <p><strong>🆔 ID Binance:</strong> ${idBinance}</p>
+            <p style="margin-top: 15px; color: #20c997; font-weight: 600;">
+                💡 Realiza la transferencia y coloca el ID de transacción en el campo de abajo
+            </p>
+        `;
+        infoPago.style.display = 'block';
+    }
+}
 
 // Mostrar total del pago
 function mostrarTotalPago(total) {
@@ -789,14 +868,14 @@ function inicializarEventos() {
         monedaActual = this.value;
         mostrarProductos();
         mostrarCarrito();
-        
+
         // Actualizar total en página de pago si está visible
         const pagoSection = document.getElementById('pago');
         if (pagoSection && pagoSection.classList.contains('active')) {
             const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
             mostrarTotalPago(total);
         }
-        
+
         mostrarAlerta(`💱 Moneda cambiada a ${monedaActual}`, 'success');
     });
 

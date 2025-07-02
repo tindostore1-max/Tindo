@@ -115,11 +115,17 @@
                         </div>
                         <div class="form-group">
                             <label>💰 Método de Pago</label>
-                            <select id="metodo-pago" class="form-control" required>
-                                <option value="">Seleccionar método de pago</option>
-                                <option value="Pago Móvil">📱 Pago Móvil</option>
-                                <option value="Binance">🟡 Binance</option>
-                            </select>
+                            <div class="payment-methods">
+                                <button type="button" class="payment-method-btn" id="btn-pago-movil" onclick="seleccionarMetodoPago('Pago Móvil')">
+                                    <span class="payment-icon">📱</span>
+                                    <span class="payment-text">Pago Móvil</span>
+                                </button>
+                                <button type="button" class="payment-method-btn" id="btn-binance" onclick="seleccionarMetodoPago('Binance')">
+                                    <span class="payment-icon">🟡</span>
+                                    <span class="payment-text">Binance</span>
+                                </button>
+                            </div>
+                            <input type="hidden" id="metodo-pago" name="metodo-pago" required>
                         </div>
                         <div id="info-pago" class="payment-info">
                             <!-- Información del método de pago -->
