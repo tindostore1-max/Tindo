@@ -437,11 +437,11 @@ function seleccionarPaquete(elemento) {
 
     // Seleccionar el paquete actual
     elemento.classList.add('selected');
-    elemento.querySelector('.package-radio').textContent = '🔵';
-    elemento.style.background = 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)';
-    elemento.style.borderColor = '#2196f3';
+    elemento.querySelector('.package-radio').textContent = '🟢';
+    elemento.style.background = '#2a2a2a';
+    elemento.style.borderColor = '#28a745';
     elemento.style.transform = 'translateY(-3px)';
-    elemento.style.boxShadow = '0 8px 25px rgba(33, 150, 243, 0.2)';
+    elemento.style.boxShadow = '0 8px 25px rgba(40, 167, 69, 0.3)';
 
     // Guardar información del paquete seleccionado
     paqueteSeleccionado = {
@@ -456,7 +456,7 @@ function seleccionarPaquete(elemento) {
 
     if (infoDiv && botonAgregar) {
         infoDiv.innerHTML = `
-            <div style="color: #2196f3; font-weight: 700; font-size: 18px;">
+            <div style="color: #28a745; font-weight: 700; font-size: 18px;">
                 🎮 Paquete seleccionado: <span style="color: #28a745;">${paqueteSeleccionado.nombre}</span>
             </div>
             <div style="color: #6c757d; font-size: 14px; margin-top: 5px;">

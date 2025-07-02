@@ -283,9 +283,9 @@ header {
 
 .package-selectable.selected {
     background: #2a2a2a;
-    border-color: #2196f3;
+    border-color: #28a745;
     transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(33, 150, 243, 0.2);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
 }
 
 .package-radio {
@@ -735,7 +735,7 @@ header {
 .carousel-dots {
     text-align: center;
     padding: 15px 0;
-    background: rgba(255, 255, 255, 0.9);
+    background: #2a2a2a;
 }
 
 .dot {
