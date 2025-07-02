@@ -195,9 +195,9 @@ def init_db():
             ('tasa_usd_ves', '36.50'),
             ('pago_movil', 'Banco: Banesco\nTelefono: 0412-1234567\nCédula: V-12345678\nNombre: Store Admin'),
             ('binance', 'Email: admin@inefablestore.com\nID Binance: 123456789'),
-            ('carousel1', '/static/images/carousel1.jpg'),
-            ('carousel2', '/static/images/carousel2.jpg'),
-            ('carousel3', '/static/images/carousel3.jpg')
+            ('carousel1', 'https://via.placeholder.com/800x300/007bff/ffffff?text=Oferta+Especial+1'),
+            ('carousel2', 'https://via.placeholder.com/800x300/28a745/ffffff?text=Oferta+Especial+2'),
+            ('carousel3', 'https://via.placeholder.com/800x300/dc3545/ffffff?text=Oferta+Especial+3')
         ]
 
         for campo, valor in configs:
