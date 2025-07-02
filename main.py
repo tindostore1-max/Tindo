@@ -7,6 +7,10 @@ from datetime import datetime
 import json
 from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash, check_password_hash
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import threading
 
 load_dotenv()
 
@@ -37,6 +41,63 @@ def get_db_connection():
     else:
         conn = psycopg2.connect(**config)
     return conn
+
+def enviar_notificacion_orden(orden_data):
+    """Envía notificación por correo de nueva orden"""
+    try:
+        # Configuración del correo
+        smtp_server = "smtp.gmail.com"
+        smtp_port = 587
+        email_usuario = "inefableshop.12@gmail.com"
+        email_password = os.environ.get('GMAIL_APP_PASSWORD')
+        
+        if not email_password:
+            print("Error: No se encontró la contraseña de Gmail en los secretos")
+            return False
+        
+        # Crear mensaje
+        mensaje = MIMEMultipart()
+        mensaje['From'] = email_usuario
+        mensaje['To'] = email_usuario  # Enviamos a nosotros mismos
+        mensaje['Subject'] = f"🛒 Nueva Orden #{orden_data['id']} - Inefable Store"
+        
+        # Cuerpo del mensaje
+        cuerpo = f"""
+        ¡Nueva orden recibida en Inefable Store!
+        
+        📋 Detalles de la Orden:
+        • ID: #{orden_data['id']}
+        • Juego: {orden_data.get('juego_nombre', 'N/A')}
+        • Paquete: {orden_data['paquete']}
+        • Monto: ${orden_data['monto']}
+        • Cliente: {orden_data['usuario_email']}
+        • ID del Usuario en el Juego: {orden_data.get('usuario_id', 'No especificado')}
+        • Método de Pago: {orden_data['metodo_pago']}
+        • Referencia: {orden_data['referencia_pago']}
+        • Estado: {orden_data['estado']}
+        • Fecha: {orden_data['fecha']}
+        
+        🎮 Accede al panel de administración para gestionar esta orden.
+        
+        ¡Saludos del equipo de Inefable Store! 🚀
+        """
+        
+        mensaje.attach(MIMEText(cuerpo, 'plain'))
+        
+        # Enviar correo
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+        server.login(email_usuario, email_password)
+        texto = mensaje.as_string()
+        server.sendmail(email_usuario, email_usuario, texto)
+        server.quit()
+        
+        print(f"✅ Notificación enviada para orden #{orden_data['id']}")
+        return True
+        
+    except Exception as e:
+        print(f"❌ Error al enviar notificación: {str(e)}")
+        return False
 
 def init_db():
     """Inicializa las tablas de la base de datos"""
@@ -246,9 +307,38 @@ def create_orden():
     ''', (juego_id, paquete, monto, usuario_email, usuario_id, metodo_pago, referencia_pago))
 
     orden_id = cur.fetchone()[0]
+    
+    # Obtener datos completos de la orden para la notificación
+    cur.execute('''
+        SELECT o.*, j.nombre as juego_nombre 
+        FROM ordenes o 
+        LEFT JOIN juegos j ON o.juego_id = j.id 
+        WHERE o.id = %s
+    ''', (orden_id,))
+    
+    orden_completa = cur.fetchone()
     conn.commit()
     cur.close()
     conn.close()
+
+    # Enviar notificación por correo en un hilo separado para no bloquear la respuesta
+    if orden_completa:
+        orden_data = {
+            'id': orden_completa[0],
+            'juego_id': orden_completa[1],
+            'paquete': orden_completa[2],
+            'monto': orden_completa[3],
+            'usuario_email': orden_completa[4],
+            'usuario_id': orden_completa[5],
+            'metodo_pago': orden_completa[6],
+            'referencia_pago': orden_completa[7],
+            'estado': orden_completa[8],
+            'fecha': orden_completa[9],
+            'juego_nombre': orden_completa[10]
+        }
+        
+        # Enviar notificación en hilo separado
+        threading.Thread(target=enviar_notificacion_orden, args=(orden_data,)).start()
 
     return jsonify({'message': 'Orden creada correctamente', 'id': orden_id})
 
