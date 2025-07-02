@@ -885,23 +885,34 @@ header {
 }
 
 .quantity-btn {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border: none;
     border-radius: 50%;
     background: #28a745;
     color: white;
     font-weight: 700;
+    font-size: 16px;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .quantity-btn:hover {
     background: #20c997;
-    transform: scale(1.1);
+    transform: scale(1.15);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+}
+
+.quantity-btn:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
 }
 
 .quantity-display {
@@ -917,19 +928,29 @@ header {
     color: white;
     border: none;
     border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    font-size: 14px;
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .remove-btn:hover {
     background: #c82333;
-    transform: scale(1.1);
+    transform: scale(1.15);
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+}
+
+.remove-btn:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
 }
 
 .cart-summary {

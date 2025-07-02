@@ -607,11 +607,11 @@ function mostrarCarrito() {
                 </div>
                 <div class="cart-item-controls">
                     <div class="quantity-control">
-                        <button onclick="cambiarCantidad('${item.id}', -1)" class="quantity-btn">-</button>
+                        <button onclick="cambiarCantidad(${item.id}, -1)" class="quantity-btn" title="Reducir cantidad">-</button>
                         <span class="quantity-display">${item.cantidad}</span>
-                        <button onclick="cambiarCantidad('${item.id}', 1)" class="quantity-btn">+</button>
+                        <button onclick="cambiarCantidad(${item.id}, 1)" class="quantity-btn" title="Aumentar cantidad">+</button>
                     </div>
-                    <button onclick="eliminarDelCarrito('${item.id}')" class="remove-btn">🗑️</button>
+                    <button onclick="eliminarDelCarrito(${item.id})" class="remove-btn" title="Eliminar del carrito">🗑️</button>
                 </div>
             </div>
         `;
@@ -624,8 +624,14 @@ function mostrarCarrito() {
 
 // Cambiar cantidad de un item
 function cambiarCantidad(itemId, cambio) {
-    const item = carrito.find(i => i.id === itemId);
-    if (!item) return;
+    // Convertir itemId a número para comparar correctamente
+    const numericItemId = parseInt(itemId);
+    const item = carrito.find(i => parseInt(i.id) === numericItemId);
+    
+    if (!item) {
+        console.log('Item no encontrado:', itemId, 'en carrito:', carrito);
+        return;
+    }
 
     item.cantidad += cambio;
 
@@ -634,14 +640,33 @@ function cambiarCantidad(itemId, cambio) {
     } else {
         mostrarCarrito();
         actualizarContadorCarrito();
+        
+        // Mostrar mensaje de actualización
+        if (cambio > 0) {
+            mostrarAlerta(`✅ Cantidad aumentada a ${item.cantidad}`, 'success');
+        } else {
+            mostrarAlerta(`📉 Cantidad reducida a ${item.cantidad}`, 'success');
+        }
     }
 }
 
 // Eliminar item del carrito
 function eliminarDelCarrito(itemId) {
-    carrito = carrito.filter(item => item.id !== itemId);
+    // Convertir itemId a número para comparar correctamente
+    const numericItemId = parseInt(itemId);
+    const itemAEliminar = carrito.find(item => parseInt(item.id) === numericItemId);
+    
+    if (!itemAEliminar) {
+        console.log('Item no encontrado para eliminar:', itemId);
+        return;
+    }
+    
+    carrito = carrito.filter(item => parseInt(item.id) !== numericItemId);
     mostrarCarrito();
     actualizarContadorCarrito();
+    
+    // Mostrar mensaje de confirmación
+    mostrarAlerta(`🗑️ ${itemAEliminar.paqueteNombre} eliminado del carrito`, 'success');
 }
 
 // Proceder al pago
