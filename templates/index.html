@@ -106,21 +106,23 @@
                         <div id="total-pago" class="payment-total">Total a pagar: $0.00</div>
                     </div>
 
-                    <!-- Configuración de moneda y tasa -->
-                    <div class="currency-config-section">
-                        <h3>💱 Configuración de Moneda</h3>
-                        <div class="currency-controls">
-                            <div class="form-group">
-                                <label>Moneda para el pago</label>
-                                <select id="moneda-pago" class="form-control">
-                                    <option value="USD">💵 USD</option>
-                                    <option value="VES">💰 VES</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Tasa USD a VES</label>
-                                <input type="number" step="0.01" id="tasa-cambio" class="form-control" min="1" placeholder="36.50">
-                                <small>Actualiza la tasa si es necesario</small>
+                    <!-- Botón para cambiar tasa -->
+                    <div class="currency-rate-section">
+                        <button type="button" id="btn-cambiar-tasa" class="btn-rate-change" onclick="mostrarCambioTasa()">
+                            💱 Cambiar Tasa de Cambio (Actual: <span id="tasa-actual">36.50</span> VES por USD)
+                        </button>
+                        
+                        <div id="modal-cambio-tasa" class="modal-tasa" style="display: none;">
+                            <div class="modal-content">
+                                <h4>💱 Actualizar Tasa de Cambio</h4>
+                                <div class="form-group">
+                                    <label>Nueva tasa USD a VES</label>
+                                    <input type="number" step="0.01" id="nueva-tasa" class="form-control" min="1" placeholder="36.50">
+                                </div>
+                                <div class="modal-buttons">
+                                    <button type="button" onclick="aplicarNuevaTasa()" class="btn btn-success">✅ Aplicar</button>
+                                    <button type="button" onclick="cerrarModalTasa()" class="btn btn-secondary">❌ Cancelar</button>
+                                </div>
                             </div>
                         </div>
                     </div>
