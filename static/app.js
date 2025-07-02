@@ -566,40 +566,49 @@ function actualizarContadorCarrito() {
 
 // Mostrar carrito
 function mostrarCarrito() {
-    const container = document.getElementById('carrito-items');
+    const carritoItems = document.getElementById('carrito-items');
 
     if (carrito.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: #6c757d; padding: 40px;">Tu carrito está vacío</p>';
+        carritoItems.innerHTML = `
+            <div class="cart-empty">
+                <i>🛒</i>
+                <h3>Tu carrito está vacío</h3>
+                <p>Agrega algunos productos para comenzar</p>
+            </div>
+        `;
         document.getElementById('carrito-total').textContent = 'Total: $0.00';
         return;
     }
 
-    let html = '';
+    let html = '<div class="cart-items-container">';
     let total = 0;
 
     carrito.forEach(item => {
-        const subtotal = item.precio * item.cantidad;
+        const subtotal = parseFloat(item.precio) * item.cantidad;
         total += subtotal;
 
         html += `
             <div class="cart-item">
-                <div>
-                    <div style="font-weight: 600;">${item.productoNombre}</div>
-                    <div style="color: #6c757d;">${item.paqueteNombre}</div>
-                    <div style="color: #007bff; font-size: 14px; font-weight: 500;">🎮 ID: ${item.usuarioId || 'No especificado'}</div>
-                    <div style="color: #28a745; font-weight: 600;">${convertirPrecio(item.precio)} x ${item.cantidad}</div>
+                <img src="${item.imagen || '/static/images/default-product.jpg'}" alt="${item.juego}" class="cart-item-image">
+                <div class="cart-item-info">
+                    <div class="cart-item-name">${item.productoNombre}</div>
+                    <div class="cart-item-package">${item.paqueteNombre}</div>
+                    <div class="cart-item-price">${convertirPrecio(item.precio)}</div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <button class="btn btn-primary" onclick="cambiarCantidad(${item.id}, -1)">-</button>
-                    <span style="font-weight: 600; min-width: 30px; text-align: center;">${item.cantidad}</span>
-                    <button class="btn btn-primary" onclick="cambiarCantidad(${item.id}, 1)">+</button>
-                    <button class="btn btn-danger" onclick="eliminarDelCarrito(${item.id})">🗑️</button>
+                <div class="cart-item-controls">
+                    <div class="quantity-control">
+                        <button onclick="cambiarCantidad('${item.id}', -1)" class="quantity-btn">-</button>
+                        <span class="quantity-display">${item.cantidad}</span>
+                        <button onclick="cambiarCantidad('${item.id}', 1)" class="quantity-btn">+</button>
+                    </div>
+                    <button onclick="eliminarDelCarrito('${item.id}')" class="remove-btn">🗑️</button>
                 </div>
             </div>
         `;
     });
 
-    container.innerHTML = html;
+    html += '</div>';
+    carritoItems.innerHTML = html;
     document.getElementById('carrito-total').textContent = `Total: ${convertirPrecio(total)}`;
 }
 
@@ -657,24 +666,33 @@ function prepararPago() {
     const metodoSelect = document.getElementById('metodo-pago');
     metodoSelect.addEventListener('change', function() {
         const infoPago = document.getElementById('info-pago');
-
-        if (this.value === 'Pago Móvil' && configuracion.pago_movil) {
-            infoPago.innerHTML = `
-                <h4>📱 Información de Pago Móvil</h4>
-                <pre style="white-space: pre-wrap; font-family: inherit;">${configuracion.pago_movil}</pre>
-                <p><strong>Monto a pagar:</strong> ${convertirPrecio(total)}</p>
-            `;
-            infoPago.style.display = 'block';
-        } else if (this.value === 'Binance' && configuracion.binance) {
-            infoPago.innerHTML = `
-                <h4>💰 Información de Binance</h4>
-                <pre style="white-space: pre-wrap; font-family: inherit;">${configuracion.binance}</pre>
-                <p><strong>Monto a pagar:</strong> $${total.toFixed(2)} USD</p>
-            `;
-            infoPago.style.display = 'block';
-        } else {
-            infoPago.style.display = 'none';
-        }
+        const metodo = this.value;
+    // Mostrar información del método de pago
+    if (metodo === 'Pago Móvil') {
+        infoPago.innerHTML = `
+            <h4>📱 Datos para Pago Móvil:</h4>
+            <p><strong>🏦 Banco:</strong> ${configuracion.pago_movil.split('\\n')[0].replace('Banco: ', '')}</p>
+            <p><strong>📞 Teléfono:</strong> ${configuracion.pago_movil.split('\\n')[1].replace('Telefono: ', '')}</p>
+            <p><strong>🆔 Cédula:</strong> ${configuracion.pago_movil.split('\\n')[2].replace('Cédula: ', '')}</p>
+            <p><strong>👤 Nombre:</strong> ${configuracion.pago_movil.split('\\n')[3].replace('Nombre: ', '')}</p>
+            <p style="margin-top: 15px; color: #20c997; font-weight: 600;">
+                💡 Realiza el pago y coloca la referencia en el campo de abajo
+            </p>
+        `;
+        infoPago.style.display = 'block';
+    } else if (metodo === 'Binance') {
+        infoPago.innerHTML = `
+            <h4>🟡 Datos para Binance:</h4>
+            <p><strong>📧 Email:</strong> ${configuracion.binance.split('\\n')[0].replace('Email: ', '')}</p>
+            <p><strong>🆔 ID Binance:</strong> ${configuracion.binance.split('\\n')[1].replace('ID Binance: ', '')}</p>
+            <p style="margin-top: 15px; color: #20c997; font-weight: 600;">
+                💡 Realiza la transferencia y coloca el ID de transacción en el campo de abajo
+            </p>
+        `;
+        infoPago.style.display = 'block';
+    } else {
+        infoPago.style.display = 'none';
+    }
     });
 }
 
@@ -879,7 +897,7 @@ function actualizarInterfazUsuario(usuario) {
     loginSection.innerHTML = `
         <div class="auth-section">
             <h2 style="color: #ffffff; text-align: center; font-size: 28px; margin-bottom: 30px;">👤 Mi Cuenta</h2>
-            
+
             <div class="user-profile-card">
                 <h3>🌟 Bienvenido, ${usuario.nombre}</h3>
                 <p><strong>Email:</strong> ${usuario.email}</p>

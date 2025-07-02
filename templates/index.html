@@ -82,43 +82,49 @@
 
             <!-- Sección Carrito -->
             <section id="carrito" class="tab-section">
-                <h2>🛒 Tu Carrito de Compras</h2>
-                <div id="carrito-items">
-                    <!-- Productos agregados por el usuario -->
+                <div class="cart-section">
+                    <h2>🛒 Tu Carrito de Compras</h2>
+                    <div id="carrito-items">
+                        <!-- Productos agregados por el usuario -->
+                    </div>
+                    <div class="cart-summary">
+                        <div class="cart-total" id="carrito-total">Total: $0.00</div>
+                        <button class="checkout-btn" onclick="procederAlPago()">
+                            💳 Proceder al Pago
+                        </button>
+                    </div>
                 </div>
-                <div class="cart-total" id="carrito-total">Total: $0.00</div>
-                <button class="btn btn-success" onclick="procederAlPago()" style="width: 100%; padding: 15px; font-size: 18px;">
-                    💳 Proceder al Pago
-                </button>
             </section>
 
             <!-- Sección Pago -->
             <section id="pago" class="tab-section">
-                <h2>💳 Método de Pago</h2>
-                <form id="form-pago">
-                    <div class="form-group">
-                        <label>Correo Electrónico</label>
-                        <input type="email" id="pago-email" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Método de Pago</label>
-                        <select id="metodo-pago" class="form-control" required>
-                            <option value="">Seleccionar método</option>
-                            <option value="Pago Móvil">Pago Móvil</option>
-                            <option value="Binance">Binance</option>
-                        </select>
-                    </div>
-                    <div id="info-pago" style="margin: 20px 0; padding: 15px; background: #e3f2fd; border-radius: 8px; display: none;">
-                        <!-- Información del método de pago -->
-                    </div>
-                    <div class="form-group">
-                        <label>Referencia de Pago</label>
-                        <input type="text" id="referencia-pago" class="form-control" placeholder="Ingresa tu referencia de pago" required>
-                    </div>
-                    <button type="submit" class="btn btn-success" style="width: 100%; padding: 15px; font-size: 18px;">
-                        ✅ Confirmar Pago
-                    </button>
-                </form>
+                <div class="payment-section">
+                    <h2>💳 Método de Pago</h2>
+                    <form id="form-pago" class="payment-form">
+                        <div class="form-group">
+                            <label>📧 Correo Electrónico</label>
+                            <input type="email" id="pago-email" class="form-control" placeholder="tu@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label>💰 Método de Pago</label>
+                            <select id="metodo-pago" class="form-control" required>
+                                <option value="">Seleccionar método de pago</option>
+                                <option value="Pago Móvil">📱 Pago Móvil</option>
+                                <option value="Binance">🟡 Binance</option>
+                            </select>
+                        </div>
+                        <div id="info-pago" class="payment-info">
+                            <!-- Información del método de pago -->
+                        </div>
+                        <div class="form-group">
+                            <label>🔢 Referencia de Pago</label>
+                            <input type="text" id="referencia-pago" class="form-control" placeholder="Ingresa tu referencia de pago" required>
+                        </div>
+                        <button type="submit" class="submit-payment-btn">
+                            ✅ Confirmar Pago
+                        </button>
+                    </form>
+                </div>
             </section>
 
             <!-- Sección Login/Registro integrada -->
