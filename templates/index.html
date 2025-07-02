@@ -533,16 +533,25 @@
 
         @media (max-width: 768px) {
             .container {
-                padding: 90px 10px 10px 10px; /* Espacio superior para el header fijo en móvil */
+                padding: 70px 10px 10px 10px; /* Espacio superior reducido para header más pequeño */
             }
 
             header {
-                padding: 10px 15px;
+                padding: 8px 15px; /* Padding más pequeño */
+            }
+
+            .logo {
+                height: 40px; /* Logo más pequeño en móvil */
+            }
+
+            .currency-selector {
+                padding: 6px 10px; /* Selector de moneda más compacto */
+                font-size: 14px;
             }
 
             header {
                 flex-direction: column;
-                gap: 15px;
+                gap: 10px; /* Gap más pequeño entre elementos */
             }
 
             .product-grid {
