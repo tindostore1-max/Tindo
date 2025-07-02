@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
-import psycopg2
-from psycopg2.extras import RealDictCursor
+from sqlalchemy import create_engine, text
+from sqlalchemy.pool import NullPool
 import os
 from werkzeug.utils import secure_filename
 from datetime import datetime
@@ -18,29 +18,28 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'tu_clave_secreta_aqui'
 app.config['UPLOAD_FOLDER'] = 'static/images'
 
-# Configuración de la base de datos usando variables de entorno de Replit
-def get_db_config():
+# Configuración de SQLAlchemy con DATABASE_URL
+def create_db_engine():
     database_url = os.environ.get('DATABASE_URL')
-    if database_url:
-        # Usar la URL de la base de datos de Replit
-        return {'dsn': database_url}
-    else:
-        # Fallback a configuración manual
-        return {
-            'host': os.environ.get('DB_HOST', 'localhost'),
-            'database': os.environ.get('DB_NAME', 'inefablestore'),
-            'user': os.environ.get('DB_USER', 'postgres'),
-            'password': os.environ.get('DB_PASSWORD', 'password'),
-            'port': os.environ.get('DB_PORT', '5432')
-        }
+    if not database_url:
+        # Fallback para desarrollo local
+        database_url = f"postgresql://{os.environ.get('DB_USER', 'postgres')}:{os.environ.get('DB_PASSWORD', 'password')}@{os.environ.get('DB_HOST', 'localhost')}:{os.environ.get('DB_PORT', '5432')}/{os.environ.get('DB_NAME', 'inefablestore')}"
+    
+    # Crear engine de SQLAlchemy
+    engine = create_engine(
+        database_url,
+        poolclass=NullPool,  # Para evitar problemas de conexión en Replit
+        pool_pre_ping=True,  # Para verificar conexiones antes de usarlas
+        echo=False  # Cambiar a True para debug SQL
+    )
+    return engine
+
+# Engine global
+db_engine = create_db_engine()
 
 def get_db_connection():
-    config = get_db_config()
-    if 'dsn' in config:
-        conn = psycopg2.connect(config['dsn'])
-    else:
-        conn = psycopg2.connect(**config)
-    return conn
+    """Obtener conexión a la base de datos usando SQLAlchemy"""
+    return db_engine.connect()
 
 def enviar_correo_recarga_completada(orden_info):
     """Envía correo al usuario confirmando que su recarga ha sido completada"""
@@ -186,174 +185,189 @@ def enviar_notificacion_orden(orden_data):
 def init_db():
     """Inicializa las tablas de la base de datos"""
     conn = get_db_connection()
-    cur = conn.cursor()
-
-    # Crear tablas
-    cur.execute('''
-        CREATE TABLE IF NOT EXISTS juegos (
-            id SERIAL PRIMARY KEY,
-            nombre VARCHAR(100),
-            descripcion TEXT,
-            imagen VARCHAR(255)
-        );
-    ''')
-
-    cur.execute('''
-        CREATE TABLE IF NOT EXISTS paquetes (
-            id SERIAL PRIMARY KEY,
-            juego_id INTEGER REFERENCES juegos(id),
-            nombre VARCHAR(100),
-            precio NUMERIC(10,2)
-        );
-    ''')
-
-    cur.execute('''
-        CREATE TABLE IF NOT EXISTS ordenes (
-            id SERIAL PRIMARY KEY,
-            juego_id INTEGER REFERENCES juegos(id),
-            paquete VARCHAR(100),
-            monto NUMERIC(10,2),
-            usuario_email VARCHAR(100),
-            usuario_id VARCHAR(100),
-            metodo_pago VARCHAR(50),
-            referencia_pago VARCHAR(100),
-            estado VARCHAR(20) DEFAULT 'procesando',
-            fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-    ''')
-
-    # Agregar columna usuario_id si no existe (migración)
-    cur.execute('''
-        ALTER TABLE ordenes 
-        ADD COLUMN IF NOT EXISTS usuario_id VARCHAR(100);
-    ''')
-
-    cur.execute('''
-        CREATE TABLE IF NOT EXISTS imagenes (
-            id SERIAL PRIMARY KEY,
-            tipo VARCHAR(50),
-            ruta VARCHAR(255)
-        );
-    ''')
-
-    cur.execute('''
-        CREATE TABLE IF NOT EXISTS configuracion (
-            id SERIAL PRIMARY KEY,
-            campo VARCHAR(50) UNIQUE,
-            valor TEXT
-        );
-    ''')
     
-    # Crear tabla de usuarios
-    cur.execute('''
-        CREATE TABLE IF NOT EXISTS usuarios (
-            id SERIAL PRIMARY KEY,
-            nombre VARCHAR(100) NOT NULL,
-            email VARCHAR(100) UNIQUE NOT NULL,
-            password_hash VARCHAR(255) NOT NULL,
-            fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-    ''')
+    try:
+        # Crear tablas usando SQLAlchemy
+        conn.execute(text('''
+            CREATE TABLE IF NOT EXISTS juegos (
+                id SERIAL PRIMARY KEY,
+                nombre VARCHAR(100),
+                descripcion TEXT,
+                imagen VARCHAR(255)
+            );
+        '''))
 
+        conn.execute(text('''
+            CREATE TABLE IF NOT EXISTS paquetes (
+                id SERIAL PRIMARY KEY,
+                juego_id INTEGER REFERENCES juegos(id),
+                nombre VARCHAR(100),
+                precio NUMERIC(10,2)
+            );
+        '''))
 
-    # Verificar si ya hay productos
-    cur.execute('SELECT COUNT(*) FROM juegos')
-    product_count = cur.fetchone()[0]
+        conn.execute(text('''
+            CREATE TABLE IF NOT EXISTS ordenes (
+                id SERIAL PRIMARY KEY,
+                juego_id INTEGER REFERENCES juegos(id),
+                paquete VARCHAR(100),
+                monto NUMERIC(10,2),
+                usuario_email VARCHAR(100),
+                usuario_id VARCHAR(100),
+                metodo_pago VARCHAR(50),
+                referencia_pago VARCHAR(100),
+                estado VARCHAR(20) DEFAULT 'procesando',
+                fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        '''))
+
+        # Agregar columna usuario_id si no existe (migración)
+        conn.execute(text('''
+            ALTER TABLE ordenes 
+            ADD COLUMN IF NOT EXISTS usuario_id VARCHAR(100);
+        '''))
+
+        conn.execute(text('''
+            CREATE TABLE IF NOT EXISTS imagenes (
+                id SERIAL PRIMARY KEY,
+                tipo VARCHAR(50),
+                ruta VARCHAR(255)
+            );
+        '''))
+
+        conn.execute(text('''
+            CREATE TABLE IF NOT EXISTS configuracion (
+                id SERIAL PRIMARY KEY,
+                campo VARCHAR(50) UNIQUE,
+                valor TEXT
+            );
+        '''))
+        
+        # Crear tabla de usuarios
+        conn.execute(text('''
+            CREATE TABLE IF NOT EXISTS usuarios (
+                id SERIAL PRIMARY KEY,
+                nombre VARCHAR(100) NOT NULL,
+                email VARCHAR(100) UNIQUE NOT NULL,
+                password_hash VARCHAR(255) NOT NULL,
+                fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        '''))
+
+        # Verificar si ya hay productos
+        result = conn.execute(text('SELECT COUNT(*) FROM juegos'))
+        product_count = result.fetchone()[0]
 
     # Insertar productos de ejemplo si no existen
-    if product_count == 0:
-        # Free Fire
-        cur.execute('''
-            INSERT INTO juegos (nombre, descripcion, imagen) 
-            VALUES (%s, %s, %s) RETURNING id
-        ''', ('Free Fire', 'Juego de batalla real con acción intensa y gráficos increíbles', '/static/images/20250701_212818_free_fire.webp'))
+        if product_count == 0:
+            # Free Fire
+            result = conn.execute(text('''
+                INSERT INTO juegos (nombre, descripcion, imagen) 
+                VALUES (:nombre, :descripcion, :imagen) RETURNING id
+            '''), {
+                'nombre': 'Free Fire',
+                'descripcion': 'Juego de batalla real con acción intensa y gráficos increíbles',
+                'imagen': '/static/images/20250701_212818_free_fire.webp'
+            })
 
-        ff_id = cur.fetchone()[0]
+            ff_id = result.fetchone()[0]
 
-        # Paquetes de Free Fire
-        ff_packages = [
-            ('100 Diamantes', 2.99),
-            ('310 Diamantes', 9.99),
-            ('520 Diamantes', 14.99),
-            ('1080 Diamantes', 29.99),
-            ('2200 Diamantes', 59.99)
-        ]
+            # Paquetes de Free Fire
+            ff_packages = [
+                ('100 Diamantes', 2.99),
+                ('310 Diamantes', 9.99),
+                ('520 Diamantes', 14.99),
+                ('1080 Diamantes', 29.99),
+                ('2200 Diamantes', 59.99)
+            ]
 
-        for nombre, precio in ff_packages:
-            cur.execute('''
-                INSERT INTO paquetes (juego_id, nombre, precio) 
-                VALUES (%s, %s, %s)
-            ''', (ff_id, nombre, precio))
+            for nombre, precio in ff_packages:
+                conn.execute(text('''
+                    INSERT INTO paquetes (juego_id, nombre, precio) 
+                    VALUES (:juego_id, :nombre, :precio)
+                '''), {'juego_id': ff_id, 'nombre': nombre, 'precio': precio})
 
-        # PUBG Mobile
-        cur.execute('''
-            INSERT INTO juegos (nombre, descripcion, imagen) 
-            VALUES (%s, %s, %s) RETURNING id
-        ''', ('PUBG Mobile', 'Battle royale de última generación con mecánicas realistas', '/static/images/default-product.jpg'))
+            # PUBG Mobile
+            result = conn.execute(text('''
+                INSERT INTO juegos (nombre, descripcion, imagen) 
+                VALUES (:nombre, :descripcion, :imagen) RETURNING id
+            '''), {
+                'nombre': 'PUBG Mobile',
+                'descripcion': 'Battle royale de última generación con mecánicas realistas',
+                'imagen': '/static/images/default-product.jpg'
+            })
 
-        pubg_id = cur.fetchone()[0]
+            pubg_id = result.fetchone()[0]
 
-        # Paquetes de PUBG
-        pubg_packages = [
-            ('60 UC', 0.99),
-            ('325 UC', 4.99),
-            ('660 UC', 9.99),
-            ('1800 UC', 24.99),
-            ('3850 UC', 49.99)
-        ]
+            # Paquetes de PUBG
+            pubg_packages = [
+                ('60 UC', 0.99),
+                ('325 UC', 4.99),
+                ('660 UC', 9.99),
+                ('1800 UC', 24.99),
+                ('3850 UC', 49.99)
+            ]
 
-        for nombre, precio in pubg_packages:
-            cur.execute('''
-                INSERT INTO paquetes (juego_id, nombre, precio) 
-                VALUES (%s, %s, %s)
-            ''', (pubg_id, nombre, precio))
+            for nombre, precio in pubg_packages:
+                conn.execute(text('''
+                    INSERT INTO paquetes (juego_id, nombre, precio) 
+                    VALUES (:juego_id, :nombre, :precio)
+                '''), {'juego_id': pubg_id, 'nombre': nombre, 'precio': precio})
 
-        # Call of Duty Mobile
-        cur.execute('''
-            INSERT INTO juegos (nombre, descripcion, imagen) 
-            VALUES (%s, %s, %s) RETURNING id
-        ''', ('Call of Duty Mobile', 'FPS de acción con multijugador competitivo y battle royale', '/static/images/default-product.jpg'))
+            # Call of Duty Mobile
+            result = conn.execute(text('''
+                INSERT INTO juegos (nombre, descripcion, imagen) 
+                VALUES (:nombre, :descripcion, :imagen) RETURNING id
+            '''), {
+                'nombre': 'Call of Duty Mobile',
+                'descripcion': 'FPS de acción con multijugador competitivo y battle royale',
+                'imagen': '/static/images/default-product.jpg'
+            })
 
-        cod_id = cur.fetchone()[0]
+            cod_id = result.fetchone()[0]
 
-        # Paquetes de COD
-        cod_packages = [
-            ('80 CP', 0.99),
-            ('400 CP', 4.99),
-            ('800 CP', 9.99),
-            ('2000 CP', 19.99),
-            ('5000 CP', 49.99)
-        ]
+            # Paquetes de COD
+            cod_packages = [
+                ('80 CP', 0.99),
+                ('400 CP', 4.99),
+                ('800 CP', 9.99),
+                ('2000 CP', 19.99),
+                ('5000 CP', 49.99)
+            ]
 
-        for nombre, precio in cod_packages:
-            cur.execute('''
-                INSERT INTO paquetes (juego_id, nombre, precio) 
-                VALUES (%s, %s, %s)
-            ''', (cod_id, nombre, precio))
+            for nombre, precio in cod_packages:
+                conn.execute(text('''
+                    INSERT INTO paquetes (juego_id, nombre, precio) 
+                    VALUES (:juego_id, :nombre, :precio)
+                '''), {'juego_id': cod_id, 'nombre': nombre, 'precio': precio})
 
-    # Insertar configuración básica si no existe
-    cur.execute('SELECT COUNT(*) FROM configuracion')
-    config_count = cur.fetchone()[0]
+        # Insertar configuración básica si no existe
+        result = conn.execute(text('SELECT COUNT(*) FROM configuracion'))
+        config_count = result.fetchone()[0]
 
-    if config_count == 0:
-        configs = [
-            ('tasa_usd_ves', '36.50'),
-            ('pago_movil', 'Banco: Banesco\nTelefono: 0412-1234567\nCédula: V-12345678\nNombre: Store Admin'),
-            ('binance', 'Email: admin@inefablestore.com\nID Binance: 123456789'),
-            ('carousel1', 'https://via.placeholder.com/800x300/007bff/ffffff?text=🎮+Ofertas+Especiales+Free+Fire'),
-            ('carousel2', 'https://via.placeholder.com/800x300/28a745/ffffff?text=🔥+Mejores+Precios+PUBG'),
-            ('carousel3', 'https://via.placeholder.com/800x300/dc3545/ffffff?text=⚡+Entrega+Inmediata+COD')
-        ]
+        if config_count == 0:
+            configs = [
+                ('tasa_usd_ves', '36.50'),
+                ('pago_movil', 'Banco: Banesco\nTelefono: 0412-1234567\nCédula: V-12345678\nNombre: Store Admin'),
+                ('binance', 'Email: admin@inefablestore.com\nID Binance: 123456789'),
+                ('carousel1', 'https://via.placeholder.com/800x300/007bff/ffffff?text=🎮+Ofertas+Especiales+Free+Fire'),
+                ('carousel2', 'https://via.placeholder.com/800x300/28a745/ffffff?text=🔥+Mejores+Precios+PUBG'),
+                ('carousel3', 'https://via.placeholder.com/800x300/dc3545/ffffff?text=⚡+Entrega+Inmediata+COD')
+            ]
 
-        for campo, valor in configs:
-            cur.execute('''
-                INSERT INTO configuracion (campo, valor) 
-                VALUES (%s, %s)
-            ''', (campo, valor))
+            for campo, valor in configs:
+                conn.execute(text('''
+                    INSERT INTO configuracion (campo, valor) 
+                    VALUES (:campo, :valor)
+                '''), {'campo': campo, 'valor': valor})
 
-    conn.commit()
-    cur.close()
-    conn.close()
+        conn.commit()
+        
+    except Exception as e:
+        print(f"Error en init_db: {e}")
+        conn.rollback()
+    finally:
+        conn.close()
 
 @app.route('/')
 def index():
@@ -382,28 +396,40 @@ def create_orden():
     usuario_email = session['user_email']
 
     conn = get_db_connection()
-    cur = conn.cursor()
 
-    cur.execute('''
-        INSERT INTO ordenes (juego_id, paquete, monto, usuario_email, usuario_id, metodo_pago, referencia_pago, estado, fecha)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, 'procesando', CURRENT_TIMESTAMP)
-        RETURNING id
-    ''', (juego_id, paquete, monto, usuario_email, usuario_id, metodo_pago, referencia_pago))
+    try:
+        result = conn.execute(text('''
+            INSERT INTO ordenes (juego_id, paquete, monto, usuario_email, usuario_id, metodo_pago, referencia_pago, estado, fecha)
+            VALUES (:juego_id, :paquete, :monto, :usuario_email, :usuario_id, :metodo_pago, :referencia_pago, 'procesando', CURRENT_TIMESTAMP)
+            RETURNING id
+        '''), {
+            'juego_id': juego_id,
+            'paquete': paquete,
+            'monto': monto,
+            'usuario_email': usuario_email,
+            'usuario_id': usuario_id,
+            'metodo_pago': metodo_pago,
+            'referencia_pago': referencia_pago
+        })
 
-    orden_id = cur.fetchone()[0]
-    
-    # Obtener datos completos de la orden para la notificación
-    cur.execute('''
-        SELECT o.*, j.nombre as juego_nombre 
-        FROM ordenes o 
-        LEFT JOIN juegos j ON o.juego_id = j.id 
-        WHERE o.id = %s
-    ''', (orden_id,))
-    
-    orden_completa = cur.fetchone()
-    conn.commit()
-    cur.close()
-    conn.close()
+        orden_id = result.fetchone()[0]
+        
+        # Obtener datos completos de la orden para la notificación
+        result = conn.execute(text('''
+            SELECT o.*, j.nombre as juego_nombre 
+            FROM ordenes o 
+            LEFT JOIN juegos j ON o.juego_id = j.id 
+            WHERE o.id = :orden_id
+        '''), {'orden_id': orden_id})
+        
+        orden_completa = result.fetchone()
+        conn.commit()
+        
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        conn.close()
 
     # Enviar notificación por correo en un hilo separado para no bloquear la respuesta
     if orden_completa:
@@ -430,17 +456,24 @@ def create_orden():
 @app.route('/admin/ordenes', methods=['GET'])
 def get_ordenes():
     conn = get_db_connection()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute('''
-        SELECT o.*, j.nombre as juego_nombre 
-        FROM ordenes o 
-        LEFT JOIN juegos j ON o.juego_id = j.id 
-        ORDER BY o.fecha DESC
-    ''')
-    ordenes = cur.fetchall()
-    cur.close()
-    conn.close()
-    return jsonify([dict(orden) for orden in ordenes])
+    try:
+        result = conn.execute(text('''
+            SELECT o.*, j.nombre as juego_nombre 
+            FROM ordenes o 
+            LEFT JOIN juegos j ON o.juego_id = j.id 
+            ORDER BY o.fecha DESC
+        '''))
+        ordenes = result.fetchall()
+        
+        # Convertir a lista de diccionarios
+        ordenes_dict = []
+        for orden in ordenes:
+            orden_dict = dict(orden._mapping)
+            ordenes_dict.append(orden_dict)
+        
+        return jsonify(ordenes_dict)
+    finally:
+        conn.close()
 
 @app.route('/admin/orden/<int:orden_id>', methods=['PATCH'])
 def update_orden(orden_id):
