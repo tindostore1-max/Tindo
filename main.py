@@ -306,8 +306,15 @@ def init_db():
                 nombre VARCHAR(100) NOT NULL,
                 email VARCHAR(100) UNIQUE NOT NULL,
                 password_hash VARCHAR(255) NOT NULL,
+                es_admin BOOLEAN DEFAULT FALSE,
                 fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
+        '''))
+
+        # Agregar columna es_admin si no existe (migración)
+        conn.execute(text('''
+            ALTER TABLE usuarios 
+            ADD COLUMN IF NOT EXISTS es_admin BOOLEAN DEFAULT FALSE;
         '''))
 
         # Verificar si ya hay productos
@@ -417,6 +424,34 @@ def init_db():
                     VALUES (:campo, :valor)
                 '''), {'campo': campo, 'valor': valor})
 
+        # Crear usuario administrador por defecto si no existe
+        admin_email = os.environ.get('ADMIN_EMAIL')
+        admin_password = os.environ.get('ADMIN_PASSWORD')
+        
+        if admin_email and admin_password:
+            # Verificar si ya existe un admin con ese email
+            result = conn.execute(text('SELECT id FROM usuarios WHERE email = :email'), 
+                                 {'email': admin_email})
+            
+            if not result.fetchone():
+                # Crear usuario administrador
+                password_hash = generate_password_hash(admin_password)
+                conn.execute(text('''
+                    INSERT INTO usuarios (nombre, email, password_hash, es_admin)
+                    VALUES (:nombre, :email, :password_hash, TRUE)
+                '''), {
+                    'nombre': 'Administrador',
+                    'email': admin_email,
+                    'password_hash': password_hash
+                })
+                print(f"✅ Usuario administrador creado: {admin_email}")
+            else:
+                # Actualizar usuario existente para que sea admin
+                conn.execute(text('''
+                    UPDATE usuarios SET es_admin = TRUE WHERE email = :email
+                '''), {'email': admin_email})
+                print(f"✅ Usuario actualizado como administrador: {admin_email}")
+
         conn.commit()
         
     except Exception as e:
@@ -431,41 +466,24 @@ def index():
 
 @app.route('/admin')
 def admin():
-    # Verificar si el admin está logueado
-    if 'admin_logged_in' not in session:
-        return redirect(url_for('admin_login'))
-    return render_template('admin.html')
-
-@app.route('/admin/login', methods=['GET', 'POST'])
-def admin_login():
-    if request.method == 'POST':
-        data = request.get_json()
-        email = data.get('email')
-        password = data.get('password')
-        
-        # Obtener credenciales del admin desde secretos
-        admin_email = os.environ.get('ADMIN_EMAIL')
-        admin_password = os.environ.get('ADMIN_PASSWORD')
-        
-        if not admin_email or not admin_password:
-            return jsonify({'error': 'Credenciales de administrador no configuradas'}), 500
-        
-        # Verificar credenciales
-        if email == admin_email and password == admin_password:
-            session['admin_logged_in'] = True
-            session['admin_email'] = email
-            return jsonify({'message': 'Login exitoso', 'redirect': '/admin'})
-        else:
-            return jsonify({'error': 'Credenciales incorrectas'}), 401
+    # Verificar si el usuario está logueado y es administrador
+    if 'user_id' not in session:
+        return redirect(url_for('index') + '?login_required=true&admin=true')
     
-    # Mostrar formulario de login
-    return render_template('admin_login.html')
-
-@app.route('/admin/logout', methods=['POST'])
-def admin_logout():
-    session.pop('admin_logged_in', None)
-    session.pop('admin_email', None)
-    return jsonify({'message': 'Sesión cerrada', 'redirect': '/admin/login'})
+    # Verificar si el usuario es administrador
+    conn = get_db_connection()
+    try:
+        result = conn.execute(text('SELECT es_admin FROM usuarios WHERE id = :user_id'), 
+                             {'user_id': session['user_id']})
+        usuario = result.fetchone()
+        
+        if not usuario or not usuario[0]:  # es_admin es False
+            return jsonify({'error': 'Acceso denegado. No tienes permisos de administrador.'}), 403
+            
+    finally:
+        conn.close()
+    
+    return render_template('admin.html')
 
 # ENDPOINT PARA CREAR ÓRDENES DESDE EL FRONTEND
 @app.route('/orden', methods=['POST'])
@@ -545,8 +563,23 @@ def create_orden():
 # Decorador para proteger endpoints de admin
 def admin_required(f):
     def decorated_function(*args, **kwargs):
-        if 'admin_logged_in' not in session:
-            return jsonify({'error': 'Acceso no autorizado'}), 401
+        # Verificar si el usuario está logueado
+        if 'user_id' not in session:
+            return jsonify({'error': 'Debes iniciar sesión'}), 401
+            
+        # Verificar si el usuario es administrador
+        conn = get_db_connection()
+        try:
+            result = conn.execute(text('SELECT es_admin FROM usuarios WHERE id = :user_id'), 
+                                 {'user_id': session['user_id']})
+            usuario = result.fetchone()
+            
+            if not usuario or not usuario[0]:  # es_admin es False
+                return jsonify({'error': 'Acceso denegado. No tienes permisos de administrador.'}), 403
+                
+        finally:
+            conn.close()
+            
         return f(*args, **kwargs)
     decorated_function.__name__ = f.__name__
     return decorated_function
@@ -1003,7 +1036,7 @@ def get_usuario():
 
     conn = get_db_connection()
     try:
-        result = conn.execute(text('SELECT id, nombre, email, fecha_registro FROM usuarios WHERE id = :user_id'), 
+        result = conn.execute(text('SELECT id, nombre, email, es_admin, fecha_registro FROM usuarios WHERE id = :user_id'), 
                              {'user_id': session['user_id']})
         usuario = result.fetchone()
 
@@ -1013,7 +1046,8 @@ def get_usuario():
                     'id': usuario[0],
                     'nombre': usuario[1],
                     'email': usuario[2],
-                    'fecha_registro': usuario[3].isoformat()
+                    'es_admin': usuario[3],
+                    'fecha_registro': usuario[4].isoformat()
                 }
             })
         else:

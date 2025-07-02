@@ -170,6 +170,30 @@
                         </form>
                     </div>
 
+                    <!-- Panel de usuario logueado -->
+                    <div id="user-panel" class="auth-content" style="display: none;">
+                        <div class="user-info" style="text-align: center; margin-bottom: 20px;">
+                            <h3 style="color: #ffffff; margin-bottom: 10px;">👤 Bienvenido</h3>
+                            <p id="user-name" style="color: #ffffff; font-size: 18px; font-weight: 600;"></p>
+                            <p id="user-email" style="color: #cccccc; font-size: 14px;"></p>
+                        </div>
+
+                        <!-- Botón Panel Admin (solo para administradores) -->
+                        <div id="admin-panel-btn" style="display: none; margin-bottom: 15px;">
+                            <button onclick="window.location.href='/admin'" class="account-btn" style="width: 100%; background: linear-gradient(135deg, #dc3545, #c82333); color: white;">
+                                🛡️ Panel de Administración
+                            </button>
+                        </div>
+
+                        <button onclick="mostrarTab('catalogo')" class="account-btn account-btn-primary" style="width: 100%; margin-bottom: 10px;">
+                            🛒 Ir al Catálogo
+                        </button>
+
+                        <button onclick="cerrarSesion()" class="account-btn" style="width: 100%; background: #6c757d;">
+                            🚪 Cerrar Sesión
+                        </button>
+                    </div>
+
                     <div id="registro-form" class="auth-content">
                         <form id="form-registro">
                             <div class="form-group">

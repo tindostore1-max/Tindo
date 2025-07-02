@@ -285,7 +285,10 @@
             <h1>🛡️ Panel Administrador</h1>
             <p>Inefablestore Management System</p>
             <div style="position: absolute; top: 20px; right: 20px;">
-                <button onclick="adminLogout()" class="btn btn-danger" style="padding: 8px 15px; font-size: 14px;">
+                <span id="admin-user-info" style="color: #ffffff; font-size: 14px; margin-right: 15px;">
+                    <!-- Info del usuario se cargará aquí -->
+                </span>
+                <button onclick="cerrarSesionAdmin()" class="btn btn-danger" style="padding: 8px 15px; font-size: 14px;">
                     🚪 Cerrar Sesión
                 </button>
             </div>
@@ -949,18 +952,17 @@
         }
 
         // Función para cerrar sesión del admin
-        async function adminLogout() {
+        async function cerrarSesionAdmin() {
             if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
                 try {
-                    const response = await fetch('/admin/logout', {
+                    const response = await fetch('/logout', {
                         method: 'POST'
                     });
                     
                     if (response.ok) {
-                        const data = await response.json();
                         showAlert('Sesión cerrada correctamente', 'success');
                         setTimeout(() => {
-                            window.location.href = data.redirect || '/admin/login';
+                            window.location.href = '/';
                         }, 1500);
                     }
                 } catch (error) {
@@ -969,8 +971,29 @@
             }
         }
 
+        // Función para cargar información del usuario administrador
+        async function loadUserInfo() {
+            try {
+                const response = await fetch('/usuario');
+                if (response.ok) {
+                    const data = await response.json();
+                    const userInfoElement = document.getElementById('admin-user-info');
+                    if (userInfoElement && data.usuario) {
+                        userInfoElement.innerHTML = `
+                            👤 ${data.usuario.nombre}
+                            <br>
+                            <small style="opacity: 0.8;">${data.usuario.email}</small>
+                        `;
+                    }
+                }
+            } catch (error) {
+                console.error('Error al cargar información del usuario:', error);
+            }
+        }
+
         // Cargar datos iniciales
         document.addEventListener('DOMContentLoaded', function() {
+            loadUserInfo();
             loadOrdenes();
         });
     </script>

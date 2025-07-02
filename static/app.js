@@ -933,7 +933,7 @@ async function procesarPago() {
     try {
         // Mostrar mensaje de carga
         mostrarMensajePago('⏳ Procesando tu pago, por favor espera...', 'loading');
-        
+
         // Deshabilitar botón mientras procesa
         if (submitBtn) {
             submitBtn.disabled = true;
@@ -986,10 +986,10 @@ async function procesarPago() {
         carrito = [];
         actualizarContadorCarrito();
         document.getElementById('form-pago').reset();
-        
+
         // Mostrar mensaje de éxito
         mostrarMensajePago('🎉 ¡Pago procesado correctamente! Te contactaremos pronto para entregar tus productos.', 'success');
-        
+
         // Redirigir al catálogo después de unos segundos
         setTimeout(() => {
             mostrarTab('catalogo');
@@ -1010,13 +1010,13 @@ async function procesarPago() {
 // Función para mostrar mensajes de pago debajo del botón
 function mostrarMensajePago(mensaje, tipo) {
     const mensajePago = document.getElementById('mensaje-pago');
-    
+
     if (!mensajePago) return;
-    
+
     mensajePago.innerHTML = mensaje;
     mensajePago.className = `payment-message ${tipo}`;
     mensajePago.style.display = 'block';
-    
+
     // Auto-ocultar mensajes de error después de 5 segundos
     if (tipo === 'error') {
         setTimeout(() => {
@@ -1279,3 +1279,25 @@ targetContent.classList.add('active');
         event.target.classList.add('active');
     }
 }
+
+// Verificar sesión del usuario al cargar la página
+async function verificarSesion() {
+    try {
+        const response = await fetch('/usuario');
+        if (response.ok) {
+            const data = await response.json();
+            actualizarInterfazUsuario(data.usuario);
+        }
+    } catch (error) {
+        console.log('No hay sesión activa');
+    }
+}
+
+// Cargar datos iniciales al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    cargarConfiguracion();
+    cargarProductos();
+    inicializarEventos();
+    verificarSesion(); // Verificar si hay sesión activa
+    inicializarCarrusel();
+});
