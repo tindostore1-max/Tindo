@@ -206,17 +206,18 @@ header {
 }
 
 .product-card {
-    background: white;
+    background: #2a2a2a;
     border-radius: 15px;
     padding: 20px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    border: 1px solid #e9ecef;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    border: 1px solid #444;
     transition: transform 0.3s ease;
     cursor: pointer;
 }
 
 .product-card:hover {
     transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
 }
 
 .product-image {
@@ -230,12 +231,12 @@ header {
 .product-name {
     font-size: 20px;
     font-weight: 700;
-    color: #2c3e50;
+    color: #ffffff;
     margin-bottom: 10px;
 }
 
 .product-description {
-    color: #6c757d;
+    color: #cccccc;
     margin-bottom: 15px;
 }
 
@@ -346,7 +347,7 @@ header {
 .price-desde {
     font-size: 18px;
     font-weight: 700;
-    color: #007bff;
+    color: #28a745;
     margin-top: 10px;
     text-align: center;
 }
