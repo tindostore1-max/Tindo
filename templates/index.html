@@ -533,25 +533,34 @@
 
         @media (max-width: 768px) {
             .container {
-                padding: 70px 10px 10px 10px; /* Espacio superior reducido para header más pequeño */
+                padding: 60px 10px 10px 10px; /* Espacio superior aún más reducido */
             }
 
             header {
-                padding: 8px 15px; /* Padding más pequeño */
+                padding: 5px 15px; /* Padding aún más pequeño */
+                flex-direction: row; /* Mantener en fila para alejar elementos */
+                justify-content: space-between;
+                align-items: center;
+                gap: 20px; /* Mayor separación entre logo y selector */
             }
 
             .logo {
-                height: 40px; /* Logo más pequeño en móvil */
+                height: 35px; /* Logo más pequeño en móvil */
             }
 
             .currency-selector {
-                padding: 6px 10px; /* Selector de moneda más compacto */
-                font-size: 14px;
+                padding: 4px 8px; /* Selector de moneda más compacto */
+                font-size: 12px;
+                min-width: 70px; /* Tamaño mínimo para mantener legibilidad */
+                margin-left: auto; /* Empujar hacia la derecha */
             }
 
-            header {
-                flex-direction: column;
-                gap: 10px; /* Gap más pequeño entre elementos */
+            .header-left {
+                flex: 1; /* Tomar espacio disponible */
+            }
+
+            .desktop-nav {
+                display: none !important; /* Asegurar que no aparezca en móvil */
             }
 
             .product-grid {
