@@ -911,23 +911,40 @@ async function procesarPago() {
     const email = document.getElementById('pago-email').value;
     const metodoPago = document.getElementById('metodo-pago').value;
     const referencia = document.getElementById('referencia-pago').value;
+    const mensajePago = document.getElementById('mensaje-pago');
+    const submitBtn = document.querySelector('.submit-payment-btn');
+
+    // Limpiar mensaje anterior
+    if (mensajePago) {
+        mensajePago.style.display = 'none';
+        mensajePago.className = 'payment-message';
+    }
 
     if (carrito.length === 0) {
-        mostrarAlerta('Tu carrito está vacío', 'error');
+        mostrarMensajePago('Tu carrito está vacío', 'error');
         return;
     }
 
     if (!email || !metodoPago || !referencia) {
-        mostrarAlerta('Por favor completa todos los campos', 'error');
+        mostrarMensajePago('Por favor completa todos los campos', 'error');
         return;
     }
 
     try {
+        // Mostrar mensaje de carga
+        mostrarMensajePago('⏳ Procesando tu pago, por favor espera...', 'loading');
+        
+        // Deshabilitar botón mientras procesa
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.6';
+        }
+
         // Verificar si el usuario está logueado
         const sessionResponse = await fetch('/usuario');
         if (!sessionResponse.ok) {
-            mostrarAlerta('Debes iniciar sesión para realizar una compra. Ve a la pestaña "Mi Cuenta" para entrar.', 'error');
-            mostrarTab('login');
+            mostrarMensajePago('Debes iniciar sesión para realizar una compra. Ve a la pestaña "Mi Cuenta" para entrar.', 'error');
+            setTimeout(() => mostrarTab('login'), 2000);
             return;
         }
 
@@ -956,8 +973,8 @@ async function procesarPago() {
                 const errorMessage = errorData.error || `Error del servidor: ${response.status}`;
 
                 if (response.status === 401) {
-                    mostrarAlerta('Tu sesión ha expirado. Por favor inicia sesión nuevamente.', 'error');
-                    mostrarTab('login');
+                    mostrarMensajePago('Tu sesión ha expirado. Por favor inicia sesión nuevamente.', 'error');
+                    setTimeout(() => mostrarTab('login'), 2000);
                     return;
                 }
 
@@ -969,12 +986,42 @@ async function procesarPago() {
         carrito = [];
         actualizarContadorCarrito();
         document.getElementById('form-pago').reset();
-        mostrarAlerta('¡Pago procesado correctamente! Te contactaremos pronto.');
-        mostrarTab('catalogo');
+        
+        // Mostrar mensaje de éxito
+        mostrarMensajePago('🎉 ¡Pago procesado correctamente! Te contactaremos pronto para entregar tus productos.', 'success');
+        
+        // Redirigir al catálogo después de unos segundos
+        setTimeout(() => {
+            mostrarTab('catalogo');
+        }, 3000);
 
     } catch (error) {
         console.error('Error al procesar pago:', error);
-        mostrarAlerta(`Error al procesar el pago: ${error.message || 'Error desconocido'}`, 'error');
+        mostrarMensajePago(`❌ Error al procesar el pago: ${error.message || 'Error desconocido'}`, 'error');
+    } finally {
+        // Reactivar botón
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+        }
+    }
+}
+
+// Función para mostrar mensajes de pago debajo del botón
+function mostrarMensajePago(mensaje, tipo) {
+    const mensajePago = document.getElementById('mensaje-pago');
+    
+    if (!mensajePago) return;
+    
+    mensajePago.innerHTML = mensaje;
+    mensajePago.className = `payment-message ${tipo}`;
+    mensajePago.style.display = 'block';
+    
+    // Auto-ocultar mensajes de error después de 5 segundos
+    if (tipo === 'error') {
+        setTimeout(() => {
+            mensajePago.style.display = 'none';
+        }, 5000);
     }
 }
 
