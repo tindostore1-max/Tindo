@@ -42,6 +42,70 @@ def get_db_connection():
         conn = psycopg2.connect(**config)
     return conn
 
+def enviar_correo_recarga_completada(orden_info):
+    """Envía correo al usuario confirmando que su recarga ha sido completada"""
+    try:
+        # Configuración del correo
+        smtp_server = "smtp.gmail.com"
+        smtp_port = 587
+        email_usuario = "1yorbi1@gmail.com"
+        email_password = os.environ.get('GMAIL_APP_PASSWORD')
+        
+        print(f"📨 Enviando confirmación de recarga completada para orden #{orden_info['id']}")
+        print(f"📧 Destinatario: {orden_info['usuario_email']}")
+        
+        if not email_password:
+            print("❌ ERROR: No se encontró la contraseña de Gmail")
+            return False
+        
+        # Crear mensaje
+        mensaje = MIMEMultipart()
+        mensaje['From'] = email_usuario
+        mensaje['To'] = orden_info['usuario_email']
+        mensaje['Subject'] = f"🎉 ¡Tu recarga está lista! - Orden #{orden_info['id']} - Inefable Store"
+        
+        # Cuerpo del mensaje personalizado para el usuario
+        cuerpo = f"""
+        ¡Hola! 🎮
+        
+        ¡Excelentes noticias! Tu recarga ha sido procesada exitosamente.
+        
+        📋 Detalles de tu orden:
+        • Orden #: {orden_info['id']}
+        • Juego: {orden_info.get('juego_nombre', 'N/A')}
+        • Paquete: {orden_info['paquete']}
+        • Monto: ${orden_info['monto']}
+        • Tu ID en el juego: {orden_info.get('usuario_id', 'No especificado')}
+        • Estado: ✅ COMPLETADA
+        • Fecha de procesamiento: {datetime.now().strftime('%d/%m/%Y a las %H:%M')}
+        
+        🎯 Tu recarga ya está disponible en tu cuenta del juego.
+        Si tienes algún problema, no dudes en contactarnos.
+        
+        ¡Gracias por confiar en Inefable Store! 🚀
+        
+        ---
+        Equipo de Inefable Store
+        """
+        
+        mensaje.attach(MIMEText(cuerpo, 'plain'))
+        
+        print("📤 Enviando correo de confirmación al usuario...")
+        # Enviar correo
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+        server.login(email_usuario, email_password)
+        texto = mensaje.as_string()
+        server.sendmail(email_usuario, orden_info['usuario_email'], texto)
+        server.quit()
+        
+        print(f"✅ Correo de confirmación enviado exitosamente a: {orden_info['usuario_email']}")
+        return True
+        
+    except Exception as e:
+        print(f"❌ Error al enviar correo de confirmación: {str(e)}")
+        return False
+
 def enviar_notificacion_orden(orden_data):
     """Envía notificación por correo de nueva orden"""
     try:
@@ -384,11 +448,31 @@ def update_orden(orden_id):
     nuevo_estado = data.get('estado')
 
     conn = get_db_connection()
-    cur = conn.cursor()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    
+    # Obtener información completa de la orden antes de actualizar
+    cur.execute('''
+        SELECT o.*, j.nombre as juego_nombre 
+        FROM ordenes o 
+        LEFT JOIN juegos j ON o.juego_id = j.id 
+        WHERE o.id = %s
+    ''', (orden_id,))
+    orden_info = cur.fetchone()
+    
+    if not orden_info:
+        cur.close()
+        conn.close()
+        return jsonify({'error': 'Orden no encontrada'}), 404
+    
+    # Actualizar el estado de la orden
     cur.execute('UPDATE ordenes SET estado = %s WHERE id = %s', (nuevo_estado, orden_id))
     conn.commit()
     cur.close()
     conn.close()
+
+    # Si el nuevo estado es "procesado", enviar correo de confirmación al usuario
+    if nuevo_estado == 'procesado':
+        threading.Thread(target=enviar_correo_recarga_completada, args=(orden_info,)).start()
 
     return jsonify({'message': 'Estado actualizado correctamente'})
 
