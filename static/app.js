@@ -179,10 +179,33 @@ function actualizarImagenesCarrusel() {
         'https://via.placeholder.com/800x300/dc3545/ffffff?text=⚡+Entrega+Inmediata+COD'
     ];
     
+    function prepararUrlImagen(url) {
+        if (!url || url.trim() === '') return null;
+        
+        // Si es una URL completa (http/https), usarla tal como está
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+            return url;
+        }
+        
+        // Si es una ruta que empieza con 'images/', agregar '/static/'
+        if (url.startsWith('images/')) {
+            return `/static/${url}`;
+        }
+        
+        // Si ya tiene '/static/', usarla tal como está
+        if (url.startsWith('/static/')) {
+            return url;
+        }
+        
+        // Para cualquier otra ruta, asumir que necesita /static/
+        return `/static/${url}`;
+    }
+    
     // Configurar imagen 1 del carrusel
     if (slides[0]) {
-        if (configuracion.carousel1 && configuracion.carousel1.trim() !== '' && configuracion.carousel1 !== defaultImages[0]) {
-            slides[0].src = configuracion.carousel1;
+        const url1 = prepararUrlImagen(configuracion.carousel1);
+        if (url1 && !defaultImages.includes(configuracion.carousel1)) {
+            slides[0].src = url1;
             slides[0].onerror = function() {
                 this.src = defaultImages[0];
             };
@@ -193,8 +216,9 @@ function actualizarImagenesCarrusel() {
     
     // Configurar imagen 2 del carrusel
     if (slides[1]) {
-        if (configuracion.carousel2 && configuracion.carousel2.trim() !== '' && configuracion.carousel2 !== defaultImages[1]) {
-            slides[1].src = configuracion.carousel2;
+        const url2 = prepararUrlImagen(configuracion.carousel2);
+        if (url2 && !defaultImages.includes(configuracion.carousel2)) {
+            slides[1].src = url2;
             slides[1].onerror = function() {
                 this.src = defaultImages[1];
             };
@@ -205,8 +229,9 @@ function actualizarImagenesCarrusel() {
     
     // Configurar imagen 3 del carrusel
     if (slides[2]) {
-        if (configuracion.carousel3 && configuracion.carousel3.trim() !== '' && configuracion.carousel3 !== defaultImages[2]) {
-            slides[2].src = configuracion.carousel3;
+        const url3 = prepararUrlImagen(configuracion.carousel3);
+        if (url3 && !defaultImages.includes(configuracion.carousel3)) {
+            slides[2].src = url3;
             slides[2].onerror = function() {
                 this.src = defaultImages[2];
             };
