@@ -537,7 +537,36 @@
             }
 
             .product-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .product-card {
+                padding: 12px;
+            }
+
+            .product-image {
+                height: 120px;
+                margin-bottom: 10px;
+            }
+
+            .product-name {
+                font-size: 16px;
+                margin-bottom: 8px;
+            }
+
+            .product-description {
+                font-size: 13px;
+                margin-bottom: 10px;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .price-desde {
+                font-size: 14px;
+                margin-top: 8px;
             }
 
             .package-list {
