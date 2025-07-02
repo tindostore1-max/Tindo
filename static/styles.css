@@ -68,10 +68,10 @@ header {
 }
 
 .desktop-nav-btn.active {
-    background: rgba(0, 123, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
     color: white;
     transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+    box-shadow: none;
 }
 
 .desktop-nav-btn .nav-icon {
@@ -171,10 +171,10 @@ header {
 }
 
 .nav-btn.active {
-    background: rgba(0, 123, 255, 0.3);
-    color: white;
+    background: rgba(255, 255, 255, 0.1);
+    color: #495057;
     transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
+    box-shadow: none;
 }
 
 .nav-icon {
@@ -309,8 +309,8 @@ header {
 
 .package-selectable:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(33, 150, 243, 0.15);
-    border-color: #2196f3;
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.15);
+    border-color: #28a745;
 }
 
 .package-selectable.selected {
@@ -451,14 +451,14 @@ header {
 
 .form-control:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 15px rgba(33, 150, 243, 0.2);
+    border-color: #28a745;
+    box-shadow: 0 0 15px rgba(40, 167, 69, 0.2);
     transform: translateY(-1px);
 }
 
 #usuario-id-juego:focus {
-    border-color: #2196f3 !important;
-    box-shadow: 0 0 20px rgba(33, 150, 243, 0.3), inset 0 2px 8px rgba(33, 150, 243, 0.1) !important;
+    border-color: #28a745 !important;
+    box-shadow: 0 0 20px rgba(40, 167, 69, 0.3), inset 0 2px 8px rgba(40, 167, 69, 0.1) !important;
     transform: translateY(-2px) !important;
 }
 
@@ -782,7 +782,7 @@ header {
 }
 
 .dot.active, .dot:hover {
-    background-color: #007bff;
+    background-color: #28a745;
 }
 
 @media (max-width: 768px) {

@@ -35,13 +35,13 @@ function currentSlide(n) {
 function showSlide(n) {
     const slides = document.querySelectorAll('.carousel-slide');
     const dots = document.querySelectorAll('.dot');
-    
+
     if (n > slides.length) slideIndex = 1;
     if (n < 1) slideIndex = slides.length;
-    
+
     slides.forEach(slide => slide.classList.remove('active'));
     dots.forEach(dot => dot.classList.remove('active'));
-    
+
     if (slides[slideIndex - 1]) {
         slides[slideIndex - 1].classList.add('active');
     }
@@ -74,11 +74,11 @@ function mostrarTab(tabName) {
     // Quitar clase active de todos los botones (mobile y desktop)
     const navBtns = document.querySelectorAll('.nav-btn');
     const desktopNavBtns = document.querySelectorAll('.desktop-nav-btn');
-    
+
     navBtns.forEach(btn => {
         btn.classList.remove('active');
     });
-    
+
     desktopNavBtns.forEach(btn => {
         btn.classList.remove('active');
     });
@@ -93,7 +93,7 @@ function mostrarTab(tabName) {
     if (typeof event !== 'undefined' && event.target) {
         event.target.classList.add('active');
     }
-    
+
     // Sincronizar botones por nombre de pestaña
     const allNavBtns = [...navBtns, ...desktopNavBtns];
     allNavBtns.forEach(btn => {
@@ -171,36 +171,36 @@ async function cargarConfiguracion() {
 // Función para actualizar las imágenes del carrusel
 function actualizarImagenesCarrusel() {
     const slides = document.querySelectorAll('.carousel-slide img');
-    
+
     // Definir imágenes predeterminadas mejoradas
     const defaultImages = [
         'https://via.placeholder.com/800x300/007bff/ffffff?text=🎮+Ofertas+Especiales+Free+Fire',
         'https://via.placeholder.com/800x300/28a745/ffffff?text=🔥+Mejores+Precios+PUBG',
         'https://via.placeholder.com/800x300/dc3545/ffffff?text=⚡+Entrega+Inmediata+COD'
     ];
-    
+
     function prepararUrlImagen(url) {
         if (!url || url.trim() === '') return null;
-        
+
         // Si es una URL completa (http/https), usarla tal como está
         if (url.startsWith('http://') || url.startsWith('https://')) {
             return url;
         }
-        
+
         // Si es una ruta que empieza con 'images/', agregar '/static/'
         if (url.startsWith('images/')) {
             return `/static/${url}`;
         }
-        
+
         // Si ya tiene '/static/', usarla tal como está
         if (url.startsWith('/static/')) {
             return url;
         }
-        
+
         // Para cualquier otra ruta, asumir que necesita /static/
         return `/static/${url}`;
     }
-    
+
     // Configurar imagen 1 del carrusel
     if (slides[0]) {
         const url1 = prepararUrlImagen(configuracion.carousel1);
@@ -213,7 +213,7 @@ function actualizarImagenesCarrusel() {
             slides[0].src = defaultImages[0];
         }
     }
-    
+
     // Configurar imagen 2 del carrusel
     if (slides[1]) {
         const url2 = prepararUrlImagen(configuracion.carousel2);
@@ -226,7 +226,7 @@ function actualizarImagenesCarrusel() {
             slides[1].src = defaultImages[1];
         }
     }
-    
+
     // Configurar imagen 3 del carrusel
     if (slides[2]) {
         const url3 = prepararUrlImagen(configuracion.carousel3);
@@ -488,13 +488,13 @@ function agregarPaqueteSeleccionado() {
     if (!usuarioId) {
         mostrarAlerta('⚠️ Por favor ingresa tu ID de usuario del juego antes de agregar al carrito', 'error');
         usuarioIdInput.focus();
-        usuarioIdInput.style.borderColor = '#dc3545';
-        usuarioIdInput.style.boxShadow = '0 0 15px rgba(220, 53, 69, 0.3)';
+        usuarioIdInput.style.borderColor = '#28a745';
+        usuarioIdInput.style.boxShadow = 'inset 0 2px 8px rgba(40, 167, 69, 0.1)';
 
         // Quitar el estilo de error después de 3 segundos
         setTimeout(() => {
-            usuarioIdInput.style.borderColor = '#2196f3';
-            usuarioIdInput.style.boxShadow = 'inset 0 2px 8px rgba(33, 150, 243, 0.1)';
+            usuarioIdInput.style.borderColor = '#28a745';
+            usuarioIdInput.style.boxShadow = 'inset 0 2px 8px rgba(40, 167, 69, 0.1)';
         }, 3000);
         return;
     }
@@ -556,7 +556,7 @@ function agregarPaqueteSeleccionado() {
 function actualizarContadorCarrito() {
     const total = carrito.reduce((sum, item) => sum + item.cantidad, 0);
     document.getElementById('cart-count').textContent = total;
-    
+
     // Actualizar también el contador desktop
     const desktopCounter = document.getElementById('cart-count-desktop');
     if (desktopCounter) {
@@ -754,13 +754,13 @@ async function procesarPago() {
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
                 const errorMessage = errorData.error || `Error del servidor: ${response.status}`;
-                
+
                 if (response.status === 401) {
                     mostrarAlerta('Tu sesión ha expirado. Por favor inicia sesión nuevamente.', 'error');
                     mostrarTab('login');
                     return;
                 }
-                
+
                 throw new Error(errorMessage);
             }
         }
@@ -824,7 +824,7 @@ async function procesarLogin() {
     }
 }
 
-// Procesar registro
+// Procesarregistro
 async function procesarRegistro() {
     const nombreElement = document.getElementById('registro-nombre');
     const emailElement = document.getElementById('registro-email');
