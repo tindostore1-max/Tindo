@@ -75,7 +75,23 @@ header {
 }
 
 .desktop-nav-btn .nav-icon {
-    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.desktop-nav-btn[onclick="mostrarTab('catalogo')"] .nav-icon {
+    background-image: url('/static/images/home-icon.svg');
+}
+
+.desktop-nav-btn[onclick="mostrarTab('carrito')"] .nav-icon {
+    background-image: url('/static/images/cart-icon.svg');
+}
+
+.desktop-nav-btn[onclick="mostrarTab('login')"] .nav-icon {
+    background-image: url('/static/images/user-icon.svg');
 }
 
 .desktop-nav-btn .nav-text {
@@ -162,7 +178,23 @@ header {
 }
 
 .nav-icon {
-    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.nav-btn[onclick="mostrarTab('catalogo')"] .nav-icon {
+    background-image: url('/static/images/home-icon.svg');
+}
+
+.nav-btn[onclick="mostrarTab('carrito')"] .nav-icon {
+    background-image: url('/static/images/cart-icon.svg');
+}
+
+.nav-btn[onclick="mostrarTab('login')"] .nav-icon {
+    background-image: url('/static/images/user-icon.svg');
 }
 
 .cart-badge {
