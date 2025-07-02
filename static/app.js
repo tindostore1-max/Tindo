@@ -872,21 +872,3 @@ targetContent.classList.add('active');
         event.target.classList.add('active');
     }
 }
-```css
-.package-item {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 25px 15px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 15px;
-            border: 2px solid transparent;
-            background-clip: padding-box;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            height: 140px;
-        }
