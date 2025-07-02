@@ -394,8 +394,11 @@ function verDetalleProducto(productoId) {
                 <div id="paquete-seleccionado" style="margin-bottom: 15px; font-size: 16px; color: #6c757d; font-weight: 600;">
                     🎯 Selecciona un paquete arriba para continuar
                 </div>
-                <button id="btn-agregar-carrito" class="btn btn-success" onclick="agregarPaqueteSeleccionado()" disabled style="padding: 15px 35px; font-size: 18px; font-weight: 700; border-radius: 30px; background: linear-gradient(135deg, #28a745, #20c997); border: none; box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3); transition: all 0.3s ease; opacity: 0.5;">
+                <button id="btn-agregar-carrito" class="btn btn-success" onclick="agregarPaqueteSeleccionado()" disabled style="padding: 15px 35px; font-size: 18px; font-weight: 700; border-radius: 30px; background: linear-gradient(135deg, #28a745, #20c997); border: none; box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3); transition: all 0.3s ease; opacity: 0.5; margin-bottom: 15px;">
                     ✨ Agregar al Carrito
+                </button>
+                <button class="btn btn-primary" onclick="mostrarTab('carrito')" style="padding: 12px 30px; font-size: 16px; font-weight: 600; border-radius: 25px; background: linear-gradient(135deg, #007bff, #0056b3); border: none; box-shadow: 0 6px 20px rgba(0, 123, 255, 0.3); transition: all 0.3s ease;">
+                    🛒 Ver Carrito
                 </button>
             </div>
         `;
