@@ -48,7 +48,7 @@ def enviar_notificacion_orden(orden_data):
         # Configuración del correo
         smtp_server = "smtp.gmail.com"
         smtp_port = 587
-        email_usuario = "inefableshop.12@gmail.com"
+        email_usuario = "1yorbi1@gmail.com"
         email_password = os.environ.get('GMAIL_APP_PASSWORD')
         
         if not email_password:
