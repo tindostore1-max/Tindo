@@ -51,9 +51,16 @@ def enviar_notificacion_orden(orden_data):
         email_usuario = "1yorbi1@gmail.com"
         email_password = os.environ.get('GMAIL_APP_PASSWORD')
         
+        print(f"🔧 Intentando enviar notificación para orden #{orden_data['id']}")
+        print(f"📧 Email configurado: {email_usuario}")
+        
         if not email_password:
-            print("Error: No se encontró la contraseña de Gmail en los secretos")
+            print("❌ ERROR: No se encontró la contraseña de Gmail en los secretos")
+            print("💡 Solución: Agrega el secreto 'GMAIL_APP_PASSWORD' en Replit")
+            print("💡 Usa una contraseña de aplicación de Gmail, no tu contraseña normal")
             return False
+        
+        print("🔑 Contraseña de aplicación encontrada")
         
         # Crear mensaje
         mensaje = MIMEMultipart()
@@ -84,19 +91,32 @@ def enviar_notificacion_orden(orden_data):
         
         mensaje.attach(MIMEText(cuerpo, 'plain'))
         
+        print("📨 Conectando al servidor SMTP...")
         # Enviar correo
         server = smtplib.SMTP(smtp_server, smtp_port)
         server.starttls()
+        print("🔐 Iniciando sesión...")
         server.login(email_usuario, email_password)
+        print("📤 Enviando correo...")
         texto = mensaje.as_string()
         server.sendmail(email_usuario, email_usuario, texto)
         server.quit()
         
-        print(f"✅ Notificación enviada para orden #{orden_data['id']}")
+        print(f"✅ Notificación enviada exitosamente para orden #{orden_data['id']}")
+        print(f"📬 Revisa tu bandeja de entrada en: {email_usuario}")
         return True
         
+    except smtplib.SMTPAuthenticationError as e:
+        print(f"❌ ERROR DE AUTENTICACIÓN: {str(e)}")
+        print("💡 Verifica que tengas una contraseña de aplicación válida")
+        print("💡 Asegúrate de tener habilitada la verificación en 2 pasos")
+        return False
+    except smtplib.SMTPException as e:
+        print(f"❌ ERROR SMTP: {str(e)}")
+        return False
     except Exception as e:
-        print(f"❌ Error al enviar notificación: {str(e)}")
+        print(f"❌ Error general al enviar notificación: {str(e)}")
+        print(f"🔍 Tipo de error: {type(e).__name__}")
         return False
 
 def init_db():
