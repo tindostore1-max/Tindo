@@ -360,7 +360,7 @@ function verDetalleProducto(productoId) {
                     </div>
                 </div>
                 <div style="flex: 1;">
-                    <h2 style="margin: 0 0 15px 0; color: #2c3e50; font-size: 28px;">${producto.nombre || 'Producto sin nombre'}</h2>
+                    <h2 style="margin: 0 0 15px 0; color: #ffffff !important; font-size: 28px;">${producto.nombre || 'Producto sin nombre'}</h2>
                     <p style="margin: 0; color: #6c757d; font-size: 16px; line-height: 1.6;">${producto.descripcion || 'Sin descripción disponible'}</p>
                 </div>
             </div>
