@@ -228,7 +228,7 @@ function verDetalleProducto(productoId) {
             <div style="display: flex; gap: 30px; margin-bottom: 30px; align-items: flex-start;">
                 <div style="flex: 0 0 400px;">
                     <img src="${imagenUrl}" alt="${producto.nombre || 'Producto'}" style="width: 100%; height: 300px; object-fit: cover; border-radius: 15px;" onerror="this.src='https://via.placeholder.com/400x300/007bff/ffffff?text=Producto'">
-                    
+
                     <!-- Campo para ID de usuario debajo de la imagen -->
                     <div class="form-group" style="margin: 15px 0;">
                         <label style="font-weight: 600; color: #495057; margin-bottom: 8px; display: block;">🎮 ID de Usuario en el Juego <span style="color: #dc3545;">*</span></label>
@@ -872,3 +872,21 @@ targetContent.classList.add('active');
         event.target.classList.add('active');
     }
 }
+```css
+.package-item {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 25px 15px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            height: 140px;
+        }
