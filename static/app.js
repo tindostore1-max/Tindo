@@ -877,26 +877,29 @@ function actualizarInterfazUsuario(usuario) {
     // Cambiar contenido de la pestaña de cuenta
     const loginSection = document.getElementById('login');
     loginSection.innerHTML = `
-        <h2>👤 Mi Cuenta</h2>
-        <div style="background: #e8f5e8; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-            <h3>Bienvenido, ${usuario.nombre}</h3>
-            <p><strong>Email:</strong> ${usuario.email}</p>
-            <p><strong>Miembro desde:</strong> ${new Date(usuario.fecha_registro).toLocaleDateString()}</p>
-        </div>
+        <div class="auth-section">
+            <h2 style="color: #ffffff; text-align: center; font-size: 28px; margin-bottom: 30px;">👤 Mi Cuenta</h2>
+            
+            <div class="user-profile-card">
+                <h3>🌟 Bienvenido, ${usuario.nombre}</h3>
+                <p><strong>Email:</strong> ${usuario.email}</p>
+                <p><strong>Miembro desde:</strong> ${new Date(usuario.fecha_registro).toLocaleDateString()}</p>
+            </div>
 
-        <div style="margin-bottom: 20px;">
-            <button class="btn btn-primary" onclick="mostrarHistorialCompras()" style="width: 100%; padding: 15px; margin-bottom: 10px;">
-                📋 Ver Historial de Compras
-            </button>
-            <button class="btn btn-danger" onclick="cerrarSesion()" style="width: 100%; padding: 15px;">
-                🚪 Cerrar Sesión
-            </button>
-        </div>
+            <div class="account-actions">
+                <button class="account-btn account-btn-primary" onclick="mostrarHistorialCompras()">
+                    📋 Ver Historial de Compras
+                </button>
+                <button class="account-btn account-btn-danger" onclick="cerrarSesion()">
+                    🚪 Cerrar Sesión
+                </button>
+            </div>
 
-        <div id="historial-compras" style="display: none;">
-            <h3>📋 Historial de Compras</h3>
-            <div id="lista-compras">
-                <div class="loading">Cargando historial...</div>
+            <div id="historial-compras" class="purchase-history" style="display: none;">
+                <h3>📋 Historial de Compras</h3>
+                <div id="lista-compras">
+                    <div class="loading">Cargando historial...</div>
+                </div>
             </div>
         </div>
     `;
