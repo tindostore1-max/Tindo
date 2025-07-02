@@ -31,8 +31,22 @@ def create_db_engine():
         db_port = os.environ.get('DB_PORT', '5432')
         db_name = os.environ.get('DB_NAME', 'inefablestore')
         database_url = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+    else:
+        # Limpiar la URL si viene con formato psql
+        if database_url.startswith("psql '") and database_url.endswith("'"):
+            database_url = database_url[6:-1]  # Remover "psql '" del inicio y "'" del final
+        elif database_url.startswith("psql "):
+            database_url = database_url[5:]  # Remover "psql " del inicio
     
-    print(f"🔗 Intentando conectar con: {database_url.replace(database_url.split('://')[1].split('@')[0], '***:***')}")
+    # Crear versión censurada para logging
+    try:
+        if '://' in database_url and '@' in database_url:
+            masked_url = database_url.replace(database_url.split('://')[1].split('@')[0], '***:***')
+        else:
+            masked_url = database_url
+        print(f"🔗 Intentando conectar con: {masked_url}")
+    except:
+        print(f"🔗 Intentando conectar con base de datos...")
     
     try:
         # Crear engine de SQLAlchemy
@@ -74,6 +88,12 @@ def get_psycopg2_connection():
         db_port = os.environ.get('DB_PORT', '5432')
         db_name = os.environ.get('DB_NAME', 'inefablestore')
         database_url = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+    else:
+        # Limpiar la URL si viene con formato psql
+        if database_url.startswith("psql '") and database_url.endswith("'"):
+            database_url = database_url[6:-1]  # Remover "psql '" del inicio y "'" del final
+        elif database_url.startswith("psql "):
+            database_url = database_url[5:]  # Remover "psql " del inicio
     
     return psycopg2.connect(database_url)
 
