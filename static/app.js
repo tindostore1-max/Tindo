@@ -497,12 +497,26 @@ function eliminarDelCarrito(itemId) {
 }
 
 // Proceder al pago
-function procederAlPago() {
+async function procederAlPago() {
     if (carrito.length === 0) {
         mostrarAlerta('Tu carrito está vacío', 'error');
         return;
     }
-    mostrarTab('pago');
+
+    // Verificar si el usuario está logueado antes de proceder al pago
+    try {
+        const response = await fetch('/usuario');
+        if (!response.ok) {
+            mostrarAlerta('Debes iniciar sesión para realizar una compra. Ve a la pestaña "Mi Cuenta" para entrar.', 'error');
+            mostrarTab('login');
+            return;
+        }
+        // Si está logueado, proceder al pago
+        mostrarTab('pago');
+    } catch (error) {
+        mostrarAlerta('Debes iniciar sesión para realizar una compra', 'error');
+        mostrarTab('login');
+    }
 }
 
 // Preparar información de pago
@@ -574,7 +588,20 @@ async function procesarPago() {
         return;
     }
 
+    if (!email || !metodoPago || !referencia) {
+        mostrarAlerta('Por favor completa todos los campos', 'error');
+        return;
+    }
+
     try {
+        // Verificar si el usuario está logueado
+        const sessionResponse = await fetch('/usuario');
+        if (!sessionResponse.ok) {
+            mostrarAlerta('Debes iniciar sesión para realizar una compra. Ve a la pestaña "Mi Cuenta" para entrar.', 'error');
+            mostrarTab('login');
+            return;
+        }
+
         // Crear una orden por cada item del carrito
         for (const item of carrito) {
             const orden = {
@@ -596,7 +623,16 @@ async function procesarPago() {
             });
 
             if (!response.ok) {
-                throw new Error('Error al procesar la orden');
+                const errorData = await response.json().catch(() => ({}));
+                const errorMessage = errorData.error || `Error del servidor: ${response.status}`;
+                
+                if (response.status === 401) {
+                    mostrarAlerta('Tu sesión ha expirado. Por favor inicia sesión nuevamente.', 'error');
+                    mostrarTab('login');
+                    return;
+                }
+                
+                throw new Error(errorMessage);
             }
         }
 
@@ -609,7 +645,7 @@ async function procesarPago() {
 
     } catch (error) {
         console.error('Error al procesar pago:', error);
-        mostrarAlerta('Error al procesar el pago. Inténtalo de nuevo.', 'error');
+        mostrarAlerta(`Error al procesar el pago: ${error.message || 'Error desconocido'}`, 'error');
     }
 }
 
