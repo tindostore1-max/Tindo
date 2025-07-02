@@ -35,9 +35,15 @@ function mostrarTab(tabName) {
         section.classList.remove('active');
     });
 
-    // Quitar clase active de todos los botones
+    // Quitar clase active de todos los botones (mobile y desktop)
     const navBtns = document.querySelectorAll('.nav-btn');
+    const desktopNavBtns = document.querySelectorAll('.desktop-nav-btn');
+    
     navBtns.forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    desktopNavBtns.forEach(btn => {
         btn.classList.remove('active');
     });
 
@@ -47,18 +53,18 @@ function mostrarTab(tabName) {
         targetSection.classList.add('active');
     }
 
-    // Activar botón correspondiente - verificar que event existe
+    // Activar botón correspondiente en ambas navegaciones
     if (typeof event !== 'undefined' && event.target) {
         event.target.classList.add('active');
-    } else {
-        // Buscar el botón correspondiente por el texto o atributo
-        const correspondingBtn = Array.from(navBtns).find(btn => 
-            btn.onclick && btn.onclick.toString().includes(tabName)
-        );
-        if (correspondingBtn) {
-            correspondingBtn.classList.add('active');
-        }
     }
+    
+    // Sincronizar botones por nombre de pestaña
+    const allNavBtns = [...navBtns, ...desktopNavBtns];
+    allNavBtns.forEach(btn => {
+        if (btn.onclick && btn.onclick.toString().includes(tabName)) {
+            btn.classList.add('active');
+        }
+    });
 
     // Cargar datos específicos según la pestaña
     if (tabName === 'carrito') {
@@ -433,6 +439,12 @@ function agregarPaqueteSeleccionado() {
 function actualizarContadorCarrito() {
     const total = carrito.reduce((sum, item) => sum + item.cantidad, 0);
     document.getElementById('cart-count').textContent = total;
+    
+    // Actualizar también el contador desktop
+    const desktopCounter = document.getElementById('cart-count-desktop');
+    if (desktopCounter) {
+        desktopCounter.textContent = total;
+    }
 }
 
 // Mostrar carrito

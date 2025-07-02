@@ -35,6 +35,72 @@
             margin-bottom: 20px;
         }
 
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .desktop-nav {
+            display: none;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .desktop-nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(248, 249, 250, 0.8);
+            color: #6c757d;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        .desktop-nav-btn:hover {
+            background: rgba(233, 236, 239, 0.9);
+            color: #495057;
+            transform: translateY(-1px);
+        }
+
+        .desktop-nav-btn.active {
+            background: rgba(0, 123, 255, 0.9);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+        }
+
+        .desktop-nav-btn .nav-icon {
+            font-size: 18px;
+        }
+
+        .desktop-nav-btn .nav-text {
+            font-size: 14px;
+        }
+
+        .cart-badge-desktop {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
         .logo {
             height: 60px;
             object-fit: contain;
@@ -445,6 +511,21 @@
             border: 1px solid #f5c6cb;
         }
 
+        /* Desktop: mostrar navegación en header y ocultar footer */
+        @media (min-width: 769px) {
+            .desktop-nav {
+                display: flex !important;
+            }
+
+            .footer-nav {
+                display: none !important;
+            }
+
+            .content {
+                margin-bottom: 20px; /* Reducir margen inferior en desktop */
+            }
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -482,6 +563,10 @@
                 width: 20px;
                 height: 20px;
                 font-size: 10px;
+            }
+
+            .desktop-nav {
+                display: none !important;
             }
         }
 
@@ -595,8 +680,28 @@
     <div class="container">
         <!-- Header con logo y selector de moneda -->
         <header>
-            <img src="/static/images/logo.png" alt="Logo Inefablestore" class="logo" id="logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-            <div style="display: none; font-size: 28px; font-weight: 900; color: #007bff;">🎮 INEFABLESTORE</div>
+            <div class="header-left">
+                <img src="/static/images/logo.png" alt="Logo Inefablestore" class="logo" id="logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div style="display: none; font-size: 28px; font-weight: 900; color: #007bff;">🎮 INEFABLESTORE</div>
+            </div>
+            
+            <!-- Navegación para desktop -->
+            <nav class="desktop-nav">
+                <button class="desktop-nav-btn active" onclick="mostrarTab('catalogo')">
+                    <span class="nav-icon">🏘️</span>
+                    <span class="nav-text">Catálogo</span>
+                </button>
+                <button class="desktop-nav-btn" onclick="mostrarTab('carrito')">
+                    <span class="nav-icon">🛍️</span>
+                    <span class="nav-text">Carrito</span>
+                    <span class="cart-badge-desktop" id="cart-count-desktop">0</span>
+                </button>
+                <button class="desktop-nav-btn" onclick="mostrarTab('login')">
+                    <span class="nav-icon">👨‍💼</span>
+                    <span class="nav-text">Mi Cuenta</span>
+                </button>
+            </nav>
+            
             <select id="selector-moneda" class="currency-selector">
                 <option value="USD">💵 USD</option>
                 <option value="VES">💰 VES</option>
