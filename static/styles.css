@@ -1119,18 +1119,24 @@ header {
     font-weight: 700;
     position: relative;
     z-index: 2;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
 
 .payment-info p {
-    color: #cccccc;
+    color: #ffffff;
     margin-bottom: 8px;
     line-height: 1.5;
     position: relative;
     z-index: 2;
+    background: rgba(0,0,0,0.3);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: 500;
 }
 
 .payment-info strong {
-    color: #ffffff;
+    color: #20c997;
+    font-weight: 700;
 }
 
 .submit-payment-btn {
