@@ -137,10 +137,15 @@ async function cargarConfiguracion() {
         configuracion = await response.json();
 
         // Actualizar logo si existe
-        if (configuracion.logo) {
-            const logoImg = document.getElementById('logo-img');
-            if (logoImg) {
+        const logoImg = document.getElementById('logo-img');
+        if (logoImg) {
+            if (configuracion.logo && configuracion.logo.trim() !== '') {
                 logoImg.src = configuracion.logo;
+                logoImg.onerror = function() {
+                    this.src = 'https://via.placeholder.com/150x60/007bff/ffffff?text=INEFABLESTORE';
+                };
+            } else {
+                logoImg.src = 'https://via.placeholder.com/150x60/007bff/ffffff?text=INEFABLESTORE';
             }
         }
 
@@ -167,40 +172,47 @@ async function cargarConfiguracion() {
 function actualizarImagenesCarrusel() {
     const slides = document.querySelectorAll('.carousel-slide img');
     
+    // Definir imágenes predeterminadas mejoradas
+    const defaultImages = [
+        'https://via.placeholder.com/800x300/007bff/ffffff?text=🎮+Ofertas+Especiales+Free+Fire',
+        'https://via.placeholder.com/800x300/28a745/ffffff?text=🔥+Mejores+Precios+PUBG',
+        'https://via.placeholder.com/800x300/dc3545/ffffff?text=⚡+Entrega+Inmediata+COD'
+    ];
+    
     // Configurar imagen 1 del carrusel
     if (slides[0]) {
-        if (configuracion.carousel1 && configuracion.carousel1.trim() !== '') {
+        if (configuracion.carousel1 && configuracion.carousel1.trim() !== '' && configuracion.carousel1 !== defaultImages[0]) {
             slides[0].src = configuracion.carousel1;
+            slides[0].onerror = function() {
+                this.src = defaultImages[0];
+            };
         } else {
-            slides[0].src = 'https://via.placeholder.com/800x300/007bff/ffffff?text=Oferta+Especial+1';
+            slides[0].src = defaultImages[0];
         }
-        slides[0].onerror = function() {
-            this.src = 'https://via.placeholder.com/800x300/007bff/ffffff?text=Oferta+Especial+1';
-        };
     }
     
     // Configurar imagen 2 del carrusel
     if (slides[1]) {
-        if (configuracion.carousel2 && configuracion.carousel2.trim() !== '') {
+        if (configuracion.carousel2 && configuracion.carousel2.trim() !== '' && configuracion.carousel2 !== defaultImages[1]) {
             slides[1].src = configuracion.carousel2;
+            slides[1].onerror = function() {
+                this.src = defaultImages[1];
+            };
         } else {
-            slides[1].src = 'https://via.placeholder.com/800x300/28a745/ffffff?text=Oferta+Especial+2';
+            slides[1].src = defaultImages[1];
         }
-        slides[1].onerror = function() {
-            this.src = 'https://via.placeholder.com/800x300/28a745/ffffff?text=Oferta+Especial+2';
-        };
     }
     
     // Configurar imagen 3 del carrusel
     if (slides[2]) {
-        if (configuracion.carousel3 && configuracion.carousel3.trim() !== '') {
+        if (configuracion.carousel3 && configuracion.carousel3.trim() !== '' && configuracion.carousel3 !== defaultImages[2]) {
             slides[2].src = configuracion.carousel3;
+            slides[2].onerror = function() {
+                this.src = defaultImages[2];
+            };
         } else {
-            slides[2].src = 'https://via.placeholder.com/800x300/dc3545/ffffff?text=Oferta+Especial+3';
+            slides[2].src = defaultImages[2];
         }
-        slides[2].onerror = function() {
-            this.src = 'https://via.placeholder.com/800x300/dc3545/ffffff?text=Oferta+Especial+3';
-        };
     }
 }
 
