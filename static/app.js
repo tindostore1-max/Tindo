@@ -829,6 +829,38 @@ function mostrarTotalPago(total) {
     }
 }
 
+// Actualizar precios en la página de detalles cuando cambia la moneda
+function actualizarPreciosDetalles() {
+    if (!productoSeleccionado) return;
+
+    // Actualizar precios de los paquetes
+    const packageItems = document.querySelectorAll('.package-item');
+    packageItems.forEach((item, index) => {
+        if (productoSeleccionado.paquetes && productoSeleccionado.paquetes[index]) {
+            const paquete = productoSeleccionado.paquetes[index];
+            const priceElement = item.querySelector('.package-price');
+            if (priceElement) {
+                priceElement.textContent = convertirPrecio(parseFloat(paquete.precio) || 0);
+            }
+        }
+    });
+
+    // Actualizar información del paquete seleccionado si hay uno
+    if (paqueteSeleccionado) {
+        const infoDiv = document.getElementById('paquete-seleccionado');
+        if (infoDiv && infoDiv.innerHTML.includes('Paquete seleccionado:')) {
+            infoDiv.innerHTML = `
+                <div style="color: #28a745; font-weight: 700; font-size: 18px;">
+                    🎮 Paquete seleccionado: <span style="color: #28a745;">${paqueteSeleccionado.nombre}</span>
+                </div>
+                <div style="color: #6c757d; font-size: 14px; margin-top: 5px;">
+                    Precio: ${convertirPrecio(paqueteSeleccionado.precio)}
+                </div>
+            `;
+        }
+    }
+}
+
 // Inicializar eventos
 function inicializarEventos() {
     // Selector de moneda
@@ -836,6 +868,12 @@ function inicializarEventos() {
         monedaActual = this.value;
         mostrarProductos();
         mostrarCarrito();
+
+        // Actualizar precios en página de detalles si está visible
+        const detallesSection = document.getElementById('detalles');
+        if (detallesSection && detallesSection.classList.contains('active') && productoSeleccionado) {
+            actualizarPreciosDetalles();
+        }
 
         // Actualizar total en página de pago si está visible
         const pagoSection = document.getElementById('pago');
