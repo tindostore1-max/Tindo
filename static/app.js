@@ -697,9 +697,6 @@ function prepararPago() {
     // Cargar total del carrito
     const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
 
-    // Actualizar tasa mostrada
-    actualizarTasaMostrada();
-
     // Mostrar el total en la página de pago
     mostrarTotalPago(total);
 
@@ -775,61 +772,7 @@ function prepararPago() {
     });
 }
 
-// Actualizar tasa mostrada en el botón
-function actualizarTasaMostrada() {
-    const tasaActualSpan = document.getElementById('tasa-actual');
-    if (tasaActualSpan) {
-        tasaActualSpan.textContent = tasaUSDVES.toFixed(2);
-    }
-}
 
-// Mostrar modal para cambiar tasa
-function mostrarCambioTasa() {
-    const modal = document.getElementById('modal-cambio-tasa');
-    const nuevaTasaInput = document.getElementById('nueva-tasa');
-    
-    if (modal && nuevaTasaInput) {
-        nuevaTasaInput.value = tasaUSDVES;
-        modal.style.display = 'flex';
-        nuevaTasaInput.focus();
-    }
-}
-
-// Cerrar modal de cambio de tasa
-function cerrarModalTasa() {
-    const modal = document.getElementById('modal-cambio-tasa');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-}
-
-// Aplicar nueva tasa
-function aplicarNuevaTasa() {
-    const nuevaTasaInput = document.getElementById('nueva-tasa');
-    const nuevaTasa = parseFloat(nuevaTasaInput.value);
-    
-    if (nuevaTasa && nuevaTasa > 0) {
-        tasaUSDVES = nuevaTasa;
-        
-        // Actualizar tasa mostrada
-        actualizarTasaMostrada();
-        
-        // Actualizar total si está en VES
-        if (monedaActual === 'VES') {
-            const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-            mostrarTotalPago(total);
-        }
-        
-        // Actualizar productos y carrito
-        mostrarProductos();
-        mostrarCarrito();
-        
-        cerrarModalTasa();
-        mostrarAlerta(`📈 Tasa actualizada a ${nuevaTasa} VES por USD`, 'success');
-    } else {
-        mostrarAlerta('Por favor ingresa una tasa válida', 'error');
-    }
-}
 
 // Mostrar total del pago
 function mostrarTotalPago(total) {
