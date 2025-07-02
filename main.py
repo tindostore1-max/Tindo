@@ -194,7 +194,10 @@ def init_db():
         configs = [
             ('tasa_usd_ves', '36.50'),
             ('pago_movil', 'Banco: Banesco\nTelefono: 0412-1234567\nCédula: V-12345678\nNombre: Store Admin'),
-            ('binance', 'Email: admin@inefablestore.com\nID Binance: 123456789')
+            ('binance', 'Email: admin@inefablestore.com\nID Binance: 123456789'),
+            ('carousel1', '/static/images/carousel1.jpg'),
+            ('carousel2', '/static/images/carousel2.jpg'),
+            ('carousel3', '/static/images/carousel3.jpg')
         ]
 
         for campo, valor in configs:

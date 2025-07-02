@@ -148,6 +148,9 @@ async function cargarConfiguracion() {
         if (configuracion.tasa_usd_ves) {
             tasaUSDVES = parseFloat(configuracion.tasa_usd_ves);
         }
+
+        // Actualizar imágenes del carrusel
+        actualizarImagenesCarrusel();
     } catch (error) {
         console.warn('Error al cargar configuración:', error.message || 'Error desconocido');
         // Usar configuración por defecto
@@ -157,6 +160,32 @@ async function cargarConfiguracion() {
             binance: 'Información no disponible'
         };
         tasaUSDVES = 36.50;
+    }
+}
+
+// Función para actualizar las imágenes del carrusel
+function actualizarImagenesCarrusel() {
+    const slides = document.querySelectorAll('.carousel-slide img');
+    
+    if (configuracion.carousel1 && slides[0]) {
+        slides[0].src = configuracion.carousel1;
+        slides[0].onerror = function() {
+            this.src = 'https://via.placeholder.com/800x300/007bff/ffffff?text=Oferta+Especial+1';
+        };
+    }
+    
+    if (configuracion.carousel2 && slides[1]) {
+        slides[1].src = configuracion.carousel2;
+        slides[1].onerror = function() {
+            this.src = 'https://via.placeholder.com/800x300/28a745/ffffff?text=Oferta+Especial+2';
+        };
+    }
+    
+    if (configuracion.carousel3 && slides[2]) {
+        slides[2].src = configuracion.carousel3;
+        slides[2].onerror = function() {
+            this.src = 'https://via.placeholder.com/800x300/dc3545/ffffff?text=Oferta+Especial+3';
+        };
     }
 }
 

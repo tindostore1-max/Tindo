@@ -397,6 +397,31 @@
                         <button type="button" class="btn btn-primary" onclick="loadConfig()">🔄 Cargar</button>
                     </form>
                 </div>
+
+                <div class="card">
+                    <h3>🎞️ Imágenes del Carrusel</h3>
+                    <p style="color: #6c757d; margin-bottom: 20px;">Configura las imágenes que aparecerán en el carrusel del sitio web principal.</p>
+                    
+                    <div class="form-group">
+                        <label>Imagen del Carrusel 1</label>
+                        <input type="text" id="config-carousel1" class="form-control" placeholder="URL de la primera imagen del carrusel">
+                    </div>
+                    <div class="form-group">
+                        <label>Imagen del Carrusel 2</label>
+                        <input type="text" id="config-carousel2" class="form-control" placeholder="URL de la segunda imagen del carrusel">
+                    </div>
+                    <div class="form-group">
+                        <label>Imagen del Carrusel 3</label>
+                        <input type="text" id="config-carousel3" class="form-control" placeholder="URL de la tercera imagen del carrusel">
+                    </div>
+                    
+                    <button type="button" class="btn btn-success" onclick="saveCarouselConfig()">💾 Guardar Imágenes del Carrusel</button>
+                    
+                    <div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 8px;">
+                        <h5>💡 Consejo:</h5>
+                        <p style="margin: 0; color: #1976d2;">Puedes subir las imágenes en la pestaña "🖼️ Imágenes" seleccionando el tipo "carrusel" y luego copiar la ruta aquí. Las imágenes recomendadas deben ser de 800x300 píxeles para mejor visualización.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -778,6 +803,11 @@
                 document.getElementById('config-tasa').value = config.tasa_usd_ves || '';
                 document.getElementById('config-pago-movil').value = config.pago_movil || '';
                 document.getElementById('config-binance').value = config.binance || '';
+                
+                // Cargar configuración del carrusel
+                document.getElementById('config-carousel1').value = config.carousel1 || '';
+                document.getElementById('config-carousel2').value = config.carousel2 || '';
+                document.getElementById('config-carousel3').value = config.carousel3 || '';
             } catch (error) {
                 showAlert('Error al cargar configuración', 'error');
             }
@@ -794,7 +824,7 @@
             };
             
             try {
-                const response = await fetch('/admin/config', {
+                const response = await fetch('/config', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -811,6 +841,33 @@
                 showAlert('Error al guardar configuración', 'error');
             }
         });
+
+        // Función para guardar configuración del carrusel
+        async function saveCarouselConfig() {
+            const carouselConfig = {
+                carousel1: document.getElementById('config-carousel1').value,
+                carousel2: document.getElementById('config-carousel2').value,
+                carousel3: document.getElementById('config-carousel3').value
+            };
+            
+            try {
+                const response = await fetch('/config', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(carouselConfig)
+                });
+                
+                if (response.ok) {
+                    showAlert('Imágenes del carrusel guardadas correctamente');
+                } else {
+                    showAlert('Error al guardar imágenes del carrusel', 'error');
+                }
+            } catch (error) {
+                showAlert('Error al guardar imágenes del carrusel', 'error');
+            }
+        }
 
         // Función para eliminar imagen
         async function deleteImagen(imagenId) {
