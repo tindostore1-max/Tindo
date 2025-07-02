@@ -1069,52 +1069,6 @@ header {
     font-size: 22px;
 }
 
-.currency-config-section {
-    background: rgba(40, 167, 69, 0.1);
-    border: 2px solid rgba(40, 167, 69, 0.3);
-    border-radius: 15px;
-    padding: 20px;
-    margin: 20px 0;
-}
-
-.currency-config-section h3 {
-    color: #28a745;
-    margin: 0 0 15px 0;
-    font-size: 20px;
-    font-weight: 700;
-}
-
-.currency-controls {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-}
-
-.currency-controls .form-group {
-    margin: 0;
-}
-
-.currency-controls .form-group label {
-    color: #28a745;
-    font-weight: 600;
-    margin-bottom: 8px;
-    display: block;
-}
-
-.currency-controls .form-group small {
-    color: #6c757d;
-    font-size: 12px;
-    margin-top: 5px;
-    display: block;
-}
-
-@media (max-width: 768px) {
-    .currency-controls {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-}
-
 .payment-form {
     max-width: 500px;
     margin: 0 auto;

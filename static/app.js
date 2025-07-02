@@ -697,9 +697,6 @@ function prepararPago() {
     // Cargar total del carrito
     const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
 
-    // Configurar selectores de moneda y tasa
-    configurarMonedaPago();
-
     // Mostrar el total en la página de pago
     mostrarTotalPago(total);
 
@@ -775,51 +772,6 @@ function prepararPago() {
     });
 }
 
-// Configurar moneda y tasa en página de pago
-function configurarMonedaPago() {
-    const monedaPagoSelect = document.getElementById('moneda-pago');
-    const tasaCambioInput = document.getElementById('tasa-cambio');
-
-    if (!monedaPagoSelect || !tasaCambioInput) return;
-
-    // Sincronizar con la moneda actual
-    monedaPagoSelect.value = monedaActual;
-    tasaCambioInput.value = tasaUSDVES;
-
-    // Evento para cambiar moneda
-    monedaPagoSelect.addEventListener('change', function() {
-        monedaActual = this.value;
-        
-        // Sincronizar con el selector del header
-        const selectorMonedaHeader = document.getElementById('selector-moneda');
-        if (selectorMonedaHeader) {
-            selectorMonedaHeader.value = monedaActual;
-        }
-
-        // Actualizar total
-        const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-        mostrarTotalPago(total);
-        
-        mostrarAlerta(`💱 Moneda cambiada a ${monedaActual}`, 'success');
-    });
-
-    // Evento para cambiar tasa
-    tasaCambioInput.addEventListener('input', function() {
-        const nuevaTasa = parseFloat(this.value);
-        if (nuevaTasa && nuevaTasa > 0) {
-            tasaUSDVES = nuevaTasa;
-            
-            // Actualizar total si está en VES
-            if (monedaActual === 'VES') {
-                const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-                mostrarTotalPago(total);
-            }
-            
-            mostrarAlerta(`📈 Tasa actualizada a ${nuevaTasa} VES por USD`, 'success');
-        }
-    });
-}
-
 // Mostrar total del pago
 function mostrarTotalPago(total) {
     const totalPagoElement = document.getElementById('total-pago');
@@ -835,19 +787,6 @@ function inicializarEventos() {
         monedaActual = this.value;
         mostrarProductos();
         mostrarCarrito();
-        
-        // Sincronizar con el selector de la página de pago
-        const monedaPagoSelect = document.getElementById('moneda-pago');
-        if (monedaPagoSelect) {
-            monedaPagoSelect.value = monedaActual;
-            
-            // Actualizar total en página de pago si está visible
-            const pagoSection = document.getElementById('pago');
-            if (pagoSection && pagoSection.classList.contains('active')) {
-                const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-                mostrarTotalPago(total);
-            }
-        }
     });
 
     // Formulario de pago
