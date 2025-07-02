@@ -250,9 +250,9 @@ function verDetalleProducto(productoId) {
             try {
                 const precio = convertirPrecio(parseFloat(paquete.precio) || 0);
                 html += `
-                    <div class="package-item package-selectable" data-package-id="${paquete.id}" data-package-name="${paquete.nombre}" data-package-price="${paquete.precio}" onclick="seleccionarPaquete(this)" style="margin-bottom: 15px; cursor: pointer; transition: all 0.3s ease;">
-                        <div class="package-info">
-                            <div class="package-name">
+                    <div class="package-item package-selectable" data-package-id="${paquete.id}" data-package-name="${paquete.nombre}" data-package-price="${paquete.precio}" onclick="seleccionarPaquete(this)" style="margin-bottom: 15px; cursor: pointer; transition: all 0.3s ease; height: 120px; min-height: 120px; max-height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <div class="package-info" style="text-align: center; width: 100%;">
+                            <div class="package-name" style="display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
                                 <span class="package-radio">⚪</span>
                                 ${paquete.nombre || 'Paquete'}
                             </div>
