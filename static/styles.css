@@ -135,16 +135,16 @@ header {
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     padding: 15px 20px;
-    box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
     display: flex;
     justify-content: space-around;
     align-items: center;
     z-index: 1000;
-    border-top: 1px solid rgba(233, 236, 239, 0.6);
+    border-top: 1px solid #444;
 }
 
 .nav-btn {
@@ -152,7 +152,7 @@ header {
     border: none;
     border-radius: 50%;
     background: transparent;
-    color: #6c757d;
+    color: #ffffff;
     font-size: 24px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -166,13 +166,13 @@ header {
 
 .nav-btn:hover {
     background: rgba(255, 255, 255, 0.1);
-    color: #495057;
+    color: #ffffff;
     transform: translateY(-2px);
 }
 
 .nav-btn.active {
     background: rgba(255, 255, 255, 0.1);
-    color: #495057;
+    color: #ffffff;
     transform: translateY(-3px);
     box-shadow: none;
 }
