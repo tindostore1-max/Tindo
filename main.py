@@ -11,6 +11,8 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import threading
+import psycopg2
+from psycopg2.extras import RealDictCursor
 
 load_dotenv()
 
@@ -22,24 +24,58 @@ app.config['UPLOAD_FOLDER'] = 'static/images'
 def create_db_engine():
     database_url = os.environ.get('DATABASE_URL')
     if not database_url:
-        # Fallback para desarrollo local
-        database_url = f"postgresql://{os.environ.get('DB_USER', 'postgres')}:{os.environ.get('DB_PASSWORD', 'password')}@{os.environ.get('DB_HOST', 'localhost')}:{os.environ.get('DB_PORT', '5432')}/{os.environ.get('DB_NAME', 'inefablestore')}"
+        # Fallback para desarrollo local usando variables de entorno individuales
+        db_user = os.environ.get('DB_USER', 'postgres')
+        db_password = os.environ.get('DB_PASSWORD', '')
+        db_host = os.environ.get('DB_HOST', 'localhost')
+        db_port = os.environ.get('DB_PORT', '5432')
+        db_name = os.environ.get('DB_NAME', 'inefablestore')
+        database_url = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
     
-    # Crear engine de SQLAlchemy
-    engine = create_engine(
-        database_url,
-        poolclass=NullPool,  # Para evitar problemas de conexión en Replit
-        pool_pre_ping=True,  # Para verificar conexiones antes de usarlas
-        echo=False  # Cambiar a True para debug SQL
-    )
-    return engine
+    print(f"🔗 Intentando conectar con: {database_url.replace(database_url.split('://')[1].split('@')[0], '***:***')}")
+    
+    try:
+        # Crear engine de SQLAlchemy
+        engine = create_engine(
+            database_url,
+            poolclass=NullPool,  # Para evitar problemas de conexión en Replit
+            pool_pre_ping=True,  # Para verificar conexiones antes de usarlas
+            echo=False  # Cambiar a True para debug SQL
+        )
+        
+        # Probar la conexión
+        with engine.connect() as conn:
+            conn.execute(text('SELECT 1'))
+        
+        print("✅ Conexión a la base de datos exitosa")
+        return engine
+    except Exception as e:
+        print(f"❌ Error conectando a PostgreSQL: {e}")
+        print("💡 Asegúrate de tener configurada la variable DATABASE_URL o las variables de entorno individuales")
+        raise e
 
 # Engine global
-db_engine = create_db_engine()
+db_engine = None
 
 def get_db_connection():
     """Obtener conexión a la base de datos usando SQLAlchemy"""
+    global db_engine
+    if db_engine is None:
+        db_engine = create_db_engine()
     return db_engine.connect()
+
+def get_psycopg2_connection():
+    """Obtener conexión directa con psycopg2 para funciones que lo requieren"""
+    database_url = os.environ.get('DATABASE_URL')
+    if not database_url:
+        db_user = os.environ.get('DB_USER', 'postgres')
+        db_password = os.environ.get('DB_PASSWORD', '')
+        db_host = os.environ.get('DB_HOST', 'localhost')
+        db_port = os.environ.get('DB_PORT', '5432')
+        db_name = os.environ.get('DB_NAME', 'inefablestore')
+        database_url = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+    
+    return psycopg2.connect(database_url)
 
 def enviar_correo_recarga_completada(orden_info):
     """Envía correo al usuario confirmando que su recarga ha sido completada"""
@@ -481,50 +517,64 @@ def update_orden(orden_id):
     nuevo_estado = data.get('estado')
 
     conn = get_db_connection()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
     
-    # Obtener información completa de la orden antes de actualizar
-    cur.execute('''
-        SELECT o.*, j.nombre as juego_nombre 
-        FROM ordenes o 
-        LEFT JOIN juegos j ON o.juego_id = j.id 
-        WHERE o.id = %s
-    ''', (orden_id,))
-    orden_info = cur.fetchone()
-    
-    if not orden_info:
-        cur.close()
+    try:
+        # Obtener información completa de la orden antes de actualizar
+        result = conn.execute(text('''
+            SELECT o.*, j.nombre as juego_nombre 
+            FROM ordenes o 
+            LEFT JOIN juegos j ON o.juego_id = j.id 
+            WHERE o.id = :orden_id
+        '''), {'orden_id': orden_id})
+        orden_info = result.fetchone()
+        
+        if not orden_info:
+            return jsonify({'error': 'Orden no encontrada'}), 404
+        
+        # Actualizar el estado de la orden
+        conn.execute(text('UPDATE ordenes SET estado = :estado WHERE id = :orden_id'), 
+                    {'estado': nuevo_estado, 'orden_id': orden_id})
+        conn.commit()
+        
+        # Convertir orden_info a diccionario para envío de correo
+        orden_dict = dict(orden_info._mapping)
+        
+        # Si el nuevo estado es "procesado", enviar correo de confirmación al usuario
+        if nuevo_estado == 'procesado':
+            threading.Thread(target=enviar_correo_recarga_completada, args=(orden_dict,)).start()
+
+        return jsonify({'message': 'Estado actualizado correctamente'})
+        
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': f'Error al actualizar orden: {str(e)}'}), 500
+    finally:
         conn.close()
-        return jsonify({'error': 'Orden no encontrada'}), 404
-    
-    # Actualizar el estado de la orden
-    cur.execute('UPDATE ordenes SET estado = %s WHERE id = %s', (nuevo_estado, orden_id))
-    conn.commit()
-    cur.close()
-    conn.close()
-
-    # Si el nuevo estado es "procesado", enviar correo de confirmación al usuario
-    if nuevo_estado == 'procesado':
-        threading.Thread(target=enviar_correo_recarga_completada, args=(orden_info,)).start()
-
-    return jsonify({'message': 'Estado actualizado correctamente'})
 
 # ENDPOINTS PARA PRODUCTOS
 @app.route('/admin/productos', methods=['GET'])
 def get_productos():
     conn = get_db_connection()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute('SELECT * FROM juegos ORDER BY id DESC')
-    productos = cur.fetchall()
+    try:
+        result = conn.execute(text('SELECT * FROM juegos ORDER BY id DESC'))
+        productos = result.fetchall()
 
-    # Obtener paquetes para cada producto
-    for producto in productos:
-        cur.execute('SELECT * FROM paquetes WHERE juego_id = %s', (producto['id'],))
-        producto['paquetes'] = cur.fetchall()
+        # Convertir a lista de diccionarios y obtener paquetes para cada producto
+        productos_list = []
+        for producto in productos:
+            producto_dict = dict(producto._mapping)
+            
+            # Obtener paquetes para este producto
+            paquetes_result = conn.execute(text('SELECT * FROM paquetes WHERE juego_id = :juego_id'), 
+                                         {'juego_id': producto_dict['id']})
+            paquetes = paquetes_result.fetchall()
+            producto_dict['paquetes'] = [dict(paq._mapping) for paq in paquetes]
+            
+            productos_list.append(producto_dict)
 
-    cur.close()
-    conn.close()
-    return jsonify([dict(producto) for producto in productos])
+        return jsonify(productos_list)
+    finally:
+        conn.close()
 
 @app.route('/admin/producto', methods=['POST'])
 def create_producto():
@@ -535,27 +585,33 @@ def create_producto():
     paquetes = data.get('paquetes', [])
 
     conn = get_db_connection()
-    cur = conn.cursor()
+    try:
+        # Insertar producto
+        result = conn.execute(text('''
+            INSERT INTO juegos (nombre, descripcion, imagen) 
+            VALUES (:nombre, :descripcion, :imagen) RETURNING id
+        '''), {'nombre': nombre, 'descripcion': descripcion, 'imagen': imagen})
+        
+        producto_id = result.fetchone()[0]
 
-    # Insertar producto
-    cur.execute(
-        'INSERT INTO juegos (nombre, descripcion, imagen) VALUES (%s, %s, %s) RETURNING id',
-        (nombre, descripcion, imagen)
-    )
-    producto_id = cur.fetchone()[0]
+        # Insertar paquetes
+        for paquete in paquetes:
+            conn.execute(text('''
+                INSERT INTO paquetes (juego_id, nombre, precio) 
+                VALUES (:juego_id, :nombre, :precio)
+            '''), {
+                'juego_id': producto_id, 
+                'nombre': paquete['nombre'], 
+                'precio': paquete['precio']
+            })
 
-    # Insertar paquetes
-    for paquete in paquetes:
-        cur.execute(
-            'INSERT INTO paquetes (juego_id, nombre, precio) VALUES (%s, %s, %s)',
-            (producto_id, paquete['nombre'], paquete['precio'])
-        )
-
-    conn.commit()
-    cur.close()
-    conn.close()
-
-    return jsonify({'message': 'Producto creado correctamente', 'id': producto_id})
+        conn.commit()
+        return jsonify({'message': 'Producto creado correctamente', 'id': producto_id})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': f'Error al crear producto: {str(e)}'}), 500
+    finally:
+        conn.close()
 
 @app.route('/admin/producto/<int:producto_id>', methods=['PUT'])
 def update_producto(producto_id):
@@ -566,87 +622,104 @@ def update_producto(producto_id):
     paquetes = data.get('paquetes', [])
 
     conn = get_db_connection()
-    cur = conn.cursor()
+    try:
+        # Actualizar producto
+        conn.execute(text('''
+            UPDATE juegos SET nombre = :nombre, descripcion = :descripcion, imagen = :imagen 
+            WHERE id = :producto_id
+        '''), {
+            'nombre': nombre, 
+            'descripcion': descripcion, 
+            'imagen': imagen, 
+            'producto_id': producto_id
+        })
 
-    # Actualizar producto
-    cur.execute(
-        'UPDATE juegos SET nombre = %s, descripcion = %s, imagen = %s WHERE id = %s',
-        (nombre, descripcion, imagen, producto_id)
-    )
+        # Eliminar paquetes existentes y crear nuevos
+        conn.execute(text('DELETE FROM paquetes WHERE juego_id = :producto_id'), 
+                    {'producto_id': producto_id})
 
-    # Eliminar paquetes existentes y crear nuevos
-    cur.execute('DELETE FROM paquetes WHERE juego_id = %s', (producto_id,))
+        for paquete in paquetes:
+            conn.execute(text('''
+                INSERT INTO paquetes (juego_id, nombre, precio) 
+                VALUES (:juego_id, :nombre, :precio)
+            '''), {
+                'juego_id': producto_id, 
+                'nombre': paquete['nombre'], 
+                'precio': paquete['precio']
+            })
 
-    for paquete in paquetes:
-        cur.execute(
-            'INSERT INTO paquetes (juego_id, nombre, precio) VALUES (%s, %s, %s)',
-            (producto_id, paquete['nombre'], paquete['precio'])
-        )
-
-    conn.commit()
-    cur.close()
-    conn.close()
-
-    return jsonify({'message': 'Producto actualizado correctamente'})
+        conn.commit()
+        return jsonify({'message': 'Producto actualizado correctamente'})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': f'Error al actualizar producto: {str(e)}'}), 500
+    finally:
+        conn.close()
 
 @app.route('/admin/producto/<int:producto_id>', methods=['DELETE'])
 def delete_producto(producto_id):
     conn = get_db_connection()
-    cur = conn.cursor()
-
     try:
         # Eliminar órdenes relacionadas primero
-        cur.execute('DELETE FROM ordenes WHERE juego_id = %s', (producto_id,))
+        conn.execute(text('DELETE FROM ordenes WHERE juego_id = :producto_id'), 
+                    {'producto_id': producto_id})
         # Eliminar paquetes
-        cur.execute('DELETE FROM paquetes WHERE juego_id = %s', (producto_id,))
+        conn.execute(text('DELETE FROM paquetes WHERE juego_id = :producto_id'), 
+                    {'producto_id': producto_id})
         # Eliminar producto
-        cur.execute('DELETE FROM juegos WHERE id = %s', (producto_id,))
+        conn.execute(text('DELETE FROM juegos WHERE id = :producto_id'), 
+                    {'producto_id': producto_id})
 
         conn.commit()
-        cur.close()
-        conn.close()
-
         return jsonify({'message': 'Producto eliminado correctamente'})
 
     except Exception as e:
         conn.rollback()
-        cur.close()
-        conn.close()
         return jsonify({'error': f'Error al eliminar producto: {str(e)}'}), 500
+    finally:
+        conn.close()
 
 # ENDPOINT PÚBLICO PARA PRODUCTOS (FRONTEND DE USUARIOS)
 @app.route('/productos', methods=['GET'])
 def get_productos_publico():
     conn = get_db_connection()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute('SELECT * FROM juegos ORDER BY id DESC')
-    productos = cur.fetchall()
+    try:
+        result = conn.execute(text('SELECT * FROM juegos ORDER BY id DESC'))
+        productos = result.fetchall()
 
-    # Obtener paquetes para cada producto
-    for producto in productos:
-        cur.execute('SELECT * FROM paquetes WHERE juego_id = %s ORDER BY precio ASC', (producto['id'],))
-        producto['paquetes'] = cur.fetchall()
+        # Convertir a lista de diccionarios y obtener paquetes para cada producto
+        productos_list = []
+        for producto in productos:
+            producto_dict = dict(producto._mapping)
+            
+            # Obtener paquetes para este producto
+            paquetes_result = conn.execute(text('SELECT * FROM paquetes WHERE juego_id = :juego_id ORDER BY precio ASC'), 
+                                         {'juego_id': producto_dict['id']})
+            paquetes = paquetes_result.fetchall()
+            producto_dict['paquetes'] = [dict(paq._mapping) for paq in paquetes]
+            
+            productos_list.append(producto_dict)
 
-    cur.close()
-    conn.close()
-    return jsonify([dict(producto) for producto in productos])
+        return jsonify(productos_list)
+    finally:
+        conn.close()
 
 # ENDPOINT PÚBLICO PARA CONFIGURACIÓN (FRONTEND DE USUARIOS)
 @app.route('/config', methods=['GET'])
 def get_config_publico():
     conn = get_db_connection()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute('SELECT * FROM configuracion')
-    configs = cur.fetchall()
-    cur.close()
-    conn.close()
+    try:
+        result = conn.execute(text('SELECT * FROM configuracion'))
+        configs = result.fetchall()
 
-    # Convertir a diccionario
-    config_dict = {}
-    for config in configs:
-        config_dict[config['campo']] = config['valor']
+        # Convertir a diccionario
+        config_dict = {}
+        for config in configs:
+            config_dict[config['campo']] = config['valor']
 
-    return jsonify(config_dict)
+        return jsonify(config_dict)
+    finally:
+        conn.close()
 
 # ENDPOINTS PARA IMÁGENES
 @app.route('/admin/imagenes', methods=['GET'])
