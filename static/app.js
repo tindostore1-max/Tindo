@@ -429,8 +429,6 @@ function agregarPaqueteSeleccionado() {
     }
 }
 
-
-
 // Actualizar contador del carrito
 function actualizarContadorCarrito() {
     const total = carrito.reduce((sum, item) => sum + item.cantidad, 0);
@@ -505,9 +503,6 @@ function procederAlPago() {
         return;
     }
     mostrarTab('pago');
-    // Actualizar botón activo manualmente
-    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-    document.querySelector('[onclick="mostrarTab(\'pago\')"]').classList.add('active');
 }
 
 // Preparar información de pago
