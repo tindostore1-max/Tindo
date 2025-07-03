@@ -387,18 +387,23 @@ function verDetalleProducto(productoId) {
         imagenUrl = 'https://via.placeholder.com/400x300/007bff/ffffff?text=Producto';
     }
 
+    // Determinar si mostrar el formulario de ID según la categoría
+    const mostrarFormularioId = producto.categoria !== 'gift-cards';
+    
     let html = `
         <div style="margin-top: 20px;">
             <div style="display: flex; gap: 30px; margin-bottom: 30px; align-items: flex-start;">
                 <div style="flex: 0 0 400px;">
                     <img src="${imagenUrl}" alt="${producto.nombre || 'Producto'}" style="width: 100%; height: 300px; object-fit: cover; border-radius: 15px;" onerror="this.src='https://via.placeholder.com/400x300/007bff/ffffff?text=Producto'">
 
+                    ${mostrarFormularioId ? `
                     <!-- Campo para ID de usuario debajo de la imagen -->
                     <div class="form-group" style="margin: 15px 0;">
                         <label style="font-weight: 600; color: #495057; margin-bottom: 8px; display: block;">🎮 ID de Usuario en el Juego <span style="color: #dc3545;">*</span></label>
                         <input type="text" id="usuario-id-juego" class="form-control" placeholder="Escribe tu ID de usuario aquí..." required>
                         <small style="color: #6c757d; margin-top: 5px; display: block;">Este ID será usado para entregar los recursos a tu cuenta del juego</small>
                     </div>
+                    ` : ''}
                 </div>
                 <div style="flex: 1;">
                     <h2 style="margin: 0 0 15px 0; color: #ffffff !important; font-size: 28px;">${producto.nombre || 'Producto sin nombre'}</h2>
@@ -521,26 +526,32 @@ function agregarPaqueteSeleccionado() {
         return;
     }
 
-    // Verificar que se haya ingresado el ID de usuario
-    const usuarioIdInput = document.getElementById('usuario-id-juego');
-    if (!usuarioIdInput) {
-        mostrarAlerta('Error: No se encontró el campo de ID de usuario', 'error');
-        return;
-    }
+    // Verificar que se haya ingresado el ID de usuario solo si no es gift card
+    let usuarioId = '';
+    if (producto.categoria !== 'gift-cards') {
+        const usuarioIdInput = document.getElementById('usuario-id-juego');
+        if (!usuarioIdInput) {
+            mostrarAlerta('Error: No se encontró el campo de ID de usuario', 'error');
+            return;
+        }
 
-    const usuarioId = usuarioIdInput.value.trim();
-    if (!usuarioId) {
-        mostrarAlerta('⚠️ Por favor ingresa tu ID de usuario del juego antes de agregar al carrito', 'error');
-        usuarioIdInput.focus();
-        usuarioIdInput.style.borderColor = '#28a745';
-        usuarioIdInput.style.boxShadow = 'inset 0 2px 8px rgba(40, 167, 69, 0.1)';
-
-        // Quitar el estilo de error después de 3 segundos
-        setTimeout(() => {
+        usuarioId = usuarioIdInput.value.trim();
+        if (!usuarioId) {
+            mostrarAlerta('⚠️ Por favor ingresa tu ID de usuario del juego antes de agregar al carrito', 'error');
+            usuarioIdInput.focus();
             usuarioIdInput.style.borderColor = '#28a745';
             usuarioIdInput.style.boxShadow = 'inset 0 2px 8px rgba(40, 167, 69, 0.1)';
-        }, 3000);
-        return;
+
+            // Quitar el estilo de error después de 3 segundos
+            setTimeout(() => {
+                usuarioIdInput.style.borderColor = '#28a745';
+                usuarioIdInput.style.boxShadow = 'inset 0 2px 8px rgba(40, 167, 69, 0.1)';
+            }, 3000);
+            return;
+        }
+    } else {
+        // Para gift cards, usar un valor por defecto o el email del usuario
+        usuarioId = 'gift-card';
     }
 
     const producto = productoSeleccionado;
