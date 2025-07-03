@@ -1560,25 +1560,25 @@ async function finalizarCompra() {
                 throw new Error('Error al procesar la orden.');
             }
         }
+
+        // Limpiar carrito después de procesar todas las órdenes
+        carritoItems = [];
+        actualizarCarrito();
+        cerrarCarrito();
+        alert('¡Compra realizada exitosamente! Recibirás una confirmación por correo.');
     } catch (error) {
         console.error('Error al procesar orden:', error);
         alert('Error al procesar la orden. Inténtalo de nuevo.');
         return; // Salir si hay error
+    } finally {
+        // Restaurar estado del botón
+        procesandoCompra = false;
+        const btnFinalizar = document.querySelector('.btn-finalizar-compra');
+        if (btnFinalizar) {
+            btnFinalizar.disabled = false;
+            btnFinalizar.textContent = 'Finalizar Compra';
+        }
     }
-    // Limpiar carrito después de procesar todas las órdenes
-    carritoItems = [];
-    actualizarCarrito();
-    cerrarCarrito();
-    alert('¡Compra realizada exitosamente! Recibirás una confirmación por correo.');
-} finally {
-    // Restaurar estado del botón
-    procesandoCompra = false;
-    const btnFinalizar = document.querySelector('.btn-finalizar-compra');
-    if (btnFinalizar) {
-        btnFinalizar.disabled = false;
-        btnFinalizar.textContent = 'Finalizar Compra';
-    }
-}
 
 function mostrarCarrito() {
     const modalCarrito = document.getElementById('modal-carrito');
