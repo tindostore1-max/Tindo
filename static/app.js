@@ -458,6 +458,30 @@ function verDetalleProducto(productoId) {
     // Determinar si mostrar el formulario de ID según la categoría
     const mostrarFormularioId = producto.categoria !== 'gift-cards';
 
+    // Generar HTML para los paquetes
+    let paquetesHtml = '';
+    if (producto.paquetes && Array.isArray(producto.paquetes) && producto.paquetes.length > 0) {
+        paquetesHtml = producto.paquetes.map(paquete => {
+            const precio = parseFloat(paquete.precio) || 0;
+            return `
+                <div class="package-item package-selectable" onclick="seleccionarPaquete(this)" 
+                     data-package-id="${paquete.id}" 
+                     data-package-name="${paquete.nombre}" 
+                     data-package-price="${precio}">
+                    <div class="package-info">
+                        <div class="package-name">
+                            <span class="package-radio">⚪</span>
+                            ${paquete.nombre}
+                        </div>
+                        <div class="package-price">${convertirPrecio(precio)}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } else {
+        paquetesHtml = '<p style="color: #cccccc; text-align: center; grid-column: 1 / -1;">No hay paquetes disponibles para este producto</p>';
+    }
+
     let html = `
         <div style="margin-top: 15px;">
             <div class="details-container" style="display: flex; gap: 20px; margin-bottom: 20px; align-items: flex-start;">
@@ -481,8 +505,13 @@ function verDetalleProducto(productoId) {
                         ${paquetesHtml}
                     </div>
 
+                    <!-- Información del paquete seleccionado -->
+                    <div id="paquete-seleccionado" style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); display: none;">
+                        <!-- Se llenará dinámicamente -->
+                    </div>
+
                     <div style="margin-top: 20px; display: flex; gap: 12px;">
-                        <button onclick="agregarAlCarrito()" class="btn btn-success" style="flex: 1; padding: 15px 20px; font-size: 16px; font-weight: 700; background: linear-gradient(135deg, #28a745, #20c997); border: none; border-radius: 10px; color: white; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);">
+                        <button id="btn-agregar-carrito" onclick="agregarPaqueteSeleccionado()" class="btn btn-success" style="flex: 1; padding: 15px 20px; font-size: 16px; font-weight: 700; background: linear-gradient(135deg, #28a745, #20c997); border: none; border-radius: 10px; color: white; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3); opacity: 0.6;" disabled>
                             🛒 Agregar al Carrito
                         </button>
                         <button onclick="mostrarTab('catalogo')" class="btn btn-secondary" style="padding: 15px 20px; font-size: 14px; font-weight: 600; background: #6c757d; border: none; border-radius: 10px; color: white; cursor: pointer; transition: all 0.3s ease;">
