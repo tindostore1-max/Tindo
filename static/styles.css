@@ -1,4 +1,3 @@
-
 * {
     margin: 0;
     padding: 0;
@@ -615,24 +614,24 @@ header {
         margin: 10px 0;
         border-radius: 15px;
     }
-    
+
     .auth-tabs {
         margin-bottom: 20px;
     }
-    
+
     .auth-tab {
         padding: 12px 15px;
         font-size: 14px;
     }
-    
+
     .user-profile-card {
         padding: 20px;
     }
-    
+
     .user-profile-card h3 {
         font-size: 20px;
     }
-    
+
     .account-btn {
         padding: 15px 20px;
         font-size: 14px;
@@ -1356,15 +1355,15 @@ header {
         grid-template-columns: 1fr;
         gap: 12px;
     }
-    
+
     .payment-method-btn {
         padding: 18px 12px;
     }
-    
+
     .payment-icon {
         font-size: 24px;
     }
-    
+
     .payment-text {
         font-size: 14px;
     }
@@ -1639,19 +1638,73 @@ header {
     color: #ffffff;
 }
 
+.purchase-code {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    padding: 15px;
+    border-radius: 12px;
+    margin: 15px 0;
+    position: relative;
+    z-index: 2;
+}
+
+.purchase-code strong {
+    color: white;
+    font-size: 14px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.code-display {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 10px 15px;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+}
+
+.code-text {
+    flex: 1;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 1px;
+    word-break: break-all;
+}
+
+.copy-code-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    color: white;
+    min-width: 40px;
+}
+
+.copy-code-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
 .purchase-payment {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 15px;
-    border-top: 1px solid #444;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #333;
     position: relative;
     z-index: 2;
 }
 
 .purchase-payment small {
-    color: #aaaaaa;
-    font-weight: 500;
+    color: #cccccc;
+    font-size: 13px;
 }
 
 /* Estilos del carrusel */
@@ -1791,21 +1844,21 @@ header {
         gap: 10px;
         padding: 0 10px;
     }
-    
+
     .category-tab {
         padding: 12px 20px;
         font-size: 14px;
         max-width: none;
     }
-    
+
     .carousel {
         height: 200px;
     }
-    
+
     .carousel-dots {
         padding: 10px 0;
     }
-    
+
     .dot {
         height: 12px;
         width: 12px;

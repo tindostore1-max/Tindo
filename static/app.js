@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     inicializarEventos();
     verificarSesion();
     inicializarCarrusel();
-    
+
     // Activar automáticamente la pestaña de Juegos al cargar
     setTimeout(() => {
         filtrarProductos('juegos');
@@ -394,7 +394,7 @@ function verDetalleProducto(productoId) {
 
     // Determinar si mostrar el formulario de ID según la categoría
     const mostrarFormularioId = producto.categoria !== 'gift-cards';
-    
+
     let html = `
         <div style="margin-top: 20px;">
             <div style="display: flex; gap: 30px; margin-bottom: 30px; align-items: flex-start;">
@@ -801,7 +801,8 @@ function actualizarMetodosPagoSegunMoneda() {
 // Función para seleccionar método de pago
 function seleccionarMetodoPago(metodo) {
     // Remover selección anterior
-    document.querySelectorAll('.payment-method-btn').forEach(btn => {
+    document.querySelectorAll```python
+('.payment-method-btn').forEach(btn => {
         btn.classList.remove('selected');
     });
 
@@ -1274,6 +1275,25 @@ async function mostrarHistorialCompras() {
                 imagenUrl = 'https://via.placeholder.com/60x60/007bff/ffffff?text=Juego';
             }
 
+            // Verificar si es Gift Card y tiene código
+            const esGiftCard = compra.categoria === 'gift-cards' || 
+                              (compra.juego_nombre && compra.juego_nombre.toLowerCase().includes('gift'));
+
+            let codigoHtml = '';
+            if (esGiftCard && compra.codigo_producto && compra.estado === 'procesado') {
+                codigoHtml = `
+                    <div class="purchase-code">
+                        <strong>🎁 Código de Gift Card:</strong>
+                        <div class="code-display">
+                            <span class="code-text">${compra.codigo_producto}</span>
+                            <button onclick="copiarCodigo('${compra.codigo_producto}')" class="copy-code-btn" title="Copiar código">
+                                📋
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
             html += `
                 <div class="purchase-card">
                     <div class="purchase-header">
@@ -1288,11 +1308,11 @@ async function mostrarHistorialCompras() {
                         <span class="purchase-amount">$${parseFloat(compra.monto).toFixed(2)}</span>
                         <span class="purchase-status ${compra.estado}">${compra.estado.toUpperCase()}</span>
                     </div>
+                    ${codigoHtml}
                     <div class="purchase-payment">
                         <small><strong>Método:</strong> ${compra.metodo_pago}</small>
                         <small><strong>Referencia:</strong> ${compra.referencia_pago}</small>
                     </div>
-                    ${compra.usuario_id ? `<div style="margin-top: 10px;"><small><strong>ID Usuario:</strong> ${compra.usuario_id}</small></div>` : ''}
                 </div>
             `;
         });
@@ -1303,6 +1323,22 @@ async function mostrarHistorialCompras() {
         console.error('Error al cargar historial:', error);
         listaCompras.innerHTML = '<p style="color: #dc3545;">Error al cargar el historial de compras</p>';
     }
+}
+
+// Función para copiar código de Gift Card
+function copiarCodigo(codigo) {
+    navigator.clipboard.writeText(codigo).then(() => {
+        mostrarAlerta('Código copiado al portapapeles', 'success');
+    }).catch(() => {
+        // Fallback para navegadores que no soportan clipboard API
+        const textArea = document.createElement('textarea');
+        textArea.value = codigo;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        mostrarAlerta('Código copiado al portapapeles', 'success');
+    });
 }
 
 // Función para manejar tabs de autenticación
