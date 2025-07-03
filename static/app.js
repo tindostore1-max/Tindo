@@ -723,11 +723,13 @@ function mostrarCarrito() {
 
         html += `
             <div class="cart-item">
-                <img src="${imagenUrl}" alt="${item.productoNombre}" class="cart-item-image" onerror="this.src='https://via.placeholder.com/80x80/007bff/ffffff?text=Juego'">
-                <div class="cart-item-info">
-                    <div class="cart-item-name">${item.productoNombre}</div>
-                    <div class="cart-item-package">${item.paqueteNombre}</div>
-                    <div class="cart-item-price">${convertirPrecio(item.precio)}</div>
+                <div class="cart-item-header">
+                    <img src="${imagenUrl}" alt="${item.productoNombre}" class="cart-item-image" onerror="this.src='https://via.placeholder.com/80x80/007bff/ffffff?text=Juego'">
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">${item.productoNombre}</div>
+                        <div class="cart-item-package">${item.paqueteNombre}</div>
+                        <div class="cart-item-price">${convertirPrecio(item.precio)}</div>
+                    </div>
                 </div>
                 <div class="cart-item-controls">
                     <div class="quantity-control">
