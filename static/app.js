@@ -269,6 +269,25 @@ async function cargarProductos() {
     }
 }
 
+// Variable para almacenar el filtro actual
+let filtroActual = 'todos';
+
+// Función para filtrar productos por categoría
+function filtrarProductos(categoria) {
+    filtroActual = categoria;
+    
+    // Actualizar pestañas activas
+    document.querySelectorAll('.category-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Activar pestaña seleccionada
+    event.target.classList.add('active');
+    
+    // Mostrar productos filtrados
+    mostrarProductos();
+}
+
 // Mostrar productos en el catálogo
 function mostrarProductos() {
     const grid = document.getElementById('productos-grid');
@@ -279,8 +298,26 @@ function mostrarProductos() {
         return;
     }
 
+    // Filtrar productos según la categoría seleccionada
+    let productosFiltrados = productos;
+    if (filtroActual === 'gift-cards') {
+        productosFiltrados = productos.filter(producto => 
+            producto.nombre && producto.nombre.toLowerCase().includes('gift')
+        );
+    }
+
+    if (productosFiltrados.length === 0) {
+        grid.innerHTML = `
+            <div class="no-products" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #cccccc;">
+                <h3>🎁 No hay Gift Cards disponibles</h3>
+                <p>Próximamente agregaremos más Gift Cards para ti</p>
+            </div>
+        `;
+        return;
+    }
+
     let html = '';
-    productos.forEach(producto => {
+    productosFiltrados.forEach(producto => {
         // Corregir ruta de imagen
         let imagenUrl = producto.imagen || '';
         if (imagenUrl && !imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
