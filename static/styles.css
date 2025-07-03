@@ -1706,6 +1706,8 @@ header {
 }
 
 .category-tab {
+    flex: 1;
+    max-width: 200px;
     padding: 15px 25px;
     border: 2px solid rgba(255,255,255,0.2);
     border-radius: 25px;
@@ -1718,6 +1720,7 @@ header {
     backdrop-filter: blur(10px);
     position: relative;
     overflow: hidden;
+    text-align: center;
 }
 
 .category-tab::before {
