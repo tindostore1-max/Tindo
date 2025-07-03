@@ -1483,6 +1483,124 @@ async function verificarSesion() {
     }
 }
 
+// FUNCIONES PARA COMPRAS
+let carritoItems = [];
+let procesandoCompra = false; // Variable para evitar envíos duplicados
+
+function agregarAlCarrito(juegoId, juegoNombre, paqueteNombre, precio) {
+    carritoItems.push({ juegoId, juegoNombre, paqueteNombre, precio });
+    actualizarCarrito();
+}
+
+function actualizarCarrito() {
+    const listaCarrito = document.getElementById('lista-carrito');
+    listaCarrito.innerHTML = ''; // Limpiar lista
+
+    let total = 0;
+    carritoItems.forEach(item => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${item.juegoNombre} - ${item.paqueteNombre} - $${item.precio}`;
+        listaCarrito.appendChild(listItem);
+        total += parseFloat(item.precio);
+    });
+
+    document.getElementById('total-carrito').textContent = `Total: $${total}`;
+}
+
+async function finalizarCompra() {
+    // Evitar envíos duplicados
+    if (procesandoCompra) {
+        console.log('Ya se está procesando una compra...');
+        return;
+    }
+
+    if (carritoItems.length === 0) {
+        alert('Tu carrito está vacío');
+        return;
+    }
+
+    // Verificar si el usuario está logueado
+    const usuario = await verificarSesion();
+    if (!usuario) {
+        alert('Debes iniciar sesión para realizar una compra');
+        mostrarModalLogin();
+        return;
+    }
+
+    // Marcar como procesando
+    procesandoCompra = true;
+
+    // Deshabilitar botón de finalizar compra
+    const btnFinalizar = document.querySelector('.btn-finalizar-compra');
+    if (btnFinalizar) {
+        btnFinalizar.disabled = true;
+        btnFinalizar.textContent = 'Procesando...';
+    }
+
+    try {
+        for (const item of carritoItems) {
+            const orden = {
+                juego_id: item.juegoId,
+                juego_nombre: item.juegoNombre,
+                paquete: item.paqueteNombre,
+                monto: item.precio,
+                usuario_id: usuario.id // Asumiendo que 'usuario' tiene un campo 'id'
+            };
+
+            const response = await fetch('/orden', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(orden)
+            });
+
+            if (!response.ok) {
+                console.error('Error al procesar orden:', response.status);
+                throw new Error('Error al procesar la orden.');
+            }
+        }
+    } catch (error) {
+        console.error('Error al procesar orden:', error);
+        alert('Error al procesar la orden. Inténtalo de nuevo.');
+        return; // Salir si hay error
+    }
+    // Limpiar carrito después de procesar todas las órdenes
+    carritoItems = [];
+    actualizarCarrito();
+    cerrarCarrito();
+    alert('¡Compra realizada exitosamente! Recibirás una confirmación por correo.');
+} finally {
+    // Restaurar estado del botón
+    procesandoCompra = false;
+    const btnFinalizar = document.querySelector('.btn-finalizar-compra');
+    if (btnFinalizar) {
+        btnFinalizar.disabled = false;
+        btnFinalizar.textContent = 'Finalizar Compra';
+    }
+}
+
+function mostrarCarrito() {
+    const modalCarrito = document.getElementById('modal-carrito');
+    modalCarrito.style.display = 'block';
+    actualizarCarrito();
+}
+
+function cerrarCarrito() {
+    const modalCarrito = document.getElementById('modal-carrito');
+    modalCarrito.style.display = 'none';
+}
+
+function mostrarModalLogin() {
+    const modalLogin = document.getElementById('modal-login');
+    modalLogin.style.display = 'block';
+}
+
+function cerrarModalLogin() {
+    const modalLogin = document.getElementById('modal-login');
+    modalLogin.style.display = 'none';
+}
+
 // Cargar datos iniciales al cargar la página
 document.addEventListener('DOMContentLoaded', function() {
     cargarConfiguracion();
@@ -1490,4 +1608,12 @@ document.addEventListener('DOMContentLoaded', function() {
     inicializarEventos();
     verificarSesion(); // Verificar si hay sesión activa
     inicializarCarrusel();
+
+    // Agregar event listener único al botón de finalizar compra
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.id === 'btn-finalizar-compra') {
+            e.preventDefault();
+            finalizarCompra();
+        }
+    });
 });
