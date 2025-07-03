@@ -249,8 +249,15 @@ def init_db():
                 id SERIAL PRIMARY KEY,
                 nombre VARCHAR(100),
                 descripcion TEXT,
-                imagen VARCHAR(255)
+                imagen VARCHAR(255),
+                categoria VARCHAR(50) DEFAULT 'juegos'
             );
+        '''))
+
+        # Agregar columna categoria si no existe (migración)
+        conn.execute(text('''
+            ALTER TABLE juegos 
+            ADD COLUMN IF NOT EXISTS categoria VARCHAR(50) DEFAULT 'juegos';
         '''))
 
         conn.execute(text('''
@@ -325,12 +332,13 @@ def init_db():
         if product_count == 0:
             # Free Fire
             result = conn.execute(text('''
-                INSERT INTO juegos (nombre, descripcion, imagen) 
-                VALUES (:nombre, :descripcion, :imagen) RETURNING id
+                INSERT INTO juegos (nombre, descripcion, imagen, categoria) 
+                VALUES (:nombre, :descripcion, :imagen, :categoria) RETURNING id
             '''), {
                 'nombre': 'Free Fire',
                 'descripcion': 'Juego de batalla real con acción intensa y gráficos increíbles',
-                'imagen': '/static/images/20250701_212818_free_fire.webp'
+                'imagen': '/static/images/20250701_212818_free_fire.webp',
+                'categoria': 'juegos'
             })
 
             ff_id = result.fetchone()[0]
@@ -352,12 +360,13 @@ def init_db():
 
             # PUBG Mobile
             result = conn.execute(text('''
-                INSERT INTO juegos (nombre, descripcion, imagen) 
-                VALUES (:nombre, :descripcion, :imagen) RETURNING id
+                INSERT INTO juegos (nombre, descripcion, imagen, categoria) 
+                VALUES (:nombre, :descripcion, :imagen, :categoria) RETURNING id
             '''), {
                 'nombre': 'PUBG Mobile',
                 'descripcion': 'Battle royale de última generación con mecánicas realistas',
-                'imagen': '/static/images/default-product.jpg'
+                'imagen': '/static/images/default-product.jpg',
+                'categoria': 'juegos'
             })
 
             pubg_id = result.fetchone()[0]
@@ -379,12 +388,13 @@ def init_db():
 
             # Call of Duty Mobile
             result = conn.execute(text('''
-                INSERT INTO juegos (nombre, descripcion, imagen) 
-                VALUES (:nombre, :descripcion, :imagen) RETURNING id
+                INSERT INTO juegos (nombre, descripcion, imagen, categoria) 
+                VALUES (:nombre, :descripcion, :imagen, :categoria) RETURNING id
             '''), {
                 'nombre': 'Call of Duty Mobile',
                 'descripcion': 'FPS de acción con multijugador competitivo y battle royale',
-                'imagen': '/static/images/default-product.jpg'
+                'imagen': '/static/images/default-product.jpg',
+                'categoria': 'juegos'
             })
 
             cod_id = result.fetchone()[0]
@@ -682,15 +692,16 @@ def create_producto():
     nombre = data.get('nombre')
     descripcion = data.get('descripcion')
     imagen = data.get('imagen', '')
+    categoria = data.get('categoria', 'juegos')
     paquetes = data.get('paquetes', [])
 
     conn = get_db_connection()
     try:
         # Insertar producto
         result = conn.execute(text('''
-            INSERT INTO juegos (nombre, descripcion, imagen) 
-            VALUES (:nombre, :descripcion, :imagen) RETURNING id
-        '''), {'nombre': nombre, 'descripcion': descripcion, 'imagen': imagen})
+            INSERT INTO juegos (nombre, descripcion, imagen, categoria) 
+            VALUES (:nombre, :descripcion, :imagen, :categoria) RETURNING id
+        '''), {'nombre': nombre, 'descripcion': descripcion, 'imagen': imagen, 'categoria': categoria})
         
         producto_id = result.fetchone()[0]
 
@@ -720,18 +731,20 @@ def update_producto(producto_id):
     nombre = data.get('nombre')
     descripcion = data.get('descripcion')
     imagen = data.get('imagen', '')
+    categoria = data.get('categoria', 'juegos')
     paquetes = data.get('paquetes', [])
 
     conn = get_db_connection()
     try:
         # Actualizar producto
         conn.execute(text('''
-            UPDATE juegos SET nombre = :nombre, descripcion = :descripcion, imagen = :imagen 
+            UPDATE juegos SET nombre = :nombre, descripcion = :descripcion, imagen = :imagen, categoria = :categoria 
             WHERE id = :producto_id
         '''), {
             'nombre': nombre, 
             'descripcion': descripcion, 
             'imagen': imagen, 
+            'categoria': categoria,
             'producto_id': producto_id
         })
 

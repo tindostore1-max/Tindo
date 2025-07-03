@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -263,16 +262,16 @@
             .tabs {
                 flex-direction: column;
             }
-            
+
             .tab {
                 padding: 15px 20px;
                 text-align: center;
             }
-            
+
             .container {
                 margin: 10px;
             }
-            
+
             .tab-content {
                 padding: 20px;
             }
@@ -329,6 +328,10 @@
                         <div class="form-group">
                             <label>Descripción</label>
                             <textarea id="product-description" class="form-control" rows="3"></textarea>
+                        </div>
+                         <div class="form-group">
+                            <label>Categoría</label>
+                            <input type="text" id="product-category" class="form-control">
                         </div>
                         <div class="form-group">
                             <label>URL de la Imagen</label>
@@ -409,7 +412,7 @@
                 <div class="card">
                     <h3>🎞️ Imágenes del Carrusel</h3>
                     <p style="color: #6c757d; margin-bottom: 20px;">Configura las imágenes que aparecerán en el carrusel del sitio web principal.</p>
-                    
+
                     <div class="form-group">
                         <label>Imagen del Carrusel 1</label>
                         <input type="text" id="config-carousel1" class="form-control" placeholder="URL de la primera imagen del carrusel">
@@ -422,9 +425,9 @@
                         <label>Imagen del Carrusel 3</label>
                         <input type="text" id="config-carousel3" class="form-control" placeholder="URL de la tercera imagen del carrusel">
                     </div>
-                    
+
                     <button type="button" class="btn btn-success" onclick="saveCarouselConfig()">💾 Guardar Imágenes del Carrusel</button>
-                    
+
                     <div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 8px;">
                         <h5>💡 Consejo:</h5>
                         <p style="margin: 0; color: #1976d2;">Puedes subir las imágenes en la pestaña "🖼️ Imágenes" seleccionando el tipo "carrusel" y luego copiar la ruta aquí. Las imágenes recomendadas deben ser de 800x300 píxeles para mejor visualización.</p>
@@ -441,16 +444,16 @@
             document.querySelectorAll('.tab-pane').forEach(pane => {
                 pane.classList.remove('active');
             });
-            
+
             // Quitar clase active de todos los tabs
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.classList.remove('active');
             });
-            
+
             // Mostrar pestaña seleccionada
             document.getElementById(tabName).classList.add('active');
             event.target.classList.add('active');
-            
+
             // Cargar datos según la pestaña
             if (tabName === 'ordenes') loadOrdenes();
             if (tabName === 'productos') loadProductos();
@@ -463,10 +466,10 @@
             const alertDiv = document.createElement('div');
             alertDiv.className = `alert alert-${type}`;
             alertDiv.textContent = message;
-            
+
             const container = document.querySelector('.tab-pane.active .card');
             container.insertBefore(alertDiv, container.firstChild);
-            
+
             setTimeout(() => {
                 alertDiv.remove();
             }, 3000);
@@ -477,9 +480,9 @@
             try {
                 const response = await fetch('/admin/ordenes');
                 const ordenes = await response.json();
-                
+
                 let html = '<table class="table"><thead><tr><th>ID</th><th>Juego</th><th>Paquete</th><th>Monto</th><th>Usuario Email</th><th>ID Usuario Juego</th><th>Método</th><th>Referencia</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr></thead><tbody>';
-                
+
                 ordenes.forEach(orden => {
                     html += `
                         <tr>
@@ -501,7 +504,7 @@
                         </tr>
                     `;
                 });
-                
+
                 html += '</tbody></table>';
                 document.getElementById('ordenes-list').innerHTML = html;
             } catch (error) {
@@ -518,7 +521,7 @@
                     },
                     body: JSON.stringify({ estado: nuevoEstado })
                 });
-                
+
                 if (response.ok) {
                     showAlert('Estado actualizado correctamente');
                     loadOrdenes();
@@ -535,25 +538,26 @@
             try {
                 const response = await fetch('/admin/productos');
                 const productos = await response.json();
-                
+
                 let html = '';
-                
+
                 productos.forEach(producto => {
                     html += `
                         <div class="card">
                             <h4>${producto.nombre}</h4>
                             <p><strong>Descripción:</strong> ${producto.descripcion || 'Sin descripción'}</p>
+                            <p><strong>Categoría:</strong> ${producto.categoria || 'Sin categoría'}</p>
                             <p><strong>Imagen:</strong> ${producto.imagen || 'Sin imagen'}</p>
                             <h5>Paquetes:</h5>
                             <ul>
                     `;
-                    
+
                     if (producto.paquetes) {
                         producto.paquetes.forEach(paquete => {
                             html += `<li>${paquete.nombre} - $${paquete.precio}</li>`;
                         });
                     }
-                    
+
                     html += `
                             </ul>
                             <button class="btn btn-warning" onclick="editProduct(${producto.id})">✏️ Editar</button>
@@ -561,7 +565,7 @@
                         </div>
                     `;
                 });
-                
+
                 document.getElementById('productos-list').innerHTML = html || '<p>No hay productos disponibles</p>';
             } catch (error) {
                 document.getElementById('productos-list').innerHTML = '<p>Error al cargar productos</p>';
@@ -576,15 +580,15 @@
             document.getElementById('create-product-form').style.display = 'none';
             const form = document.getElementById('product-form');
             form.reset();
-            
+
             // Resetear estado de edición
             form.removeAttribute('data-product-id');
             form.removeAttribute('data-editing');
-            
+
             // Restaurar título y texto del botón
             document.querySelector('#create-product-form h3').textContent = 'Crear Nuevo Producto';
             document.querySelector('#product-form button[type="submit"]').innerHTML = '💾 Guardar Producto';
-            
+
             // Limpiar paquetes y agregar uno vacío
             const container = document.getElementById('paquetes-container');
             container.innerHTML = `
@@ -609,11 +613,12 @@
 
         document.getElementById('product-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const nombre = document.getElementById('product-name').value;
             const descripcion = document.getElementById('product-description').value;
             const imagen = document.getElementById('product-image').value;
-            
+            const categoria = document.getElementById('product-category').value;
+
             const paquetes = [];
             document.querySelectorAll('.paquete-item').forEach(item => {
                 const nombrePaquete = item.querySelector('.paquete-nombre').value;
@@ -622,14 +627,14 @@
                     paquetes.push({ nombre: nombrePaquete, precio: parseFloat(precio) });
                 }
             });
-            
+
             const form = document.getElementById('product-form');
             const isEditing = form.getAttribute('data-editing') === 'true';
             const productId = form.getAttribute('data-product-id');
-            
+
             try {
                 let response;
-                
+
                 if (isEditing) {
                     // Actualizar producto existente
                     response = await fetch(`/admin/producto/${productId}`, {
@@ -641,6 +646,7 @@
                             nombre,
                             descripcion,
                             imagen,
+                            categoria,
                             paquetes
                         })
                     });
@@ -655,11 +661,12 @@
                             nombre,
                             descripcion,
                             imagen,
+                            categoria,
                             paquetes
                         })
                     });
                 }
-                
+
                 if (response.ok) {
                     showAlert(isEditing ? 'Producto actualizado correctamente' : 'Producto creado correctamente');
                     hideCreateProductForm();
@@ -678,24 +685,25 @@
                 const response = await fetch('/admin/productos');
                 const productos = await response.json();
                 const producto = productos.find(p => p.id === productId);
-                
+
                 if (!producto) {
                     showAlert('Producto no encontrado', 'error');
                     return;
                 }
-                
+
                 // Mostrar formulario de edición
                 showCreateProductForm();
-                
+
                 // Llenar formulario con datos existentes
                 document.getElementById('product-name').value = producto.nombre;
                 document.getElementById('product-description').value = producto.descripcion || '';
+                document.getElementById('product-category').value = producto.categoria || '';
                 document.getElementById('product-image').value = producto.imagen || '';
-                
+
                 // Limpiar paquetes existentes y agregar los del producto
                 const container = document.getElementById('paquetes-container');
                 container.innerHTML = '';
-                
+
                 if (producto.paquetes && producto.paquetes.length > 0) {
                     producto.paquetes.forEach(paquete => {
                         const paqueteDiv = document.createElement('div');
@@ -711,18 +719,18 @@
                     // Agregar un paquete vacío si no hay ninguno
                     addPaquete();
                 }
-                
+
                 // Cambiar el título del formulario
                 document.querySelector('#create-product-form h3').textContent = 'Editar Producto';
-                
+
                 // Cambiar el comportamiento del formulario para actualizar en lugar de crear
                 const form = document.getElementById('product-form');
                 form.setAttribute('data-product-id', productId);
                 form.setAttribute('data-editing', 'true');
-                
+
                 // Cambiar texto del botón
                 document.querySelector('#product-form button[type="submit"]').innerHTML = '💾 Actualizar Producto';
-                
+
             } catch (error) {
                 showAlert('Error al cargar datos del producto', 'error');
             }
@@ -734,7 +742,7 @@
                     const response = await fetch(`/admin/producto/${productId}`, {
                         method: 'DELETE'
                     });
-                    
+
                     if (response.ok) {
                         showAlert('Producto eliminado correctamente');
                         loadProductos();
@@ -752,9 +760,9 @@
             try {
                 const response = await fetch('/admin/imagenes');
                 const imagenes = await response.json();
-                
+
                 let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">';
-                
+
                 imagenes.forEach(imagen => {
                     html += `
                         <div class="card" style="text-align: center;">
@@ -767,7 +775,7 @@
                         </div>
                     `;
                 });
-                
+
                 html += '</div>';
                 document.getElementById('imagenes-list').innerHTML = html || '<p>No hay imágenes disponibles</p>';
             } catch (error) {
@@ -777,20 +785,20 @@
 
         document.getElementById('upload-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const formData = new FormData();
             const file = document.getElementById('image-file').files[0];
             const tipo = document.getElementById('image-type').value;
-            
+
             formData.append('imagen', file);
             formData.append('tipo', tipo);
-            
+
             try {
                 const response = await fetch('/admin/imagenes', {
                     method: 'POST',
                     body: formData
                 });
-                
+
                 if (response.ok) {
                     showAlert('Imagen subida correctamente');
                     document.getElementById('upload-form').reset();
@@ -808,12 +816,12 @@
             try {
                 const response = await fetch('/admin/config');
                 const config = await response.json();
-                
+
                 document.getElementById('config-logo').value = config.logo || '';
                 document.getElementById('config-tasa').value = config.tasa_usd_ves || '';
                 document.getElementById('config-pago-movil').value = config.pago_movil || '';
                 document.getElementById('config-binance').value = config.binance || '';
-                
+
                 // Cargar configuración del carrusel
                 document.getElementById('config-carousel1').value = config.carousel1 || '';
                 document.getElementById('config-carousel2').value = config.carousel2 || '';
@@ -825,14 +833,14 @@
 
         document.getElementById('config-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const config = {
                 logo: document.getElementById('config-logo').value,
                 tasa_usd_ves: document.getElementById('config-tasa').value,
                 pago_movil: document.getElementById('config-pago-movil').value,
                 binance: document.getElementById('config-binance').value
             };
-            
+
             try {
                 const response = await fetch('/config', {
                     method: 'PUT',
@@ -841,7 +849,7 @@
                     },
                     body: JSON.stringify(config)
                 });
-                
+
                 if (response.ok) {
                     showAlert('Configuración guardada correctamente');
                 } else {
@@ -859,7 +867,7 @@
                 carousel2: document.getElementById('config-carousel2').value,
                 carousel3: document.getElementById('config-carousel3').value
             };
-            
+
             try {
                 const response = await fetch('/config', {
                     method: 'PUT',
@@ -868,7 +876,7 @@
                     },
                     body: JSON.stringify(carouselConfig)
                 });
-                
+
                 if (response.ok) {
                     showAlert('Imágenes del carrusel guardadas correctamente');
                 } else {
@@ -886,7 +894,7 @@
                     const response = await fetch(`/admin/imagen/${imagenId}`, {
                         method: 'DELETE'
                     });
-                    
+
                     if (response.ok) {
                         showAlert('Imagen eliminada correctamente');
                         loadImagenes();
@@ -922,23 +930,23 @@
             // Ocultar todas las pestañas
             const tabs = document.querySelectorAll('.tab-pane');
             tabs.forEach(tab => tab.classList.remove('active'));
-            
+
             // Mostrar la pestaña seleccionada
             const targetTab = document.getElementById(tabName);
             if (targetTab) {
                 targetTab.classList.add('active');
             }
-            
+
             // Actualizar botones de navegación
             const navBtns = document.querySelectorAll('.nav-btn');
             navBtns.forEach(btn => btn.classList.remove('active'));
-            
+
             // Buscar y activar el botón correspondiente
             const activeBtn = document.querySelector(`[onclick="showTab('${tabName}')"]`);
             if (activeBtn) {
                 activeBtn.classList.add('active');
             }
-            
+
             // Cargar datos específicos según la pestaña
             if (tabName === 'ordenes') {
                 loadOrdenes();
@@ -958,7 +966,7 @@
                     const response = await fetch('/logout', {
                         method: 'POST'
                     });
-                    
+
                     if (response.ok) {
                         showAlert('Sesión cerrada correctamente', 'success');
                         setTimeout(() => {
