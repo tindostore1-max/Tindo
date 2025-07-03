@@ -764,6 +764,17 @@ function prepararPago() {
 
     // Actualizar métodos de pago según la moneda
     actualizarMetodosPagoSegunMoneda();
+
+    // Auto-rellenar email del usuario logueado
+    if (session && session.user_email) {
+        const emailInput = document.getElementById('pago-email');
+        if (emailInput) {
+            emailInput.value = session.user_email;
+            emailInput.readOnly = true; // Hacer el campo de solo lectura
+            emailInput.style.backgroundColor = 'rgba(255,255,255,0.1)';
+            emailInput.style.cursor = 'not-allowed';
+        }
+    }
 }
 
 // Función para actualizar métodos de pago según la moneda seleccionada
@@ -1180,6 +1191,13 @@ async function procesarRegistro() {
 
 // Actualizar interfaz para usuario logueado
 function actualizarInterfazUsuario(usuario) {
+    // Guardar información del usuario en una variable global para usar en otras partes
+    window.session = {
+        user_id: usuario.id,
+        user_email: usuario.email,
+        user_name: usuario.nombre
+    };
+
     // Cambiar contenido de la pestaña de cuenta
     const loginSection = document.getElementById('login');
     loginSection.innerHTML = `
@@ -1209,6 +1227,18 @@ function actualizarInterfazUsuario(usuario) {
             </div>
         </div>
     `;
+
+    // Si estamos en la página de pago, actualizar el email automáticamente
+    const pagoSection = document.getElementById('pago');
+    if (pagoSection && pagoSection.classList.contains('active')) {
+        const emailInput = document.getElementById('pago-email');
+        if (emailInput) {
+            emailInput.value = usuario.email;
+            emailInput.readOnly = true;
+            emailInput.style.backgroundColor = 'rgba(255,255,255,0.1)';
+            emailInput.style.cursor = 'not-allowed';
+        }
+    }
 }
 
 // Cerrar sesión
@@ -1219,6 +1249,8 @@ async function cerrarSesion() {
         });
 
         if (response.ok) {
+            // Limpiar información de sesión
+            window.session = null;
             mostrarAlerta('Sesión cerrada correctamente');
             location.reload(); // Recargar página
         }
