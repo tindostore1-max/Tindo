@@ -401,7 +401,7 @@ function verDetalleProducto(productoId) {
         <div style="margin-top: 20px;">
             <div style="display: flex; gap: 30px; margin-bottom: 30px; align-items: flex-start;">
                 <div style="flex: 0 0 400px;">
-                    <img src="${imagenUrl}" alt="${producto.nombre || 'Producto'}" style="width: 100%; height: 300px; object-fit: cover; border-radius: 15px;" onerror="this.src='https://via.placeholder.com/400x300/007bff/ffffff?text=Producto'">
+                    <img src="${imagenUrl}" alt="${producto.nombre || 'Producto'}" class="selected-product-image" style="width: 100%; height: 300px; object-fit: cover; border-radius: 15px;" onerror="this.src='https://via.placeholder.com/400x300/007bff/ffffff?text=Producto'">
 
                     ${mostrarFormularioId ? `
                     <!-- Campo para ID de usuario debajo de la imagen -->
