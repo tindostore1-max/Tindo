@@ -69,7 +69,7 @@ async function verificarSesion() {
 }
 
 // Funciones de navegación
-function mostrarTab(tabName) {
+function mostrarTab(tabName, element) {
     // Ocultar todas las secciones
     const sections = document.querySelectorAll('.tab-section');
     sections.forEach(section => {
@@ -94,9 +94,9 @@ function mostrarTab(tabName) {
         targetSection.classList.add('active');
     }
 
-    // Activar botón correspondiente en ambas navegaciones
-    if (typeof event !== 'undefined' && event.target) {
-        event.target.classList.add('active');
+    // Activar botón correspondiente si se proporciona
+    if (element) {
+        element.classList.add('active');
     }
 
     // Sincronizar botones por nombre de pestaña
@@ -278,7 +278,7 @@ async function cargarProductos() {
 let filtroActual = 'juegos';
 
 // Función para filtrar productos por categoría
-function filtrarProductos(categoria) {
+function filtrarProductos(categoria, element) {
     filtroActual = categoria;
 
     // Actualizar pestañas activas
@@ -287,7 +287,9 @@ function filtrarProductos(categoria) {
     });
 
     // Activar pestaña seleccionada
-    event.target.classList.add('active');
+    if (element) {
+        element.classList.add('active');
+    }
 
     // Mostrar productos filtrados
     mostrarProductos();
@@ -1342,7 +1344,7 @@ function copiarCodigo(codigo) {
 }
 
 // Función para manejar tabs de autenticación
-function mostrarAuthTab(tabName) {
+function mostrarAuthTab(tabName, element) {
     // Verificar que los elementos existen antes de manipularlos
     const authContents = document.querySelectorAll('.auth-content');
     const authTabs = document.querySelectorAll('.auth-tab');
@@ -1366,9 +1368,9 @@ function mostrarAuthTab(tabName) {
     // Mostrar contenido seleccionado
     targetContent.classList.add('active');
 
-    // Verificar que event y event.target existen
-    if (typeof event !== 'undefined' && event.target) {
-        event.target.classList.add('active');
+    // Activar el tab seleccionado si se proporciona el elemento
+    if (element) {
+        element.classList.add('active');
     }
 }
 

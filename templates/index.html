@@ -66,12 +66,8 @@
 
                 <!-- Pestañas de categorías -->
                 <div class="category-tabs">
-                    <button class="category-tab active" onclick="filtrarProductos('juegos')">
-                        Juegos
-                    </button>
-                    <button class="category-tab" onclick="filtrarProductos('gift-cards')">
-                        Gift Cards
-                    </button>
+                    <div class="category-tab active" onclick="filtrarProductos('juegos', this)">Juegos</div>
+                    <div class="category-tab" onclick="filtrarProductos('gift-cards', this)">Gift Cards</div>
                 </div>
 
                 <div id="productos-grid" class="product-grid loading">
@@ -158,8 +154,8 @@
                     <h2 style="color: #ffffff; text-align: center; font-size: 28px; margin-bottom: 30px;">🔐 Mi Cuenta</h2>
 
                     <div class="auth-tabs">
-                        <button class="auth-tab active" onclick="mostrarAuthTab('login-form')">Iniciar Sesión</button>
-                        <button class="auth-tab" onclick="mostrarAuthTab('registro-form')">Registrarse</button>
+                        <div class="auth-tab active" onclick="mostrarAuthTab('login-form', this)">Iniciar Sesión</div>
+                        <div class="auth-tab" onclick="mostrarAuthTab('registro-form', this)">Registrarse</div>
                     </div>
 
                     <div id="login-form" class="auth-content active">
@@ -232,14 +228,14 @@
 
     <!-- Footer de navegación fijo -->
     <footer class="footer-nav">
-        <button class="nav-btn active" onclick="mostrarTab('catalogo')">
+        <button class="nav-btn active" onclick="mostrarTab('catalogo', this)">
             <span class="nav-icon"></span>
         </button>
-        <button class="nav-btn" onclick="mostrarTab('carrito')">
+        <button class="nav-btn" onclick="mostrarTab('carrito', this)">
             <span class="nav-icon"></span>
             <span class="cart-badge" id="cart-count">0</span>
         </button>
-        <button class="nav-btn" onclick="mostrarTab('login')">
+        <button class="nav-btn" onclick="mostrarTab('login', this)">
             <span class="nav-icon"></span>
         </button>
     </footer>
