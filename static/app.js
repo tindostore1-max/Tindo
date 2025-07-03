@@ -801,8 +801,7 @@ function actualizarMetodosPagoSegunMoneda() {
 // Función para seleccionar método de pago
 function seleccionarMetodoPago(metodo) {
     // Remover selección anterior
-    document.querySelectorAll```python
-('.payment-method-btn').forEach(btn => {
+    document.querySelectorAll('.payment-method-btn').forEach(btn => {
         btn.classList.remove('selected');
     });
 
@@ -816,7 +815,8 @@ function seleccionarMetodoPago(metodo) {
     // Mostrar información del método de pago
     const infoPago = document.getElementById('info-pago');
 
-    if (metodo === 'Pago Móvil') {// Procesar datos de pago móvil
+    if (metodo === 'Pago Móvil') {
+        // Procesar datos de pago móvil
         const pagoMovilData = configuracion.pago_movil || 'Información no disponible';
         const lineasPagoMovil = pagoMovilData.split('\n');
 
@@ -1364,7 +1364,7 @@ function mostrarAuthTab(tabName) {
     });
 
     // Mostrar contenido seleccionado
-targetContent.classList.add('active');
+    targetContent.classList.add('active');
 
     // Verificar que event y event.target existen
     if (typeof event !== 'undefined' && event.target) {
@@ -1372,24 +1372,3 @@ targetContent.classList.add('active');
     }
 }
 
-// Verificar sesión del usuario al cargar la página
-async function verificarSesion() {
-    try {
-        const response = await fetch('/usuario');
-        if (response.ok) {
-            const data = await response.json();
-            actualizarInterfazUsuario(data.usuario);
-        }
-    } catch (error) {
-        console.log('No hay sesión activa');
-    }
-}
-
-// Cargar datos iniciales al cargar la página
-document.addEventListener('DOMContentLoaded', function() {
-    cargarConfiguracion();
-    cargarProductos();
-    inicializarEventos();
-    verificarSesion(); // Verificar si hay sesión activa
-    inicializarCarrusel();
-});
