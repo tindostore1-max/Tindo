@@ -1494,17 +1494,22 @@ function agregarAlCarrito(juegoId, juegoNombre, paqueteNombre, precio) {
 
 function actualizarCarrito() {
     const listaCarrito = document.getElementById('lista-carrito');
-    listaCarrito.innerHTML = ''; // Limpiar lista
+    if (listaCarrito) {
+        listaCarrito.innerHTML = ''; // Limpiar lista
 
-    let total = 0;
-    carritoItems.forEach(item => {
-        const listItem = document.createElement('li');
-        listItem.textContent = `${item.juegoNombre} - ${item.paqueteNombre} - $${item.precio}`;
-        listaCarrito.appendChild(listItem);
-        total += parseFloat(item.precio);
-    });
+        let total = 0;
+        carritoItems.forEach(item => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${item.juegoNombre} - ${item.paqueteNombre} - $${item.precio}`;
+            listaCarrito.appendChild(listItem);
+            total += parseFloat(item.precio);
+        });
 
-    document.getElementById('total-carrito').textContent = `Total: $${total}`;
+        const totalElement = document.getElementById('total-carrito');
+        if (totalElement) {
+            totalElement.textContent = `Total: $${total}`;
+        }
+    }
 }
 
 async function finalizarCompra() {
@@ -1520,100 +1525,99 @@ async function finalizarCompra() {
     }
 
     // Verificar si el usuario está logueado
-    const usuario = await verificarSesion();
-    if (!usuario) {
-        alert('Debes iniciar sesión para realizar una compra');
-        mostrarModalLogin();
-        return;
-    }
-
-    // Marcar como procesando
-    procesandoCompra = true;
-
-    // Deshabilitar botón de finalizar compra
-    const btnFinalizar = document.querySelector('.btn-finalizar-compra');
-    if (btnFinalizar) {
-        btnFinalizar.disabled = true;
-        btnFinalizar.textContent = 'Procesando...';
-    }
-
     try {
-        for (const item of carritoItems) {
-            const orden = {
-                juego_id: item.juegoId,
-                juego_nombre: item.juegoNombre,
-                paquete: item.paqueteNombre,
-                monto: item.precio,
-                usuario_id: usuario.id // Asumiendo que 'usuario' tiene un campo 'id'
-            };
-
-            const response = await fetch('/orden', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(orden)
-            });
-
-            if (!response.ok) {
-                console.error('Error al procesar orden:', response.status);
-                throw new Error('Error al procesar la orden.');
-            }
+        const response = await fetch('/usuario');
+        if (!response.ok) {
+            alert('Debes iniciar sesión para realizar una compra');
+            mostrarModalLogin();
+            return;
         }
+        
+        const data = await response.json();
+        const usuario = data.usuario;
 
-        // Limpiar carrito después de procesar todas las órdenes
-        carritoItems = [];
-        actualizarCarrito();
-        cerrarCarrito();
-        alert('¡Compra realizada exitosamente! Recibirás una confirmación por correo.');
-    } catch (error) {
-        console.error('Error al procesar orden:', error);
-        alert('Error al procesar la orden. Inténtalo de nuevo.');
-        return; // Salir si hay error
-    } finally {
-        // Restaurar estado del botón
-        procesandoCompra = false;
+        // Marcar como procesando
+        procesandoCompra = true;
+
+        // Deshabilitar botón de finalizar compra
         const btnFinalizar = document.querySelector('.btn-finalizar-compra');
         if (btnFinalizar) {
-            btnFinalizar.disabled = false;
-            btnFinalizar.textContent = 'Finalizar Compra';
+            btnFinalizar.disabled = true;
+            btnFinalizar.textContent = 'Procesando...';
         }
+
+        try {
+            for (const item of carritoItems) {
+                const orden = {
+                    juego_id: item.juegoId,
+                    juego_nombre: item.juegoNombre,
+                    paquete: item.paqueteNombre,
+                    monto: item.precio,
+                    usuario_id: usuario.id
+                };
+
+                const response = await fetch('/orden', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(orden)
+                });
+
+                if (!response.ok) {
+                    console.error('Error al procesar orden:', response.status);
+                    throw new Error('Error al procesar la orden.');
+                }
+            }
+
+            // Limpiar carrito después de procesar todas las órdenes
+            carritoItems = [];
+            actualizarCarrito();
+            cerrarCarrito();
+            alert('¡Compra realizada exitosamente! Recibirás una confirmación por correo.');
+        } catch (error) {
+            console.error('Error al procesar orden:', error);
+            alert('Error al procesar la orden. Inténtalo de nuevo.');
+        } finally {
+            // Restaurar estado del botón
+            procesandoCompra = false;
+            const btnFinalizar = document.querySelector('.btn-finalizar-compra');
+            if (btnFinalizar) {
+                btnFinalizar.disabled = false;
+                btnFinalizar.textContent = 'Finalizar Compra';
+            }
+        }
+    } catch (error) {
+        console.error('Error al verificar sesión:', error);
+        alert('Error de conexión. Inténtalo de nuevo.');
     }
+}
 
 function mostrarCarrito() {
     const modalCarrito = document.getElementById('modal-carrito');
-    modalCarrito.style.display = 'block';
-    actualizarCarrito();
+    if (modalCarrito) {
+        modalCarrito.style.display = 'block';
+        actualizarCarrito();
+    }
 }
 
 function cerrarCarrito() {
     const modalCarrito = document.getElementById('modal-carrito');
-    modalCarrito.style.display = 'none';
+    if (modalCarrito) {
+        modalCarrito.style.display = 'none';
+    }
 }
 
 function mostrarModalLogin() {
     const modalLogin = document.getElementById('modal-login');
-    modalLogin.style.display = 'block';
+    if (modalLogin) {
+        modalLogin.style.display = 'block';
+    }
 }
 
 function cerrarModalLogin() {
     const modalLogin = document.getElementById('modal-login');
-    modalLogin.style.display = 'none';
+    if (modalLogin) {
+        modalLogin.style.display = 'none';
+    }
 }
-
-// Cargar datos iniciales al cargar la página
-document.addEventListener('DOMContentLoaded', function() {
-    cargarConfiguracion();
-    cargarProductos();
-    inicializarEventos();
-    verificarSesion(); // Verificar si hay sesión activa
-    inicializarCarrusel();
-
-    // Agregar event listener único al botón de finalizar compra
-    document.addEventListener('click', function(e) {
-        if (e.target && e.target.id === 'btn-finalizar-compra') {
-            e.preventDefault();
-            finalizarCompra();
-        }
-    });
-});
