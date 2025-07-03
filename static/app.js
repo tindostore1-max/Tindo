@@ -147,7 +147,7 @@ function mostrarNotificacionFlotante(mensaje, tipo = 'success') {
     // Crear nueva notificación
     const notification = document.createElement('div');
     notification.className = `mobile-notification ${tipo}`;
-    
+
     // Seleccionar icono según el tipo
     let icon = '🎉';
     if (tipo === 'error') {
@@ -459,68 +459,40 @@ function verDetalleProducto(productoId) {
     const mostrarFormularioId = producto.categoria !== 'gift-cards';
 
     let html = `
-        <div style="margin-top: 20px;">
-            <div style="display: flex; gap: 30px; margin-bottom: 30px; align-items: flex-start;">
-                <div style="flex: 0 0 400px;">
-                    <img src="${imagenUrl}" alt="${producto.nombre || 'Producto'}" class="selected-product-image" style="width: 100%; height: 300px; object-fit: cover; border-radius: 15px;" onerror="this.src='https://via.placeholder.com/400x300/007bff/ffffff?text=Producto'">
+        <div style="margin-top: 15px;">
+            <div class="details-container" style="display: flex; gap: 20px; margin-bottom: 20px; align-items: flex-start;">
+                <div class="details-image-container" style="flex: 0 0 400px;">
+                    <img src="${imagenUrl}" alt="${producto.nombre || 'Producto'}" class="selected-product-image" style="width: 100%; height: 300px; object-fit: cover; border-radius: 12px;" onerror="this.src='https://via.placeholder.com/400x300/007bff/ffffff?text=Producto'">
 
                     ${mostrarFormularioId ? `
                     <!-- Campo para ID de usuario debajo de la imagen -->
-                    <div class="form-group" style="margin: 15px 0;">
-                        <label style="font-weight: 600; color: #495057; margin-bottom: 8px; display: block;">🎮 ID de Usuario en el Juego <span style="color: #dc3545;">*</span></label>
-                        <input type="text" id="usuario-id-juego" class="form-control" placeholder="Escribe tu ID de usuario aquí..." required>
-                        <small style="color: #6c757d; margin-top: 5px; display: block;">Este ID será usado para entregar los recursos a tu cuenta del juego</small>
+                    <div style="margin-top: 15px;">
+                        <label for="usuario-id-juego" style="display: block; margin-bottom: 6px; font-weight: 600; color: #ffffff; font-size: 14px;">ID de Usuario en el Juego:</label>
+                        <input type="text" id="usuario-id-juego" class="form-control" placeholder="Ingresa tu ID de usuario" style="width: 100%; padding: 12px 15px; border: 2px solid rgba(255,255,255,0.1); border-radius: 10px; font-size: 14px; background: rgba(255,255,255,0.05); color: #ffffff; transition: all 0.3s ease; backdrop-filter: blur(10px);" required>
                     </div>
                     ` : ''}
                 </div>
-                <div style="flex: 1;">
-                    <h2 style="margin: 0 0 15px 0; color: #ffffff !important; font-size: 28px;">${producto.nombre || 'Producto sin nombre'}</h2>
-                    <p style="margin: 0; color: #6c757d; font-size: 16px; line-height: 1.6;">${producto.descripcion || 'Sin descripción disponible'}</p>
-                </div>
-            </div>
-            <h3 style="color: #28a745;">Paquetes Disponibles</h3>
-            <div class="package-list" style="margin-top: 20px;">
-    `;
 
-    if (producto.paquetes && Array.isArray(producto.paquetes) && producto.paquetes.length > 0) {
-        producto.paquetes.forEach((paquete, index) => {
-            try {
-                const precio = convertirPrecio(parseFloat(paquete.precio) || 0);
-                html += `
-                    <div class="package-item package-selectable" data-package-id="${paquete.id}" data-package-name="${paquete.nombre}" data-package-price="${paquete.precio}" onclick="seleccionarPaquete(this)" style="margin-bottom: 15px; cursor: pointer; transition: all 0.3s ease; height: 120px; min-height: 120px; max-height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                        <div class="package-info" style="text-align: center; width: 100%;">
-                            <div class="package-name" style="display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
-                                <span class="package-radio">⚪</span>
-                                ${paquete.nombre || 'Paquete'}
-                            </div>
-                            <div class="package-price">${precio}</div>
-                        </div>
+                <div class="details-info-container" style="flex: 1;">
+                    <h1 style="color: #ffffff; font-size: 28px; margin-bottom: 12px; font-weight: 700;">${producto.nombre || 'Producto'}</h1>
+                    <p style="color: #cccccc; font-size: 16px; line-height: 1.5; margin-bottom: 20px;">${producto.descripcion || 'Descripción del producto'}</p>
+
+                    <div class="package-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px;">
+                        ${paquetesHtml}
                     </div>
-                `;
-            } catch (error) {
-                console.error('Error al procesar paquete en detalles:', error, paquete);
-            }
-        });
 
-        // Agregar botón único de agregar al carrito
-        html += `
-            <div style="margin-top: 30px; text-align: center; padding: 20px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 15px; border: 2px dashed #28a745;">
-                <div id="paquete-seleccionado" style="margin-bottom: 15px; font-size: 16px; color: #6c757d; font-weight: 600;">
-                    🎯 Selecciona un paquete arriba para continuar
+                    <div style="margin-top: 20px; display: flex; gap: 12px;">
+                        <button onclick="agregarAlCarrito()" class="btn btn-success" style="flex: 1; padding: 15px 20px; font-size: 16px; font-weight: 700; background: linear-gradient(135deg, #28a745, #20c997); border: none; border-radius: 10px; color: white; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);">
+                            🛒 Agregar al Carrito
+                        </button>
+                        <button onclick="mostrarTab('catalogo')" class="btn btn-secondary" style="padding: 15px 20px; font-size: 14px; font-weight: 600; background: #6c757d; border: none; border-radius: 10px; color: white; cursor: pointer; transition: all 0.3s ease;">
+                            ← Volver
+                        </button>
+                    </div>
                 </div>
-                <button id="btn-agregar-carrito" class="btn btn-success" onclick="agregarPaqueteSeleccionado()" disabled style="padding: 15px 35px; font-size: 18px; font-weight: 700; border-radius: 30px; background: linear-gradient(135deg, #28a745, #20c997); border: none; box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3); transition: all 0.3s ease; opacity: 0.5; margin-bottom: 15px;">
-                    ✨ Agregar al Carrito
-                </button>
-                <button class="btn btn-primary" onclick="mostrarTab('carrito')" style="padding: 12px 30px; font-size: 16px; font-weight: 600; border-radius: 25px; background: linear-gradient(135deg, #007bff, #0056b3); border: none; box-shadow: 0 6px 20px rgba(0, 123, 255, 0.3); transition: all 0.3s ease;">
-                    🛒 Ver Carrito
-                </button>
             </div>
-        `;
-    } else {
-        html += '<p>No hay paquetes disponibles para este producto.</p>';
-    }
-
-    html += '</div></div>';
+        </div>
+    `;
 
     document.getElementById('producto-detalle').innerHTML = html;
     mostrarTab('detalles');
