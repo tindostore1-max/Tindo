@@ -117,6 +117,13 @@ function mostrarTab(tabName, element) {
 
 // Función para mostrar alertas
 function mostrarAlerta(mensaje, tipo = 'success') {
+    // En dispositivos móviles, usar notificación flotante
+    if (window.innerWidth <= 768) {
+        mostrarNotificacionFlotante(mensaje, tipo);
+        return;
+    }
+
+    // En desktop, usar alerta normal
     const alertDiv = document.createElement('div');
     alertDiv.className = `alert alert-${tipo}`;
     alertDiv.textContent = mensaje;
@@ -127,6 +134,60 @@ function mostrarAlerta(mensaje, tipo = 'success') {
     setTimeout(() => {
         alertDiv.remove();
     }, 4000);
+}
+
+// Función para mostrar notificación flotante en móviles
+function mostrarNotificacionFlotante(mensaje, tipo = 'success') {
+    // Remover notificación anterior si existe
+    const existingNotification = document.querySelector('.mobile-notification');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+
+    // Crear nueva notificación
+    const notification = document.createElement('div');
+    notification.className = `mobile-notification ${tipo}`;
+    
+    // Seleccionar icono según el tipo
+    let icon = '🎉';
+    if (tipo === 'error') {
+        icon = '⚠️';
+    } else if (tipo === 'success') {
+        icon = '✨';
+    }
+
+    notification.innerHTML = `
+        <span class="mobile-notification-icon">${icon}</span>
+        <span>${mensaje}</span>
+    `;
+
+    // Agregar al DOM
+    document.body.appendChild(notification);
+
+    // Mostrar con animación
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 100);
+
+    // Ocultar después de 3 segundos
+    setTimeout(() => {
+        notification.classList.add('hide');
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 500);
+    }, 3000);
+
+    // Permitir cerrar tocando la notificación
+    notification.addEventListener('click', () => {
+        notification.classList.add('hide');
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 500);
+    });
 }
 
 // Cargar configuración del sistema
