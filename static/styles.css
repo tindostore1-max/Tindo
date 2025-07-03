@@ -82,34 +82,19 @@ header {
     background-position: center;
 }
 
-.desktop-nav-btn[onclick*="catalogo"] .nav-icon::before {
-    content: '🏠';
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
+.desktop-nav-btn[onclick*="catalogo"] .nav-icon {
+    background-image: url('/static/images/home-icon.svg');
+    filter: brightness(0) invert(1);
 }
 
-.desktop-nav-btn[onclick*="carrito"] .nav-icon::before {
-    content: '🛒';
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
+.desktop-nav-btn[onclick*="carrito"] .nav-icon {
+    background-image: url('/static/images/cart-icon.svg');
+    filter: brightness(0) invert(1);
 }
 
-.desktop-nav-btn[onclick*="login"] .nav-icon::before {
-    content: '👤';
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
+.desktop-nav-btn[onclick*="login"] .nav-icon {
+    background-image: url('/static/images/user-icon.svg');
+    filter: brightness(0) invert(1);
 }
 
 .desktop-nav-btn .nav-text {
@@ -203,34 +188,19 @@ header {
     background-position: center;
 }
 
-.nav-btn[onclick*="catalogo"] .nav-icon::before {
-    content: '🏠';
-    font-size: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
+.nav-btn[onclick*="catalogo"] .nav-icon {
+    background-image: url('/static/images/home-icon.svg');
+    filter: brightness(0) invert(1);
 }
 
-.nav-btn[onclick*="carrito"] .nav-icon::before {
-    content: '🛒';
-    font-size: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
+.nav-btn[onclick*="carrito"] .nav-icon {
+    background-image: url('/static/images/cart-icon.svg');
+    filter: brightness(0) invert(1);
 }
 
-.nav-btn[onclick*="login"] .nav-icon::before {
-    content: '👤';
-    font-size: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
+.nav-btn[onclick*="login"] .nav-icon {
+    background-image: url('/static/images/user-icon.svg');
+    filter: brightness(0) invert(1);
 }
 
 .cart-badge {
