@@ -500,9 +500,18 @@
                             <td><span class="status-badge status-${orden.estado}">${orden.estado}</span></td>
                             <td>${new Date(orden.fecha).toLocaleString()}</td>
                             <td>
-                                <button class="btn btn-warning" onclick="updateEstado(${orden.id}, '${orden.estado === 'procesando' ? 'procesado' : 'procesando'}')">
-                                    ${orden.estado === 'procesando' ? '✅ Procesar' : '⏳ Desprocesar'}
-                                </button>
+                                ${esGiftCard(orden) ? 
+                                    `<div>
+                                        <input type="text" placeholder="Código del producto" id="codigo-${orden.id}" style="margin-bottom: 5px; padding: 5px; width: 150px;" value="${orden.codigo_producto || ''}">
+                                        <br>
+                                        <button class="btn btn-warning" onclick="updateEstadoConCodigo(${orden.id}, '${orden.estado === 'procesando' ? 'procesado' : 'procesando'}')">
+                                            ${orden.estado === 'procesando' ? '✅ Procesar con Código' : '⏳ Desprocesar'}
+                                        </button>
+                                    </div>` :
+                                    `<button class="btn btn-warning" onclick="updateEstado(${orden.id}, '${orden.estado === 'procesando' ? 'procesado' : 'procesando'}')">
+                                        ${orden.estado === 'procesando' ? '✅ Procesar' : '⏳ Desprocesar'}
+                                    </button>`
+                                }
                             </td>
                         </tr>
                     `;
@@ -530,6 +539,53 @@
                     loadOrdenes();
                 } else {
                     showAlert('Error al actualizar estado', 'error');
+                }
+            } catch (error) {
+                showAlert('Error al actualizar estado', 'error');
+            }
+        }
+
+        // Función para determinar si una orden es de Gift Card
+        function esGiftCard(orden) {
+            // Verificar por nombre del juego o categoria almacenada
+            const nombreJuego = (orden.juego_nombre || '').toLowerCase();
+            return nombreJuego.includes('gift') || nombreJuego.includes('steam') || 
+                   (orden.categoria && orden.categoria === 'gift-cards');
+        }
+
+        async function updateEstadoConCodigo(ordenId, nuevoEstado) {
+            const codigoInput = document.getElementById(`codigo-${ordenId}`);
+            const codigo = codigoInput ? codigoInput.value.trim() : '';
+
+            if (nuevoEstado === 'procesado' && !codigo) {
+                showAlert('Por favor ingresa el código del producto antes de procesar', 'error');
+                if (codigoInput) {
+                    codigoInput.focus();
+                    codigoInput.style.borderColor = '#dc3545';
+                }
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/orden/${ordenId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        estado: nuevoEstado,
+                        codigo_producto: codigo 
+                    })
+                });
+
+                if (response.ok) {
+                    showAlert(nuevoEstado === 'procesado' ? 
+                        'Gift Card procesada y código enviado por correo' : 
+                        'Estado actualizado correctamente');
+                    loadOrdenes();
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    showAlert(errorData.error || 'Error al actualizar estado', 'error');
                 }
             } catch (error) {
                 showAlert('Error al actualizar estado', 'error');

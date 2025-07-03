@@ -97,6 +97,80 @@ def get_psycopg2_connection():
     
     return psycopg2.connect(database_url)
 
+def enviar_correo_gift_card_completada(orden_info):
+    """Envía correo al usuario con el código de la Gift Card"""
+    try:
+        # Configuración del correo
+        smtp_server = "smtp.gmail.com"
+        smtp_port = 587
+        email_usuario = "1yorbi1@gmail.com"
+        email_password = os.environ.get('GMAIL_APP_PASSWORD')
+        
+        print(f"🎁 Enviando Gift Card completada para orden #{orden_info['id']}")
+        print(f"📧 Destinatario: {orden_info['usuario_email']}")
+        
+        if not email_password:
+            print("❌ ERROR: No se encontró la contraseña de Gmail")
+            return False
+        
+        # Crear mensaje
+        mensaje = MIMEMultipart()
+        mensaje['From'] = email_usuario
+        mensaje['To'] = orden_info['usuario_email']
+        mensaje['Subject'] = f"🎁 ¡Tu Gift Card está lista! - Orden #{orden_info['id']} - Inefable Store"
+        
+        # Cuerpo del mensaje específico para Gift Cards
+        cuerpo = f"""
+        ¡Hola! 🎁
+        
+        ¡Excelentes noticias! Tu Gift Card ha sido procesada exitosamente.
+        
+        📋 Detalles de tu orden:
+        • Orden #: {orden_info['id']}
+        • Producto: {orden_info.get('juego_nombre', 'Gift Card')}
+        • Paquete: {orden_info['paquete']}
+        • Monto: ${orden_info['monto']}
+        • Estado: ✅ COMPLETADA
+        • Fecha de procesamiento: {datetime.now().strftime('%d/%m/%Y a las %H:%M')}
+        
+        🎯 CÓDIGO DE TU GIFT CARD:
+        ════════════════════════════════════
+        🔑 {orden_info.get('codigo_producto', 'CÓDIGO NO DISPONIBLE')}
+        ════════════════════════════════════
+        
+        📝 Instrucciones de uso:
+        • Guarda este código en un lugar seguro
+        • Utiliza este código en la plataforma correspondiente
+        • El código es de un solo uso
+        • Si tienes problemas para canjearlo, contáctanos
+        
+        ⚠️ IMPORTANTE: Este código es personal e intransferible.
+        No lo compartas con nadie para evitar fraudes.
+        
+        ¡Gracias por confiar en Inefable Store! 🚀
+        
+        ---
+        Equipo de Inefable Store
+        """
+        
+        mensaje.attach(MIMEText(cuerpo, 'plain'))
+        
+        print("📤 Enviando Gift Card con código al usuario...")
+        # Enviar correo
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+        server.login(email_usuario, email_password)
+        texto = mensaje.as_string()
+        server.sendmail(email_usuario, orden_info['usuario_email'], texto)
+        server.quit()
+        
+        print(f"✅ Gift Card enviada exitosamente a: {orden_info['usuario_email']}")
+        return True
+        
+    except Exception as e:
+        print(f"❌ Error al enviar Gift Card: {str(e)}")
+        return False
+
 def enviar_correo_recarga_completada(orden_info):
     """Envía correo al usuario confirmando que su recarga ha sido completada"""
     try:
@@ -288,6 +362,12 @@ def init_db():
         conn.execute(text('''
             ALTER TABLE ordenes 
             ADD COLUMN IF NOT EXISTS usuario_id VARCHAR(100);
+        '''))
+
+        # Agregar columna codigo_producto si no existe (migración)
+        conn.execute(text('''
+            ALTER TABLE ordenes 
+            ADD COLUMN IF NOT EXISTS codigo_producto VARCHAR(255);
         '''))
 
         conn.execute(text('''
@@ -601,7 +681,7 @@ def get_ordenes():
     conn = get_db_connection()
     try:
         result = conn.execute(text('''
-            SELECT o.*, j.nombre as juego_nombre 
+            SELECT o.*, j.nombre as juego_nombre, j.categoria 
             FROM ordenes o 
             LEFT JOIN juegos j ON o.juego_id = j.id 
             ORDER BY o.fecha DESC
@@ -623,13 +703,14 @@ def get_ordenes():
 def update_orden(orden_id):
     data = request.get_json()
     nuevo_estado = data.get('estado')
+    codigo_producto = data.get('codigo_producto')
 
     conn = get_db_connection()
     
     try:
         # Obtener información completa de la orden antes de actualizar
         result = conn.execute(text('''
-            SELECT o.*, j.nombre as juego_nombre 
+            SELECT o.*, j.nombre as juego_nombre, j.categoria 
             FROM ordenes o 
             LEFT JOIN juegos j ON o.juego_id = j.id 
             WHERE o.id = :orden_id
@@ -639,17 +720,34 @@ def update_orden(orden_id):
         if not orden_info:
             return jsonify({'error': 'Orden no encontrada'}), 404
         
-        # Actualizar el estado de la orden
-        conn.execute(text('UPDATE ordenes SET estado = :estado WHERE id = :orden_id'), 
-                    {'estado': nuevo_estado, 'orden_id': orden_id})
+        # Preparar la consulta de actualización
+        if codigo_producto is not None:
+            # Actualizar estado y código
+            conn.execute(text('UPDATE ordenes SET estado = :estado, codigo_producto = :codigo WHERE id = :orden_id'), 
+                        {'estado': nuevo_estado, 'codigo': codigo_producto, 'orden_id': orden_id})
+        else:
+            # Solo actualizar estado
+            conn.execute(text('UPDATE ordenes SET estado = :estado WHERE id = :orden_id'), 
+                        {'estado': nuevo_estado, 'orden_id': orden_id})
+        
         conn.commit()
         
         # Convertir orden_info a diccionario para envío de correo
         orden_dict = dict(orden_info._mapping)
+        if codigo_producto:
+            orden_dict['codigo_producto'] = codigo_producto
         
         # Si el nuevo estado es "procesado", enviar correo de confirmación al usuario
         if nuevo_estado == 'procesado':
-            threading.Thread(target=enviar_correo_recarga_completada, args=(orden_dict,)).start()
+            # Verificar si es Gift Card para enviar correo específico
+            es_gift_card = (orden_dict.get('categoria') == 'gift-cards' or 
+                           'gift' in (orden_dict.get('juego_nombre', '')).lower() or
+                           'steam' in (orden_dict.get('juego_nombre', '')).lower())
+            
+            if es_gift_card and codigo_producto:
+                threading.Thread(target=enviar_correo_gift_card_completada, args=(orden_dict,)).start()
+            else:
+                threading.Thread(target=enviar_correo_recarga_completada, args=(orden_dict,)).start()
 
         return jsonify({'message': 'Estado actualizado correctamente'})
         
