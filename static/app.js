@@ -13,6 +13,11 @@ document.addEventListener('DOMContentLoaded', function() {
     inicializarEventos();
     verificarSesion();
     inicializarCarrusel();
+    
+    // Activar automáticamente la pestaña de Juegos al cargar
+    setTimeout(() => {
+        filtrarProductos('juegos');
+    }, 100);
 });
 
 // Funciones del carrusel
@@ -270,7 +275,7 @@ async function cargarProductos() {
 }
 
 // Variable para almacenar el filtro actual
-let filtroActual = 'todos';
+let filtroActual = 'juegos';
 
 // Función para filtrar productos por categoría
 function filtrarProductos(categoria) {
