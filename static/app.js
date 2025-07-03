@@ -1,3 +1,4 @@
+
 // Variables globales
 let productos = [];
 let carrito = [];
@@ -581,6 +582,7 @@ function seleccionarPaquete(elemento) {
                 Precio: ${convertirPrecio(paqueteSeleccionado.precio)}
             </div>
         `;
+        infoDiv.style.display = 'block';
 
         botonAgregar.disabled = false;
         botonAgregar.style.opacity = '1';
@@ -830,10 +832,10 @@ function prepararPago() {
     actualizarMetodosPagoSegunMoneda();
 
     // Auto-rellenar email del usuario logueado
-    if (session && session.user_email) {
+    if (window.session && window.session.user_email) {
         const emailInput = document.getElementById('pago-email');
         if (emailInput) {
-            emailInput.value = session.user_email;
+            emailInput.value = window.session.user_email;
             emailInput.readOnly = true; // Hacer el campo de solo lectura
             emailInput.style.backgroundColor = 'rgba(255,255,255,0.1)';
             emailInput.style.cursor = 'not-allowed';
@@ -1205,7 +1207,7 @@ async function procesarLogin() {
     }
 }
 
-// Procesarregistro
+// Procesar registro
 async function procesarRegistro() {
     const nombreElement = document.getElementById('registro-nombre');
     const emailElement = document.getElementById('registro-email');
@@ -1467,157 +1469,5 @@ function mostrarAuthTab(tabName, element) {
     // Activar el tab seleccionado si se proporciona el elemento
     if (element) {
         element.classList.add('active');
-    }
-}
-
-// Verificar sesión del usuario al cargar la página
-async function verificarSesion() {
-    try {
-        const response = await fetch('/usuario');
-        if (response.ok) {
-            const data = await response.json();
-            actualizarInterfazUsuario(data.usuario);
-        }
-    } catch (error) {
-        console.log('No hay sesión activa');
-    }
-}
-
-// FUNCIONES PARA COMPRAS
-let carritoItems = [];
-let procesandoCompra = false; // Variable para evitar envíos duplicados
-
-function agregarAlCarrito(juegoId, juegoNombre, paqueteNombre, precio) {
-    carritoItems.push({ juegoId, juegoNombre, paqueteNombre, precio });
-    actualizarCarrito();
-}
-
-function actualizarCarrito() {
-    const listaCarrito = document.getElementById('lista-carrito');
-    if (listaCarrito) {
-        listaCarrito.innerHTML = ''; // Limpiar lista
-
-        let total = 0;
-        carritoItems.forEach(item => {
-            const listItem = document.createElement('li');
-            listItem.textContent = `${item.juegoNombre} - ${item.paqueteNombre} - $${item.precio}`;
-            listaCarrito.appendChild(listItem);
-            total += parseFloat(item.precio);
-        });
-
-        const totalElement = document.getElementById('total-carrito');
-        if (totalElement) {
-            totalElement.textContent = `Total: $${total}`;
-        }
-    }
-}
-
-async function finalizarCompra() {
-    // Evitar envíos duplicados
-    if (procesandoCompra) {
-        console.log('Ya se está procesando una compra...');
-        return;
-    }
-
-    if (carritoItems.length === 0) {
-        alert('Tu carrito está vacío');
-        return;
-    }
-
-    // Verificar si el usuario está logueado
-    try {
-        const response = await fetch('/usuario');
-        if (!response.ok) {
-            alert('Debes iniciar sesión para realizar una compra');
-            mostrarModalLogin();
-            return;
-        }
-        
-        const data = await response.json();
-        const usuario = data.usuario;
-
-        // Marcar como procesando
-        procesandoCompra = true;
-
-        // Deshabilitar botón de finalizar compra
-        const btnFinalizar = document.querySelector('.btn-finalizar-compra');
-        if (btnFinalizar) {
-            btnFinalizar.disabled = true;
-            btnFinalizar.textContent = 'Procesando...';
-        }
-
-        try {
-            for (const item of carritoItems) {
-                const orden = {
-                    juego_id: item.juegoId,
-                    juego_nombre: item.juegoNombre,
-                    paquete: item.paqueteNombre,
-                    monto: item.precio,
-                    usuario_id: usuario.id
-                };
-
-                const response = await fetch('/orden', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(orden)
-                });
-
-                if (!response.ok) {
-                    console.error('Error al procesar orden:', response.status);
-                    throw new Error('Error al procesar la orden.');
-                }
-            }
-
-            // Limpiar carrito después de procesar todas las órdenes
-            carritoItems = [];
-            actualizarCarrito();
-            cerrarCarrito();
-            alert('¡Compra realizada exitosamente! Recibirás una confirmación por correo.');
-        } catch (error) {
-            console.error('Error al procesar orden:', error);
-            alert('Error al procesar la orden. Inténtalo de nuevo.');
-        } finally {
-            // Restaurar estado del botón
-            procesandoCompra = false;
-            const btnFinalizar = document.querySelector('.btn-finalizar-compra');
-            if (btnFinalizar) {
-                btnFinalizar.disabled = false;
-                btnFinalizar.textContent = 'Finalizar Compra';
-            }
-        }
-    } catch (error) {
-        console.error('Error al verificar sesión:', error);
-        alert('Error de conexión. Inténtalo de nuevo.');
-    }
-}
-
-function mostrarCarrito() {
-    const modalCarrito = document.getElementById('modal-carrito');
-    if (modalCarrito) {
-        modalCarrito.style.display = 'block';
-        actualizarCarrito();
-    }
-}
-
-function cerrarCarrito() {
-    const modalCarrito = document.getElementById('modal-carrito');
-    if (modalCarrito) {
-        modalCarrito.style.display = 'none';
-    }
-}
-
-function mostrarModalLogin() {
-    const modalLogin = document.getElementById('modal-login');
-    if (modalLogin) {
-        modalLogin.style.display = 'block';
-    }
-}
-
-function cerrarModalLogin() {
-    const modalLogin = document.getElementById('modal-login');
-    if (modalLogin) {
-        modalLogin.style.display = 'none';
     }
 }
