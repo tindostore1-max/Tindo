@@ -14,7 +14,7 @@
                 <img src="https://via.placeholder.com/150x60/007bff/ffffff?text=INEFABLESTORE" alt="Logo Inefablestore" class="logo" id="logo-img">
                 <div style="display: none; font-size: 28px; font-weight: 900; color: #007bff;">🎮 INEFABLESTORE</div>
             </div>
-            
+
             <!-- Navegación para desktop -->
             <nav class="desktop-nav">
                 <button class="desktop-nav-btn active" onclick="mostrarTab('catalogo')">
@@ -31,14 +31,14 @@
                     <span class="nav-text">Mi Cuenta</span>
                 </button>
             </nav>
-            
+
             <select id="selector-moneda" class="currency-selector">
                 <option value="USD">💵 USD</option>
                 <option value="VES">💰 VES</option>
             </select>
         </header>
 
-        
+
 
         <!-- Contenido principal -->
         <div class="content">
@@ -63,17 +63,17 @@
                         <span class="dot" onclick="currentSlide(3)"></span>
                     </div>
                 </div>
-                
+
                 <!-- Pestañas de categorías -->
                 <div class="category-tabs">
-                    <button class="category-tab active" onclick="filtrarProductos('todos')">
-                        Todos los Juegos
+                    <button class="category-tab active" onclick="filtrarProductos('juegos')">
+                        Juegos
                     </button>
                     <button class="category-tab" onclick="filtrarProductos('gift-cards')">
                         Gift Cards
                     </button>
                 </div>
-                
+
                 <div id="productos-grid" class="product-grid loading">
                     Cargando productos...
                 </div>
@@ -108,13 +108,13 @@
             <section id="pago" class="tab-section">
                 <div class="payment-section">
                     <h2>💳 Método de Pago</h2>
-                    
+
                     <!-- Total a pagar -->
                     <div class="payment-total-section">
                         <div id="total-pago" class="payment-total">Total a pagar: $0.00</div>
                     </div>
 
-                    
+
 
                     <form id="form-pago" class="payment-form">
                         <div class="form-group">

@@ -275,15 +275,15 @@ let filtroActual = 'todos';
 // Función para filtrar productos por categoría
 function filtrarProductos(categoria) {
     filtroActual = categoria;
-    
+
     // Actualizar pestañas activas
     document.querySelectorAll('.category-tab').forEach(tab => {
         tab.classList.remove('active');
     });
-    
+
     // Activar pestaña seleccionada
     event.target.classList.add('active');
-    
+
     // Mostrar productos filtrados
     mostrarProductos();
 }
@@ -302,7 +302,11 @@ function mostrarProductos() {
     let productosFiltrados = productos;
     if (filtroActual === 'gift-cards') {
         productosFiltrados = productos.filter(producto => 
-            producto.nombre && producto.nombre.toLowerCase().includes('gift')
+            producto.categoria === 'gift-cards'
+        );
+    } else if (filtroActual === 'juegos') {
+        productosFiltrados = productos.filter(producto => 
+            producto.categoria === 'juegos'
         );
     }
 
@@ -795,8 +799,7 @@ function seleccionarMetodoPago(metodo) {
     // Mostrar información del método de pago
     const infoPago = document.getElementById('info-pago');
 
-    if (metodo === 'Pago Móvil') {
-        // Procesar datos de pago móvil
+    if (metodo === 'Pago Móvil') {// Procesar datos de pago móvil
         const pagoMovilData = configuracion.pago_movil || 'Información no disponible';
         const lineasPagoMovil = pagoMovilData.split('\n');
 
