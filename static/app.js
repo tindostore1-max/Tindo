@@ -1374,3 +1374,24 @@ function mostrarAuthTab(tabName, element) {
     }
 }
 
+// Verificar sesión del usuario al cargar la página
+async function verificarSesion() {
+    try {
+        const response = await fetch('/usuario');
+        if (response.ok) {
+            const data = await response.json();
+            actualizarInterfazUsuario(data.usuario);
+        }
+    } catch (error) {
+        console.log('No hay sesión activa');
+    }
+}
+
+// Cargar datos iniciales al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    cargarConfiguracion();
+    cargarProductos();
+    inicializarEventos();
+    verificarSesion(); // Verificar si hay sesión activa
+    inicializarCarrusel();
+});
