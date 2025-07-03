@@ -528,7 +528,7 @@ function agregarPaqueteSeleccionado() {
 
     // Verificar que se haya ingresado el ID de usuario solo si no es gift card
     let usuarioId = '';
-    if (producto.categoria !== 'gift-cards') {
+    if (productoSeleccionado.categoria !== 'gift-cards') {
         const usuarioIdInput = document.getElementById('usuario-id-juego');
         if (!usuarioIdInput) {
             mostrarAlerta('Error: No se encontró el campo de ID de usuario', 'error');
