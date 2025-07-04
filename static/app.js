@@ -1139,7 +1139,7 @@ async function procesarPago() {
         document.getElementById('form-pago').reset();
 
         // Mostrar mensaje de éxito
-        mostrarMensajePago('🎉 ¡Pago procesado correctamente! Te contactaremos pronto para entregar tus productos.', 'success');
+        mostrarAlerta('Pago procesado correctamente. Te contactaremos pronto.', 'success');
 
         // Redirigir al catálogo después de unos segundos
         setTimeout(() => {
