@@ -14,7 +14,7 @@ body {
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 100px 20px 20px 20px; /* Espacio superior para el header fijo */
+    padding: 100px 10px 15px 10px; /* Reducido padding lateral de 20px a 10px y inferior de 20px a 15px */
 }
 
 header {
