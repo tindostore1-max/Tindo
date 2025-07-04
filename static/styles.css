@@ -266,16 +266,16 @@ header {
     margin-bottom: 15px;
 }
 
-/* Versión desktop: imágenes cuadradas y completas del mismo tamaño */
+/* Versión desktop: imágenes con dimensiones fijas y consistentes */
 @media (min-width: 769px) {
     .product-image {
         width: 100%;
-        height: 250px;
-        object-fit: contain;
+        height: 200px;
+        object-fit: cover;
         background: #1a1a1a;
-        padding: 15px;
         border: 2px solid #333;
         box-sizing: border-box;
+        border-radius: 10px;
     }
 }
 
@@ -293,12 +293,12 @@ header {
 @media (min-width: 769px) {
     .selected-product-image {
         width: 100%;
-        height: 250px;
-        object-fit: contain;
+        height: 200px;
+        object-fit: cover;
         background: #1a1a1a;
-        padding: 15px;
         border: 2px solid #333;
         box-sizing: border-box;
+        border-radius: 10px;
     }
 }
 
