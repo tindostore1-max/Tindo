@@ -1699,11 +1699,9 @@ function crearCarruselJuegos() {
     });
 
     return `
-        <div style="width: 100%; margin-bottom: 20px;">
-            <div class="section-header">
-                <h3 class="section-title">🎮 Juegos Destacados</h3>
-                <button class="section-more-btn" onclick="mostrarTodosLosJuegos()">Ver más</button>
-            </div>
+        <div class="section-header">
+            <h3 class="section-title">🎮 Juegos Destacados</h3>
+            <button class="section-more-btn" onclick="mostrarTodosLosJuegos()">Ver más</button>
         </div>
         <div class="games-section">
             <div class="games-carousel-container">
@@ -1773,11 +1771,9 @@ function crearSeccionGiftCards() {
     });
 
     return `
-        <div style="width: 100%; margin-bottom: 20px;">
-            <div class="section-header">
-                <h3 class="section-title">🎁 Gift Cards</h3>
-                <button class="section-more-btn" onclick="mostrarTodasLasGiftCards()">Ver más</button>
-            </div>
+        <div class="section-header">
+            <h3 class="section-title">🎁 Gift Cards</h3>
+            <button class="section-more-btn" onclick="mostrarTodasLasGiftCards()">Ver más</button>
         </div>
         <div class="giftcards-section">
             <div class="giftcards-grid">
