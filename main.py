@@ -1242,7 +1242,7 @@ def serve_image(filename):
             # Si no se encuentra, devolver imagen por defecto
             return redirect('/static/images/20250704_223016_Recurso-40.png')
     finally:
-        conn.close()</path:filename>
+        conn.close()
 
 if __name__ == '__main__':
     # Crear directorio para imágenes
