@@ -525,8 +525,9 @@
                             <label>Paquetes</label>
                             <div id="paquetes-container">
                                 <div class="paquete-item">
-                                    <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre">
-                                    <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio">
+                                    <input type="number" placeholder="Orden" class="form-control paquete-orden" min="1" style="width: 80px; display: inline-block; margin-right: 10px;">
+                                    <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre" style="width: calc(50% - 50px); display: inline-block; margin-right: 10px;">
+                                    <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio" style="width: calc(30% - 50px); display: inline-block;">
                                 </div>
                             </div>
                             <button type="button" class="btn btn-warning" onclick="addPaquete()">➕ Agregar Paquete</button>
@@ -870,8 +871,10 @@
                     `;
 
                     if (producto.paquetes) {
+                        // Ordenar paquetes por el campo orden
+                        producto.paquetes.sort((a, b) => (a.orden || 1) - (b.orden || 1));
                         producto.paquetes.forEach(paquete => {
-                            html += `<li>${paquete.nombre} - $${paquete.precio}</li>`;
+                            html += `<li><strong>#${paquete.orden || 1}</strong> - ${paquete.nombre} - $${paquete.precio}</li>`;
                         });
                     }
 
@@ -910,8 +913,9 @@
             const container = document.getElementById('paquetes-container');
             container.innerHTML = `
                 <div class="paquete-item">
-                    <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre">
-                    <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio">
+                    <input type="number" placeholder="Orden" class="form-control paquete-orden" min="1" style="width: 80px; display: inline-block; margin-right: 10px;">
+                    <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre" style="width: calc(50% - 50px); display: inline-block; margin-right: 10px;">
+                    <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio" style="width: calc(30% - 50px); display: inline-block;">
                 </div>
             `;
         }
@@ -921,9 +925,10 @@
             const paqueteDiv = document.createElement('div');
             paqueteDiv.className = 'paquete-item';
             paqueteDiv.innerHTML = `
-                <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre">
-                <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio">
-                <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()">❌ Quitar</button>
+                <input type="number" placeholder="Orden" class="form-control paquete-orden" min="1" style="width: 80px; display: inline-block; margin-right: 10px;">
+                <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre" style="width: calc(50% - 50px); display: inline-block; margin-right: 10px;">
+                <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio" style="width: calc(30% - 50px); display: inline-block;">
+                <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()" style="margin-left: 10px;">❌ Quitar</button>
             `;
             container.appendChild(paqueteDiv);
         }
@@ -938,10 +943,15 @@
 
             const paquetes = [];
             document.querySelectorAll('.paquete-item').forEach(item => {
+                const orden = item.querySelector('.paquete-orden').value;
                 const nombrePaquete = item.querySelector('.paquete-nombre').value;
                 const precio = item.querySelector('.paquete-precio').value;
                 if (nombrePaquete && precio) {
-                    paquetes.push({ nombre: nombrePaquete, precio: parseFloat(precio) });
+                    paquetes.push({ 
+                        nombre: nombrePaquete, 
+                        precio: parseFloat(precio),
+                        orden: orden ? parseInt(orden) : 1
+                    });
                 }
             });
 
@@ -1026,9 +1036,10 @@
                         const paqueteDiv = document.createElement('div');
                         paqueteDiv.className = 'paquete-item';
                         paqueteDiv.innerHTML = `
-                            <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre" value="${paquete.nombre}">
-                            <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio" value="${paquete.precio}">
-                            <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()">❌ Quitar</button>
+                            <input type="number" placeholder="Orden" class="form-control paquete-orden" min="1" value="${paquete.orden || 1}" style="width: 80px; display: inline-block; margin-right: 10px;">
+                            <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre" value="${paquete.nombre}" style="width: calc(50% - 50px); display: inline-block; margin-right: 10px;">
+                            <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio" value="${paquete.precio}" style="width: calc(30% - 50px); display: inline-block;">
+                            <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()" style="margin-left: 10px;">❌ Quitar</button>
                         `;
                         container.appendChild(paqueteDiv);
                     });

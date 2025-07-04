@@ -37,7 +37,7 @@ def create_db_engine():
             database_url = database_url[6:-1]  # Remover "psql '" del inicio y "'" del final
         elif database_url.startswith("psql "):
             database_url = database_url[5:]  # Remover "psql " del inicio
-    
+
     # Crear versión censurada para logging
     try:
         if '://' in database_url and '@' in database_url:
@@ -47,7 +47,7 @@ def create_db_engine():
         print(f"🔗 Intentando conectar con: {masked_url}")
     except:
         print(f"🔗 Intentando conectar con base de datos...")
-    
+
     try:
         # Crear engine de SQLAlchemy
         engine = create_engine(
@@ -56,11 +56,11 @@ def create_db_engine():
             pool_pre_ping=True,  # Para verificar conexiones antes de usarlas
             echo=False  # Cambiar a True para debug SQL
         )
-        
+
         # Probar la conexión
         with engine.connect() as conn:
             conn.execute(text('SELECT 1'))
-        
+
         print("✅ Conexión a la base de datos exitosa")
         return engine
     except Exception as e:
@@ -94,7 +94,7 @@ def get_psycopg2_connection():
             database_url = database_url[6:-1]  # Remover "psql '" del inicio y "'" del final
         elif database_url.startswith("psql "):
             database_url = database_url[5:]  # Remover "psql " del inicio
-    
+
     return psycopg2.connect(database_url)
 
 def enviar_correo_gift_card_completada(orden_info):
@@ -105,26 +105,26 @@ def enviar_correo_gift_card_completada(orden_info):
         smtp_port = 587
         email_usuario = "1yorbi1@gmail.com"
         email_password = os.environ.get('GMAIL_APP_PASSWORD')
-        
+
         print(f"🎁 Enviando Gift Card completada para orden #{orden_info['id']}")
         print(f"📧 Destinatario: {orden_info['usuario_email']}")
-        
+
         if not email_password:
             print("❌ ERROR: No se encontró la contraseña de Gmail")
             return False
-        
+
         # Crear mensaje
         mensaje = MIMEMultipart()
         mensaje['From'] = email_usuario
         mensaje['To'] = orden_info['usuario_email']
         mensaje['Subject'] = f"🎁 ¡Tu Gift Card está lista! - Orden #{orden_info['id']} - Inefable Store"
-        
+
         # Cuerpo del mensaje específico para Gift Cards
         cuerpo = f"""
         ¡Hola! 🎁
-        
+
         ¡Excelentes noticias! Tu Gift Card ha sido procesada exitosamente.
-        
+
         📋 Detalles de tu orden:
         • Orden #: {orden_info['id']}
         • Producto: {orden_info.get('juego_nombre', 'Gift Card')}
@@ -132,29 +132,29 @@ def enviar_correo_gift_card_completada(orden_info):
         • Monto: ${orden_info['monto']}
         • Estado: ✅ COMPLETADA
         • Fecha de procesamiento: {datetime.now().strftime('%d/%m/%Y a las %H:%M')}
-        
+
         🎯 CÓDIGO DE TU GIFT CARD:
         ════════════════════════════════════
         🔑 {orden_info.get('codigo_producto', 'CÓDIGO NO DISPONIBLE')}
         ════════════════════════════════════
-        
+
         📝 Instrucciones de uso:
         • Guarda este código en un lugar seguro
         • Utiliza este código en la plataforma correspondiente
         • El código es de un solo uso
         • Si tienes problemas para canjearlo, contáctanos
-        
+
         ⚠️ IMPORTANTE: Este código es personal e intransferible.
         No lo compartas con nadie para evitar fraudes.
-        
+
         ¡Gracias por confiar en Inefable Store! 🚀
-        
+
         ---
         Equipo de Inefable Store
         """
-        
+
         mensaje.attach(MIMEText(cuerpo, 'plain'))
-        
+
         print("📤 Enviando Gift Card con código al usuario...")
         # Enviar correo
         server = smtplib.SMTP(smtp_server, smtp_port)
@@ -163,10 +163,10 @@ def enviar_correo_gift_card_completada(orden_info):
         texto = mensaje.as_string()
         server.sendmail(email_usuario, orden_info['usuario_email'], texto)
         server.quit()
-        
+
         print(f"✅ Gift Card enviada exitosamente a: {orden_info['usuario_email']}")
         return True
-        
+
     except Exception as e:
         print(f"❌ Error al enviar Gift Card: {str(e)}")
         return False
@@ -179,26 +179,26 @@ def enviar_correo_recarga_completada(orden_info):
         smtp_port = 587
         email_usuario = "1yorbi1@gmail.com"
         email_password = os.environ.get('GMAIL_APP_PASSWORD')
-        
+
         print(f"📨 Enviando confirmación de recarga completada para orden #{orden_info['id']}")
         print(f"📧 Destinatario: {orden_info['usuario_email']}")
-        
+
         if not email_password:
             print("❌ ERROR: No se encontró la contraseña de Gmail")
             return False
-        
+
         # Crear mensaje
         mensaje = MIMEMultipart()
         mensaje['From'] = email_usuario
         mensaje['To'] = orden_info['usuario_email']
         mensaje['Subject'] = f"🎉 ¡Tu recarga está lista! - Orden #{orden_info['id']} - Inefable Store"
-        
+
         # Cuerpo del mensaje personalizado para el usuario
         cuerpo = f"""
         ¡Hola! 🎮
-        
+
         ¡Excelentes noticias! Tu recarga ha sido procesada exitosamente.
-        
+
         📋 Detalles de tu orden:
         • Orden #: {orden_info['id']}
         • Juego: {orden_info.get('juego_nombre', 'N/A')}
@@ -207,18 +207,18 @@ def enviar_correo_recarga_completada(orden_info):
         • Tu ID en el juego: {orden_info.get('usuario_id', 'No especificado')}
         • Estado: ✅ COMPLETADA
         • Fecha de procesamiento: {datetime.now().strftime('%d/%m/%Y a las %H:%M')}
-        
+
         🎯 Tu recarga ya está disponible en tu cuenta del juego.
         Si tienes algún problema, no dudes en contactarnos.
-        
+
         ¡Gracias por confiar en Inefable Store! 🚀
-        
+
         ---
         Equipo de Inefable Store
         """
-        
+
         mensaje.attach(MIMEText(cuerpo, 'plain'))
-        
+
         print("📤 Enviando correo de confirmación al usuario...")
         # Enviar correo
         server = smtplib.SMTP(smtp_server, smtp_port)
@@ -227,10 +227,10 @@ def enviar_correo_recarga_completada(orden_info):
         texto = mensaje.as_string()
         server.sendmail(email_usuario, orden_info['usuario_email'], texto)
         server.quit()
-        
+
         print(f"✅ Correo de confirmación enviado exitosamente a: {orden_info['usuario_email']}")
         return True
-        
+
     except Exception as e:
         print(f"❌ Error al enviar correo de confirmación: {str(e)}")
         return False
@@ -243,28 +243,28 @@ def enviar_notificacion_orden(orden_data):
         smtp_port = 587
         email_usuario = "1yorbi1@gmail.com"
         email_password = os.environ.get('GMAIL_APP_PASSWORD')
-        
+
         print(f"🔧 Intentando enviar notificación para orden #{orden_data['id']}")
         print(f"📧 Email configurado: {email_usuario}")
-        
+
         if not email_password:
             print("❌ ERROR: No se encontró la contraseña de Gmail en los secretos")
             print("💡 Solución: Agrega el secreto 'GMAIL_APP_PASSWORD' en Replit")
             print("💡 Usa una contraseña de aplicación de Gmail, no tu contraseña normal")
             return False
-        
+
         print("🔑 Contraseña de aplicación encontrada")
-        
+
         # Crear mensaje
         mensaje = MIMEMultipart()
         mensaje['From'] = email_usuario
         mensaje['To'] = email_usuario  # Enviamos a nosotros mismos
         mensaje['Subject'] = f"🛒 Nueva Orden #{orden_data['id']} - Inefable Store"
-        
+
         # Cuerpo del mensaje
         cuerpo = f"""
         ¡Nueva orden recibida en Inefable Store!
-        
+
         📋 Detalles de la Orden:
         • ID: #{orden_data['id']}
         • Juego: {orden_data.get('juego_nombre', 'N/A')}
@@ -276,14 +276,14 @@ def enviar_notificacion_orden(orden_data):
         • Referencia: {orden_data['referencia_pago']}
         • Estado: {orden_data['estado']}
         • Fecha: {orden_data['fecha']}
-        
+
         🎮 Accede al panel de administración para gestionar esta orden.
-        
+
         ¡Saludos del equipo de Inefable Store! 🚀
         """
-        
+
         mensaje.attach(MIMEText(cuerpo, 'plain'))
-        
+
         print("📨 Conectando al servidor SMTP...")
         # Enviar correo
         server = smtplib.SMTP(smtp_server, smtp_port)
@@ -294,11 +294,11 @@ def enviar_notificacion_orden(orden_data):
         texto = mensaje.as_string()
         server.sendmail(email_usuario, email_usuario, texto)
         server.quit()
-        
+
         print(f"✅ Notificación enviada exitosamente para orden #{orden_data['id']}")
         print(f"📬 Revisa tu bandeja de entrada en: {email_usuario}")
         return True
-        
+
     except smtplib.SMTPAuthenticationError as e:
         print(f"❌ ERROR DE AUTENTICACIÓN: {str(e)}")
         print("💡 Verifica que tengas una contraseña de aplicación válida")
@@ -315,7 +315,7 @@ def enviar_notificacion_orden(orden_data):
 def init_db():
     """Inicializa las tablas de la base de datos"""
     conn = get_db_connection()
-    
+
     try:
         # Crear tablas usando SQLAlchemy
         conn.execute(text('''
@@ -391,7 +391,7 @@ def init_db():
                 valor TEXT
             );
         '''))
-        
+
         # Crear tabla de usuarios
         conn.execute(text('''
             CREATE TABLE IF NOT EXISTS usuarios (
@@ -523,12 +523,12 @@ def init_db():
         # Crear usuario administrador por defecto si no existe
         admin_email = os.environ.get('ADMIN_EMAIL')
         admin_password = os.environ.get('ADMIN_PASSWORD')
-        
+
         if admin_email and admin_password:
             # Verificar si ya existe un admin con ese email
             result = conn.execute(text('SELECT id FROM usuarios WHERE email = :email'), 
                                  {'email': admin_email})
-            
+
             if not result.fetchone():
                 # Crear usuario administrador
                 password_hash = generate_password_hash(admin_password)
@@ -549,7 +549,7 @@ def init_db():
                 print(f"✅ Usuario actualizado como administrador: {admin_email}")
 
         conn.commit()
-        
+
     except Exception as e:
         print(f"Error en init_db: {e}")
         conn.rollback()
@@ -574,20 +574,20 @@ def admin():
     # Verificar si el usuario está logueado y es administrador
     if 'user_id' not in session:
         return redirect(url_for('index') + '?login_required=true&admin=true')
-    
+
     # Verificar si el usuario es administrador
     conn = get_db_connection()
     try:
         result = conn.execute(text('SELECT es_admin FROM usuarios WHERE id = :user_id'), 
                              {'user_id': session['user_id']})
         usuario = result.fetchone()
-        
+
         if not usuario or not usuario[0]:  # es_admin es False
             return jsonify({'error': 'Acceso denegado. No tienes permisos de administrador.'}), 403
-            
+
     finally:
         conn.close()
-    
+
     return render_template('admin.html')
 
 # ENDPOINT PARA CREAR ÓRDENES DESDE EL FRONTEND
@@ -626,7 +626,7 @@ def create_orden():
         })
 
         orden_id = result.fetchone()[0]
-        
+
         # Obtener datos completos de la orden para la notificación
         result = conn.execute(text('''
             SELECT o.*, j.nombre as juego_nombre 
@@ -634,10 +634,10 @@ def create_orden():
             LEFT JOIN juegos j ON o.juego_id = j.id 
             WHERE o.id = :orden_id
         '''), {'orden_id': orden_id})
-        
+
         orden_completa = result.fetchone()
         conn.commit()
-        
+
     except Exception as e:
         conn.rollback()
         raise e
@@ -659,7 +659,7 @@ def create_orden():
             'fecha': orden_completa[9],
             'juego_nombre': orden_completa[10]
         }
-        
+
         # Enviar notificación en hilo separado
         threading.Thread(target=enviar_notificacion_orden, args=(orden_data,)).start()
 
@@ -671,20 +671,20 @@ def admin_required(f):
         # Verificar si el usuario está logueado
         if 'user_id' not in session:
             return jsonify({'error': 'Debes iniciar sesión'}), 401
-            
+
         # Verificar si el usuario es administrador
         conn = get_db_connection()
         try:
             result = conn.execute(text('SELECT es_admin FROM usuarios WHERE id = :user_id'), 
                                  {'user_id': session['user_id']})
             usuario = result.fetchone()
-            
+
             if not usuario or not usuario[0]:  # es_admin es False
                 return jsonify({'error': 'Acceso denegado. No tienes permisos de administrador.'}), 403
-                
+
         finally:
             conn.close()
-            
+
         return f(*args, **kwargs)
     decorated_function.__name__ = f.__name__
     return decorated_function
@@ -702,13 +702,13 @@ def get_ordenes():
             ORDER BY o.fecha DESC
         '''))
         ordenes = result.fetchall()
-        
+
         # Convertir a lista de diccionarios
         ordenes_dict = []
         for orden in ordenes:
             orden_dict = dict(orden._mapping)
             ordenes_dict.append(orden_dict)
-        
+
         return jsonify(ordenes_dict)
     finally:
         conn.close()
@@ -721,7 +721,7 @@ def update_orden(orden_id):
     codigo_producto = data.get('codigo_producto')
 
     conn = get_db_connection()
-    
+
     try:
         # Obtener información completa de la orden antes de actualizar
         result = conn.execute(text('''
@@ -731,10 +731,10 @@ def update_orden(orden_id):
             WHERE o.id = :orden_id
         '''), {'orden_id': orden_id})
         orden_info = result.fetchone()
-        
+
         if not orden_info:
             return jsonify({'error': 'Orden no encontrada'}), 404
-        
+
         # Preparar la consulta de actualización
         if codigo_producto is not None:
             # Actualizar estado y código
@@ -744,28 +744,28 @@ def update_orden(orden_id):
             # Solo actualizar estado
             conn.execute(text('UPDATE ordenes SET estado = :estado WHERE id = :orden_id'), 
                         {'estado': nuevo_estado, 'orden_id': orden_id})
-        
+
         conn.commit()
-        
+
         # Convertir orden_info a diccionario para envío de correo
         orden_dict = dict(orden_info._mapping)
         if codigo_producto:
             orden_dict['codigo_producto'] = codigo_producto
-        
+
         # Si el nuevo estado es "procesado", enviar correo de confirmación al usuario
         if nuevo_estado == 'procesado':
             # Verificar si es Gift Card para enviar correo específico
             es_gift_card = (orden_dict.get('categoria') == 'gift-cards' or 
                            'gift' in (orden_dict.get('juego_nombre', '')).lower() or
                            'steam' in (orden_dict.get('juego_nombre', '')).lower())
-            
+
             if es_gift_card and codigo_producto:
                 threading.Thread(target=enviar_correo_gift_card_completada, args=(orden_dict,)).start()
             else:
                 threading.Thread(target=enviar_correo_recarga_completada, args=(orden_dict,)).start()
 
         return jsonify({'message': 'Estado actualizado correctamente'})
-        
+
     except Exception as e:
         conn.rollback()
         return jsonify({'error': f'Error al actualizar orden: {str(e)}'}), 500
@@ -785,13 +785,13 @@ def get_productos():
         productos_list = []
         for producto in productos:
             producto_dict = dict(producto._mapping)
-            
+
             # Obtener paquetes para este producto
             paquetes_result = conn.execute(text('SELECT * FROM paquetes WHERE juego_id = :juego_id ORDER BY orden ASC, id ASC'), 
                                          {'juego_id': producto_dict['id']})
             paquetes = paquetes_result.fetchall()
             producto_dict['paquetes'] = [dict(paq._mapping) for paq in paquetes]
-            
+
             productos_list.append(producto_dict)
 
         return jsonify(productos_list)
@@ -815,7 +815,7 @@ def create_producto():
             INSERT INTO juegos (nombre, descripcion, imagen, categoria) 
             VALUES (:nombre, :descripcion, :imagen, :categoria) RETURNING id
         '''), {'nombre': nombre, 'descripcion': descripcion, 'imagen': imagen, 'categoria': categoria})
-        
+
         producto_id = result.fetchone()[0]
 
         # Insertar paquetes
@@ -827,7 +827,7 @@ def create_producto():
                 'juego_id': producto_id, 
                 'nombre': paquete['nombre'], 
                 'precio': paquete['precio'],
-                'orden': paquete.get('orden', index + 1)
+                'orden': paquete.get('orden', 1)
             })
 
         conn.commit()
@@ -866,15 +866,16 @@ def update_producto(producto_id):
         conn.execute(text('DELETE FROM paquetes WHERE juego_id = :producto_id'), 
                     {'producto_id': producto_id})
 
-        for index, paquete in enumerate(paquetes):
+        # Insertar nuevos paquetes
+        for paquete in paquetes:
             conn.execute(text('''
                 INSERT INTO paquetes (juego_id, nombre, precio, orden) 
                 VALUES (:juego_id, :nombre, :precio, :orden)
             '''), {
-                'juego_id': producto_id, 
-                'nombre': paquete['nombre'], 
+                'juego_id': producto_id,
+                'nombre': paquete['nombre'],
                 'precio': paquete['precio'],
-                'orden': paquete.get('orden', index + 1)
+                'orden': paquete.get('orden', 1)
             })
 
         conn.commit()
@@ -921,13 +922,13 @@ def get_productos_publico():
         productos_list = []
         for producto in productos:
             producto_dict = dict(producto._mapping)
-            
+
             # Obtener paquetes para este producto
             paquetes_result = conn.execute(text('SELECT * FROM paquetes WHERE juego_id = :juego_id ORDER BY orden ASC, precio ASC'), 
                                          {'juego_id': producto_dict['id']})
             paquetes = paquetes_result.fetchall()
             producto_dict['paquetes'] = [dict(paq._mapping) for paq in paquetes]
-            
+
             productos_list.append(producto_dict)
 
         return jsonify(productos_list)
@@ -959,13 +960,13 @@ def get_imagenes():
     try:
         result = conn.execute(text('SELECT * FROM imagenes ORDER BY tipo, id'))
         imagenes = result.fetchall()
-        
+
         # Convertir a lista de diccionarios
         imagenes_list = []
         for imagen in imagenes:
             imagen_dict = dict(imagen._mapping)
             imagenes_list.append(imagen_dict)
-        
+
         return jsonify(imagenes_list)
     finally:
         conn.close()
@@ -1199,9 +1200,9 @@ def get_historial_compras():
             WHERE u.id = :user_id
             ORDER BY o.fecha DESC
         '''), {'user_id': session['user_id']})
-        
+
         historial = result.fetchall()
-        
+
         # Convertir a lista de diccionarios
         historial_list = []
         for compra in historial:
