@@ -220,10 +220,10 @@ header {
 }
 
 .content {
-    background: #2a2a2a;
+    background: transparent;
     border-radius: 15px;
     padding: 30px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    box-shadow: none;
     min-height: 500px;
     margin-bottom: 100px; /* Espacio para el footer */
 }
