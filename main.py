@@ -370,6 +370,12 @@ def init_db():
             ADD COLUMN IF NOT EXISTS codigo_producto VARCHAR(255);
         '''))
 
+        # Agregar columna orden si no existe (migración)
+        conn.execute(text('''
+            ALTER TABLE paquetes 
+            ADD COLUMN IF NOT EXISTS orden INTEGER DEFAULT 0;
+        '''))
+
         conn.execute(text('''
             CREATE TABLE IF NOT EXISTS imagenes (
                 id SERIAL PRIMARY KEY,
@@ -425,18 +431,18 @@ def init_db():
 
             # Paquetes de Free Fire
             ff_packages = [
-                ('100 Diamantes', 2.99),
-                ('310 Diamantes', 9.99),
-                ('520 Diamantes', 14.99),
-                ('1080 Diamantes', 29.99),
-                ('2200 Diamantes', 59.99)
+                ('100 Diamantes', 2.99, 1),
+                ('310 Diamantes', 9.99, 2),
+                ('520 Diamantes', 14.99, 3),
+                ('1080 Diamantes', 29.99, 4),
+                ('2200 Diamantes', 59.99, 5)
             ]
 
-            for nombre, precio in ff_packages:
+            for nombre, precio, orden in ff_packages:
                 conn.execute(text('''
-                    INSERT INTO paquetes (juego_id, nombre, precio) 
-                    VALUES (:juego_id, :nombre, :precio)
-                '''), {'juego_id': ff_id, 'nombre': nombre, 'precio': precio})
+                    INSERT INTO paquetes (juego_id, nombre, precio, orden) 
+                    VALUES (:juego_id, :nombre, :precio, :orden)
+                '''), {'juego_id': ff_id, 'nombre': nombre, 'precio': precio, 'orden': orden})
 
             # PUBG Mobile
             result = conn.execute(text('''
@@ -453,18 +459,18 @@ def init_db():
 
             # Paquetes de PUBG
             pubg_packages = [
-                ('60 UC', 0.99),
-                ('325 UC', 4.99),
-                ('660 UC', 9.99),
-                ('1800 UC', 24.99),
-                ('3850 UC', 49.99)
+                ('60 UC', 0.99, 1),
+                ('325 UC', 4.99, 2),
+                ('660 UC', 9.99, 3),
+                ('1800 UC', 24.99, 4),
+                ('3850 UC', 49.99, 5)
             ]
 
-            for nombre, precio in pubg_packages:
+            for nombre, precio, orden in pubg_packages:
                 conn.execute(text('''
-                    INSERT INTO paquetes (juego_id, nombre, precio) 
-                    VALUES (:juego_id, :nombre, :precio)
-                '''), {'juego_id': pubg_id, 'nombre': nombre, 'precio': precio})
+                    INSERT INTO paquetes (juego_id, nombre, precio, orden) 
+                    VALUES (:juego_id, :nombre, :precio, :orden)
+                '''), {'juego_id': pubg_id, 'nombre': nombre, 'precio': precio, 'orden': orden})
 
             # Call of Duty Mobile
             result = conn.execute(text('''
@@ -481,18 +487,18 @@ def init_db():
 
             # Paquetes de COD
             cod_packages = [
-                ('80 CP', 0.99),
-                ('400 CP', 4.99),
-                ('800 CP', 9.99),
-                ('2000 CP', 19.99),
-                ('5000 CP', 49.99)
+                ('80 CP', 0.99, 1),
+                ('400 CP', 4.99, 2),
+                ('800 CP', 9.99, 3),
+                ('2000 CP', 19.99, 4),
+                ('5000 CP', 49.99, 5)
             ]
 
-            for nombre, precio in cod_packages:
+            for nombre, precio, orden in cod_packages:
                 conn.execute(text('''
-                    INSERT INTO paquetes (juego_id, nombre, precio) 
-                    VALUES (:juego_id, :nombre, :precio)
-                '''), {'juego_id': cod_id, 'nombre': nombre, 'precio': precio})
+                    INSERT INTO paquetes (juego_id, nombre, precio, orden) 
+                    VALUES (:juego_id, :nombre, :precio, :orden)
+                '''), {'juego_id': cod_id, 'nombre': nombre, 'precio': precio, 'orden': orden})
 
         # Insertar configuración básica si no existe
         result = conn.execute(text('SELECT COUNT(*) FROM configuracion'))
@@ -781,7 +787,7 @@ def get_productos():
             producto_dict = dict(producto._mapping)
             
             # Obtener paquetes para este producto
-            paquetes_result = conn.execute(text('SELECT * FROM paquetes WHERE juego_id = :juego_id'), 
+            paquetes_result = conn.execute(text('SELECT * FROM paquetes WHERE juego_id = :juego_id ORDER BY orden ASC, id ASC'), 
                                          {'juego_id': producto_dict['id']})
             paquetes = paquetes_result.fetchall()
             producto_dict['paquetes'] = [dict(paq._mapping) for paq in paquetes]
@@ -813,14 +819,15 @@ def create_producto():
         producto_id = result.fetchone()[0]
 
         # Insertar paquetes
-        for paquete in paquetes:
+        for index, paquete in enumerate(paquetes):
             conn.execute(text('''
-                INSERT INTO paquetes (juego_id, nombre, precio) 
-                VALUES (:juego_id, :nombre, :precio)
+                INSERT INTO paquetes (juego_id, nombre, precio, orden) 
+                VALUES (:juego_id, :nombre, :precio, :orden)
             '''), {
                 'juego_id': producto_id, 
                 'nombre': paquete['nombre'], 
-                'precio': paquete['precio']
+                'precio': paquete['precio'],
+                'orden': paquete.get('orden', index + 1)
             })
 
         conn.commit()
@@ -859,14 +866,15 @@ def update_producto(producto_id):
         conn.execute(text('DELETE FROM paquetes WHERE juego_id = :producto_id'), 
                     {'producto_id': producto_id})
 
-        for paquete in paquetes:
+        for index, paquete in enumerate(paquetes):
             conn.execute(text('''
-                INSERT INTO paquetes (juego_id, nombre, precio) 
-                VALUES (:juego_id, :nombre, :precio)
+                INSERT INTO paquetes (juego_id, nombre, precio, orden) 
+                VALUES (:juego_id, :nombre, :precio, :orden)
             '''), {
                 'juego_id': producto_id, 
                 'nombre': paquete['nombre'], 
-                'precio': paquete['precio']
+                'precio': paquete['precio'],
+                'orden': paquete.get('orden', index + 1)
             })
 
         conn.commit()
@@ -915,7 +923,7 @@ def get_productos_publico():
             producto_dict = dict(producto._mapping)
             
             # Obtener paquetes para este producto
-            paquetes_result = conn.execute(text('SELECT * FROM paquetes WHERE juego_id = :juego_id ORDER BY precio ASC'), 
+            paquetes_result = conn.execute(text('SELECT * FROM paquetes WHERE juego_id = :juego_id ORDER BY orden ASC, precio ASC'), 
                                          {'juego_id': producto_dict['id']})
             paquetes = paquetes_result.fetchall()
             producto_dict['paquetes'] = [dict(paq._mapping) for paq in paquetes]
