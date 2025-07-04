@@ -527,14 +527,90 @@ function mostrarProductos() {
         return;
     }
 
-    // Si es la categoría "todos", mostrar vacío
+    // Si es la categoría "todos", mostrar carrusel horizontal de juegos
     if (!filtroActual || filtroActual === 'todos') {
+        const juegos = productos.filter(producto => producto.categoria === 'juegos');
+        
+        if (juegos.length === 0) {
+            grid.innerHTML = `
+                <div class="no-products" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #cccccc;">
+                    <h3>🎮 No hay juegos disponibles</h3>
+                    <p>Próximamente agregaremos más juegos para ti</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Cambiar clase del contenedor para el carrusel
+        grid.className = 'todos-carousel-container';
+        
+        // Generar carrusel horizontal de juegos
+        let cardsHtml = '';
+        juegos.forEach(juego => {
+            // Corregir ruta de imagen
+            let imagenUrl = juego.imagen || '';
+            if (imagenUrl && !imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
+                imagenUrl = `/static/${imagenUrl}`;
+            }
+            if (!imagenUrl) {
+                imagenUrl = 'https://via.placeholder.com/300x200/007bff/ffffff?text=Producto';
+            }
+
+            // Calcular precio mínimo y máximo
+            let precioMinimo = 0;
+            let precioMaximo = 0;
+            if (juego.paquetes && Array.isArray(juego.paquetes) && juego.paquetes.length > 0) {
+                const precios = juego.paquetes.map(p => parseFloat(p.precio) || 0);
+                precioMinimo = Math.min(...precios);
+                precioMaximo = Math.max(...precios);
+            }
+
+            // Mostrar rango de precios según la moneda
+            let rangoPrecio = '';
+            if (precioMinimo === precioMaximo) {
+                // Si solo hay un precio
+                if (monedaActual === 'VES') {
+                    rangoPrecio = `Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)}`;
+                } else {
+                    rangoPrecio = `$${precioMinimo.toFixed(2)}`;
+                }
+            } else {
+                // Si hay rango de precios
+                if (monedaActual === 'VES') {
+                    rangoPrecio = `Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)} - Bs. ${(precioMaximo * tasaUSDVES).toFixed(2)}`;
+                } else {
+                    rangoPrecio = `$${precioMinimo.toFixed(2)} - $${precioMaximo.toFixed(2)}`;
+                }
+            }
+
+            cardsHtml += `
+                <div class="todos-carousel-card" onclick="verDetalleProducto(${juego.id})">
+                    <img src="${imagenUrl}" alt="${juego.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
+                    <div class="product-name">${juego.nombre || 'Producto sin nombre'}</div>
+                    <div class="price-desde">${rangoPrecio}</div>
+                </div>
+            `;
+        });
+
         grid.innerHTML = `
-            <div class="no-products" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #cccccc;">
-                <h3>📦 Categoría Vacía</h3>
-                <p>Selecciona una categoría específica para ver los productos</p>
+            <div class="section-header">
+                <h3 class="section-title">🎮 Todos los Juegos</h3>
+            </div>
+            <div class="todos-carousel-wrapper">
+                <div class="todos-carousel-track" id="todos-carousel-track">
+                    ${cardsHtml}
+                </div>
+                ${juegos.length > 3 ? `
+                    <button class="todos-carousel-nav prev" onclick="moverCarruselTodos(-1)">‹</button>
+                    <button class="todos-carousel-nav next" onclick="moverCarruselTodos(1)">›</button>
+                ` : ''}
             </div>
         `;
+        
+        // Inicializar índice del carrusel
+        window.todosCarouselIndex = 0;
+        window.todosCarouselItems = juegos;
+        
         return;
     }
 
@@ -1831,6 +1907,28 @@ function moverCarruselGiftCards(direccion) {
     }
 
     const translateX = -giftCardsCarouselIndex * cardWidth;
+    track.style.transform = `translateX(${translateX}px)`;
+}
+
+function moverCarruselTodos(direccion) {
+    const track = document.getElementById('todos-carousel-track');
+    if (!track || !window.todosCarouselItems || window.todosCarouselItems.length === 0) return;
+
+    const cardWidth = 220 + 15; // ancho de tarjeta + gap
+    const containerWidth = track.parentElement.offsetWidth;
+    const visibleCards = Math.floor(containerWidth / cardWidth);
+    const maxIndex = Math.max(0, window.todosCarouselItems.length - visibleCards);
+
+    window.todosCarouselIndex += direccion;
+
+    if (window.todosCarouselIndex < 0) {
+        window.todosCarouselIndex = 0;
+    }
+    if (window.todosCarouselIndex > maxIndex) {
+        window.todosCarouselIndex = maxIndex;
+    }
+
+    const translateX = -window.todosCarouselIndex * cardWidth;
     track.style.transform = `translateX(${translateX}px)`;
 }
 
