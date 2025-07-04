@@ -258,6 +258,177 @@
             border: 1px solid #f5c6cb;
         }
 
+        /* Estilos compactos para órdenes móviles */
+        .ordenes-mobile {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .orden-card-mobile {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .orden-header-mobile {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .orden-id {
+            font-weight: 700;
+            color: #007bff;
+            font-size: 16px;
+        }
+
+        .orden-info-mobile {
+            margin-bottom: 12px;
+        }
+
+        .orden-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .orden-precio {
+            font-weight: 700;
+            color: #28a745;
+            font-size: 16px;
+        }
+
+        .orden-actions-mobile {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .codigo-input-mobile {
+            flex: 1;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .btn-mobile {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            min-width: 80px;
+        }
+
+        .btn-mobile.btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-mobile.btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        /* Estilos compactos para desktop */
+        .table-compact {
+            font-size: 14px;
+        }
+
+        .table-compact th {
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .table-compact td {
+            padding: 12px;
+            vertical-align: top;
+        }
+
+        .orden-row-compact:hover {
+            background: #f8f9fa;
+        }
+
+        .producto-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .producto-info strong {
+            font-size: 14px;
+            color: #2c3e50;
+        }
+
+        .producto-info small {
+            color: #6c757d;
+            font-size: 12px;
+        }
+
+        .producto-info .precio {
+            color: #28a745;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .cliente-info,
+        .pago-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .cliente-info div,
+        .pago-info div {
+            font-size: 13px;
+        }
+
+        .cliente-info small,
+        .pago-info small {
+            color: #6c757d;
+            font-size: 11px;
+        }
+
+        .actions-compact {
+            min-width: 120px;
+        }
+
+        .gift-card-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .codigo-input-compact {
+            width: 100%;
+            padding: 4px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+
+        .status-badge {
+            font-size: 10px;
+            padding: 4px 8px;
+        }
+
         @media (max-width: 768px) {
             .tabs {
                 flex-direction: column;
@@ -274,6 +445,16 @@
 
             .tab-content {
                 padding: 20px;
+            }
+
+            .table {
+                display: none;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .ordenes-mobile {
+                display: none;
             }
         }
     </style>
@@ -484,41 +665,118 @@
                 const response = await fetch('/admin/ordenes');
                 const ordenes = await response.json();
 
-                let html = '<table class="table"><thead><tr><th>ID</th><th>Juego</th><th>Paquete</th><th>Monto</th><th>Usuario Email</th><th>ID Usuario Juego</th><th>Método</th><th>Referencia</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr></thead><tbody>';
+                // Vista móvil con cards compactas
+                const isMobile = window.innerWidth <= 768;
+                
+                if (isMobile) {
+                    let html = '<div class="ordenes-mobile">';
+                    
+                    ordenes.forEach(orden => {
+                        const fechaCorta = new Date(orden.fecha).toLocaleDateString('es', { 
+                            day: '2-digit', 
+                            month: '2-digit', 
+                            year: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                        
+                        html += `
+                            <div class="orden-card-mobile">
+                                <div class="orden-header-mobile">
+                                    <span class="orden-id">#${orden.id}</span>
+                                    <span class="status-badge status-${orden.estado}">${orden.estado}</span>
+                                </div>
+                                <div class="orden-info-mobile">
+                                    <div class="orden-row">
+                                        <strong>🎮 ${orden.juego_nombre || 'N/A'}</strong>
+                                        <span class="orden-precio">$${orden.monto}</span>
+                                    </div>
+                                    <div class="orden-row">
+                                        <span>📦 ${orden.paquete}</span>
+                                    </div>
+                                    <div class="orden-row">
+                                        <span>👤 ${orden.usuario_email}</span>
+                                    </div>
+                                    ${orden.usuario_id ? `<div class="orden-row"><span>🎮 ID: ${orden.usuario_id}</span></div>` : ''}
+                                    <div class="orden-row">
+                                        <span>💳 ${orden.metodo_pago}</span>
+                                        <span>📅 ${fechaCorta}</span>
+                                    </div>
+                                    ${orden.referencia_pago ? `<div class="orden-row"><span>🔖 ${orden.referencia_pago}</span></div>` : ''}
+                                </div>
+                                <div class="orden-actions-mobile">
+                                    ${esGiftCard(orden) ? 
+                                        `<input type="text" placeholder="Código" id="codigo-${orden.id}" class="codigo-input-mobile" value="${orden.codigo_producto || ''}">
+                                         <button class="btn-mobile ${orden.estado === 'procesando' ? 'btn-success' : 'btn-warning'}" onclick="updateEstadoConCodigo(${orden.id}, '${orden.estado === 'procesando' ? 'procesado' : 'procesando'}')">
+                                            ${orden.estado === 'procesando' ? '✅' : '⏳'}
+                                         </button>` :
+                                        `<button class="btn-mobile ${orden.estado === 'procesando' ? 'btn-success' : 'btn-warning'}" onclick="updateEstado(${orden.id}, '${orden.estado === 'procesando' ? 'procesado' : 'procesando'}')">
+                                            ${orden.estado === 'procesando' ? '✅ Procesar' : '⏳ Reprocesar'}
+                                         </button>`
+                                    }
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                    document.getElementById('ordenes-list').innerHTML = html;
+                } else {
+                    // Vista desktop compacta
+                    let html = '<table class="table table-compact"><thead><tr><th>ID</th><th>Producto</th><th>Cliente</th><th>Pago</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr></thead><tbody>';
 
-                ordenes.forEach(orden => {
-                    html += `
-                        <tr>
-                            <td>${orden.id}</td>
-                            <td>${orden.juego_nombre || 'N/A'}</td>
-                            <td>${orden.paquete}</td>
-                            <td>$${orden.monto}</td>
-                            <td>${orden.usuario_email}</td>
-                            <td style="font-weight: 600; color: #007bff;">🎮 ${orden.usuario_id || 'No especificado'}</td>
-                            <td>${orden.metodo_pago}</td>
-                            <td>${orden.referencia_pago}</td>
-                            <td><span class="status-badge status-${orden.estado}">${orden.estado}</span></td>
-                            <td>${new Date(orden.fecha).toLocaleString()}</td>
-                            <td>
-                                ${esGiftCard(orden) ? 
-                                    `<div>
-                                        <input type="text" placeholder="Código del producto" id="codigo-${orden.id}" style="margin-bottom: 5px; padding: 5px; width: 150px;" value="${orden.codigo_producto || ''}">
-                                        <br>
-                                        <button class="btn btn-warning" onclick="updateEstadoConCodigo(${orden.id}, '${orden.estado === 'procesando' ? 'procesado' : 'procesando'}')">
-                                            ${orden.estado === 'procesando' ? '✅ Procesar con Código' : '⏳ Desprocesar'}
-                                        </button>
-                                    </div>` :
-                                    `<button class="btn btn-warning" onclick="updateEstado(${orden.id}, '${orden.estado === 'procesando' ? 'procesado' : 'procesando'}')">
-                                        ${orden.estado === 'procesando' ? '✅ Procesar' : '⏳ Desprocesar'}
-                                    </button>`
-                                }
-                            </td>
-                        </tr>
-                    `;
-                });
+                    ordenes.forEach(orden => {
+                        const fechaCorta = new Date(orden.fecha).toLocaleDateString('es', { 
+                            day: '2-digit', 
+                            month: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                        
+                        html += `
+                            <tr class="orden-row-compact">
+                                <td><strong>#${orden.id}</strong></td>
+                                <td>
+                                    <div class="producto-info">
+                                        <strong>${orden.juego_nombre || 'N/A'}</strong>
+                                        <small>${orden.paquete}</small>
+                                        <span class="precio">$${orden.monto}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cliente-info">
+                                        <div>${orden.usuario_email}</div>
+                                        ${orden.usuario_id ? `<small>🎮 ${orden.usuario_id}</small>` : ''}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="pago-info">
+                                        <div>${orden.metodo_pago}</div>
+                                        ${orden.referencia_pago ? `<small>${orden.referencia_pago}</small>` : ''}
+                                    </div>
+                                </td>
+                                <td><span class="status-badge status-${orden.estado}">${orden.estado}</span></td>
+                                <td><small>${fechaCorta}</small></td>
+                                <td class="actions-compact">
+                                    ${esGiftCard(orden) ? 
+                                        `<div class="gift-card-actions">
+                                            <input type="text" placeholder="Código" id="codigo-${orden.id}" class="codigo-input-compact" value="${orden.codigo_producto || ''}">
+                                            <button class="btn btn-sm ${orden.estado === 'procesando' ? 'btn-success' : 'btn-warning'}" onclick="updateEstadoConCodigo(${orden.id}, '${orden.estado === 'procesando' ? 'procesado' : 'procesando'}')">
+                                                ${orden.estado === 'procesando' ? '✅' : '⏳'}
+                                            </button>
+                                        </div>` :
+                                        `<button class="btn btn-sm ${orden.estado === 'procesando' ? 'btn-success' : 'btn-warning'}" onclick="updateEstado(${orden.id}, '${orden.estado === 'procesando' ? 'procesado' : 'procesando'}')">
+                                            ${orden.estado === 'procesando' ? '✅' : '⏳'}
+                                        </button>`
+                                    }
+                                </td>
+                            </tr>
+                        `;
+                    });
 
-                html += '</tbody></table>';
-                document.getElementById('ordenes-list').innerHTML = html;
+                    html += '</tbody></table>';
+                    document.getElementById('ordenes-list').innerHTML = html;
+                }
             } catch (error) {
                 document.getElementById('ordenes-list').innerHTML = '<p>Error al cargar órdenes</p>';
             }
@@ -1062,6 +1320,15 @@
         document.addEventListener('DOMContentLoaded', function() {
             loadUserInfo();
             loadOrdenes();
+        });
+
+        // Recargar órdenes cuando cambie el tamaño de pantalla
+        window.addEventListener('resize', function() {
+            // Solo recargar si estamos en la pestaña de órdenes
+            const ordenesTab = document.getElementById('ordenes');
+            if (ordenesTab && ordenesTab.classList.contains('active')) {
+                loadOrdenes();
+            }
         });
     </script>
 </body>
