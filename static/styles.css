@@ -2462,6 +2462,8 @@ header {
     -webkit-backdrop-filter: blur(10px);
     z-index: 998; /* Menor que el footer de navegación */
     letter-spacing: 0.5px;
+    opacity: 0; /* Inicialmente oculto */
+    transform: translateY(20px);
 }
 
 /* En desktop, el footer va hasta abajo */

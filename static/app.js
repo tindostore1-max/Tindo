@@ -66,6 +66,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Activar automáticamente la pestaña de Todos al cargar
         filtrarProductos('todos');
     }, 200);
+
+    // Mostrar el footer después de que se carguen los productos
+    setTimeout(() => {
+        mostrarFooterCopyright();
+    }, 2000);
 });
 
 // Funciones del carrusel
@@ -2444,5 +2449,22 @@ function cerrarModalTerminos() {
     const modal = document.querySelector('.terms-modal');
     if (modal) {
         modal.remove();
+    }
+}
+
+// Función para mostrar el footer con animación
+function mostrarFooterCopyright() {
+    const footer = document.querySelector('.copyright-footer');
+    if (footer) {
+        // Inicialmente oculto
+        footer.style.opacity = '0';
+        footer.style.transform = 'translateY(20px)';
+        footer.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+        
+        // Mostrar con animación
+        setTimeout(() => {
+            footer.style.opacity = '1';
+            footer.style.transform = 'translateY(0)';
+        }, 100);
     }
 }
