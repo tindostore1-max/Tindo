@@ -61,6 +61,7 @@ header {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
+    max-width: 300px;
 }
 
 .desktop-category-btn {
