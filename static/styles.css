@@ -602,85 +602,97 @@ header {
         gap: 10px;
     }
 
-    /* Ajustar tamaño de cards para mostrar mínimo 2 productos */
+    /* Ajustar tamaño de cards para mostrar mínimo 2 productos en móvil */
     .games-carousel-card {
-        flex: 0 0 160px; /* Reducido de 180px a 160px */
-        padding: 10px;
-        margin-right: 10px;
+        flex: 0 0 calc(50% - 10px); /* Mostrar exactamente 2 productos por pantalla */
+        max-width: 150px; /* Máximo ancho para pantallas muy pequeñas */
+        padding: 8px;
+        margin-right: 8px;
     }
 
     .games-carousel-card .product-name {
-        font-size: 13px;
-        margin-bottom: 6px;
-        line-height: 1.2;
+        font-size: 12px;
+        margin-bottom: 4px;
+        line-height: 1.1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .games-carousel-card .price-desde {
-        font-size: 12px;
-        margin-top: 6px;
+        font-size: 11px;
+        margin-top: 4px;
+        font-weight: 700;
     }
 
     .games-carousel-card .product-image {
-        height: 120px; /* Altura fija más pequeña */
+        height: 100px; /* Altura más compacta */
         object-fit: cover;
+        margin-bottom: 6px;
     }
 
     .games-carousel-nav {
-        width: 35px;
-        height: 35px;
-        font-size: 16px;
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
         z-index: 15;
     }
 
     .games-carousel-nav.prev {
-        left: 5px;
+        left: 3px;
     }
 
     .games-carousel-nav.next {
-        right: 5px;
+        right: 3px;
     }
 
     /* Estilos móviles para carrusel de Todos */
     .todos-carousel-container {
-        margin: 0 0 20px 10px;
-        padding: 20px;
+        margin: 0 0 20px 0;
+        padding: 15px 10px;
     }
 
     .todos-carousel-card {
-        flex: 0 0 160px; /* Reducido de 180px a 160px */
-        padding: 10px;
-        margin-right: 10px;
+        flex: 0 0 calc(50% - 10px); /* Mostrar exactamente 2 productos por pantalla */
+        max-width: 150px; /* Máximo ancho para pantallas muy pequeñas */
+        padding: 8px;
+        margin-right: 8px;
     }
 
     .todos-carousel-card .product-name {
-        font-size: 13px;
-        margin-bottom: 6px;
-        line-height: 1.2;
+        font-size: 12px;
+        margin-bottom: 4px;
+        line-height: 1.1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .todos-carousel-card .price-desde {
-        font-size: 12px;
-        margin-top: 6px;
+        font-size: 11px;
+        margin-top: 4px;
+        font-weight: 700;
     }
 
     .todos-carousel-card .product-image {
-        height: 120px; /* Altura fija más pequeña */
+        height: 100px; /* Altura más compacta */
         object-fit: cover;
+        margin-bottom: 6px;
     }
 
     .todos-carousel-nav {
-        width: 35px;
-        height: 35px;
-        font-size: 16px;
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
         z-index: 15;
     }
 
     .todos-carousel-nav.prev {
-        left: 5px;
+        left: 3px;
     }
 
     .todos-carousel-nav.next {
-        right: 5px;
+        right: 3px;
     }
 
     /* Asegurar que el track permita scroll horizontal suave */
@@ -690,6 +702,27 @@ header {
         -webkit-user-select: none;
         -moz-user-select: none;
         -ms-user-select: none;
+        gap: 8px; /* Gap más pequeño entre elementos */
+    }
+
+    /* Ajustes específicos para pantallas muy pequeñas */
+    @media (max-width: 360px) {
+        .games-carousel-card,
+        .todos-carousel-card {
+            flex: 0 0 calc(50% - 6px);
+            max-width: 140px;
+            padding: 6px;
+            margin-right: 6px;
+        }
+
+        .games-carousel-card .product-image,
+        .todos-carousel-card .product-image {
+            height: 85px;
+        }
+
+        .games-carousel-track, .todos-carousel-track {
+            gap: 6px;
+        }
     }
 }
 
