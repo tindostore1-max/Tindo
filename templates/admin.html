@@ -525,6 +525,7 @@
                             <label>Paquetes</label>
                             <div id="paquetes-container">
                                 <div class="paquete-item">
+                                    <input type="number" placeholder="Orden" min="1" value="1" class="paquete-orden" style="width: 80px;" required>
                                     <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre">
                                     <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio">
                                 </div>
@@ -667,10 +668,10 @@
 
                 // Vista móvil con cards compactas
                 const isMobile = window.innerWidth <= 768;
-                
+
                 if (isMobile) {
                     let html = '<div class="ordenes-mobile">';
-                    
+
                     ordenes.forEach(orden => {
                         const fechaCorta = new Date(orden.fecha).toLocaleDateString('es', { 
                             day: '2-digit', 
@@ -679,7 +680,7 @@
                             hour: '2-digit',
                             minute: '2-digit'
                         });
-                        
+
                         html += `
                             <div class="orden-card-mobile">
                                 <div class="orden-header-mobile">
@@ -718,7 +719,7 @@
                             </div>
                         `;
                     });
-                    
+
                     html += '</div>';
                     document.getElementById('ordenes-list').innerHTML = html;
                 } else {
@@ -732,7 +733,7 @@
                             hour: '2-digit',
                             minute: '2-digit'
                         });
-                        
+
                         html += `
                             <tr class="orden-row-compact">
                                 <td><strong>#${orden.id}</strong></td>
@@ -908,8 +909,10 @@
 
             // Limpiar paquetes y agregar uno vacío
             const container = document.getElementById('paquetes-container');
-            container.innerHTML = `
+            container.innerHTML = ````text
+
                 <div class="paquete-item">
+                    <input type="number" placeholder="Orden" min="1" value="1" class="paquete-orden" style="width: 80px;" required>
                     <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre">
                     <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio">
                 </div>
@@ -918,9 +921,11 @@
 
         function addPaquete() {
             const container = document.getElementById('paquetes-container');
+            const paqueteCount = container.children.length + 1;
             const paqueteDiv = document.createElement('div');
             paqueteDiv.className = 'paquete-item';
             paqueteDiv.innerHTML = `
+                <input type="number" placeholder="Orden" min="1" value="${paqueteCount}" class="paquete-orden" style="width: 80px;" required>
                 <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre">
                 <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio">
                 <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()">❌ Quitar</button>
@@ -938,10 +943,11 @@
 
             const paquetes = [];
             document.querySelectorAll('.paquete-item').forEach(item => {
+                const orden = parseInt(item.querySelector('.paquete-orden').value) || 1;
                 const nombrePaquete = item.querySelector('.paquete-nombre').value;
                 const precio = item.querySelector('.paquete-precio').value;
                 if (nombrePaquete && precio) {
-                    paquetes.push({ nombre: nombrePaquete, precio: parseFloat(precio) });
+                    paquetes.push({ nombre: nombrePaquete, precio: parseFloat(precio), orden: orden });
                 }
             });
 
@@ -1026,6 +1032,7 @@
                         const paqueteDiv = document.createElement('div');
                         paqueteDiv.className = 'paquete-item';
                         paqueteDiv.innerHTML = `
+                            <input type="number" placeholder="Orden" min="1" value="${paquete.orden || 1}" class="paquete-orden" style="width: 80px;" required>
                             <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre" value="${paquete.nombre}">
                             <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio" value="${paquete.precio}">
                             <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()">❌ Quitar</button>
