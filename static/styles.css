@@ -141,7 +141,7 @@ header {
     background: rgba(30, 30, 30, 0.4);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    padding: 15px 20px;
+    padding: 8px 15px;
     box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
     display: flex;
     justify-content: space-around;
@@ -151,17 +151,17 @@ header {
 }
 
 .nav-btn {
-    padding: 12px;
+    padding: 8px;
     border: none;
     border-radius: 50%;
     background: transparent;
     color: #ffffff;
-    font-size: 24px;
+    font-size: 20px;
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
-    width: 60px;
-    height: 60px;
+    width: 48px;
+    height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -181,8 +181,8 @@ header {
 }
 
 .nav-icon {
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -205,17 +205,17 @@ header {
 
 .cart-badge {
     position: absolute;
-    top: -5px;
-    right: -5px;
+    top: -3px;
+    right: -3px;
     background: #dc3545;
     color: white;
     border-radius: 50%;
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: 10px;
     font-weight: 700;
 }
 
@@ -225,7 +225,7 @@ header {
     padding: 30px;
     box-shadow: none;
     min-height: 500px;
-    margin-bottom: 100px; /* Espacio para el footer */
+    margin-bottom: 70px; /* Espacio reducido para el footer más pequeño */
 }
 
 .tab-section {
@@ -1829,23 +1829,24 @@ header {
     }
 
     .footer-nav {
-        padding: 5px 10px;
+        padding: 6px 10px;
     }
 
     .nav-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 16px;
-    }
-
-    .nav-icon {
+        width: 42px;
+        height: 42px;
         font-size: 18px;
     }
 
+    .nav-icon {
+        width: 20px;
+        height: 20px;
+    }
+
     .cart-badge {
-        width: 16px;
-        height: 16px;
-        font-size: 9px;
+        width: 18px;
+        height: 18px;
+        font-size: 10px;
     }
 
     .desktop-nav {
