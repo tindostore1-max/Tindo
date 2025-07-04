@@ -58,7 +58,9 @@ header {
     gap: 20px;
     align-items: center;
     justify-content: center;
-    margin: 0 auto;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .desktop-category-btn {
