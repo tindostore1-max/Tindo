@@ -504,8 +504,11 @@ function verDetalleProducto(productoId) {
                 <div class="details-image-container" style="flex: 0 0 400px;">
                     <img src="${imagenUrl}" alt="${producto.nombre || 'Producto'}" class="selected-product-image" style="width: 100%; height: 300px; object-fit: cover; border-radius: 12px;" onerror="this.src='https://via.placeholder.com/400x300/007bff/ffffff?text=Producto'">
 
+                    <!-- Título del juego debajo de la imagen -->
+                    <h1 style="color: #ffffff; font-size: 28px; margin: 15px 0 12px 0; font-weight: 700; text-align: center;">${producto.nombre || 'Producto'}</h1>
+
                     ${mostrarFormularioId ? `
-                    <!-- Campo para ID de usuario debajo de la imagen -->
+                    <!-- Campo para ID de usuario debajo del título -->
                     <div style="margin-top: 15px;">
                         <label for="usuario-id-juego" style="display: block; margin-bottom: 6px; font-weight: 600; color: #ffffff; font-size: 14px;">ID de Usuario en el Juego:</label>
                         <input type="text" id="usuario-id-juego" class="form-control" placeholder="Ingresa tu ID de usuario" style="width: 100%; padding: 12px 15px; border: 2px solid rgba(255,255,255,0.1); border-radius: 10px; font-size: 14px; background: rgba(255,255,255,0.05); color: #ffffff; transition: all 0.3s ease; backdrop-filter: blur(10px);" required>
@@ -519,7 +522,6 @@ function verDetalleProducto(productoId) {
                 </div>
 
                 <div class="details-info-container" style="flex: 1;">
-                    <h1 style="color: #ffffff; font-size: 28px; margin-bottom: 12px; font-weight: 700;">${producto.nombre || 'Producto'}</h1>
 
                     <div class="package-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px;">
                         ${paquetesHtml}
