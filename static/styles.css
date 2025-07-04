@@ -165,6 +165,7 @@ header {
 }
 
 .logo {
+    width: 200px;
     height: 60px;
     object-fit: contain;
 }
@@ -595,7 +596,8 @@ header {
     }
 
     .logo {
-        height: 35px; /* Logo más pequeño en móvil */
+        width: 150px;
+        height: 40px;
     }
 
     .currency-selector {
