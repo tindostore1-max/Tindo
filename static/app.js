@@ -1500,63 +1500,10 @@ function cerrarNotificacion() {
     }
 }
 
-// Función para crear el carrusel
-function crearCarrusel() {
-    const container = document.getElementById('carousel-container');
-    if (!container) return;
-
-    container.innerHTML = `
-        <div class="carousel">
-            <div class="carousel-slide active">
-                <img src="" alt="Imagen 1">
-            </div>
-            <div class="carousel-slide">
-                <img src="" alt="Imagen 2">
-            </div>
-            <div class="carousel-slide">
-                <img src="" alt="Imagen 3">
-            </div>
-            <button class="carousel-arrow prev" onclick="plusSlides(-1)">‹</button>
-            <button class="carousel-arrow next" onclick="plusSlides(1)">›</button>
-        </div>
-        <div class="carousel-dots">
-            <span class="dot active" onclick="currentSlide(1)"></span>
-            <span class="dot" onclick="currentSlide(2)"></span>
-            <span class="dot" onclick="currentSlide(3)"></span>
-        </div>
-    `;
-}
-
-// Función para cambiar slides del carrusel
-let slideIndex = 1;
-
+// Función para cambiar slides del carrusel (plusSlides para flechas)
 function plusSlides(n) {
-    showSlides(slideIndex += n);
-}
-
-function currentSlide(n) {
-    showSlides(slideIndex = n);
-}
-
-function showSlides(n) {
-    let slides = document.getElementsByClassName("carousel-slide");
-    let dots = document.getElementsByClassName("dot");
-
-    if (n > slides.length) { slideIndex = 1; }
-    if (n < 1) { slideIndex = slides.length; }
-
-    for (let i = 0; i < slides.length; i++) {
-        slides[i].classList.remove("active");
-    }
-
-    for (let i = 0; i < dots.length; i++) {
-        dots[i].classList.remove("active");
-    }
-
-    if (slides[slideIndex - 1]) {
-        slides[slideIndex - 1].classList.add("active");
-    }
-    if (dots[slideIndex - 1]) {
-        dots[slideIndex - 1].classList.add("active");
-    }
+    slideIndex += n;
+    if (slideIndex > 3) slideIndex = 1;
+    if (slideIndex < 1) slideIndex = 3;
+    showSlide(slideIndex);
 }
