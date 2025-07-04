@@ -12,9 +12,9 @@ body {
 }
 
 .container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 100px 2px 8px 2px; /* Padding lateral mínimo de 2px y inferior de 8px */
+    padding: 100px 1px 8px 1px; /* Padding lateral mínimo de 1px y inferior de 8px */
 }
 
 header {
@@ -308,7 +308,7 @@ header {
 .content {
     background: transparent;
     border-radius: 15px;
-    padding: 30px;
+    padding: 15px 5px 30px 5px;
     box-shadow: none;
     min-height: 500px;
     margin-bottom: 100px; /* Espacio para footer de navegación + copyright */
@@ -583,7 +583,7 @@ header {
 /* Responsive para móviles */
 @media (max-width: 768px) {
     .container {
-        padding: 2px 2px 8px 2px; /* Padding mínimo para expandir al máximo el área transparente */
+        padding: 2px 1px 8px 1px; /* Padding mínimo para expandir al máximo el área transparente */
     }
 
     header {
