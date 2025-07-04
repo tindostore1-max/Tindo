@@ -629,6 +629,17 @@ function filtrarProductos(categoria, element) {
     // Activar pestaña/item seleccionado
     if (element) {
         element.classList.add('active');
+    } else {
+        // Si no se pasó un elemento específico, activar el botón correspondiente a la categoría
+        const btnDesktop = document.querySelector(`.desktop-category-btn[onclick*="${categoria}"]`);
+        if (btnDesktop) {
+            btnDesktop.classList.add('active');
+        }
+        
+        const btnMobile = document.querySelector(`.mobile-category-item[onclick*="${categoria}"]`);
+        if (btnMobile) {
+            btnMobile.classList.add('active');
+        }
     }
 
     // Mostrar productos filtrados
