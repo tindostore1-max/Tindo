@@ -1436,7 +1436,7 @@ header {
     padding: 18px;
     font-size: 18px;
     font-weight: 700;
-    background: linear-gradient(135deg, #007bff, #0056b3);
+    background: linear-gradient(135deg, #28a745, #20c997);
     color: white;
     border: none;
     border-radius: 15px;
@@ -1444,7 +1444,7 @@ header {
     transition: all 0.4s ease;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
 }
 
 .submit-payment-btn::before {
@@ -1467,7 +1467,7 @@ header {
 
 .submit-payment-btn:hover {
     transform: translateY(-3px);
-    box-shadow: 0 12px 35px rgba(0, 123, 255, 0.4);
+    box-shadow: 0 12px 35px rgba(40, 167, 69, 0.4);
 }
 
 .submit-payment-btn:disabled {
