@@ -1262,6 +1262,8 @@
                             <p><small>${imagen.ruta}</small></p>
                             ${imagen.tipo === 'carrusel' ? 
                                 `<button class="btn btn-primary" onclick="copiarRutaCarrusel('${imagen.ruta}')" style="margin: 5px;">📋 Copiar para Carrusel</button>` : ''}
+                            ${imagen.tipo === 'logo' ? 
+                                `<button class="btn btn-primary" onclick="copiarRutaLogo('${imagen.ruta}')" style="margin: 5px;">📋 Copiar para Logo</button>` : ''}
                             <button class="btn btn-danger" onclick="deleteImagen(${imagen.id})" style="margin-top: 10px;">🗑️ Eliminar</button>
                         </div>
                     `;
@@ -1413,6 +1415,27 @@
                 document.execCommand('copy');
                 document.body.removeChild(input);
                 showAlert('Ruta copiada al portapapeles: ' + rutaCompleta);
+            });
+        }
+
+        // Función para copiar ruta de imagen para el logo
+        function copiarRutaLogo(ruta) {
+            const rutaCompleta = ruta;
+            navigator.clipboard.writeText(rutaCompleta).then(() => {
+                showAlert('Ruta copiada al portapapeles. Pégala en el campo Logo Principal.');
+                // Opcional: pegar automáticamente en el campo logo
+                document.getElementById('config-logo').value = rutaCompleta;
+            }).catch(() => {
+                // Fallback para navegadores que no soportan clipboard API
+                const input = document.createElement('input');
+                input.value = rutaCompleta;
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                document.body.removeChild(input);
+                showAlert('Ruta copiada al portapapeles. Pégala en el campo Logo Principal.');
+                // Opcional: pegar automáticamente en el campo logo
+                document.getElementById('config-logo').value = rutaCompleta;
             });
         }
 

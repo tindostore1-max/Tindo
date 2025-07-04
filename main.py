@@ -1222,6 +1222,28 @@ def get_historial_compras():
     finally:
         conn.close()
 
+@app.route('/images/<path:filename>')
+def serve_image(filename):
+    """Endpoint para servir imágenes desde la base de datos"""
+    # Limpiar el nombre del archivo para evitar problemas de seguridad
+    filename = secure_filename(filename)
+    
+    # Buscar la imagen en la base de datos
+    conn = get_db_connection()
+    try:
+        result = conn.execute(text('SELECT ruta FROM imagenes WHERE ruta LIKE :filename'), 
+                             {'filename': f'%{filename}%'})
+        imagen = result.fetchone()
+        
+        if imagen:
+            # Redirigir a la ruta real de la imagen
+            return redirect(f'/static/{imagen[0]}')
+        else:
+            # Si no se encuentra, devolver imagen por defecto
+            return redirect('/static/images/20250704_223016_Recurso-40.png')
+    finally:
+        conn.close()</path:filename>
+
 if __name__ == '__main__':
     # Crear directorio para imágenes
     os.makedirs('static/images', exist_ok=True)

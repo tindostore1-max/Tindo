@@ -50,10 +50,10 @@ document.addEventListener('DOMContentLoaded', function() {
     inicializarEventos();
     verificarSesion();
     inicializarCarrusel();
-    
+
     // Actualizar contador del carrito al cargar
     actualizarContadorCarrito();
-    
+
     // Inicializar eventos táctiles para carruseles
     setTimeout(() => {
         inicializarSwipeCarruseles();
@@ -270,13 +270,13 @@ function mostrarTab(tabName, element) {
         document.querySelectorAll('.nav-btn[onclick*="catalogo"], .desktop-nav-btn[onclick*="catalogo"]').forEach(btn => {
             btn.classList.add('active');
         });
-        
+
         // Solo activar automáticamente el filtro "Todos" si no hay una categoría específica seleccionada
         // y no se está navegando desde otra categoría
         if (!window.skipAutoTodos && (!filtroActual || filtroActual === 'todos')) {
             setTimeout(() => {
                 filtrarProductos('todos');
-                
+
                 // Activar el botón "Todos" en las categorías desktop
                 document.querySelectorAll('.desktop-category-btn').forEach(btn => {
                     btn.classList.remove('active');
@@ -285,7 +285,7 @@ function mostrarTab(tabName, element) {
                 if (todosBtnDesktop) {
                     todosBtnDesktop.classList.add('active');
                 }
-                
+
                 // Activar el item "Todos" en el menú móvil
                 document.querySelectorAll('.mobile-category-item').forEach(item => {
                     item.classList.remove('active');
@@ -301,7 +301,7 @@ function mostrarTab(tabName, element) {
                 mostrarProductos();
             }, 50);
         }
-        
+
     } else if (tabName === 'carrito') {
         document.querySelectorAll('.nav-btn[onclick*="carrito"], .desktop-nav-btn[onclick*="carrito"]').forEach(btn => {
             btn.classList.add('active');
@@ -577,7 +577,7 @@ let filtroActual = 'todos';
 function toggleMobileCategoryMenu() {
     const menu = document.getElementById('mobile-category-menu');
     const hamburger = document.querySelector('.mobile-category-hamburger');
-    
+
     if (menu.classList.contains('show')) {
         closeMobileCategoryMenu();
     } else {
@@ -591,11 +591,11 @@ function toggleMobileCategoryMenu() {
 function closeMobileCategoryMenu() {
     const menu = document.getElementById('mobile-category-menu');
     const hamburger = document.querySelector('.mobile-category-hamburger');
-    
+
     menu.classList.remove('show');
     hamburger.classList.remove('active');
     document.body.style.overflow = ''; // Restaurar scroll del body
-    
+
     setTimeout(() => {
         menu.style.display = 'none';
     }, 300);
@@ -606,7 +606,7 @@ document.addEventListener('click', function(e) {
     const menu = document.getElementById('mobile-category-menu');
     const hamburger = document.querySelector('.mobile-category-hamburger');
     const menuContent = document.querySelector('.mobile-category-menu-content');
-    
+
     if (menu && menu.classList.contains('show')) {
         if (!menuContent.contains(e.target) && !hamburger.contains(e.target)) {
             closeMobileCategoryMenu();
@@ -649,7 +649,7 @@ function filtrarProductos(categoria, element) {
         if (btnDesktop) {
             btnDesktop.classList.add('active');
         }
-        
+
         const btnMobile = document.querySelector(`.mobile-category-item[onclick*="${categoria}"]`);
         if (btnMobile) {
             btnMobile.classList.add('active');
@@ -673,7 +673,7 @@ function mostrarProductos() {
     // Si es la categoría "todos", mostrar carrusel horizontal de juegos
     if (!filtroActual || filtroActual === 'todos') {
         const juegos = productos.filter(producto => producto.categoria === 'juegos');
-        
+
         if (juegos.length === 0) {
             grid.innerHTML = `
                 <div class="no-products" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #cccccc;">
@@ -686,7 +686,7 @@ function mostrarProductos() {
 
         // Cambiar clase del contenedor para el carrusel
         grid.className = 'todos-carousel-container';
-        
+
         // Generar carrusel horizontal de juegos
         let cardsHtml = '';
         juegos.forEach(juego => {
@@ -738,7 +738,7 @@ function mostrarProductos() {
         // Crear carrusel de Gift Cards
         const giftCards = productos.filter(producto => producto.categoria === 'gift-cards');
         let giftCardsHtml = '';
-        
+
         if (giftCards.length > 0) {
             giftCards.forEach(giftCard => {
                 // Corregir ruta de imagen
@@ -799,7 +799,7 @@ function mostrarProductos() {
                     <button class="todos-carousel-nav next" onclick="moverCarruselTodos(1)">›</button>
                 ` : ''}
             </div>
-            
+
             ${giftCards.length > 0 ? `
             <div class="section-header" style="margin-top: 40px;">
                 <h3 class="section-title">Gift Cards</h3>
@@ -816,16 +816,16 @@ function mostrarProductos() {
             </div>
             ` : ''}
         `;
-        
+
         // Inicializar índice del carrusel
         window.todosCarouselIndex = 0;
         window.todosCarouselItems = juegos;
-        
+
         // Inicializar eventos táctiles después de crear el HTML
         setTimeout(() => {
             inicializarSwipeCarruseles();
         }, 100);
-        
+
         return;
     }
 
@@ -1663,7 +1663,7 @@ function mostrarMensajePago(mensaje, tipo) {
 // Procesar login
 async function procesarLogin() {
     const emailElement = document.getElementById('login-email');
-    const passwordElement = document.getElementById('login-password');
+    const passwordElement = documentgetElementById('login-password');
 
     if (!emailElement || !passwordElement) {
         mostrarAlerta('Error en el formulario de login', 'error');
@@ -2491,7 +2491,7 @@ function mostrarFooterCopyright() {
         footer.style.opacity = '0';
         footer.style.transform = 'translateY(20px)';
         footer.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
-        
+
         // Mostrar con animación
         setTimeout(() => {
             footer.style.opacity = '1';
