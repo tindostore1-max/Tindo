@@ -499,16 +499,62 @@ async function cargarProductos() {
 // Variable para almacenar el filtro actual
 let filtroActual = 'todos';
 
+// Funciones para manejar el menú hamburguesa de categorías móvil
+function toggleMobileCategoryMenu() {
+    const menu = document.getElementById('mobile-category-menu');
+    const hamburger = document.querySelector('.mobile-category-hamburger');
+    
+    if (menu.classList.contains('show')) {
+        closeMobileCategoryMenu();
+    } else {
+        menu.style.display = 'block';
+        menu.classList.add('show');
+        hamburger.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevenir scroll del body
+    }
+}
+
+function closeMobileCategoryMenu() {
+    const menu = document.getElementById('mobile-category-menu');
+    const hamburger = document.querySelector('.mobile-category-hamburger');
+    
+    menu.classList.remove('show');
+    hamburger.classList.remove('active');
+    document.body.style.overflow = ''; // Restaurar scroll del body
+    
+    setTimeout(() => {
+        menu.style.display = 'none';
+    }, 300);
+}
+
+// Cerrar menú si se hace clic fuera del contenido
+document.addEventListener('click', function(e) {
+    const menu = document.getElementById('mobile-category-menu');
+    const hamburger = document.querySelector('.mobile-category-hamburger');
+    const menuContent = document.querySelector('.mobile-category-menu-content');
+    
+    if (menu && menu.classList.contains('show')) {
+        if (!menuContent.contains(e.target) && !hamburger.contains(e.target)) {
+            closeMobileCategoryMenu();
+        }
+    }
+});
+
 // Función para filtrar productos por categoría
 function filtrarProductos(categoria, element) {
     filtroActual = categoria;
 
-    // Actualizar pestañas activas
+    // Actualizar pestañas activas (desktop)
     document.querySelectorAll('.category-tab').forEach(tab => {
         tab.classList.remove('active');
     });
 
-    // Activar pestaña seleccionada
+    // Actualizar items móviles activos
+    document.querySelectorAll('.mobile-category-item').forEach(item => {
+        item.classList.remove('active');
+    });
+
+    // Activar pestaña/item seleccionado
     if (element) {
         element.classList.add('active');
     }

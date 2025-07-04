@@ -32,11 +32,44 @@
                 </button>
             </nav>
 
-            <select id="selector-moneda" class="currency-selector">
-                <option value="USD">💵 USD</option>
-                <option value="VES">💰 VES</option>
-            </select>
+            <div class="header-right">
+                <!-- Botón hamburguesa para categorías (solo móvil) -->
+                <button class="mobile-category-hamburger" onclick="toggleMobileCategoryMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                
+                <select id="selector-moneda" class="currency-selector">
+                    <option value="USD">💵 USD</option>
+                    <option value="VES">💰 VES</option>
+                </select>
+            </div>
         </header>
+
+        <!-- Menú de categorías móvil -->
+        <div class="mobile-category-menu" id="mobile-category-menu">
+            <div class="mobile-category-menu-content">
+                <div class="mobile-category-header">
+                    <h3>Categorías</h3>
+                    <button class="close-mobile-menu" onclick="closeMobileCategoryMenu()">✕</button>
+                </div>
+                <div class="mobile-category-list">
+                    <div class="mobile-category-item active" onclick="filtrarProductos('todos', this); closeMobileCategoryMenu();">
+                        <span class="category-icon">🏠</span>
+                        <span>Todos</span>
+                    </div>
+                    <div class="mobile-category-item" onclick="filtrarProductos('juegos', this); closeMobileCategoryMenu();">
+                        <span class="category-icon">🎮</span>
+                        <span>Juegos</span>
+                    </div>
+                    <div class="mobile-category-item" onclick="filtrarProductos('gift-cards', this); closeMobileCategoryMenu();">
+                        <span class="category-icon">🎁</span>
+                        <span>Gift Cards</span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
 
 
@@ -64,8 +97,8 @@
                     </div>
                 </div>
 
-                <!-- Pestañas de categorías -->
-                <div class="category-tabs">
+                <!-- Pestañas de categorías (solo desktop) -->
+                <div class="category-tabs desktop-only">
                     <div class="category-tab active" onclick="filtrarProductos('todos', this)">Todos</div>
                     <div class="category-tab" onclick="filtrarProductos('juegos', this)">Juegos</div>
                     <div class="category-tab" onclick="filtrarProductos('gift-cards', this)">Gift Cards</div>

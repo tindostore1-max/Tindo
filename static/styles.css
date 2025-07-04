@@ -34,6 +34,12 @@ header {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .header-left {
     display: flex;
     align-items: center;
@@ -120,6 +126,45 @@ header {
 .logo {
     height: 60px;
     object-fit: contain;
+}
+
+/* Botón hamburguesa para categorías móvil */
+.mobile-category-hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 30px;
+    height: 30px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    z-index: 1001;
+}
+
+.mobile-category-hamburger span {
+    display: block;
+    height: 3px;
+    width: 100%;
+    background: #ffffff;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+}
+
+.mobile-category-hamburger:hover span {
+    background: #28a745;
+}
+
+.mobile-category-hamburger.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.mobile-category-hamburger.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.mobile-category-hamburger.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -6px);
 }
 
 .currency-selector {
@@ -2216,7 +2261,10 @@ header {
         padding: 4px 8px; /* Selector de moneda más compacto */
         font-size: 12px;
         min-width: 70px; /* Tamaño mínimo para mantener legibilidad */
-        margin-left: auto; /* Empujar hacia la derecha */
+    }
+
+    .header-right {
+        gap: 8px; /* Menor espacio entre hamburguesa y selector */
     }
 
     .header-left {
@@ -2639,6 +2687,108 @@ header {
     transform: scale(1.1);
 }
 
+/* Menú móvil de categorías */
+.mobile-category-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 9999;
+    display: none;
+    backdrop-filter: blur(5px);
+}
+
+.mobile-category-menu-content {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 280px;
+    height: 100%;
+    background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+    box-shadow: -5px 0 25px rgba(0, 0, 0, 0.5);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    border-left: 1px solid #444;
+}
+
+.mobile-category-menu.show .mobile-category-menu-content {
+    transform: translateX(0);
+}
+
+.mobile-category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #444;
+    background: rgba(40, 167, 69, 0.1);
+}
+
+.mobile-category-header h3 {
+    color: #ffffff;
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.close-mobile-menu {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.close-mobile-menu:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: rotate(90deg);
+}
+
+.mobile-category-list {
+    padding: 20px 0;
+}
+
+.mobile-category-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 18px 25px;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.mobile-category-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-left-color: #28a745;
+    transform: translateX(5px);
+}
+
+.mobile-category-item.active {
+    background: rgba(40, 167, 69, 0.2);
+    border-left-color: #28a745;
+    color: #28a745;
+}
+
+.category-icon {
+    font-size: 20px;
+    width: 24px;
+    text-align: center;
+}
+
+/* Ocultar categorías normales en móvil */
+.desktop-only {
+    display: flex;
+}
+
 /* Estilos para las pestañas de categorías */
 .category-tabs {
     display: flex;
@@ -2709,17 +2859,22 @@ header {
 }
 
 @media (max-width: 768px) {
+    /* Mostrar botón hamburguesa en móvil */
+    .mobile-category-hamburger {
+        display: flex !important;
+    }
+
+    /* Ocultar pestañas normales en móvil */
+    .desktop-only {
+        display: none !important;
+    }
+
     .category-tabs {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        padding: 0 10px;
+        display: none;
     }
 
     .category-tab {
-        padding: 12px 20px;
-        font-size: 14px;
-        max-width: none;
+        display: none;
     }
 
     .carousel {
