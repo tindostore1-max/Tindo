@@ -1155,13 +1155,13 @@ async function procesarPago() {
         actualizarContadorCarrito();
         document.getElementById('form-pago').reset();
 
-        // Mostrar mensaje de éxito
-        mostrarAlerta('Pago procesado correctamente. Te contactaremos pronto.', 'success');
+        // Mostrar mensaje de éxito con duración extendida
+        mostrarMensajePago('✅ ¡Pago procesado exitosamente! Te contactaremos pronto para confirmar tu pedido.', 'success');
 
         // Redirigir al catálogo después de unos segundos
         setTimeout(() => {
             mostrarTab('catalogo');
-        }, 3000);
+        }, 6000);
 
     } catch (error) {
         console.error('Error al procesar pago:', error);
@@ -1186,6 +1186,7 @@ function mostrarMensajePago(mensaje, tipo) {
     mensajePago.style.display = 'block';
 
     // Auto-ocultar mensajes de error después de 5 segundos
+    // Los mensajes de éxito se mantienen visibles hasta la redirección
     if (tipo === 'error') {
         setTimeout(() => {
             mensajePago.style.display = 'none';
