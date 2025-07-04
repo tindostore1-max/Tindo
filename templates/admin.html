@@ -971,10 +971,17 @@
                 const response = await fetch('/admin/productos');
                 const productos = await response.json();
 
+                // Ordenar productos por campo orden si existe, sino por id
+                const productosOrdenados = productos.sort((a, b) => {
+                    const ordenA = a.orden || a.id || 0;
+                    const ordenB = b.orden || b.id || 0;
+                    return ordenA - ordenB;
+                });
+
                 let html = `<table class="table">
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>Orden</th>
                                 <th>Imagen</th>
                                 <th>Nombre</th>
                                 <th>Categoría</th>
@@ -985,7 +992,7 @@
                         <tbody id="productos-tbody">`;
 
                 // Generar filas de productos directamente aquí
-                productos.forEach((producto, index) => {
+                productosOrdenados.forEach((producto, index) => {
                     const paquetesText = producto.paquetes ? 
                         producto.paquetes.map(p => `${p.nombre}: $${p.precio}`).join(', ') : 
                         'Sin paquetes';
@@ -1001,7 +1008,12 @@
 
                     html += `
                         <tr data-producto-id="${producto.id}">
-                            <td>${producto.id}</td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span class="product-order-number">${index + 1}</span>
+                                    <small style="color: #999;">ID: ${producto.id}</small>
+                                </div>
+                            </td>
                             <td>
                                 <img src="${imagenUrl}" 
                                      alt="${producto.nombre}" 
@@ -1019,7 +1031,7 @@
                             <td>
                                 <div class="product-order-controls">
                                     <button class="order-btn" onclick="moverProducto(${producto.id}, 'up')" ${index === 0 ? 'disabled' : ''} title="Mover arriba">↑</button>
-                                    <button class="order-btn" onclick="moverProducto(${producto.id}, 'down')" ${index === productos.length - 1 ? 'disabled' : ''} title="Mover abajo">↓</button>
+                                    <button class="order-btn" onclick="moverProducto(${producto.id}, 'down')" ${index === productosOrdenados.length - 1 ? 'disabled' : ''} title="Mover abajo">↓</button>
                                 </div>
                                 <button class="btn btn-sm btn-warning" onclick="editProduct(${producto.id})" style="margin-right: 5px;">✏️</button>
                                 <button class="btn btn-sm btn-danger" onclick="deleteProduct(${producto.id})">🗑️</button>
@@ -1035,7 +1047,7 @@
                 document.getElementById('productos-list').innerHTML = html;
 
                 // Actualizar variable global de productos
-                window.productos = productos;
+                window.productos = productosOrdenados;
 
             } catch (error) {
                 console.error('Error al cargar productos:', error);
@@ -1497,7 +1509,7 @@
         let productos = [];
 
         // Función para mover producto arriba/abajo
-        function moverProducto(productoId, direccion) {
+        async function moverProducto(productoId, direccion) {
             if (!window.productos) return;
             
             const index = window.productos.findIndex(p => p.id === productoId);
@@ -1506,10 +1518,60 @@
             const newIndex = direccion === 'up' ? index - 1 : index + 1;
 
             if (newIndex >= 0 && newIndex < window.productos.length) {
-                // Intercambiar posiciones
-                [window.productos[index], window.productos[newIndex]] = [window.productos[newIndex], window.productos[index]];
-                loadProductos(); // Recargar la tabla
-                showAlert(`Producto movido ${direccion === 'up' ? 'arriba' : 'abajo'}`);
+                try {
+                    // Intercambiar posiciones en el array local
+                    [window.productos[index], window.productos[newIndex]] = [window.productos[newIndex], window.productos[index]];
+                    
+                    // Actualizar los órdenes en la base de datos
+                    const producto1 = window.productos[index];
+                    const producto2 = window.productos[newIndex];
+                    
+                    // Asignar nuevos órdenes basados en la nueva posición
+                    producto1.orden = index + 1;
+                    producto2.orden = newIndex + 1;
+                    
+                    // Enviar actualizaciones a la base de datos
+                    await Promise.all([
+                        fetch(`/admin/producto/${producto1.id}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                nombre: producto1.nombre,
+                                descripcion: producto1.descripcion,
+                                imagen: producto1.imagen,
+                                categoria: producto1.categoria,
+                                orden: producto1.orden,
+                                paquetes: producto1.paquetes
+                            })
+                        }),
+                        fetch(`/admin/producto/${producto2.id}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                nombre: producto2.nombre,
+                                descripcion: producto2.descripcion,
+                                imagen: producto2.imagen,
+                                categoria: producto2.categoria,
+                                orden: producto2.orden,
+                                paquetes: producto2.paquetes
+                            })
+                        })
+                    ]);
+                    
+                    // Recargar la tabla para reflejar los cambios
+                    await loadProductos();
+                    showAlert(`Producto movido ${direccion === 'up' ? 'arriba' : 'abajo'}`);
+                    
+                } catch (error) {
+                    console.error('Error al mover producto:', error);
+                    showAlert('Error al cambiar el orden del producto', 'error');
+                    // Recargar productos para restaurar el estado original
+                    await loadProductos();
+                }
             }
         }
 
