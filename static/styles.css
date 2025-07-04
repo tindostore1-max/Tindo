@@ -2345,7 +2345,7 @@ header {
 
 @media (max-width: 768px) {
     .container {
-        padding: 30px 10px 10px 10px; /* Ajustado a 30px para mayor separación de la pantalla */
+        padding: 45px 10px 10px 10px; /* Ajustado a 45px para mayor separación de la pantalla */
     }
 
     header {
