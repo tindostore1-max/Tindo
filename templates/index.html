@@ -15,23 +15,6 @@
                 <div style="display: none; font-size: 28px; font-weight: 900; color: #007bff;">🎮 INEFABLESTORE</div>
             </div>
 
-            <!-- Navegación para desktop -->
-            <nav class="desktop-nav">
-                <button class="desktop-nav-btn active" onclick="mostrarTab('catalogo')">
-                    <span class="nav-icon"></span>
-                    <span class="nav-text">Catálogo</span>
-                </button>
-                <button class="desktop-nav-btn" onclick="mostrarTab('carrito')">
-                    <span class="nav-icon"></span>
-                    <span class="nav-text">Carrito</span>
-                    <span class="cart-badge-desktop" id="cart-count-desktop">0</span>
-                </button>
-                <button class="desktop-nav-btn" onclick="mostrarTab('login')">
-                    <span class="nav-icon"></span>
-                    <span class="nav-text">Mi Cuenta</span>
-                </button>
-            </nav>
-
             <div class="header-right">
                 <!-- Botón hamburguesa para categorías (solo móvil) -->
                 <button class="mobile-category-hamburger" onclick="toggleMobileCategoryMenu()">
@@ -39,6 +22,20 @@
                     <span></span>
                     <span></span>
                 </button>
+                
+                <!-- Navegación para desktop -->
+                <nav class="desktop-nav">
+                    <button class="desktop-nav-btn active" onclick="mostrarTab('catalogo')" title="Catálogo">
+                        <span class="nav-icon"></span>
+                    </button>
+                    <button class="desktop-nav-btn" onclick="mostrarTab('carrito')" title="Carrito">
+                        <span class="nav-icon"></span>
+                        <span class="cart-badge-desktop" id="cart-count-desktop">0</span>
+                    </button>
+                    <button class="desktop-nav-btn" onclick="mostrarTab('login')" title="Mi Cuenta">
+                        <span class="nav-icon"></span>
+                    </button>
+                </nav>
                 
                 <select id="selector-moneda" class="currency-selector">
                     <option value="USD">💵 USD</option>
