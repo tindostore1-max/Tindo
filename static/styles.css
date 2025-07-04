@@ -2345,7 +2345,7 @@ header {
 
 @media (max-width: 768px) {
     .container {
-        padding: 10px 5px 2px 5px; /* Reducido laterales a 5px para acercar más el contenido */
+        padding: 10px 2.5px 2px 2.5px; /* Reducido laterales a 2.5px para acercar aún más el contenido */
     }
 
     header {
