@@ -43,6 +43,36 @@ header {
 .header-left {
     display: flex;
     align-items: center;
+    gap: 30px;
+}
+
+.desktop-categories {
+    display: none;
+    gap: 15px;
+    align-items: center;
+}
+
+.desktop-category-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px;
+    background: transparent;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.desktop-category-btn:hover {
+    color: #cccccc;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.desktop-category-btn.active {
+    color: #28a745;
+    background: rgba(40, 167, 69, 0.1);
 }
 
 .desktop-nav {
@@ -2224,6 +2254,10 @@ header {
 /* Desktop: mostrar navegación en header y ocultar footer */
 @media (min-width: 769px) {
     .desktop-nav {
+        display: flex !important;
+    }
+
+    .desktop-categories {
         display: flex !important;
     }
 
