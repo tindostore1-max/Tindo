@@ -527,12 +527,14 @@ function mostrarProductos() {
         return;
     }
 
-    // Si no hay filtro específico, mostrar carrusel de juegos + gift cards separadas
+    // Si es la categoría "todos", mostrar vacío
     if (!filtroActual || filtroActual === 'todos') {
-        const carruselHtml = crearCarruselJuegos();
-        const giftCardsHtml = crearSeccionGiftCards();
-
-        grid.innerHTML = carruselHtml + '<br>' + giftCardsHtml;
+        grid.innerHTML = `
+            <div class="no-products" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #cccccc;">
+                <h3>📦 Categoría Vacía</h3>
+                <p>Selecciona una categoría específica para ver los productos</p>
+            </div>
+        `;
         return;
     }
 
