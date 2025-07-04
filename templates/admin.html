@@ -522,10 +522,6 @@
                             <input type="text" id="product-image" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label>Orden</label>
-                            <input type="number" id="product-orden" class="form-control" value="1">
-                        </div>
-                        <div class="form-group">
                             <label>Paquetes</label>
                             <div id="paquetes-container">
                                 <div class="paquete-item">
@@ -672,10 +668,10 @@
 
                 // Vista móvil con cards compactas
                 const isMobile = window.innerWidth <= 768;
-
+                
                 if (isMobile) {
                     let html = '<div class="ordenes-mobile">';
-
+                    
                     ordenes.forEach(orden => {
                         const fechaCorta = new Date(orden.fecha).toLocaleDateString('es', { 
                             day: '2-digit', 
@@ -684,7 +680,7 @@
                             hour: '2-digit',
                             minute: '2-digit'
                         });
-
+                        
                         html += `
                             <div class="orden-card-mobile">
                                 <div class="orden-header-mobile">
@@ -723,7 +719,7 @@
                             </div>
                         `;
                     });
-
+                    
                     html += '</div>';
                     document.getElementById('ordenes-list').innerHTML = html;
                 } else {
@@ -737,7 +733,7 @@
                             hour: '2-digit',
                             minute: '2-digit'
                         });
-
+                        
                         html += `
                             <tr class="orden-row-compact">
                                 <td><strong>#${orden.id}</strong></td>
@@ -870,7 +866,6 @@
                             <p><strong>Descripción:</strong> ${producto.descripcion || 'Sin descripción'}</p>
                             <p><strong>Categoría:</strong> ${producto.categoria || 'Sin categoría'}</p>
                             <p><strong>Imagen:</strong> ${producto.imagen || 'Sin imagen'}</p>
-                            <p><strong>Orden:</strong> ${producto.orden || 1}</p>
                             <h5>Paquetes:</h5>
                             <ul>
                     `;
@@ -945,7 +940,6 @@
             const descripcion = document.getElementById('product-description').value;
             const imagen = document.getElementById('product-image').value;
             const categoria = document.getElementById('product-category').value;
-            const orden = document.getElementById('product-orden').value;
 
             const paquetes = [];
             document.querySelectorAll('.paquete-item').forEach(item => {
@@ -980,7 +974,6 @@
                             descripcion,
                             imagen,
                             categoria,
-                            orden,
                             paquetes
                         })
                     });
@@ -996,7 +989,6 @@
                             descripcion,
                             imagen,
                             categoria,
-                            orden,
                             paquetes
                         })
                     });
@@ -1034,7 +1026,6 @@
                 document.getElementById('product-description').value = producto.descripcion || '';
                 document.getElementById('product-category').value = producto.categoria || 'juegos';
                 document.getElementById('product-image').value = producto.imagen || '';
-                document.getElementById('product-orden').value = producto.orden || 1;
 
                 // Limpiar paquetes existentes y agregar los del producto
                 const container = document.getElementById('paquetes-container');

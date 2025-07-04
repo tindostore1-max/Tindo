@@ -1,4 +1,3 @@
-# Actualizar endpoint público para ordenar productos por campo orden
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 from sqlalchemy import create_engine, text
 from sqlalchemy.pool import NullPool
@@ -325,8 +324,7 @@ def init_db():
                 nombre VARCHAR(100),
                 descripcion TEXT,
                 imagen VARCHAR(255),
-                categoria VARCHAR(50) DEFAULT 'juegos',
-                orden INTEGER DEFAULT 0
+                categoria VARCHAR(50) DEFAULT 'juegos'
             );
         '''))
 
@@ -334,12 +332,6 @@ def init_db():
         conn.execute(text('''
             ALTER TABLE juegos 
             ADD COLUMN IF NOT EXISTS categoria VARCHAR(50) DEFAULT 'juegos';
-        '''))
-
-        # Agregar columna orden si no existe (migración)
-        conn.execute(text('''
-            ALTER TABLE juegos 
-            ADD COLUMN IF NOT EXISTS orden INTEGER DEFAULT 0;
         '''))
 
         conn.execute(text('''
@@ -426,14 +418,13 @@ def init_db():
         if product_count == 0:
             # Free Fire
             result = conn.execute(text('''
-                INSERT INTO juegos (nombre, descripcion, imagen, categoria, orden) 
-                VALUES (:nombre, :descripcion, :imagen, :categoria, :orden) RETURNING id
+                INSERT INTO juegos (nombre, descripcion, imagen, categoria) 
+                VALUES (:nombre, :descripcion, :imagen, :categoria) RETURNING id
             '''), {
                 'nombre': 'Free Fire',
                 'descripcion': 'Juego de batalla real con acción intensa y gráficos increíbles',
                 'imagen': '/static/images/20250701_212818_free_fire.webp',
-                'categoria': 'juegos',
-                'orden': 1
+                'categoria': 'juegos'
             })
 
             ff_id = result.fetchone()[0]
@@ -455,14 +446,13 @@ def init_db():
 
             # PUBG Mobile
             result = conn.execute(text('''
-                INSERT INTO juegos (nombre, descripcion, imagen, categoria, orden) 
-                VALUES (:nombre, :descripcion, :imagen, :categoria, :orden) RETURNING id
+                INSERT INTO juegos (nombre, descripcion, imagen, categoria) 
+                VALUES (:nombre, :descripcion, :imagen, :categoria) RETURNING id
             '''), {
                 'nombre': 'PUBG Mobile',
                 'descripcion': 'Battle royale de última generación con mecánicas realistas',
                 'imagen': '/static/images/default-product.jpg',
-                'categoria': 'juegos',
-                'orden': 2
+                'categoria': 'juegos'
             })
 
             pubg_id = result.fetchone()[0]
@@ -484,14 +474,13 @@ def init_db():
 
             # Call of Duty Mobile
             result = conn.execute(text('''
-                INSERT INTO juegos (nombre, descripcion, imagen, categoria, orden) 
-                VALUES (:nombre, :descripcion, :imagen, :categoria, :orden) RETURNING id
+                INSERT INTO juegos (nombre, descripcion, imagen, categoria) 
+                VALUES (:nombre, :descripcion, :imagen, :categoria) RETURNING id
             '''), {
                 'nombre': 'Call of Duty Mobile',
                 'descripcion': 'FPS de acción con multijugador competitivo y battle royale',
                 'imagen': '/static/images/default-product.jpg',
-                'categoria': 'juegos',
-                'orden': 3
+                'categoria': 'juegos'
             })
 
             cod_id = result.fetchone()[0]
@@ -798,4 +787,441 @@ def get_productos():
             producto_dict = dict(producto._mapping)
 
             # Obtener paquetes para este producto
-            paquetes_result = conn.execute(text('SELECT * FROM paquetes WHERE juego_id = :juego_id ORDER BY orden ASC,
+            paquetes_result = conn.execute(text('SELECT * FROM paquetes WHERE juego_id = :juego_id ORDER BY orden ASC, id ASC'), 
+                                         {'juego_id': producto_dict['id']})
+            paquetes = paquetes_result.fetchall()
+            producto_dict['paquetes'] = [dict(paq._mapping) for paq in paquetes]
+
+            productos_list.append(producto_dict)
+
+        return jsonify(productos_list)
+    finally:
+        conn.close()
+
+@app.route('/admin/producto', methods=['POST'])
+@admin_required
+def create_producto():
+    data = request.get_json()
+    nombre = data.get('nombre')
+    descripcion = data.get('descripcion')
+    imagen = data.get('imagen', '')
+    categoria = data.get('categoria', 'juegos')
+    paquetes = data.get('paquetes', [])
+
+    conn = get_db_connection()
+    try:
+        # Insertar producto
+        result = conn.execute(text('''
+            INSERT INTO juegos (nombre, descripcion, imagen, categoria) 
+            VALUES (:nombre, :descripcion, :imagen, :categoria) RETURNING id
+        '''), {'nombre': nombre, 'descripcion': descripcion, 'imagen': imagen, 'categoria': categoria})
+
+        producto_id = result.fetchone()[0]
+
+        # Insertar paquetes
+        for index, paquete in enumerate(paquetes):
+            conn.execute(text('''
+                INSERT INTO paquetes (juego_id, nombre, precio, orden) 
+                VALUES (:juego_id, :nombre, :precio, :orden)
+            '''), {
+                'juego_id': producto_id, 
+                'nombre': paquete['nombre'], 
+                'precio': paquete['precio'],
+                'orden': paquete.get('orden', 1)
+            })
+
+        conn.commit()
+        return jsonify({'message': 'Producto creado correctamente', 'id': producto_id})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': f'Error al crear producto: {str(e)}'}), 500
+    finally:
+        conn.close()
+
+@app.route('/admin/producto/<int:producto_id>', methods=['PUT'])
+@admin_required
+def update_producto(producto_id):
+    data = request.get_json()
+    nombre = data.get('nombre')
+    descripcion = data.get('descripcion')
+    imagen = data.get('imagen', '')
+    categoria = data.get('categoria', 'juegos')
+    paquetes = data.get('paquetes', [])
+
+    conn = get_db_connection()
+    try:
+        # Actualizar producto
+        conn.execute(text('''
+            UPDATE juegos SET nombre = :nombre, descripcion = :descripcion, imagen = :imagen, categoria = :categoria 
+            WHERE id = :producto_id
+        '''), {
+            'nombre': nombre, 
+            'descripcion': descripcion, 
+            'imagen': imagen, 
+            'categoria': categoria,
+            'producto_id': producto_id
+        })
+
+        # Eliminar paquetes existentes y crear nuevos
+        conn.execute(text('DELETE FROM paquetes WHERE juego_id = :producto_id'), 
+                    {'producto_id': producto_id})
+
+        # Insertar nuevos paquetes
+        for paquete in paquetes:
+            conn.execute(text('''
+                INSERT INTO paquetes (juego_id, nombre, precio, orden) 
+                VALUES (:juego_id, :nombre, :precio, :orden)
+            '''), {
+                'juego_id': producto_id,
+                'nombre': paquete['nombre'],
+                'precio': paquete['precio'],
+                'orden': paquete.get('orden', 1)
+            })
+
+        conn.commit()
+        return jsonify({'message': 'Producto actualizado correctamente'})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': f'Error al actualizar producto: {str(e)}'}), 500
+    finally:
+        conn.close()
+
+@app.route('/admin/producto/<int:producto_id>', methods=['DELETE'])
+@admin_required
+def delete_producto(producto_id):
+    conn = get_db_connection()
+    try:
+        # Eliminar órdenes relacionadas primero
+        conn.execute(text('DELETE FROM ordenes WHERE juego_id = :producto_id'), 
+                    {'producto_id': producto_id})
+        # Eliminar paquetes
+        conn.execute(text('DELETE FROM paquetes WHERE juego_id = :producto_id'), 
+                    {'producto_id': producto_id})
+        # Eliminar producto
+        conn.execute(text('DELETE FROM juegos WHERE id = :producto_id'), 
+                    {'producto_id': producto_id})
+
+        conn.commit()
+        return jsonify({'message': 'Producto eliminado correctamente'})
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': f'Error al eliminar producto: {str(e)}'}), 500
+    finally:
+        conn.close()
+
+# ENDPOINT PÚBLICO PARA PRODUCTOS (FRONTEND DE USUARIOS)
+@app.route('/productos', methods=['GET'])
+def get_productos_publico():
+    conn = get_db_connection()
+    try:
+        result = conn.execute(text('SELECT * FROM juegos ORDER BY id DESC'))
+        productos = result.fetchall()
+
+        # Convertir a lista de diccionarios y obtener paquetes para cada producto
+        productos_list = []
+        for producto in productos:
+            producto_dict = dict(producto._mapping)
+
+            # Obtener paquetes para este producto
+            paquetes_result = conn.execute(text('SELECT * FROM paquetes WHERE juego_id = :juego_id ORDER BY orden ASC, precio ASC'), 
+                                         {'juego_id': producto_dict['id']})
+            paquetes = paquetes_result.fetchall()
+            producto_dict['paquetes'] = [dict(paq._mapping) for paq in paquetes]
+
+            productos_list.append(producto_dict)
+
+        return jsonify(productos_list)
+    finally:
+        conn.close()
+
+# ENDPOINT PÚBLICO PARA CONFIGURACIÓN (FRONTEND DE USUARIOS)
+@app.route('/config', methods=['GET'])
+def get_config_publico():
+    conn = get_db_connection()
+    try:
+        result = conn.execute(text('SELECT campo, valor FROM configuracion'))
+        configs = result.fetchall()
+
+        # Convertir a diccionario usando índices numéricos
+        config_dict = {}
+        for config in configs:
+            config_dict[config[0]] = config[1]  # campo, valor
+
+        return jsonify(config_dict)
+    finally:
+        conn.close()
+
+# ENDPOINTS PARA IMÁGENES
+@app.route('/admin/imagenes', methods=['GET'])
+@admin_required
+def get_imagenes():
+    conn = get_db_connection()
+    try:
+        result = conn.execute(text('SELECT * FROM imagenes ORDER BY tipo, id'))
+        imagenes = result.fetchall()
+
+        # Convertir a lista de diccionarios
+        imagenes_list = []
+        for imagen in imagenes:
+            imagen_dict = dict(imagen._mapping)
+            imagenes_list.append(imagen_dict)
+
+        return jsonify(imagenes_list)
+    finally:
+        conn.close()
+
+@app.route('/admin/imagenes', methods=['POST'])
+@admin_required
+def upload_imagen():
+    if 'imagen' not in request.files:
+        return jsonify({'error': 'No se seleccionó archivo'}), 400
+
+    file = request.files['imagen']
+    tipo = request.form.get('tipo', 'producto')
+
+    if file.filename == '':
+        return jsonify({'error': 'No se seleccionó archivo'}), 400
+
+    if file:
+        filename = secure_filename(file.filename)
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_')
+        filename = timestamp + filename
+
+        # Crear directorio si no existe
+        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
+
+        # Guardar en base de datos
+        conn = get_db_connection()
+        try:
+            result = conn.execute(text('''
+                INSERT INTO imagenes (tipo, ruta) 
+                VALUES (:tipo, :ruta) RETURNING id
+            '''), {'tipo': tipo, 'ruta': f'images/{filename}'})
+            imagen_id = result.fetchone()[0]
+            conn.commit()
+        finally:
+            conn.close()
+
+        return jsonify({
+            'message': 'Imagen subida correctamente',
+            'id': imagen_id,
+            'ruta': f'images/{filename}'
+        })
+
+@app.route('/admin/imagen/<int:imagen_id>', methods=['DELETE'])
+@admin_required
+def delete_imagen(imagen_id):
+    conn = get_db_connection()
+    try:
+        # Obtener información de la imagen antes de eliminarla
+        result = conn.execute(text('SELECT * FROM imagenes WHERE id = :imagen_id'), 
+                             {'imagen_id': imagen_id})
+        imagen = result.fetchone()
+
+        if not imagen:
+            return jsonify({'error': 'Imagen no encontrada'}), 404
+
+        # Eliminar archivo físico
+        imagen_dict = dict(imagen._mapping)
+        file_path = os.path.join('static', imagen_dict['ruta'])
+        if os.path.exists(file_path):
+            try:
+                os.remove(file_path)
+            except Exception as e:
+                print(f"Error al eliminar archivo: {e}")
+
+        # Eliminar de la base de datos
+        conn.execute(text('DELETE FROM imagenes WHERE id = :imagen_id'), 
+                    {'imagen_id': imagen_id})
+        conn.commit()
+
+        return jsonify({'message': 'Imagen eliminada correctamente'})
+    finally:
+        conn.close()
+
+# ENDPOINTS PARA CONFIGURACIÓN
+@app.route('/admin/config', methods=['GET'])
+@admin_required
+def get_config():
+    conn = get_db_connection()
+    try:
+        result = conn.execute(text('SELECT campo, valor FROM configuracion'))
+        configs = result.fetchall()
+
+        # Convertir a diccionario usando índices numéricos
+        config_dict = {}
+        for config in configs:
+            config_dict[config[0]] = config[1]  # campo, valor
+
+        return jsonify(config_dict)
+    finally:
+        conn.close()
+
+@app.route('/config', methods=['PUT'])
+@admin_required
+def update_config():
+    data = request.get_json()
+
+    conn = get_db_connection()
+    try:
+        for campo, valor in data.items():
+            # Usar UPSERT con SQLAlchemy
+            conn.execute(text('''
+                INSERT INTO configuracion (campo, valor) VALUES (:campo, :valor) 
+                ON CONFLICT (campo) DO UPDATE SET valor = EXCLUDED.valor
+            '''), {'campo': campo, 'valor': valor})
+
+        conn.commit()
+        return jsonify({'message': 'Configuración actualizada correctamente'})
+    finally:
+        conn.close()
+
+# ENDPOINTS DE AUTENTICACIÓN
+@app.route('/registro', methods=['POST'])
+def registro():
+    data = request.get_json()
+    nombre = data.get('nombre')
+    email = data.get('email')
+    password = data.get('password')
+
+    if not nombre or not email or not password:
+        return jsonify({'error': 'Todos los campos son requeridos'}), 400
+
+    # Verificar si el email ya existe
+    conn = get_db_connection()
+    try:
+        result = conn.execute(text('SELECT id FROM usuarios WHERE email = :email'), 
+                             {'email': email})
+        if result.fetchone():
+            return jsonify({'error': 'El email ya está registrado'}), 400
+
+        # Crear nuevo usuario
+        password_hash = generate_password_hash(password)
+
+        result = conn.execute(text('''
+            INSERT INTO usuarios (nombre, email, password_hash)
+            VALUES (:nombre, :email, :password_hash) RETURNING id
+        '''), {'nombre': nombre, 'email': email, 'password_hash': password_hash})
+
+        user_id = result.fetchone()[0]
+        conn.commit()
+
+        return jsonify({'message': 'Usuario registrado correctamente', 'user_id': user_id})
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': 'Error al registrar usuario'}), 500
+    finally:
+        conn.close()
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    if not email or not password:
+        return jsonify({'error': 'Email y contraseña son requeridos'}), 400
+
+    conn = get_db_connection()
+    try:
+        result = conn.execute(text('SELECT * FROM usuarios WHERE email = :email'), 
+                             {'email': email})
+        usuario = result.fetchone()
+
+        if usuario and check_password_hash(usuario[3], password):  # password_hash es índice 3
+            # Guardar sesión
+            session['user_id'] = usuario[0]      # id
+            session['user_email'] = usuario[2]   # email
+            session['user_name'] = usuario[1]    # nombre
+
+            return jsonify({
+                'message': 'Sesión iniciada correctamente',
+                'usuario': {
+                    'id': usuario[0],
+                    'nombre': usuario[1],
+                    'email': usuario[2],
+                    'fecha_registro': usuario[4].isoformat()
+                }
+            })
+        else:
+            return jsonify({'error': 'Email o contraseña incorrectos'}), 401
+    finally:
+        conn.close()
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.clear()
+    return jsonify({'message': 'Sesión cerrada correctamente'})
+
+@app.route('/usuario', methods=['GET'])
+def get_usuario():
+    if 'user_id' not in session:
+        return jsonify({'error': 'No hay sesión activa'}), 401
+
+    conn = get_db_connection()
+    try:
+        result = conn.execute(text('SELECT id, nombre, email, es_admin, fecha_registro FROM usuarios WHERE id = :user_id'), 
+                             {'user_id': session['user_id']})
+        usuario = result.fetchone()
+
+        if usuario:
+            return jsonify({
+                'usuario': {
+                    'id': usuario[0],
+                    'nombre': usuario[1],
+                    'email': usuario[2],
+                    'es_admin': usuario[3],
+                    'fecha_registro': usuario[4].isoformat()
+                }
+            })
+        else:
+            return jsonify({'error': 'Usuario no encontrado'}), 404
+    finally:
+        conn.close()
+
+@app.route('/usuario/historial', methods=['GET'])
+def get_historial_compras():
+    if 'user_id' not in session:
+        return jsonify({'error': 'No hay sesión activa'}), 401
+
+    conn = get_db_connection()
+    try:
+        # Obtener historial de compras del usuario logueado
+        result = conn.execute(text('''
+            SELECT o.*, j.nombre as juego_nombre, j.imagen as juego_imagen
+            FROM ordenes o 
+            LEFT JOIN juegos j ON o.juego_id = j.id 
+            LEFT JOIN usuarios u ON o.usuario_email = u.email
+            WHERE u.id = :user_id
+            ORDER BY o.fecha DESC
+        '''), {'user_id': session['user_id']})
+
+        historial = result.fetchall()
+
+        # Convertir a lista de diccionarios
+        historial_list = []
+        for compra in historial:
+            compra_dict = dict(compra._mapping)
+            historial_list.append(compra_dict)
+
+        return jsonify(historial_list)
+    finally:
+        conn.close()
+
+if __name__ == '__main__':
+    # Crear directorio para imágenes
+    os.makedirs('static/images', exist_ok=True)
+
+    # Inicializar base de datos
+    try:
+        init_db()
+        print("Base de datos inicializada correctamente")
+    except Exception as e:
+        print(f"Error al inicializar la base de datos: {e}")
+
+    app.run(host='0.0.0.0', port=5000, debug=True)
