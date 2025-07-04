@@ -106,6 +106,12 @@ function manejarRutaActual() {
     // Verificar que la pestaña existe antes de mostrarla
     const elementoPestana = document.getElementById(pestanaActiva);
     if (elementoPestana) {
+        // Si es la pestaña de detalles pero no hay producto seleccionado, ir al catálogo
+        if (pestanaActiva === 'detalles' && !productoSeleccionado) {
+            console.log('Redirigiendo a catálogo porque no hay producto seleccionado');
+            mostrarTab('catalogo');
+            return;
+        }
         mostrarTab(pestanaActiva);
     } else {
         console.warn('Pestaña no encontrada:', pestanaActiva);
@@ -196,6 +202,15 @@ function mostrarTab(tabName, element) {
         mostrarCarrito();
     } else if (tabName === 'pago') {
         prepararPago();
+    } else if (tabName === 'detalles') {
+        // Si estamos en detalles pero no hay producto seleccionado, ir al catálogo
+        if (!productoSeleccionado) {
+            console.log('No hay producto seleccionado, redirigiendo al catálogo');
+            setTimeout(() => {
+                mostrarTab('catalogo');
+            }, 100);
+            return;
+        }
     }
     
     console.log('Tab mostrada exitosamente:', tabName);
