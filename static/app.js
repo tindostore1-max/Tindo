@@ -8,19 +8,21 @@ let productoSeleccionado = null;
 
 // Inicialización
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM cargado, iniciando aplicación...');
+    
     cargarConfiguracion();
     cargarProductos();
     inicializarEventos();
     verificarSesion();
     inicializarCarrusel();
 
-    // Manejar la ruta actual del navegador
-    manejarRutaActual();
-
-    // Activar automáticamente la pestaña de Juegos al cargar
+    // Manejar la ruta actual del navegador después de un pequeño delay
     setTimeout(() => {
+        manejarRutaActual();
+        
+        // Activar automáticamente la pestaña de Juegos al cargar
         filtrarProductos('juegos');
-    }, 100);
+    }, 200);
 });
 
 // Funciones del carrusel
@@ -76,6 +78,8 @@ function manejarRutaActual() {
     const path = window.location.pathname;
     const hash = window.location.hash.replace('#', '');
     
+    console.log('Manejando ruta actual:', { path, hash });
+    
     // Mapear rutas a pestañas
     const rutasPestanas = {
         '/': 'catalogo',
@@ -88,15 +92,26 @@ function manejarRutaActual() {
     };
     
     // Determinar qué pestaña mostrar
-    let pestanaActiva = rutasPestanas[path] || rutasPestanas[hash] || 'catalogo';
+    let pestanaActiva = 'catalogo'; // Por defecto
     
-    // Si hay hash, usarlo como pestaña
+    // Si hay hash válido, usarlo como pestaña
     if (hash && ['catalogo', 'carrito', 'pago', 'login', 'detalles'].includes(hash)) {
         pestanaActiva = hash;
+    } else if (rutasPestanas[path]) {
+        pestanaActiva = rutasPestanas[path];
     }
     
-    // Mostrar la pestaña correspondiente
-    mostrarTab(pestanaActiva);
+    console.log('Pestaña activa determinada:', pestanaActiva);
+    
+    // Verificar que la pestaña existe antes de mostrarla
+    const elementoPestana = document.getElementById(pestanaActiva);
+    if (elementoPestana) {
+        mostrarTab(pestanaActiva);
+    } else {
+        console.warn('Pestaña no encontrada:', pestanaActiva);
+        // Fallback a catálogo si la pestaña no existe
+        mostrarTab('catalogo');
+    }
 }
 
 // Función para actualizar la URL sin recargar
@@ -115,6 +130,15 @@ window.addEventListener('popstate', function(event) {
 
 // Funciones de navegación
 function mostrarTab(tabName, element) {
+    console.log('Mostrando tab:', tabName);
+    
+    // Verificar que la pestaña existe
+    const targetSection = document.getElementById(tabName);
+    if (!targetSection) {
+        console.error('Pestaña no encontrada:', tabName);
+        return;
+    }
+
     // Ocultar todas las secciones
     const sections = document.querySelectorAll('.tab-section');
     sections.forEach(section => {
@@ -134,10 +158,7 @@ function mostrarTab(tabName, element) {
     });
 
     // Mostrar sección seleccionada
-    const targetSection = document.getElementById(tabName);
-    if (targetSection) {
-        targetSection.classList.add('active');
-    }
+    targetSection.classList.add('active');
 
     // Activar botón correspondiente si se proporciona
     if (element) {
@@ -152,6 +173,21 @@ function mostrarTab(tabName, element) {
         }
     });
 
+    // Activar botones específicos según la pestaña
+    if (tabName === 'catalogo') {
+        document.querySelectorAll('.nav-btn[onclick*="catalogo"], .desktop-nav-btn[onclick*="catalogo"]').forEach(btn => {
+            btn.classList.add('active');
+        });
+    } else if (tabName === 'carrito') {
+        document.querySelectorAll('.nav-btn[onclick*="carrito"], .desktop-nav-btn[onclick*="carrito"]').forEach(btn => {
+            btn.classList.add('active');
+        });
+    } else if (tabName === 'login') {
+        document.querySelectorAll('.nav-btn[onclick*="login"], .desktop-nav-btn[onclick*="login"]').forEach(btn => {
+            btn.classList.add('active');
+        });
+    }
+
     // Actualizar URL del navegador
     actualizarURL(tabName);
 
@@ -161,6 +197,8 @@ function mostrarTab(tabName, element) {
     } else if (tabName === 'pago') {
         prepararPago();
     }
+    
+    console.log('Tab mostrada exitosamente:', tabName);
 }
 
 // Función para mostrar alertas
