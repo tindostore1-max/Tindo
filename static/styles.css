@@ -243,39 +243,121 @@ header {
     margin-top: 20px;
 }
 
+/* Tarjetas estilo AssaX */
 .product-card {
-    background: #2a2a2a;
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    border: 1px solid #444;
-    transition: transform 0.3s ease;
+    width: 100%;
+    max-width: 300px;
+    min-height: 440px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    overflow: hidden;
+    font-family: 'Segoe UI', sans-serif;
+    transition: transform 0.2s ease;
     cursor: pointer;
+    position: relative;
 }
 
 .product-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+}
+
+.product-tag {
+    background-color: #ff5252;
+    color: white;
+    font-size: 12px;
+    padding: 4px 8px;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    border-radius: 4px;
+    font-weight: bold;
+    z-index: 10;
 }
 
 .product-image {
     width: 100%;
-    height: 200px;
+    height: 210px;
     object-fit: cover;
-    border-radius: 10px;
-    margin-bottom: 15px;
 }
 
-/* Versión desktop: imágenes cuadradas y completas del mismo tamaño */
-@media (min-width: 769px) {
+.product-card-content {
+    padding: 16px;
+    text-align: center;
+}
+
+.product-name {
+    margin: 10px 0 5px;
+    font-size: 18px;
+    color: #000000;
+    font-weight: 600;
+}
+
+.product-description {
+    color: #666666;
+    font-size: 14px;
+    margin-bottom: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.product-price {
+    color: #333333;
+    font-weight: bold;
+    margin-bottom: 12px;
+    font-size: 16px;
+}
+
+.product-button {
+    background-color: #000000;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.product-button:hover {
+    background-color: #333333;
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+    .product-card {
+        min-height: 320px;
+        max-width: none;
+    }
+    
     .product-image {
-        width: 100%;
-        height: 250px;
-        object-fit: contain;
-        background: #1a1a1a;
-        padding: 15px;
-        border: 2px solid #333;
-        box-sizing: border-box;
+        height: 150px;
+    }
+    
+    .product-card-content {
+        padding: 12px;
+    }
+    
+    .product-name {
+        font-size: 16px;
+        margin: 8px 0 4px;
+    }
+    
+    .product-description {
+        font-size: 12px;
+        margin-bottom: 8px;
+    }
+    
+    .product-price {
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+    
+    .product-button {
+        padding: 8px 16px;
+        font-size: 12px;
     }
 }
 
@@ -367,18 +449,6 @@ header {
         font-size: 13px !important;
         margin-bottom: 5px !important;
     }
-}
-
-.product-name {
-    font-size: 20px;
-    font-weight: 700;
-    color: #ffffff;
-    margin-bottom: 10px;
-}
-
-.product-description {
-    color: #cccccc;
-    margin-bottom: 15px;
 }
 
 .package-list {
