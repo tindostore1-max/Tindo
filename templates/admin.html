@@ -605,16 +605,7 @@
 
             <!-- TAB PRODUCTOS -->
             <div id="productos" class="tab-pane">
-                <div class="ordenamiento-section">
-                    <h3>📋 Ordenamiento de Productos en Carrusel</h3>
-                    <p style="color: #cccccc; margin-bottom: 15px;">Arrastra los productos para cambiar su orden en el carrusel o usa los botones de control.</p>
-                    <div class="ordenamiento-controls">
-                        <button class="btn-ordenamiento" onclick="ordenarPorNombre()">📝 Ordenar por Nombre</button>
-                        <button class="btn-ordenamiento" onclick="ordenarPorCategoria()">📂 Ordenar por Categoría</button>
-                        <button class="btn-ordenamiento" onclick="guardarOrdenActual()">💾 Guardar Orden Actual</button>
-                        <button class="btn-ordenamiento" onclick="resetearOrden()">🔄 Resetear Orden</button>
-                    </div>
-                </div>
+                
 
                 <div class="card">
                     <h3>🎮 Gestión de Productos</h3>
@@ -983,7 +974,7 @@
                 let html = `<table class="table">
                         <thead>
                             <tr>
-                                <th>Orden</th>
+                                <th>ID</th>
                                 <th>Imagen</th>
                                 <th>Nombre</th>
                                 <th>Categoría</th>
@@ -991,7 +982,7 @@
                                 <th>Acciones</th>
                             </tr>
                         </thead>
-                        <tbody id="productos-tbody" class="sortable-tbody">`;
+                        <tbody id="productos-tbody">`;
 
                 // Generar filas de productos directamente aquí
                 productos.forEach((producto, index) => {
@@ -1009,14 +1000,8 @@
                     }
 
                     html += `
-                        <tr draggable="true" data-producto-id="${producto.id}" data-orden-actual="${index + 1}">
-                            <td>
-                                <div style="display: flex; align-items: center;">
-                                    <span class="product-drag-handle" title="Arrastra para reordenar">⋮⋮</span>
-                                    <span class="product-order-number">${index + 1}</span>
-                                    <span>${producto.id}</span>
-                                </div>
-                            </td>
+                        <tr data-producto-id="${producto.id}">
+                            <td>${producto.id}</td>
                             <td>
                                 <img src="${imagenUrl}" 
                                      alt="${producto.nombre}" 
@@ -1051,7 +1036,6 @@
 
                 // Actualizar variable global de productos
                 window.productos = productos;
-                initSortable();
 
             } catch (error) {
                 console.error('Error al cargar productos:', error);
@@ -1059,24 +1043,7 @@
             }
         }
 
-         // Inicializar ordenamiento drag & drop
-         function initSortable() {
-            const tbody = document.getElementById('productos-tbody');
-
-            tbody.addEventListener('dragstart', function(e) {
-                draggedItem = e.target.closest('tr');
-                e.dataTransfer.setData('text/html', draggedItem.innerHTML);
-            });
-
-            tbody.addEventListener('dragover', function(e) {
-                e.preventDefault();
-                const overItem = e.target.closest('tr');
-                tbody.insertBefore(draggedItem, overItem);
-            });
-        }
-
-
-        function showCreateProductForm() {
+         function showCreateProductForm() {
             document.getElementById('create-product-form').style.display = 'block';
         }
 
@@ -1528,75 +1495,6 @@
 
         // Variables para gestión de productos
         let productos = [];
-        let draggedItem = null;
-
-        
-
-        // Función para ordenar por nombre
-        function ordenarPorNombre() {
-            productos.sort((a, b) => a.nombre.localeCompare(b.nombre));
-            mostrarProductos();
-            showAlert('Productos ordenados por nombre');
-        }
-
-        // Función para ordenar por categoría
-        function ordenarPorCategoria() {
-            productos.sort((a, b) => {
-                if (a.categoria !== b.categoria) {
-                    return a.categoria.localeCompare(b.categoria);
-                }
-                return a.nombre.localeCompare(b.nombre);
-            });
-            mostrarProductos();
-            showAlert('Productos ordenados por categoría');
-        }
-
-        // Función para guardar el orden actual
-        async function guardarOrdenActual() {
-            if (!confirm('¿Guardar el orden actual de los productos? Esto actualizará la base de datos.')) {
-                return;
-            }
-
-            try {
-                // Actualizar cada producto con su nuevo orden
-                for (let i = 0; i < productos.length; i++) {
-                    const producto = productos[i];
-                    producto.orden = i + 1;
-
-                    // Actualizar en la base de datos
-                    const response = await fetch(`/admin/producto/${producto.id}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            ...producto,
-                            orden: i + 1
-                        })
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`Error al actualizar producto ${producto.nombre}`);
-                    }
-                }
-
-                showAlert('Orden guardado correctamente en la base de datos');
-                cargarProductos(); // Recargar para confirmar cambios
-            } catch (error) {
-                showAlert(`Error al guardar orden: ${error.message}`, 'error');
-            }
-        }
-
-        // Función para resetear el orden
-        function resetearOrden() {
-            if (!confirm('¿Resetear el orden a la configuración original (por ID)?')) {
-                return;
-            }
-
-            productos.sort((a, b) => a.id - b.id);
-            mostrarProductos();
-            showAlert('Orden reseteado a configuración original');
-        }
 
         // Función para mover producto arriba/abajo
         function moverProducto(productoId, direccion) {
@@ -1615,28 +1513,7 @@
             }
         }
 
-        // Función para eliminar producto
-        async function eliminarProducto(productoId) {
-            if (!confirm('¿Estás seguro de que quieres eliminar este producto?')) {
-                return;
-            }
-
-            try {
-                const response = await fetch(`/admin/producto/${productoId}`, {
-                    method: 'DELETE'
-                });
-
-                if (response.ok) {
-                    showAlert('Producto eliminado correctamente');
-                    cargarProductos();
-                } else {
-                    const error = await response.json();
-                    showAlert(error.error || 'Error al eliminar producto', 'error');
-                }
-            } catch (error) {
-                showAlert('Error de conexión', 'error');
-            }
-        }
+        
     </script>
 </body>
 </html>
