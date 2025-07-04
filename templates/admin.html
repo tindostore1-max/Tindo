@@ -980,7 +980,7 @@
                 const response = await fetch('/admin/productos');
                 const productos = await response.json();
 
-                 let html = `<table class="table">
+                let html = `<table class="table">
                         <thead>
                             <tr>
                                 <th>Orden</th>
@@ -991,16 +991,70 @@
                                 <th>Acciones</th>
                             </tr>
                         </thead>
-                        <tbody id="productos-tbody" class="sortable-tbody">
-                            <!-- Productos se cargarán aquí -->
+                        <tbody id="productos-tbody" class="sortable-tbody">`;
+
+                // Generar filas de productos directamente aquí
+                productos.forEach((producto, index) => {
+                    const paquetesText = producto.paquetes ? 
+                        producto.paquetes.map(p => `${p.nombre}: $${p.precio}`).join(', ') : 
+                        'Sin paquetes';
+
+                    // Corregir ruta de imagen
+                    let imagenUrl = producto.imagen || '';
+                    if (imagenUrl && !imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
+                        imagenUrl = `/static/${imagenUrl}`;
+                    }
+                    if (!imagenUrl) {
+                        imagenUrl = 'https://via.placeholder.com/50x50/007bff/ffffff?text=IMG';
+                    }
+
+                    html += `
+                        <tr draggable="true" data-producto-id="${producto.id}" data-orden-actual="${index + 1}">
+                            <td>
+                                <div style="display: flex; align-items: center;">
+                                    <span class="product-drag-handle" title="Arrastra para reordenar">⋮⋮</span>
+                                    <span class="product-order-number">${index + 1}</span>
+                                    <span>${producto.id}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <img src="${imagenUrl}" 
+                                     alt="${producto.nombre}" 
+                                     style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;"
+                                     onerror="this.src='https://via.placeholder.com/50x50/007bff/ffffff?text=IMG'">
+                            </td>
+                            <td>
+                                <strong>${producto.nombre}</strong><br>
+                                <small style="color: #999;">${producto.descripcion || 'Sin descripción'}</small>
+                            </td>
+                            <td>
+                                <span class="badge badge-${producto.categoria === 'juegos' ? 'primary' : 'secondary'}">${producto.categoria}</span>
+                            </td>
+                            <td style="font-size: 12px;">${paquetesText}</td>
+                            <td>
+                                <div class="product-order-controls">
+                                    <button class="order-btn" onclick="moverProducto(${producto.id}, 'up')" ${index === 0 ? 'disabled' : ''} title="Mover arriba">↑</button>
+                                    <button class="order-btn" onclick="moverProducto(${producto.id}, 'down')" ${index === productos.length - 1 ? 'disabled' : ''} title="Mover abajo">↓</button>
+                                </div>
+                                <button class="btn btn-sm btn-warning" onclick="editProduct(${producto.id})" style="margin-right: 5px;">✏️</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteProduct(${producto.id})">🗑️</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += `
                         </tbody>
                     </table>`;
+
                 document.getElementById('productos-list').innerHTML = html;
 
-                mostrarProductos(productos);
+                // Actualizar variable global de productos
+                window.productos = productos;
                 initSortable();
 
             } catch (error) {
+                console.error('Error al cargar productos:', error);
                 document.getElementById('productos-list').innerHTML = '<p>Error al cargar productos</p>';
             }
         }
@@ -1684,6 +1738,23 @@
             productos.sort((a, b) => a.id - b.id);
             mostrarProductos();
             showAlert('Orden reseteado a configuración original');
+        }
+
+        // Función para mover producto arriba/abajo
+        function moverProducto(productoId, direccion) {
+            if (!window.productos) return;
+            
+            const index = window.productos.findIndex(p => p.id === productoId);
+            if (index === -1) return;
+
+            const newIndex = direccion === 'up' ? index - 1 : index + 1;
+
+            if (newIndex >= 0 && newIndex < window.productos.length) {
+                // Intercambiar posiciones
+                [window.productos[index], window.productos[newIndex]] = [window.productos[newIndex], window.productos[index]];
+                loadProductos(); // Recargar la tabla
+                showAlert(`Producto movido ${direccion === 'up' ? 'arriba' : 'abajo'}`);
+            }
         }
 
         // Función para eliminar producto
