@@ -376,6 +376,12 @@ def init_db():
             ADD COLUMN IF NOT EXISTS orden INTEGER DEFAULT 0;
         '''))
 
+        # Agregar columna orden a juegos si no existe (migración)
+        conn.execute(text('''
+            ALTER TABLE juegos 
+            ADD COLUMN IF NOT EXISTS orden INTEGER DEFAULT 0;
+        '''))
+
         conn.execute(text('''
             CREATE TABLE IF NOT EXISTS imagenes (
                 id SERIAL PRIMARY KEY,
@@ -778,7 +784,7 @@ def update_orden(orden_id):
 def get_productos():
     conn = get_db_connection()
     try:
-        result = conn.execute(text('SELECT * FROM juegos ORDER BY id DESC'))
+        result = conn.execute(text('SELECT * FROM juegos ORDER BY orden ASC, id ASC'))
         productos = result.fetchall()
 
         # Convertir a lista de diccionarios y obtener paquetes para cada producto
@@ -806,15 +812,16 @@ def create_producto():
     descripcion = data.get('descripcion')
     imagen = data.get('imagen', '')
     categoria = data.get('categoria', 'juegos')
+    orden = data.get('orden', 0)
     paquetes = data.get('paquetes', [])
 
     conn = get_db_connection()
     try:
         # Insertar producto
         result = conn.execute(text('''
-            INSERT INTO juegos (nombre, descripcion, imagen, categoria) 
-            VALUES (:nombre, :descripcion, :imagen, :categoria) RETURNING id
-        '''), {'nombre': nombre, 'descripcion': descripcion, 'imagen': imagen, 'categoria': categoria})
+            INSERT INTO juegos (nombre, descripcion, imagen, categoria, orden) 
+            VALUES (:nombre, :descripcion, :imagen, :categoria, :orden) RETURNING id
+        '''), {'nombre': nombre, 'descripcion': descripcion, 'imagen': imagen, 'categoria': categoria, 'orden': orden})
 
         producto_id = result.fetchone()[0]
 
@@ -846,19 +853,21 @@ def update_producto(producto_id):
     descripcion = data.get('descripcion')
     imagen = data.get('imagen', '')
     categoria = data.get('categoria', 'juegos')
+    orden = data.get('orden', 0)
     paquetes = data.get('paquetes', [])
 
     conn = get_db_connection()
     try:
         # Actualizar producto
         conn.execute(text('''
-            UPDATE juegos SET nombre = :nombre, descripcion = :descripcion, imagen = :imagen, categoria = :categoria 
+            UPDATE juegos SET nombre = :nombre, descripcion = :descripcion, imagen = :imagen, categoria = :categoria, orden = :orden 
             WHERE id = :producto_id
         '''), {
             'nombre': nombre, 
             'descripcion': descripcion, 
             'imagen': imagen, 
             'categoria': categoria,
+            'orden': orden,
             'producto_id': producto_id
         })
 
@@ -915,7 +924,7 @@ def delete_producto(producto_id):
 def get_productos_publico():
     conn = get_db_connection()
     try:
-        result = conn.execute(text('SELECT * FROM juegos ORDER BY id DESC'))
+        result = conn.execute(text('SELECT * FROM juegos ORDER BY orden ASC, id ASC'))
         productos = result.fetchall()
 
         # Convertir a lista de diccionarios y obtener paquetes para cada producto

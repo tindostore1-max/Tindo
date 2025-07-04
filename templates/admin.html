@@ -457,6 +457,118 @@
                 display: none;
             }
         }
+
+        .alert {
+            padding: 12px 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        /* Estilos para ordenamiento de productos */
+        .product-order-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .order-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s;
+        }
+
+        .order-btn:hover {
+            background: #0056b3;
+        }
+
+        .order-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .product-drag-handle {
+            cursor: move;
+            color: #6c757d;
+            font-size: 16px;
+            padding: 5px;
+            user-select: none;
+        }
+
+        .product-drag-handle:hover {
+            color: #007bff;
+        }
+
+        .sortable-tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .sortable-tbody tr.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+
+        .sortable-tbody tr.drag-over {
+            border-top: 3px solid #007bff;
+        }
+
+        .product-order-number {
+            background: #28a745;
+            color: white;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .ordenamiento-section {
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #444;
+        }
+
+        .ordenamiento-section h3 {
+            color: #ffffff;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ordenamiento-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .btn-ordenamiento {
+            background: linear-gradient(135deg, #6f42c1, #5a2d91);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-ordenamiento:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(111, 66, 193, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -493,6 +605,17 @@
 
             <!-- TAB PRODUCTOS -->
             <div id="productos" class="tab-pane">
+                <div class="ordenamiento-section">
+                    <h3>📋 Ordenamiento de Productos en Carrusel</h3>
+                    <p style="color: #cccccc; margin-bottom: 15px;">Arrastra los productos para cambiar su orden en el carrusel o usa los botones de control.</p>
+                    <div class="ordenamiento-controls">
+                        <button class="btn-ordenamiento" onclick="ordenarPorNombre()">📝 Ordenar por Nombre</button>
+                        <button class="btn-ordenamiento" onclick="ordenarPorCategoria()">📂 Ordenar por Categoría</button>
+                        <button class="btn-ordenamiento" onclick="guardarOrdenActual()">💾 Guardar Orden Actual</button>
+                        <button class="btn-ordenamiento" onclick="resetearOrden()">🔄 Resetear Orden</button>
+                    </div>
+                </div>
+
                 <div class="card">
                     <h3>🎮 Gestión de Productos</h3>
                     <button class="btn btn-success" onclick="showCreateProductForm()">➕ Nuevo Producto</button>
@@ -668,10 +791,10 @@
 
                 // Vista móvil con cards compactas
                 const isMobile = window.innerWidth <= 768;
-                
+
                 if (isMobile) {
                     let html = '<div class="ordenes-mobile">';
-                    
+
                     ordenes.forEach(orden => {
                         const fechaCorta = new Date(orden.fecha).toLocaleDateString('es', { 
                             day: '2-digit', 
@@ -680,7 +803,7 @@
                             hour: '2-digit',
                             minute: '2-digit'
                         });
-                        
+
                         html += `
                             <div class="orden-card-mobile">
                                 <div class="orden-header-mobile">
@@ -719,7 +842,7 @@
                             </div>
                         `;
                     });
-                    
+
                     html += '</div>';
                     document.getElementById('ordenes-list').innerHTML = html;
                 } else {
@@ -733,7 +856,7 @@
                             hour: '2-digit',
                             minute: '2-digit'
                         });
-                        
+
                         html += `
                             <tr class="orden-row-compact">
                                 <td><strong>#${orden.id}</strong></td>
@@ -779,7 +902,7 @@
                     document.getElementById('ordenes-list').innerHTML = html;
                 }
             } catch (error) {
-                document.getElementById('ordenes-list').innerHTML = '<p>Error al cargar órdenes</p>';
+                document.getElementById('ordenes-list').innerHTML = '<p>Error al cargarórdenes</p>';
             }
         }
 
@@ -857,40 +980,47 @@
                 const response = await fetch('/admin/productos');
                 const productos = await response.json();
 
-                let html = '';
+                 let html = `<table class="table">
+                        <thead>
+                            <tr>
+                                <th>Orden</th>
+                                <th>Imagen</th>
+                                <th>Nombre</th>
+                                <th>Categoría</th>
+                                <th>Paquetes</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productos-tbody" class="sortable-tbody">
+                            <!-- Productos se cargarán aquí -->
+                        </tbody>
+                    </table>`;
+                document.getElementById('productos-list').innerHTML = html;
 
-                productos.forEach(producto => {
-                    html += `
-                        <div class="card">
-                            <h4>${producto.nombre}</h4>
-                            <p><strong>Descripción:</strong> ${producto.descripcion || 'Sin descripción'}</p>
-                            <p><strong>Categoría:</strong> ${producto.categoria || 'Sin categoría'}</p>
-                            <p><strong>Imagen:</strong> ${producto.imagen || 'Sin imagen'}</p>
-                            <h5>Paquetes:</h5>
-                            <ul>
-                    `;
+                mostrarProductos(productos);
+                initSortable();
 
-                    if (producto.paquetes) {
-                        // Ordenar paquetes por el campo orden
-                        producto.paquetes.sort((a, b) => (a.orden || 1) - (b.orden || 1));
-                        producto.paquetes.forEach(paquete => {
-                            html += `<li><strong>#${paquete.orden || 1}</strong> - ${paquete.nombre} - $${paquete.precio}</li>`;
-                        });
-                    }
-
-                    html += `
-                            </ul>
-                            <button class="btn btn-warning" onclick="editProduct(${producto.id})">✏️ Editar</button>
-                            <button class="btn btn-danger" onclick="deleteProduct(${producto.id})">🗑️ Eliminar</button>
-                        </div>
-                    `;
-                });
-
-                document.getElementById('productos-list').innerHTML = html || '<p>No hay productos disponibles</p>';
             } catch (error) {
                 document.getElementById('productos-list').innerHTML = '<p>Error al cargar productos</p>';
             }
         }
+
+         // Inicializar ordenamiento drag & drop
+         function initSortable() {
+            const tbody = document.getElementById('productos-tbody');
+
+            tbody.addEventListener('dragstart', function(e) {
+                draggedItem = e.target.closest('tr');
+                e.dataTransfer.setData('text/html', draggedItem.innerHTML);
+            });
+
+            tbody.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                const overItem = e.target.closest('tr');
+                tbody.insertBefore(draggedItem, overItem);
+            });
+        }
+
 
         function showCreateProductForm() {
             document.getElementById('create-product-form').style.display = 'block';
@@ -1341,6 +1471,243 @@
                 loadOrdenes();
             }
         });
+
+        // Variables para gestión de productos
+        let productos = [];
+        let draggedItem = null;
+
+        // Cargar productos desde la API
+        async function cargarProductos() {
+            try {
+                const response = await fetch('/admin/productos');
+                productos = await response.json();
+                mostrarProductos();
+            } catch (error) {
+                showAlert('Error al cargar productos', 'error');
+            }
+        }
+
+        // Mostrar productos en la tabla con ordenamiento
+        function mostrarProductos() {
+            const tbody = document.getElementById('productos-tbody');
+            tbody.innerHTML = '';
+
+            // Ordenar productos por el campo 'orden' si existe, sino por id
+            const productosOrdenados = [...productos].sort((a, b) => {
+                const ordenA = a.orden || a.id || 0;
+                const ordenB = b.orden || b.id || 0;
+                return ordenA - ordenB;
+            });
+
+            productosOrdenados.forEach((producto, index) => {
+                const paquetesText = producto.paquetes ? 
+                    producto.paquetes.map(p => `${p.nombre}: $${p.precio}`).join(', ') : 
+                    'Sin paquetes';
+
+                const row = document.createElement('tr');
+                row.draggable = true;
+                row.dataset.productoId = producto.id;
+                row.dataset.ordenActual = index + 1;
+
+                row.innerHTML = `
+                    <td>
+                        <div style="display: flex; align-items: center;">
+                            <span class="product-drag-handle" title="Arrastra para reordenar">⋮⋮</span>
+                            <span class="product-order-number">${index + 1}</span>
+                            <span>${producto.id}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <img src="${producto.imagen && producto.imagen.startsWith('http') ? producto.imagen : (producto.imagen ? '/static/' + producto.imagen : 'https://via.placeholder.com/50x50/007bff/ffffff?text=IMG')}" 
+                             alt="${producto.nombre}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
+                    </td>
+                    <td>
+                        <strong>${producto.nombre}</strong><br>
+                        <small style="color: #999;">${producto.descripcion || 'Sin descripción'}</small>
+                    </td>
+                    <td><span class="badge badge-${producto.categoria === 'juegos' ? 'primary' : 'secondary'}">${producto.categoria}</span></td>
+                    <td style="font-size: 12px;">${paquetesText}</td>
+                    <td>
+                        <div class="product-order-controls">
+                            <button class="order-btn" onclick="moverProducto(${producto.id}, 'up')" ${index === 0 ? 'disabled' : ''} title="Mover arriba">↑</button>
+                            <button class="order-btn" onclick="moverProducto(${producto.id}, 'down')" ${index === productosOrdenados.length - 1 ? 'disabled' : ''} title="Mover abajo">↓</button>
+                        </div>
+                        <button class="btn btn-sm btn-warning" onclick="editarProducto(${producto.id})" style="margin-right: 5px;">✏️</button>
+                        <button class="btn btn-sm btn-danger" onclick="eliminarProducto(${producto.id})">🗑️</button>
+                    </td>
+                `;
+
+                // Agregar eventos de drag and drop
+                row.addEventListener('dragstart', handleDragStart);
+                row.addEventListener('dragover', handleDragOver);
+                row.addEventListener('drop', handleDrop);
+                row.addEventListener('dragend', handleDragEnd);
+
+                tbody.appendChild(row);
+            });
+        }
+
+        // Funciones de drag and drop
+        function handleDragStart(e) {
+            draggedElement = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', this.outerHTML);
+        }
+
+        function handleDragOver(e) {
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+
+            e.dataTransfer.dropEffect = 'move';
+            this.classList.add('drag-over');
+            return false;
+        }
+
+        function handleDrop(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            }
+
+            if (draggedElement !== this) {
+                const draggedId = parseInt(draggedElement.dataset.productoId);
+                const targetId = parseInt(this.dataset.productoId);
+
+                // Reordenar productos
+                reordenarProductos(draggedId, targetId);
+            }
+
+            this.classList.remove('drag-over');
+            return false;
+        }
+
+        function handleDragEnd(e) {
+            const items = document.querySelectorAll('.sortable-tbody tr');
+            items.forEach(item => {
+                item.classList.remove('dragging', 'drag-over');
+            });
+        }
+
+        // Función para mover producto arriba/abajo
+        function moverProducto(productoId, direccion) {
+            const index = productos.findIndex(p => p.id === productoId);
+            if (index === -1) return;
+
+            const newIndex = direccion === 'up' ? index - 1 : index + 1;
+
+            if (newIndex >= 0 && newIndex < productos.length) {
+                // Intercambiar posiciones
+                [productos[index], productos[newIndex]] = [productos[newIndex], productos[index]];
+                mostrarProductos();
+                showAlert(`Producto movido ${direccion === 'up' ? 'arriba' : 'abajo'}`);
+            }
+        }
+
+        // Función para reordenar productos por drag and drop
+        function reordenarProductos(draggedId, targetId) {
+            const draggedIndex = productos.findIndex(p => p.id === draggedId);
+            const targetIndex = productos.findIndex(p => p.id === targetId);
+
+            if (draggedIndex !== -1 && targetIndex !== -1) {
+                // Remover el elemento arrastrado
+                const draggedProduct = productos.splice(draggedIndex, 1)[0];
+                // Insertarlo en la nueva posición
+                productos.splice(targetIndex, 0, draggedProduct);
+
+                mostrarProductos();
+                showAlert('Orden actualizado correctamente');
+            }
+        }
+
+        // Función para ordenar por nombre
+        function ordenarPorNombre() {
+            productos.sort((a, b) => a.nombre.localeCompare(b.nombre));
+            mostrarProductos();
+            showAlert('Productos ordenados por nombre');
+        }
+
+        // Función para ordenar por categoría
+        function ordenarPorCategoria() {
+            productos.sort((a, b) => {
+                if (a.categoria !== b.categoria) {
+                    return a.categoria.localeCompare(b.categoria);
+                }
+                return a.nombre.localeCompare(b.nombre);
+            });
+            mostrarProductos();
+            showAlert('Productos ordenados por categoría');
+        }
+
+        // Función para guardar el orden actual
+        async function guardarOrdenActual() {
+            if (!confirm('¿Guardar el orden actual de los productos? Esto actualizará la base de datos.')) {
+                return;
+            }
+
+            try {
+                // Actualizar cada producto con su nuevo orden
+                for (let i = 0; i < productos.length; i++) {
+                    const producto = productos[i];
+                    producto.orden = i + 1;
+
+                    // Actualizar en la base de datos
+                    const response = await fetch(`/admin/producto/${producto.id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            ...producto,
+                            orden: i + 1
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Error al actualizar producto ${producto.nombre}`);
+                    }
+                }
+
+                showAlert('Orden guardado correctamente en la base de datos');
+                cargarProductos(); // Recargar para confirmar cambios
+            } catch (error) {
+                showAlert(`Error al guardar orden: ${error.message}`, 'error');
+            }
+        }
+
+        // Función para resetear el orden
+        function resetearOrden() {
+            if (!confirm('¿Resetear el orden a la configuración original (por ID)?')) {
+                return;
+            }
+
+            productos.sort((a, b) => a.id - b.id);
+            mostrarProductos();
+            showAlert('Orden reseteado a configuración original');
+        }
+
+        // Función para eliminar producto
+        async function eliminarProducto(productoId) {
+            if (!confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/producto/${productoId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    showAlert('Producto eliminado correctamente');
+                    cargarProductos();
+                } else {
+                    const error = await response.json();
+                    showAlert(error.error || 'Error al eliminar producto', 'error');
+                }
+            } catch (error) {
+                showAlert('Error de conexión', 'error');
+            }
+        }
     </script>
 </body>
 </html>
