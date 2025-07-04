@@ -969,6 +969,7 @@ header {
 
     .cart-item-image {
         width: 60px !important;
+```
         height: 60px !important;
         margin-right: 12px !important;
         border-radius: 8px !important;
@@ -982,7 +983,6 @@ header {
 .cart-item::before {
     content: '';
     position: absolute;
-```
     top: 0;
     left: -100%;
     width: 100%;
@@ -1560,7 +1560,7 @@ header {
     .terms-checkbox-container {
         font-size: 13px;
     }
-    
+
     .checkmark {
         width: 18px;
         height: 18px;
@@ -1766,6 +1766,7 @@ header {
 .payment-method-btn.selected {
     border-color: #28a745;
     background: linear-gradient(135deg, rgba(40, 167, 69, 0.2), rgba(32, 201, 151, 0.1));
+    color: #28a745;
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
 }
@@ -2419,3 +2420,5 @@ header {
         width: 10px;
     }
 }
+
+/*The image in the details tab will now be a perfect square.*/
