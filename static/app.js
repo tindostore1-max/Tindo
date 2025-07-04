@@ -1,6 +1,6 @@
 // Variables globales
 let productos = [];
-let carrito = [];
+let carrito = cargarCarritoDesdeStorage();
 let monedaActual = 'USD';
 let tasaUSDVES = 36.50;
 let configuracion = {};
@@ -12,6 +12,35 @@ let gamesCarouselItems = [];
 let giftCardsCarouselIndex = 0;
 let giftCardsCarouselItems = [];
 
+// Funciones para persistencia del carrito
+function guardarCarritoEnStorage() {
+    try {
+        localStorage.setItem('inefablestore_carrito', JSON.stringify(carrito));
+    } catch (error) {
+        console.warn('No se pudo guardar el carrito en localStorage:', error);
+    }
+}
+
+function cargarCarritoDesdeStorage() {
+    try {
+        const carritoGuardado = localStorage.getItem('inefablestore_carrito');
+        if (carritoGuardado) {
+            return JSON.parse(carritoGuardado);
+        }
+    } catch (error) {
+        console.warn('No se pudo cargar el carrito desde localStorage:', error);
+    }
+    return [];
+}
+
+function limpiarCarritoStorage() {
+    try {
+        localStorage.removeItem('inefablestore_carrito');
+    } catch (error) {
+        console.warn('No se pudo limpiar el carrito del localStorage:', error);
+    }
+}
+
 // Inicialización
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM cargado, iniciando aplicación...');
@@ -21,6 +50,9 @@ document.addEventListener('DOMContentLoaded', function() {
     inicializarEventos();
     verificarSesion();
     inicializarCarrusel();
+    
+    // Actualizar contador del carrito al cargar
+    actualizarContadorCarrito();
 
     // Manejar la ruta actual del navegador después de un pequeño delay
     setTimeout(() => {
@@ -1039,6 +1071,7 @@ function agregarPaqueteSeleccionado() {
         mostrarAlerta(`🎉 ¡Perfecto! ${paqueteSeleccionado.nombre} se agregó exitosamente a tu carrito. ¡Continúa comprando o procede al pago! 🛒✨`, 'success');
     }
 
+    guardarCarritoEnStorage();
     actualizarContadorCarrito();
 
     // Efecto visual en el botón único
@@ -1148,6 +1181,7 @@ function cambiarCantidad(itemId, cambio) {
     if (item.cantidad <= 0) {
         eliminarDelCarrito(itemId);
     } else {
+        guardarCarritoEnStorage();
         mostrarCarrito();
         actualizarContadorCarrito();
 
@@ -1172,6 +1206,7 @@ function eliminarDelCarrito(itemId) {
     }
 
     carrito = carrito.filter(item => parseInt(item.id) !== numericItemId);
+    guardarCarritoEnStorage();
     mostrarCarrito();
     actualizarContadorCarrito();
 
@@ -1512,6 +1547,7 @@ async function procesarPago() {
 
         // Limpiar carrito y mostrar éxito
         carrito = [];
+        limpiarCarritoStorage();
         actualizarContadorCarrito();
         document.getElementById('form-pago').reset();
 
