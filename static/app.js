@@ -93,15 +93,51 @@ function manejarRutaActual() {
     
     // Determinar qué pestaña mostrar
     let pestanaActiva = 'catalogo'; // Por defecto
+    let productoId = null;
     
+    // Verificar si es un hash de detalles con ID de producto
+    if (hash && hash.startsWith('detalles-')) {
+        const id = hash.replace('detalles-', '');
+        if (id && !isNaN(id)) {
+            pestanaActiva = 'detalles';
+            productoId = parseInt(id);
+        }
+    }
     // Si hay hash válido, usarlo como pestaña
-    if (hash && ['catalogo', 'carrito', 'pago', 'login', 'detalles'].includes(hash)) {
+    else if (hash && ['catalogo', 'carrito', 'pago', 'login', 'detalles'].includes(hash)) {
         pestanaActiva = hash;
     } else if (rutasPestanas[path]) {
         pestanaActiva = rutasPestanas[path];
     }
     
-    console.log('Pestaña activa determinada:', pestanaActiva);
+    console.log('Pestaña activa determinada:', pestanaActiva, 'Producto ID:', productoId);
+    
+    // Si es detalles con ID de producto, cargar el producto
+    if (pestanaActiva === 'detalles' && productoId) {
+        // Esperar a que los productos se carguen
+        const cargarProductoDesdeURL = () => {
+            if (productos.length === 0) {
+                // Si aún no se han cargado los productos, esperar un poco más
+                setTimeout(cargarProductoDesdeURL, 100);
+                return;
+            }
+            
+            const producto = productos.find(p => p.id === productoId);
+            if (producto) {
+                console.log('Producto encontrado en URL:', producto.nombre);
+                // Cargar el producto directamente sin llamar a verDetalleProducto
+                // para evitar recursión
+                productoSeleccionado = producto;
+                mostrarDetalleProductoDesdeURL(producto);
+            } else {
+                console.log('Producto no encontrado, redirigiendo al catálogo');
+                mostrarTab('catalogo');
+            }
+        };
+        
+        cargarProductoDesdeURL();
+        return;
+    }
     
     // Verificar que la pestaña existe antes de mostrarla
     const elementoPestana = document.getElementById(pestanaActiva);
@@ -124,6 +160,8 @@ function manejarRutaActual() {
 function actualizarURL(tabName) {
     if (tabName === 'catalogo') {
         window.history.replaceState({}, '', '/');
+    } else if (tabName === 'detalles' && productoSeleccionado) {
+        window.history.replaceState({}, '', `#detalles-${productoSeleccionado.id}`);
     } else {
         window.history.replaceState({}, '', `#${tabName}`);
     }
@@ -556,13 +594,18 @@ function mostrarProductos() {
     grid.innerHTML = html;
 }
 
-// Ver detalles de un producto
-function verDetalleProducto(productoId) {
-    const producto = productos.find(p => p.id === productoId);
-    if (!producto) return;
+// Función para mostrar detalles del producto desde la URL (sin redirección)
+function mostrarDetalleProductoDesdeURL(producto) {
+    // Generar el mismo HTML que verDetalleProducto pero sin cambiar la pestaña
+    const detalleHTML = generarHTMLDetalleProducto(producto);
+    document.getElementById('producto-detalle').innerHTML = detalleHTML;
+    
+    // Mostrar la pestaña de detalles
+    mostrarTab('detalles');
+}
 
-    productoSeleccionado = producto;
-
+// Función para generar HTML de detalles de producto (reutilizable)
+function generarHTMLDetalleProducto(producto) {
     // Corregir ruta de imagen
     let imagenUrl = producto.imagen || '';
     if (imagenUrl && !imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
@@ -599,7 +642,7 @@ function verDetalleProducto(productoId) {
         paquetesHtml = '<p style="color: #cccccc; text-align: center; grid-column: 1 / -1;">No hay paquetes disponibles para este producto</p>';
     }
 
-    let html = `
+    return `
         <div style="margin-top: 15px;">
             <div class="details-container" style="display: flex; gap: 20px; margin-bottom: 20px; align-items: flex-start;">
                 <div class="details-image-container" style="flex: 0 0 400px;">
@@ -646,7 +689,17 @@ function verDetalleProducto(productoId) {
             </div>
         </div>
     `;
+}
 
+// Ver detalles de un producto
+function verDetalleProducto(productoId) {
+    const producto = productos.find(p => p.id === productoId);
+    if (!producto) return;
+
+    productoSeleccionado = producto;
+
+    // Usar la función reutilizable para generar el HTML
+    const html = generarHTMLDetalleProducto(producto);
     document.getElementById('producto-detalle').innerHTML = html;
     mostrarTab('detalles');
 
