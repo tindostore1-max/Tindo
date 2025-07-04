@@ -1,4 +1,3 @@
-
 // Variables globales
 let productos = [];
 let carrito = [];
@@ -1485,5 +1484,18 @@ function mostrarAuthTab(tabName, element) {
     // Activar el tab seleccionado si se proporciona el elemento
     if (element) {
         element.classList.add('active');
+    }
+}
+
+// Función para cerrar notificación programáticamente
+function cerrarNotificacion() {
+    const notification = document.querySelector('.mobile-notification.show');
+    if (notification) {
+        notification.classList.add('hide');
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 400);
     }
 }
