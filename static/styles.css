@@ -603,18 +603,18 @@ header {
     }
 
     .games-carousel-card {
-        flex: 0 0 180px;
-        padding: 12px;
+        flex: 0 0 140px;
+        padding: 10px;
     }
 
     .games-carousel-card .product-name {
-        font-size: 14px;
-        margin-bottom: 6px;
+        font-size: 13px;
+        margin-bottom: 5px;
     }
 
     .games-carousel-card .price-desde {
-        font-size: 12px;
-        margin-top: 6px;
+        font-size: 11px;
+        margin-top: 5px;
     }
 
     .games-carousel-nav {
@@ -638,18 +638,18 @@ header {
     }
 
     .todos-carousel-card {
-        flex: 0 0 180px;
-        padding: 12px;
+        flex: 0 0 140px;
+        padding: 10px;
     }
 
     .todos-carousel-card .product-name {
-        font-size: 14px;
-        margin-bottom: 6px;
+        font-size: 13px;
+        margin-bottom: 5px;
     }
 
     .todos-carousel-card .price-desde {
-        font-size: 12px;
-        margin-top: 6px;
+        font-size: 11px;
+        margin-top: 5px;
     }
 
     .todos-carousel-nav {

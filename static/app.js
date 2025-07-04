@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
     inicializarEventos();
     verificarSesion();
     inicializarCarrusel();
-    
+
     // Actualizar contador del carrito al cargar
     actualizarContadorCarrito();
 
@@ -535,7 +535,7 @@ let filtroActual = 'todos';
 function toggleMobileCategoryMenu() {
     const menu = document.getElementById('mobile-category-menu');
     const hamburger = document.querySelector('.mobile-category-hamburger');
-    
+
     if (menu.classList.contains('show')) {
         closeMobileCategoryMenu();
     } else {
@@ -549,11 +549,11 @@ function toggleMobileCategoryMenu() {
 function closeMobileCategoryMenu() {
     const menu = document.getElementById('mobile-category-menu');
     const hamburger = document.querySelector('.mobile-category-hamburger');
-    
+
     menu.classList.remove('show');
     hamburger.classList.remove('active');
     document.body.style.overflow = ''; // Restaurar scroll del body
-    
+
     setTimeout(() => {
         menu.style.display = 'none';
     }, 300);
@@ -564,7 +564,7 @@ document.addEventListener('click', function(e) {
     const menu = document.getElementById('mobile-category-menu');
     const hamburger = document.querySelector('.mobile-category-hamburger');
     const menuContent = document.querySelector('.mobile-category-menu-content');
-    
+
     if (menu && menu.classList.contains('show')) {
         if (!menuContent.contains(e.target) && !hamburger.contains(e.target)) {
             closeMobileCategoryMenu();
@@ -608,7 +608,7 @@ function mostrarProductos() {
     // Si es la categoría "todos", mostrar carrusel horizontal de juegos
     if (!filtroActual || filtroActual === 'todos') {
         const juegos = productos.filter(producto => producto.categoria === 'juegos');
-        
+
         if (juegos.length === 0) {
             grid.innerHTML = `
                 <div class="no-products" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #cccccc;">
@@ -621,7 +621,7 @@ function mostrarProductos() {
 
         // Cambiar clase del contenedor para el carrusel
         grid.className = 'todos-carousel-container';
-        
+
         // Generar carrusel horizontal de juegos
         let cardsHtml = '';
         juegos.forEach(juego => {
@@ -673,7 +673,7 @@ function mostrarProductos() {
         // Crear carrusel de Gift Cards
         const giftCards = productos.filter(producto => producto.categoria === 'gift-cards');
         let giftCardsHtml = '';
-        
+
         if (giftCards.length > 0) {
             giftCards.forEach(giftCard => {
                 // Corregir ruta de imagen
@@ -734,7 +734,7 @@ function mostrarProductos() {
                     <button class="todos-carousel-nav next" onclick="moverCarruselTodos(1)">›</button>
                 ` : ''}
             </div>
-            
+
             ${giftCards.length > 0 ? `
             <div class="section-header" style="margin-top: 40px;">
                 <h3 class="section-title">Gift Cards</h3>
@@ -751,11 +751,11 @@ function mostrarProductos() {
             </div>
             ` : ''}
         `;
-        
+
         // Inicializar índice del carrusel
         window.todosCarouselIndex = 0;
         window.todosCarouselItems = juegos;
-        
+
         return;
     }
 
@@ -880,7 +880,8 @@ function generarHTMLDetalleProducto(producto) {
         paquetesHtml = '<p style="color: #cccccc; text-align: center; grid-column: 1 / -1;">No hay paquetes disponibles para este producto</p>';
     }
 
-    return `
+    return ````python
+
         <div style="margin-top: 15px;">
             <div class="details-container" style="display: flex; gap: 20px; margin-bottom: 20px; align-items: flex-start;">
                 <div class="details-image-container" style="flex: 0 0 400px;">
@@ -2017,9 +2018,11 @@ function crearSeccionGiftCards() {
 
 function moverCarruselJuegos(direccion) {
     const track = document.getElementById('games-carousel-track');
-    if (!track || gamesCarouselItems.length === 0) return;
+    if (!track || !gamesCarouselItems || gamesCarouselItems.length === 0) return;
 
-    const cardWidth = 220 + 15; // ancho de tarjeta + gap
+    // Detectar si es móvil
+    const isMobile = window.innerWidth <= 768;
+    const cardWidth = isMobile ? (140 + 15) : (220 + 15); // ancho de tarjeta + gap
     const containerWidth = track.parentElement.offsetWidth;
     const visibleCards = Math.floor(containerWidth / cardWidth);
     const maxIndex = Math.max(0, gamesCarouselItems.length - visibleCards);
@@ -2039,9 +2042,11 @@ function moverCarruselJuegos(direccion) {
 
 function moverCarruselGiftCards(direccion) {
     const track = document.getElementById('giftcards-carousel-track');
-    if (!track || giftCardsCarouselItems.length === 0) return;
+    if (!track || !giftCardsCarouselItems || giftCardsCarouselItems.length === 0) return;
 
-    const cardWidth = 220 + 15; // ancho de tarjeta + gap
+    // Detectar si es móvil
+    const isMobile = window.innerWidth <= 768;
+    const cardWidth = isMobile ? (140 + 15) : (220 + 15); // ancho de tarjeta + gap
     const containerWidth = track.parentElement.offsetWidth;
     const visibleCards = Math.floor(containerWidth / cardWidth);
     const maxIndex = Math.max(0, giftCardsCarouselItems.length - visibleCards);
