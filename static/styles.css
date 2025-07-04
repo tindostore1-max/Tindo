@@ -44,12 +44,20 @@ header {
     display: flex;
     align-items: center;
     gap: 30px;
+    flex: 1;
+    justify-content: center;
+}
+
+.logo {
+    position: absolute;
+    left: 20px;
 }
 
 .desktop-categories {
     display: none;
-    gap: 15px;
+    gap: 20px;
     align-items: center;
+    justify-content: center;
 }
 
 .desktop-category-btn {

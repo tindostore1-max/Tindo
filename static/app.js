@@ -544,11 +544,6 @@ document.addEventListener('click', function(e) {
 function filtrarProductos(categoria, element) {
     filtroActual = categoria;
 
-    // Actualizar pestañas activas (desktop - las del contenido)
-    document.querySelectorAll('.category-tab').forEach(tab => {
-        tab.classList.remove('active');
-    });
-
     // Actualizar categorías del header (desktop)
     document.querySelectorAll('.desktop-category-btn').forEach(btn => {
         btn.classList.remove('active');
