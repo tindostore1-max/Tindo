@@ -6,6 +6,10 @@ let tasaUSDVES = 36.50;
 let configuracion = {};
 let productoSeleccionado = null;
 
+// Variables para el carrusel de juegos
+let gamesCarouselIndex = 0;
+let gamesCarouselItems = [];
+
 // Inicialización
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM cargado, iniciando aplicación...');
@@ -20,8 +24,8 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         manejarRutaActual();
         
-        // Activar automáticamente la pestaña de Juegos al cargar
-        filtrarProductos('juegos');
+        // Activar automáticamente la pestaña de Todos al cargar
+        filtrarProductos('todos');
     }, 200);
 });
 
@@ -491,7 +495,7 @@ async function cargarProductos() {
 }
 
 // Variable para almacenar el filtro actual
-let filtroActual = 'juegos';
+let filtroActual = 'todos';
 
 // Función para filtrar productos por categoría
 function filtrarProductos(categoria, element) {
@@ -518,6 +522,63 @@ function mostrarProductos() {
 
     if (!productos || productos.length === 0) {
         grid.innerHTML = '<p>No hay productos disponibles</p>';
+        return;
+    }
+
+    // Si no hay filtro específico, mostrar carrusel de juegos + todos los productos
+    if (!filtroActual || filtroActual === 'todos') {
+        const carruselHtml = crearCarruselJuegos();
+        let html = carruselHtml;
+
+        // Agregar productos en grid normal
+        productos.forEach(producto => {
+            // Corregir ruta de imagen
+            let imagenUrl = producto.imagen || '';
+            if (imagenUrl && !imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
+                imagenUrl = `/static/${imagenUrl}`;
+            }
+            if (!imagenUrl) {
+                imagenUrl = 'https://via.placeholder.com/300x200/007bff/ffffff?text=Producto';
+            }
+
+            // Calcular precio mínimo y máximo
+            let precioMinimo = 0;
+            let precioMaximo = 0;
+            if (producto.paquetes && Array.isArray(producto.paquetes) && producto.paquetes.length > 0) {
+                const precios = producto.paquetes.map(p => parseFloat(p.precio) || 0);
+                precioMinimo = Math.min(...precios);
+                precioMaximo = Math.max(...precios);
+            }
+
+            // Mostrar rango de precios según la moneda
+            let rangoPrecio = '';
+            if (precioMinimo === precioMaximo) {
+                // Si solo hay un precio
+                if (monedaActual === 'VES') {
+                    rangoPrecio = `Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)}`;
+                } else {
+                    rangoPrecio = `$${precioMinimo.toFixed(2)}`;
+                }
+            } else {
+                // Si hay rango de precios
+                if (monedaActual === 'VES') {
+                    rangoPrecio = `Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)} - Bs. ${(precioMaximo * tasaUSDVES).toFixed(2)}`;
+                } else {
+                    rangoPrecio = `$${precioMinimo.toFixed(2)} - $${precioMaximo.toFixed(2)}`;
+                }
+            }
+
+            html += `
+                <div class="product-card" onclick="verDetalleProducto(${producto.id})">
+                    <img src="${imagenUrl}" alt="${producto.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
+                    <div class="product-name">${producto.nombre || 'Producto sin nombre'}</div>
+                    <div class="product-description">${producto.descripcion || 'Sin descripción'}</div>
+                    <div class="price-desde">${rangoPrecio}</div>
+                </div>
+            `;
+        });
+
+        grid.innerHTML = html;
         return;
     }
 
@@ -1626,6 +1687,116 @@ function copiarCodigo(codigo) {
         document.body.removeChild(textArea);
         mostrarAlerta('Código copiado al portapapeles', 'success');
     });
+}
+
+// Funciones del carrusel de juegos
+function crearCarruselJuegos() {
+    const juegos = productos.filter(producto => producto.categoria === 'juegos');
+    if (juegos.length === 0) return '';
+
+    gamesCarouselItems = juegos;
+    gamesCarouselIndex = 0;
+
+    let cardsHtml = '';
+    juegos.forEach(juego => {
+        // Corregir ruta de imagen
+        let imagenUrl = juego.imagen || '';
+        if (imagenUrl && !imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
+            imagenUrl = `/static/${imagenUrl}`;
+        }
+        if (!imagenUrl) {
+            imagenUrl = 'https://via.placeholder.com/300x200/007bff/ffffff?text=Producto';
+        }
+
+        // Calcular precio mínimo y máximo
+        let precioMinimo = 0;
+        let precioMaximo = 0;
+        if (juego.paquetes && Array.isArray(juego.paquetes) && juego.paquetes.length > 0) {
+            const precios = juego.paquetes.map(p => parseFloat(p.precio) || 0);
+            precioMinimo = Math.min(...precios);
+            precioMaximo = Math.max(...precios);
+        }
+
+        // Mostrar rango de precios según la moneda
+        let rangoPrecio = '';
+        if (precioMinimo === precioMaximo) {
+            // Si solo hay un precio
+            if (monedaActual === 'VES') {
+                rangoPrecio = `Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)}`;
+            } else {
+                rangoPrecio = `$${precioMinimo.toFixed(2)}`;
+            }
+        } else {
+            // Si hay rango de precios
+            if (monedaActual === 'VES') {
+                rangoPrecio = `Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)} - Bs. ${(precioMaximo * tasaUSDVES).toFixed(2)}`;
+            } else {
+                rangoPrecio = `$${precioMinimo.toFixed(2)} - $${precioMaximo.toFixed(2)}`;
+            }
+        }
+
+        cardsHtml += `
+            <div class="games-carousel-card" onclick="verDetalleProducto(${juego.id})">
+                <img src="${imagenUrl}" alt="${juego.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
+                <div class="product-name">${juego.nombre || 'Producto sin nombre'}</div>
+                <div class="price-desde">${rangoPrecio}</div>
+            </div>
+        `;
+    });
+
+    return `
+        <div class="games-carousel-section">
+            <div class="games-carousel-header">
+                <h3 class="games-carousel-title">🎮 Juegos Destacados</h3>
+                <button class="games-carousel-more" onclick="mostrarTodosLosJuegos()">Ver más</button>
+            </div>
+            <div class="games-carousel-container">
+                <div class="games-carousel-track" id="games-carousel-track">
+                    ${cardsHtml}
+                </div>
+                ${juegos.length > 3 ? `
+                    <button class="games-carousel-nav prev" onclick="moverCarruselJuegos(-1)">‹</button>
+                    <button class="games-carousel-nav next" onclick="moverCarruselJuegos(1)">›</button>
+                ` : ''}
+            </div>
+        </div>
+    `;
+}
+
+function moverCarruselJuegos(direccion) {
+    const track = document.getElementById('games-carousel-track');
+    if (!track || gamesCarouselItems.length === 0) return;
+
+    const cardWidth = 220 + 15; // ancho de tarjeta + gap
+    const containerWidth = track.parentElement.offsetWidth;
+    const visibleCards = Math.floor(containerWidth / cardWidth);
+    const maxIndex = Math.max(0, gamesCarouselItems.length - visibleCards);
+
+    gamesCarouselIndex += direccion;
+    
+    if (gamesCarouselIndex < 0) {
+        gamesCarouselIndex = 0;
+    }
+    if (gamesCarouselIndex > maxIndex) {
+        gamesCarouselIndex = maxIndex;
+    }
+
+    const translateX = -gamesCarouselIndex * cardWidth;
+    track.style.transform = `translateX(${translateX}px)`;
+}
+
+function mostrarTodosLosJuegos() {
+    // Activar pestaña de juegos y mostrar catálogo
+    filtrarProductos('juegos');
+    mostrarTab('catalogo');
+    
+    // Hacer scroll hacia los productos
+    setTimeout(() => {
+        const productosGrid = document.getElementById('productos-grid');
+        if (productosGrid) {
+            productosGrid.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, 300);
 }
 
 // Función para manejar tabs de autenticación
