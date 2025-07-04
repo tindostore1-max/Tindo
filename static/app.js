@@ -1487,39 +1487,6 @@ function mostrarAuthTab(tabName, element) {
     }
 }
 
-// Variables globales para el carrusel
-let slideIndex = 1;
-
-// Función para mostrar slide específico
-function currentSlide(n) {
-    showSlides(slideIndex = n);
-}
-
-// Función para mostrar slides
-function showSlides(n) {
-    const slides = document.querySelectorAll('.carousel-slide');
-    const dots = document.querySelectorAll('.dot');
-    
-    if (n > slides.length) { slideIndex = 1; }
-    if (n < 1) { slideIndex = slides.length; }
-    
-    slides.forEach(slide => slide.classList.remove('active'));
-    dots.forEach(dot => dot.classList.remove('active'));
-    
-    if (slides[slideIndex - 1]) {
-        slides[slideIndex - 1].classList.add('active');
-    }
-    if (dots[slideIndex - 1]) {
-        dots[slideIndex - 1].classList.add('active');
-    }
-}
-
-// Auto-cambio de slides cada 5 segundos
-setInterval(() => {
-    slideIndex++;
-    showSlides(slideIndex);
-}, 5000);
-
 // Función para cerrar notificación programáticamente
 function cerrarNotificacion() {
     const notification = document.querySelector('.mobile-notification.show');
