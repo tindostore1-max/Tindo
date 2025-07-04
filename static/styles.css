@@ -309,60 +309,60 @@ header {
         gap: 15px !important;
         margin-bottom: 15px !important;
     }
-    
+
     .details-image-container {
         flex: none !important;
         width: 100% !important;
     }
-    
+
     .details-info-container h1 {
         font-size: 22px !important;
         margin-bottom: 8px !important;
     }
-    
+
     .details-info-container p {
         font-size: 14px !important;
         margin-bottom: 15px !important;
         line-height: 1.4 !important;
     }
-    
+
     .details-info-container .package-list {
         grid-template-columns: repeat(2, 1fr) !important;
         gap: 10px !important;
     }
-    
+
     .details-info-container .package-item {
         padding: 15px 10px !important;
         min-height: 90px !important;
     }
-    
+
     .details-info-container .package-name {
         font-size: 14px !important;
         margin-bottom: 3px !important;
     }
-    
+
     .details-info-container .package-price {
         font-size: 16px !important;
     }
-    
+
     .selected-product-image {
         height: 160px !important;
         margin-bottom: 10px !important;
     }
-    
+
     /* Hacer los botones más compactos en móvil */
     .details-info-container button {
         padding: 12px 16px !important;
         font-size: 14px !important;
     }
-    
+
     /* Campo de ID más compacto */
     .details-image-container input {
         padding: 10px 12px !important;
         font-size: 14px !important;
         border-radius: 8px !important;
     }
-    
+
     .details-image-container label {
         font-size: 13px !important;
         margin-bottom: 5px !important;
@@ -839,12 +839,12 @@ header {
         margin: 10px 0 !important;
         border-radius: 15px !important;
     }
-    
+
     .cart-section h2 {
         font-size: 22px !important;
         margin-bottom: 20px !important;
     }
-    
+
     .cart-section h2::after {
         width: 60px !important;
         height: 3px !important;
@@ -953,20 +953,20 @@ header {
         flex-direction: column !important;
         gap: 12px !important;
     }
-    
+
     .cart-item-header {
         display: flex !important;
         align-items: center !important;
         width: 100% !important;
     }
-    
+
     .cart-item-image {
         width: 60px !important;
         height: 60px !important;
         margin-right: 12px !important;
         border-radius: 8px !important;
     }
-    
+
     .cart-item-info {
         flex: 1 !important;
     }
@@ -979,7 +979,8 @@ header {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(40, 167, 69, 0.1), transparent);
+    background: linear-gradient(90deg,```text
+ transparent, rgba(40, 167, 69, 0.1), transparent);
     transition: left 0.6s ease;
 }
 
@@ -1036,12 +1037,12 @@ header {
         font-size: 16px !important;
         margin-bottom: 4px !important;
     }
-    
+
     .cart-item-package {
         font-size: 13px !important;
         margin-bottom: 6px !important;
     }
-    
+
     .cart-item-price {
         font-size: 14px !important;
     }
@@ -1094,7 +1095,7 @@ header {
         padding-top: 8px !important;
         border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
     }
-    
+
     .quantity-control {
         gap: 6px !important;
         padding: 4px !important;
@@ -1102,18 +1103,18 @@ header {
         flex: 1 !important;
         max-width: 140px !important;
     }
-    
+
     .quantity-btn {
         width: 30px !important;
         height: 30px !important;
         font-size: 14px !important;
     }
-    
+
     .quantity-display {
         font-size: 14px !important;
         min-width: 25px !important;
     }
-    
+
     .remove-btn {
         width: 32px !important;
         height: 32px !important;
@@ -1219,17 +1220,17 @@ header {
         margin-top: 15px !important;
         border-radius: 12px !important;
     }
-    
+
     .cart-total {
         font-size: 24px !important;
         margin: 15px 0 !important;
     }
-    
+
     .cart-total::before {
         font-size: 22px !important;
         margin-right: 8px !important;
     }
-    
+
     .checkout-btn {
         padding: 15px 20px !important;
         font-size: 16px !important;
@@ -1948,6 +1949,7 @@ header {
     text-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
 }
 
+```text
 .purchase-status {
     padding: 8px 15px;
     border-radius: 25px;
@@ -2194,4 +2196,13 @@ header {
         width: 12px;
         margin: 0 3px;
     }
+}
+
+#detalles {
+    background: #2a2a2a;
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 900px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
