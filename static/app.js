@@ -14,6 +14,9 @@ document.addEventListener('DOMContentLoaded', function() {
     verificarSesion();
     inicializarCarrusel();
 
+    // Manejar la ruta actual del navegador
+    manejarRutaActual();
+
     // Activar automáticamente la pestaña de Juegos al cargar
     setTimeout(() => {
         filtrarProductos('juegos');
@@ -68,6 +71,48 @@ async function verificarSesion() {
     }
 }
 
+// Función para manejar la ruta actual del navegador
+function manejarRutaActual() {
+    const path = window.location.pathname;
+    const hash = window.location.hash.replace('#', '');
+    
+    // Mapear rutas a pestañas
+    const rutasPestanas = {
+        '/': 'catalogo',
+        '/catalogo': 'catalogo',
+        '/carrito': 'carrito',
+        '/pago': 'pago',
+        '/login': 'login',
+        '/cuenta': 'login',
+        '/admin': 'admin'
+    };
+    
+    // Determinar qué pestaña mostrar
+    let pestanaActiva = rutasPestanas[path] || rutasPestanas[hash] || 'catalogo';
+    
+    // Si hay hash, usarlo como pestaña
+    if (hash && ['catalogo', 'carrito', 'pago', 'login', 'detalles'].includes(hash)) {
+        pestanaActiva = hash;
+    }
+    
+    // Mostrar la pestaña correspondiente
+    mostrarTab(pestanaActiva);
+}
+
+// Función para actualizar la URL sin recargar
+function actualizarURL(tabName) {
+    if (tabName === 'catalogo') {
+        window.history.replaceState({}, '', '/');
+    } else {
+        window.history.replaceState({}, '', `#${tabName}`);
+    }
+}
+
+// Manejar el botón atrás del navegador
+window.addEventListener('popstate', function(event) {
+    manejarRutaActual();
+});
+
 // Funciones de navegación
 function mostrarTab(tabName, element) {
     // Ocultar todas las secciones
@@ -106,6 +151,9 @@ function mostrarTab(tabName, element) {
             btn.classList.add('active');
         }
     });
+
+    // Actualizar URL del navegador
+    actualizarURL(tabName);
 
     // Cargar datos específicos según la pestaña
     if (tabName === 'carrito') {

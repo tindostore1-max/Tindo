@@ -554,6 +554,15 @@ def init_db():
 def index():
     return render_template('index.html')
 
+# Manejador catch-all para rutas SPA - debe devolver siempre index.html
+@app.route('/<path:path>')
+def catch_all(path):
+    # Si es una ruta de API, devolver 404
+    if path.startswith('api/') or path.startswith('admin/') or path.startswith('static/'):
+        return "Not Found", 404
+    # Para cualquier otra ruta, devolver la página principal
+    return render_template('index.html')
+
 @app.route('/admin')
 def admin():
     # Verificar si el usuario está logueado y es administrador
