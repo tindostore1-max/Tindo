@@ -1697,11 +1697,11 @@ function crearCarruselJuegos() {
     });
 
     return `
+        <div class="section-header">
+            <h3 class="section-title">🎮 Juegos Destacados</h3>
+            <button class="section-more-btn" onclick="mostrarTodosLosJuegos()">Ver más</button>
+        </div>
         <div class="games-section">
-            <div class="section-header">
-                <h3 class="section-title">🎮 Juegos Destacados</h3>
-                <button class="section-more-btn" onclick="mostrarTodosLosJuegos()">Ver más</button>
-            </div>
             <div class="games-carousel-container">
                 <div class="games-carousel-track" id="games-carousel-track">
                     ${cardsHtml}
@@ -1769,11 +1769,11 @@ function crearSeccionGiftCards() {
     });
 
     return `
+        <div class="section-header">
+            <h3 class="section-title">🎁 Gift Cards</h3>
+            <button class="section-more-btn" onclick="mostrarTodasLasGiftCards()">Ver más</button>
+        </div>
         <div class="giftcards-section">
-            <div class="section-header">
-                <h3 class="section-title">🎁 Gift Cards</h3>
-                <button class="section-more-btn" onclick="mostrarTodasLasGiftCards()">Ver más</button>
-            </div>
             <div class="giftcards-grid">
                 ${cardsHtml}
             </div>
