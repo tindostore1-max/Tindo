@@ -377,8 +377,7 @@ header {
 }
 
 .product-description {
-    color: #cccccc;
-    margin-bottom: 15px;
+    display: none;
 }
 
 .package-list {
