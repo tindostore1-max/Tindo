@@ -26,8 +26,8 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         manejarRutaActual();
 
-        // Activar automáticamente la pestaña de Todos al cargar
-        filtrarProductos('todos');
+        // Activar automáticamente la pestaña de Juegos al cargar
+        filtrarProductos('juegos');
     }, 200);
 });
 
@@ -497,7 +497,7 @@ async function cargarProductos() {
 }
 
 // Variable para almacenar el filtro actual
-let filtroActual = 'todos';
+let filtroActual = 'juegos';
 
 // Función para filtrar productos por categoría
 function filtrarProductos(categoria, element) {
@@ -524,15 +524,6 @@ function mostrarProductos() {
 
     if (!productos || productos.length === 0) {
         grid.innerHTML = '<p>No hay productos disponibles</p>';
-        return;
-    }
-
-    // Si no hay filtro específico, mostrar carrusel de juegos + gift cards separadas
-    if (!filtroActual || filtroActual === 'todos') {
-        const carruselHtml = crearCarruselJuegos();
-        const giftCardsHtml = crearSeccionGiftCards();
-
-        grid.innerHTML = carruselHtml + '<br>' + giftCardsHtml;
         return;
     }
 
