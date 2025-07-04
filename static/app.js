@@ -511,11 +511,15 @@ function verDetalleProducto(productoId) {
                         <input type="text" id="usuario-id-juego" class="form-control" placeholder="Ingresa tu ID de usuario" style="width: 100%; padding: 12px 15px; border: 2px solid rgba(255,255,255,0.1); border-radius: 10px; font-size: 14px; background: rgba(255,255,255,0.05); color: #ffffff; transition: all 0.3s ease; backdrop-filter: blur(10px);" required>
                     </div>
                     ` : ''}
+
+                    <!-- Descripción del producto después del formulario -->
+                    <div style="margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                        <p style="color: #cccccc; font-size: 16px; line-height: 1.5; margin: 0;">${producto.descripcion || 'Descripción del producto'}</p>
+                    </div>
                 </div>
 
                 <div class="details-info-container" style="flex: 1;">
                     <h1 style="color: #ffffff; font-size: 28px; margin-bottom: 12px; font-weight: 700;">${producto.nombre || 'Producto'}</h1>
-                    <p style="color: #cccccc; font-size: 16px; line-height: 1.5; margin-bottom: 20px;">${producto.descripcion || 'Descripción del producto'}</p>
 
                     <div class="package-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px;">
                         ${paquetesHtml}
