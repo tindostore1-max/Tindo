@@ -2823,9 +2823,18 @@ header {
 }
 
 .category-icon {
-    font-size: 20px;
-    width: 24px;
-    text-align: center;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    transition: color 0.3s ease;
+}
+
+.mobile-category-item:hover .category-icon {
+    color: #28a745;
+}
+
+.mobile-category-item.active .category-icon {
+    color: #28a745;
 }
 
 /* Ocultar categorías normales en móvil */
