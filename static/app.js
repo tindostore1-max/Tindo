@@ -271,28 +271,36 @@ function mostrarTab(tabName, element) {
             btn.classList.add('active');
         });
         
-        // Activar automáticamente el filtro "Todos" cuando se va al catálogo
-        setTimeout(() => {
-            filtrarProductos('todos');
-            
-            // Activar el botón "Todos" en las categorías desktop
-            document.querySelectorAll('.desktop-category-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            const todosBtnDesktop = document.querySelector('.desktop-category-btn[onclick*="todos"]');
-            if (todosBtnDesktop) {
-                todosBtnDesktop.classList.add('active');
-            }
-            
-            // Activar el item "Todos" en el menú móvil
-            document.querySelectorAll('.mobile-category-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            const todosBtnMobile = document.querySelector('.mobile-category-item[onclick*="todos"]');
-            if (todosBtnMobile) {
-                todosBtnMobile.classList.add('active');
-            }
-        }, 50);
+        // Solo activar automáticamente el filtro "Todos" si no hay una categoría específica seleccionada
+        // y no se está navegando desde otra categoría
+        if (!window.skipAutoTodos && (!filtroActual || filtroActual === 'todos')) {
+            setTimeout(() => {
+                filtrarProductos('todos');
+                
+                // Activar el botón "Todos" en las categorías desktop
+                document.querySelectorAll('.desktop-category-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                const todosBtnDesktop = document.querySelector('.desktop-category-btn[onclick*="todos"]');
+                if (todosBtnDesktop) {
+                    todosBtnDesktop.classList.add('active');
+                }
+                
+                // Activar el item "Todos" en el menú móvil
+                document.querySelectorAll('.mobile-category-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                const todosBtnMobile = document.querySelector('.mobile-category-item[onclick*="todos"]');
+                if (todosBtnMobile) {
+                    todosBtnMobile.classList.add('active');
+                }
+            }, 50);
+        } else if (filtroActual && filtroActual !== 'todos') {
+            // Si hay un filtro activo que no es "todos", mantenerlo
+            setTimeout(() => {
+                mostrarProductos();
+            }, 50);
+        }
         
     } else if (tabName === 'carrito') {
         document.querySelectorAll('.nav-btn[onclick*="carrito"], .desktop-nav-btn[onclick*="carrito"]').forEach(btn => {
@@ -613,7 +621,13 @@ function filtrarProductos(categoria, element) {
     // Si no estamos en la pestaña de catálogo, cambiar a ella primero
     const catalogoSection = document.getElementById('catalogo');
     if (!catalogoSection || !catalogoSection.classList.contains('active')) {
+        // Temporalmente deshabilitar la activación automática de "todos"
+        window.skipAutoTodos = true;
         mostrarTab('catalogo');
+        // Restaurar después de un breve delay
+        setTimeout(() => {
+            window.skipAutoTodos = false;
+        }, 100);
     }
 
     // Actualizar categorías del header (desktop)
