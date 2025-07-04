@@ -150,16 +150,32 @@ function mostrarNotificacionFlotante(mensaje, tipo = 'success') {
     notification.className = `mobile-notification ${tipo}`;
 
     // Seleccionar icono según el tipo
-    let icon = '🎉';
+    let icon = '✓';
     if (tipo === 'error') {
-        icon = '⚠️';
+        icon = '✕';
     } else if (tipo === 'success') {
-        icon = '✨';
+        icon = '✓';
+    }
+
+    // Limpiar mensaje para que sea más conciso
+    let mensajeLimpio = mensaje;
+    if (mensaje.includes('🎉') || mensaje.includes('✨') || mensaje.includes('🛒')) {
+        // Simplificar mensajes largos
+        if (mensaje.includes('se agregó exitosamente')) {
+            mensajeLimpio = 'Producto agregado al carrito';
+        } else if (mensaje.includes('cantidad aumentada')) {
+            mensajeLimpio = 'Cantidad actualizada';
+        } else if (mensaje.includes('eliminado del carrito')) {
+            mensajeLimpio = 'Producto eliminado';
+        } else {
+            // Remover emojis y simplificar
+            mensajeLimpio = mensaje.replace(/[🎉✨🛒⚠️✅📉🗑️💱]/g, '').trim();
+        }
     }
 
     notification.innerHTML = `
         <span class="mobile-notification-icon">${icon}</span>
-        <span>${mensaje}</span>
+        <span class="mobile-notification-text">${mensajeLimpio}</span>
     `;
 
     // Agregar al DOM
@@ -170,15 +186,15 @@ function mostrarNotificacionFlotante(mensaje, tipo = 'success') {
         notification.classList.add('show');
     }, 100);
 
-    // Ocultar después de 3 segundos
+    // Ocultar después de 2.5 segundos
     setTimeout(() => {
         notification.classList.add('hide');
         setTimeout(() => {
             if (notification.parentNode) {
                 notification.remove();
             }
-        }, 500);
-    }, 3000);
+        }, 400);
+    }, 2500);
 
     // Permitir cerrar tocando la notificación
     notification.addEventListener('click', () => {
@@ -187,7 +203,7 @@ function mostrarNotificacionFlotante(mensaje, tipo = 'success') {
             if (notification.parentNode) {
                 notification.remove();
             }
-        }, 500);
+        }, 400);
     });
 }
 
