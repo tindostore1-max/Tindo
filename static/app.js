@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Mostrar el footer después de que se carguen los productos
     setTimeout(() => {
         mostrarFooterCopyright();
-    }, 1000);
+    }, 3000);
 });
 
 // Funciones del carrusel
