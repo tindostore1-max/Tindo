@@ -817,7 +817,7 @@ function agregarPaqueteSeleccionado() {
     }
 
     const producto = productoSeleccionado;
-    if (!producto) {
+    if (!producto){
         mostrarAlerta('Error:Producto no encontrado', 'error');
         return;
     }
@@ -1761,10 +1761,9 @@ function crearSeccionGiftCards() {
         }
 
         cardsHtml += `
-            <div class="product-card" onclick="verDetalleProducto(${giftCard.id})">
+            <div class="games-carousel-card" onclick="verDetalleProducto(${giftCard.id})">
                 <img src="${imagenUrl}" alt="${giftCard.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
                 <div class="product-name">${giftCard.nombre || 'Producto sin nombre'}</div>
-                <div class="product-description">${giftCard.descripcion || 'Sin descripción'}</div>
                 <div class="price-desde">${rangoPrecio}</div>
             </div>
         `;
@@ -1773,11 +1772,17 @@ function crearSeccionGiftCards() {
     return `
         <div class="section-header">
             <h3 class="section-title">🎁 Gift Cards</h3>
-            <button class="section-more-btn" onclick="mostrarTodasLasGiftCards()">Ver más</button>
+            <button class="section-more-btn" onclick="mostrarTodasLasGiftCards()">Ver Todos</button>
         </div>
-        <div class="giftcards-section">
-            <div class="giftcards-grid">
-                ${cardsHtml}
+        <div class="games-section">
+            <div class="games-carousel-container">
+                <div class="games-carousel-track" id="giftcards-carousel-track">
+                    ${cardsHtml}
+                </div>
+                ${giftCards.length > 3 ? `
+                    <button class="games-carousel-nav prev" onclick="moverCarruselGiftCards(-1)">‹</button>
+                    <button class="games-carousel-nav next" onclick="moverCarruselGiftCards(1)">›</button>
+                ` : ''}
             </div>
         </div>
     `;
@@ -1802,6 +1807,28 @@ function moverCarruselJuegos(direccion) {
     }
 
     const translateX = -gamesCarouselIndex * cardWidth;
+    track.style.transform = `translateX(${translateX}px)`;
+}
+
+function moverCarruselGiftCards(direccion) {
+    const track = document.getElementById('giftcards-carousel-track');
+    if (!track || giftCardsCarouselItems.length === 0) return;
+
+    const cardWidth = 220 + 15; // ancho de tarjeta + gap
+    const containerWidth = track.parentElement.offsetWidth;
+    const visibleCards = Math.floor(containerWidth / cardWidth);
+    const maxIndex = Math.max(0, giftCardsCarouselItems.length - visibleCards);
+
+    giftCardsCarouselIndex += direccion;
+
+    if (giftCardsCarouselIndex < 0) {
+        giftCardsCarouselIndex = 0;
+    }
+    if (giftCardsCarouselIndex > maxIndex) {
+        giftCardsCarouselIndex = maxIndex;
+    }
+
+    const translateX = -giftCardsCarouselIndex * cardWidth;
     track.style.transform = `translateX(${translateX}px)`;
 }
 
