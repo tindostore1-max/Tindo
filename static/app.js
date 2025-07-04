@@ -610,6 +610,12 @@ document.addEventListener('click', function(e) {
 function filtrarProductos(categoria, element) {
     filtroActual = categoria;
 
+    // Si no estamos en la pestaña de catálogo, cambiar a ella primero
+    const catalogoSection = document.getElementById('catalogo');
+    if (!catalogoSection || !catalogoSection.classList.contains('active')) {
+        mostrarTab('catalogo');
+    }
+
     // Actualizar categorías del header (desktop)
     document.querySelectorAll('.desktop-category-btn').forEach(btn => {
         btn.classList.remove('active');
