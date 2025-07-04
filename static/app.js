@@ -594,7 +594,8 @@ function mostrarProductos() {
 
         grid.innerHTML = `
             <div class="section-header">
-                <h3 class="section-title">🎮 Recarga de juegos</h3>
+                <h3 class="section-title">Recarga de juegos</h3>
+                <button class="section-more-btn" onclick="mostrarTodosLosJuegos()">Ver más</button>
             </div>
             <div class="todos-carousel-wrapper">
                 <div class="todos-carousel-track" id="todos-carousel-track">
