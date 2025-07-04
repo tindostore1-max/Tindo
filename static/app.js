@@ -53,6 +53,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Actualizar contador del carrito al cargar
     actualizarContadorCarrito();
+    
+    // Inicializar eventos táctiles para carruseles
+    setTimeout(() => {
+        inicializarSwipeCarruseles();
+    }, 500);
 
     // Manejar la ruta actual del navegador después de un pequeño delay
     setTimeout(() => {
@@ -755,6 +760,11 @@ function mostrarProductos() {
         // Inicializar índice del carrusel
         window.todosCarouselIndex = 0;
         window.todosCarouselItems = juegos;
+        
+        // Inicializar eventos táctiles después de crear el HTML
+        setTimeout(() => {
+            inicializarSwipeCarruseles();
+        }, 100);
         
         return;
     }
@@ -2189,6 +2199,94 @@ function plusSlides(n) {
     if (slideIndex > 3) slideIndex = 1;
     if (slideIndex < 1) slideIndex = 3;
     showSlide(slideIndex);
+}
+
+// Variables para control táctil de carruseles
+let touchStartX = 0;
+let touchEndX = 0;
+let currentCarousel = null;
+
+// Función para inicializar eventos táctiles en carruseles
+function inicializarSwipeCarruseles() {
+    // Carrusel principal (imágenes)
+    const carouselMain = document.querySelector('.carousel');
+    if (carouselMain) {
+        setupCarouselSwipe(carouselMain, 'main');
+    }
+
+    // Carrusel de juegos
+    const carouselJuegos = document.querySelector('.games-carousel-container');
+    if (carouselJuegos) {
+        setupCarouselSwipe(carouselJuegos, 'games');
+    }
+
+    // Carrusel de gift cards
+    const carouselGiftCards = document.querySelector('#giftcards-carousel-track');
+    if (carouselGiftCards && carouselGiftCards.parentElement) {
+        setupCarouselSwipe(carouselGiftCards.parentElement, 'giftcards');
+    }
+
+    // Carrusel de "todos"
+    const carouselTodos = document.querySelector('.todos-carousel-wrapper');
+    if (carouselTodos) {
+        setupCarouselSwipe(carouselTodos, 'todos');
+    }
+
+    // Carrusel de gift cards en "todos"
+    const carouselGiftCardsTodos = document.querySelector('#giftcards-todos-carousel-track');
+    if (carouselGiftCardsTodos && carouselGiftCardsTodos.parentElement) {
+        setupCarouselSwipe(carouselGiftCardsTodos.parentElement, 'giftcards-todos');
+    }
+}
+
+// Función para configurar swipe en un carrusel específico
+function setupCarouselSwipe(element, type) {
+    element.addEventListener('touchstart', function(e) {
+        touchStartX = e.changedTouches[0].screenX;
+        currentCarousel = type;
+    }, { passive: true });
+
+    element.addEventListener('touchend', function(e) {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    }, { passive: true });
+}
+
+// Función para manejar el swipe
+function handleSwipe() {
+    const swipeThreshold = 50; // Mínimo de píxeles para considerar un swipe
+    const swipeDistance = touchStartX - touchEndX;
+
+    if (Math.abs(swipeDistance) < swipeThreshold) return;
+
+    const direction = swipeDistance > 0 ? 1 : -1; // 1 = izquierda, -1 = derecha
+
+    switch(currentCarousel) {
+        case 'main':
+            if (direction > 0) {
+                plusSlides(1);
+            } else {
+                plusSlides(-1);
+            }
+            break;
+        case 'games':
+            moverCarruselJuegos(direction);
+            break;
+        case 'giftcards':
+            moverCarruselGiftCards(direction);
+            break;
+        case 'todos':
+            moverCarruselTodos(direction);
+            break;
+        case 'giftcards-todos':
+            moverCarruselGiftCardsTodos(direction);
+            break;
+    }
+
+    // Reset
+    touchStartX = 0;
+    touchEndX = 0;
+    currentCarousel = null;
 }
 
 // Función para mostrar términos y condiciones

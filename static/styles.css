@@ -602,14 +602,17 @@ header {
         gap: 10px;
     }
 
+    /* Ajustar tamaño de cards para mostrar mínimo 2 productos */
     .games-carousel-card {
-        flex: 0 0 180px;
-        padding: 12px;
+        flex: 0 0 160px; /* Reducido de 180px a 160px */
+        padding: 10px;
+        margin-right: 10px;
     }
 
     .games-carousel-card .product-name {
-        font-size: 14px;
+        font-size: 13px;
         margin-bottom: 6px;
+        line-height: 1.2;
     }
 
     .games-carousel-card .price-desde {
@@ -617,10 +620,16 @@ header {
         margin-top: 6px;
     }
 
+    .games-carousel-card .product-image {
+        height: 120px; /* Altura fija más pequeña */
+        object-fit: cover;
+    }
+
     .games-carousel-nav {
         width: 35px;
         height: 35px;
         font-size: 16px;
+        z-index: 15;
     }
 
     .games-carousel-nav.prev {
@@ -638,13 +647,15 @@ header {
     }
 
     .todos-carousel-card {
-        flex: 0 0 180px;
-        padding: 12px;
+        flex: 0 0 160px; /* Reducido de 180px a 160px */
+        padding: 10px;
+        margin-right: 10px;
     }
 
     .todos-carousel-card .product-name {
-        font-size: 14px;
+        font-size: 13px;
         margin-bottom: 6px;
+        line-height: 1.2;
     }
 
     .todos-carousel-card .price-desde {
@@ -652,10 +663,16 @@ header {
         margin-top: 6px;
     }
 
+    .todos-carousel-card .product-image {
+        height: 120px; /* Altura fija más pequeña */
+        object-fit: cover;
+    }
+
     .todos-carousel-nav {
         width: 35px;
         height: 35px;
         font-size: 16px;
+        z-index: 15;
     }
 
     .todos-carousel-nav.prev {
@@ -664,6 +681,15 @@ header {
 
     .todos-carousel-nav.next {
         right: 5px;
+    }
+
+    /* Asegurar que el track permita scroll horizontal suave */
+    .games-carousel-track, .todos-carousel-track {
+        touch-action: pan-x; /* Permitir solo deslizamiento horizontal */
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
     }
 }
 
