@@ -1790,8 +1790,7 @@ header {
 }
 
 .payment-icon {
-    font-size: 28px;
-    margin-bottom: 5px;
+    display: none;
 }
 
 .payment-text {
@@ -1811,7 +1810,7 @@ header {
     }
 
     .payment-icon {
-        font-size: 24px;
+        display: none;
     }
 
     .payment-text {
