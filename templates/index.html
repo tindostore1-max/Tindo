@@ -138,7 +138,19 @@
                             <label>🔢 Referencia de Pago</label>
                             <input type="text" id="referencia-pago" class="form-control" placeholder="Ingresa tu referencia de pago" required>
                         </div>
-                        <button type="submit" class="submit-payment-btn">
+                        
+                        <!-- Términos y condiciones -->
+                        <div class="form-group terms-group">
+                            <label class="terms-checkbox-container">
+                                <input type="checkbox" id="terminos-checkbox" required>
+                                <span class="checkmark"></span>
+                                <span class="terms-text">
+                                    Acepto los <a href="#" onclick="mostrarTerminos()" class="terms-link">términos y condiciones</a> y la política de privacidad
+                                </span>
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="submit-payment-btn" id="submit-payment-btn" disabled>
                             ✅ Confirmar Pago
                         </button>
                         <div id="mensaje-pago" class="payment-message" style="display: none;">

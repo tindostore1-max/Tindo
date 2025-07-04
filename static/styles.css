@@ -1470,6 +1470,92 @@ header {
     box-shadow: 0 12px 35px rgba(0, 123, 255, 0.4);
 }
 
+.submit-payment-btn:disabled {
+    background: linear-gradient(135deg, #6c757d, #5a6268);
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Estilos para términos y condiciones */
+.terms-group {
+    margin-bottom: 25px;
+}
+
+.terms-checkbox-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    color: #ffffff;
+    font-size: 14px;
+    line-height: 1.4;
+    position: relative;
+}
+
+.terms-checkbox-container input[type="checkbox"] {
+    display: none;
+}
+
+.checkmark {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 4px;
+    background: rgba(255,255,255,0.05);
+    position: relative;
+    flex-shrink: 0;
+    margin-top: 2px;
+    transition: all 0.3s ease;
+}
+
+.terms-checkbox-container:hover .checkmark {
+    border-color: #007bff;
+    background: rgba(0, 123, 255, 0.1);
+}
+
+.terms-checkbox-container input[type="checkbox"]:checked + .checkmark {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    border-color: #007bff;
+}
+
+.terms-checkbox-container input[type="checkbox"]:checked + .checkmark::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.terms-text {
+    flex: 1;
+}
+
+.terms-link {
+    color: #20c997;
+    text-decoration: underline;
+    transition: color 0.3s ease;
+}
+
+.terms-link:hover {
+    color: #17a2b8;
+}
+
+@media (max-width: 768px) {
+    .terms-checkbox-container {
+        font-size: 13px;
+    }
+    
+    .checkmark {
+        width: 18px;
+        height: 18px;
+    }
+}
+
 /* Estilos para el mensaje de pago */
 .payment-message {
     margin-top: 20px;

@@ -1045,6 +1045,16 @@ function inicializarEventos() {
         mostrarAlerta(`💱 Moneda cambiada a ${monedaActual}`, 'success');
     });
 
+    // Event listener para el checkbox de términos y condiciones
+    document.addEventListener('change', function(e) {
+        if (e.target && e.target.id === 'terminos-checkbox') {
+            const submitBtn = document.getElementById('submit-payment-btn');
+            if (submitBtn) {
+                submitBtn.disabled = !e.target.checked;
+            }
+        }
+    });
+
     // Formulario de pago
     document.getElementById('form-pago').addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -1513,4 +1523,138 @@ function plusSlides(n) {
     if (slideIndex > 3) slideIndex = 1;
     if (slideIndex < 1) slideIndex = 3;
     showSlide(slideIndex);
+}
+
+// Función para mostrar términos y condiciones
+function mostrarTerminos() {
+    const terminos = `
+    📋 TÉRMINOS Y CONDICIONES - INEFABLESTORE
+
+    1. ACEPTACIÓN DE TÉRMINOS
+    Al realizar una compra en Inefablestore, aceptas estos términos y condiciones.
+
+    2. PRODUCTOS Y SERVICIOS
+    • Ofrecemos recargas de juegos móviles y gift cards digitales
+    • Los productos son entregados digitalmente
+    • Las entregas se realizan en un plazo de 5 a 30 minutos
+
+    3. PAGOS
+    • Aceptamos Pago Móvil (VES) y Binance (USD)
+    • Todos los pagos deben ser verificados antes de la entrega
+    • No se aceptan devoluciones una vez entregado el producto
+
+    4. POLÍTICA DE REEMBOLSOS
+    • Solo se procesan reembolsos por errores de nuestra parte
+    • Los códigos ya entregados no son reembolsables
+    • Las disputas deben reportarse dentro de 24 horas
+
+    5. RESPONSABILIDADES
+    • El cliente debe proporcionar información correcta
+    • Inefablestore no se hace responsable por cuentas suspendidas
+    • El uso de nuestros servicios es bajo tu propio riesgo
+
+    6. PRIVACIDAD
+    • Protegemos tu información personal
+    • No compartimos datos con terceros
+    • Solo usamos tu información para procesar órdenes
+
+    7. CONTACTO
+    Para consultas o soporte, contáctanos a través de nuestros canales oficiales.
+
+    Al marcar la casilla, confirmas que has leído y aceptas estos términos.
+    `;
+
+    // Mostrar en una alerta personalizada o modal
+    if (window.innerWidth <= 768) {
+        // En móviles, usar un alert simple
+        alert(terminos);
+    } else {
+        // En desktop, crear un modal personalizado
+        const modal = document.createElement('div');
+        modal.className = 'terms-modal';
+        modal.innerHTML = `
+            <div class="terms-modal-content">
+                <div class="terms-modal-header">
+                    <h3>📋 Términos y Condiciones</h3>
+                    <button onclick="cerrarModalTerminos()" class="close-modal">✕</button>
+                </div>
+                <div class="terms-modal-body">
+                    <pre style="white-space: pre-wrap; color: #ffffff; line-height: 1.6; font-family: inherit;">${terminos}</pre>
+                </div>
+                <div class="terms-modal-footer">
+                    <button onclick="cerrarModalTerminos()" class="btn btn-primary">Cerrar</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Agregar estilos del modal
+        if (!document.getElementById('terms-modal-styles')) {
+            const styles = document.createElement('style');
+            styles.id = 'terms-modal-styles';
+            styles.textContent = `
+                .terms-modal {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0,0,0,0.8);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 9999;
+                    backdrop-filter: blur(5px);
+                }
+                .terms-modal-content {
+                    background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+                    border-radius: 20px;
+                    max-width: 90%;
+                    max-height: 90%;
+                    border: 1px solid #444;
+                    overflow: hidden;
+                    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+                }
+                .terms-modal-header {
+                    padding: 20px;
+                    border-bottom: 1px solid #444;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                .terms-modal-header h3 {
+                    color: #ffffff;
+                    margin: 0;
+                }
+                .close-modal {
+                    background: none;
+                    border: none;
+                    color: #ffffff;
+                    font-size: 24px;
+                    cursor: pointer;
+                    padding: 5px;
+                }
+                .terms-modal-body {
+                    padding: 20px;
+                    max-height: 400px;
+                    overflow-y: auto;
+                }
+                .terms-modal-footer {
+                    padding: 20px;
+                    border-top: 1px solid #444;
+                    text-align: center;
+                }
+            `;
+            document.head.appendChild(styles);
+        }
+    }
+}
+
+// Función para cerrar el modal de términos
+function cerrarModalTerminos() {
+    const modal = document.querySelector('.terms-modal');
+    if (modal) {
+        modal.remove();
+    }
 }
