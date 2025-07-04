@@ -377,7 +377,7 @@ header {
 }
 
 .product-description {
-    display: none;
+    display: none !important;
 }
 
 .package-list {
