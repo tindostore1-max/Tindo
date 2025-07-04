@@ -582,6 +582,103 @@ header {
 
 /* Responsive para móviles */
 @media (max-width: 768px) {
+    .container {
+        padding: 5px 5px 15px 5px; /* Reducido para expandir el área transparente */
+    }
+
+    header {
+        padding: 5px 15px; /* Padding aún más pequeño */
+        flex-direction: row; /* Mantener en fila para alejar elementos */
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px; /* Mayor separación entre logo y selector */
+    }
+
+    .logo {
+        height: 35px; /* Logo más pequeño en móvil */
+    }
+
+    .currency-selector {
+        padding: 4px 8px; /* Selector de moneda más compacto */
+        font-size: 12px;
+        min-width: 70px; /* Tamaño mínimo para mantener legibilidad */
+    }
+
+    .header-right {
+        gap: 8px; /* Menor espacio entre hamburguesa y selector */
+    }
+
+    .header-left {
+        flex: 1; /* Tomar espacio disponible */
+    }
+
+    .desktop-nav {
+        display: none !important; /* Asegurar que no aparezca en móvil */
+    }
+
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .product-card {
+        padding: 12px;
+    }
+
+    .product-image {
+        aspect-ratio: 1 / 1;
+        margin-bottom: 10px;
+    }
+
+    .product-name {
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+
+    .product-description {
+        font-size: 13px;
+        margin-bottom: 10px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .price-desde {
+        font-size: 14px;
+        margin-top: 8px;
+    }
+
+    .package-list {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .footer-nav {
+        padding: 6px 10px;
+    }
+
+    .nav-btn {
+        width: 42px;
+        height: 42px;
+        font-size: 18px;
+    }
+
+    .nav-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .cart-badge {
+        width: 18px;
+        height: 18px;
+        font-size: 10px;
+    }
+
+    .desktop-nav {
+        display: none !important;
+    }
+
     .games-section, .giftcards-section {
         margin: 0 0 20px 10px;
         padding: 20px;
@@ -907,8 +1004,7 @@ header {
 }
 
 .package-selectable:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.15);
+    transform: translateY(-2px);    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.15);
     border-color: #28a745;
 }
 
@@ -2340,105 +2436,6 @@ header {
 
     .content {
         margin-bottom: 20px; /* Reducir margen inferior en desktop */
-    }
-}
-
-@media (max-width: 768px) {
-    .container {
-        padding: 10px 2.5px 20px 2.5px; /* Reducido laterales a 2.5px para acercar aún más el contenido */
-    }
-
-    header {
-        padding: 5px 15px; /* Padding aún más pequeño */
-        flex-direction: row; /* Mantener en fila para alejar elementos */
-        justify-content: space-between;
-        align-items: center;
-        gap: 20px; /* Mayor separación entre logo y selector */
-    }
-
-    .logo {
-        height: 35px; /* Logo más pequeño en móvil */
-    }
-
-    .currency-selector {
-        padding: 4px 8px; /* Selector de moneda más compacto */
-        font-size: 12px;
-        min-width: 70px; /* Tamaño mínimo para mantener legibilidad */
-    }
-
-    .header-right {
-        gap: 8px; /* Menor espacio entre hamburguesa y selector */
-    }
-
-    .header-left {
-        flex: 1; /* Tomar espacio disponible */
-    }
-
-    .desktop-nav {
-        display: none !important; /* Asegurar que no aparezca en móvil */
-    }
-
-    .product-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-    }
-
-    .product-card {
-        padding: 12px;
-    }
-
-    .product-image {
-        aspect-ratio: 1 / 1;
-        margin-bottom: 10px;
-    }
-
-    .product-name {
-        font-size: 16px;
-        margin-bottom: 8px;
-    }
-
-    .product-description {
-        font-size: 13px;
-        margin-bottom: 10px;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-
-    .price-desde {
-        font-size: 14px;
-        margin-top: 8px;
-    }
-
-    .package-list {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-    }
-
-    .footer-nav {
-        padding: 6px 10px;
-    }
-
-    .nav-btn {
-        width: 42px;
-        height: 42px;
-        font-size: 18px;
-    }
-
-    .nav-icon {
-        width: 20px;
-        height: 20px;
-    }
-
-    .cart-badge {
-        width: 18px;
-        height: 18px;
-        font-size: 10px;
-    }
-
-    .desktop-nav {
-        display: none !important;
     }
 }
 
