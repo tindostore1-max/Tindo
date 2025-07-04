@@ -515,11 +515,7 @@ function verDetalleProducto(productoId) {
                     </div>
                     ` : ''}
 
-                    <!-- Descripción del producto después del formulario -->
-                    <div style="margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
-                        <p style="color: #cccccc; font-size: 16px; line-height: 1.5; margin: 0;">${producto.descripcion || 'Descripción del producto'}</p>
                     </div>
-                </div>
 
                 <div class="details-info-container" style="flex: 1;">
 
@@ -539,6 +535,11 @@ function verDetalleProducto(productoId) {
                         <button onclick="mostrarTab('catalogo')" class="btn btn-secondary" style="padding: 15px 20px; font-size: 14px; font-weight: 600; background: #6c757d; border: none; border-radius: 10px; color: white; cursor: pointer; transition: all 0.3s ease;">
                             ← Volver
                         </button>
+                    </div>
+
+                    <!-- Descripción del producto después del botón agregar al carrito - solo visible en móvil -->
+                    <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); display: block;">
+                        <p style="color: #cccccc; font-size: 16px; line-height: 1.5; margin: 0;">${producto.descripcion || 'Descripción del producto'}</p>
                     </div>
                 </div>
             </div>
