@@ -444,14 +444,10 @@ function mostrarProductos() {
 
         html += `
             <div class="product-card" onclick="verDetalleProducto(${producto.id})">
-                <span class="product-tag">Hot</span>
-                <img src="${imagenUrl}" alt="${producto.nombre || 'Producto'}" class="product-image">
-                <div class="product-card-content">
-                    <h3 class="product-name">${producto.nombre || 'Producto'}</h3>
-                    <div class="product-description">${producto.descripcion || 'Sin descripción'}</div>
-                    <p class="product-price">Desde ${rangoPrecio}</p>
-                    <button class="product-button">Ver más</button>
-                </div>
+                <img src="${imagenUrl}" alt="${producto.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
+                <div class="product-name">${producto.nombre || 'Producto sin nombre'}</div>
+                <div class="product-description">${producto.descripcion || 'Sin descripción'}</div>
+                <div class="price-desde">${rangoPrecio}</div>
             </div>
         `;
     });
