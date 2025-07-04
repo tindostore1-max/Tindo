@@ -2063,15 +2063,17 @@ header {
     position: relative;
     max-width: 100%;
     margin: 0 auto;
-    border-radius: 15px;
+    border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
 }
 
 .carousel {
     position: relative;
     width: 100%;
-    height: 300px;
+    height: 400px;
+    overflow: hidden;
 }
 
 .carousel-slide {
@@ -2090,27 +2092,83 @@ header {
     height: 100%;
     object-fit: cover;
     display: block;
+    border-radius: 20px;
+}
+
+/* Flechas de navegación */
+.carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.carousel-arrow:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: translateY(-50%) scale(1.1);
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.carousel-arrow.prev {
+    left: 20px;
+}
+
+.carousel-arrow.next {
+    right: 20px;
 }
 
 .carousel-dots {
-    text-align: center;
-    padding: 15px 0;
-    background: #2a2a2a;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    padding: 10px 20px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 25px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .dot {
     cursor: pointer;
-    height: 15px;
-    width: 15px;
-    margin: 0 5px;
-    background-color: #bbb;
+    height: 12px;
+    width: 12px;
+    background-color: rgba(255, 255, 255, 0.4);
     border-radius: 50%;
     display: inline-block;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
 }
 
-.dot.active, .dot:hover {
+.dot.active {
     background-color: #28a745;
+    transform: scale(1.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 15px rgba(40, 167, 69, 0.5);
+}
+
+.dot:hover {
+    background-color: rgba(255, 255, 255, 0.7);
+    transform: scale(1.1);
 }
 
 /* Estilos para las pestañas de categorías */
@@ -2203,16 +2261,31 @@ header {
     }
 
     .carousel {
-        height: 200px;
+        height: 250px;
+    }
+
+    .carousel-arrow {
+        width: 45px;
+        height: 45px;
+        font-size: 18px;
+    }
+
+    .carousel-arrow.prev {
+        left: 10px;
+    }
+
+    .carousel-arrow.next {
+        right: 10px;
     }
 
     .carousel-dots {
-        padding: 10px 0;
+        bottom: 15px;
+        padding: 8px 15px;
+        gap: 8px;
     }
 
     .dot {
-        height: 12px;
-        width: 12px;
-        margin: 0 3px;
+        height: 10px;
+        width: 10px;
     }
 }
