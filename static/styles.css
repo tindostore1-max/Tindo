@@ -225,7 +225,7 @@ header {
     padding: 30px;
     box-shadow: none;
     min-height: 500px;
-    margin-bottom: 70px; /* Espacio reducido para el footer más pequeño */
+    margin-bottom: 100px; /* Espacio para footer de navegación + copyright */
 }
 
 .tab-section {
@@ -1864,7 +1864,7 @@ header {
 /* Footer de copyright */
 .copyright-footer {
     position: fixed;
-    bottom: 70px; /* Encima del footer de navegación en móvil */
+    bottom: 0; /* Debajo del footer de navegación en móvil */
     left: 0;
     right: 0;
     background: rgba(20, 20, 20, 0.95);
@@ -1876,7 +1876,7 @@ header {
     border-top: 1px solid #28a745;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    z-index: 999;
+    z-index: 998; /* Menor que el footer de navegación */
     letter-spacing: 0.5px;
 }
 
