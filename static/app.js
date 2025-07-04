@@ -539,7 +539,7 @@ function verDetalleProducto(productoId) {
 
                     <!-- Descripción del producto después del botón agregar al carrito - solo visible en móvil -->
                     <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); display: block;">
-                        <p style="color: #cccccc; font-size: 16px; line-height: 1.5; margin: 0;">${producto.descripcion || 'Descripción del producto'}</p>
+                        <p style="color: #cccccc; font-size: 16px; line-height: 1.5; margin: 0; white-space: pre-wrap; word-wrap: break-word;">${producto.descripcion || 'Descripción del producto'}</p>
                     </div>
                 </div>
             </div>
