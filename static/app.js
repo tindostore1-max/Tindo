@@ -265,6 +265,30 @@ function mostrarTab(tabName, element) {
         document.querySelectorAll('.nav-btn[onclick*="catalogo"], .desktop-nav-btn[onclick*="catalogo"]').forEach(btn => {
             btn.classList.add('active');
         });
+        
+        // Activar automáticamente el filtro "Todos" cuando se va al catálogo
+        setTimeout(() => {
+            filtrarProductos('todos');
+            
+            // Activar el botón "Todos" en las categorías desktop
+            document.querySelectorAll('.desktop-category-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const todosBtnDesktop = document.querySelector('.desktop-category-btn[onclick*="todos"]');
+            if (todosBtnDesktop) {
+                todosBtnDesktop.classList.add('active');
+            }
+            
+            // Activar el item "Todos" en el menú móvil
+            document.querySelectorAll('.mobile-category-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            const todosBtnMobile = document.querySelector('.mobile-category-item[onclick*="todos"]');
+            if (todosBtnMobile) {
+                todosBtnMobile.classList.add('active');
+            }
+        }, 50);
+        
     } else if (tabName === 'carrito') {
         document.querySelectorAll('.nav-btn[onclick*="carrito"], .desktop-nav-btn[onclick*="carrito"]').forEach(btn => {
             btn.classList.add('active');
