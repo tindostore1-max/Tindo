@@ -243,8 +243,8 @@ header {
     margin-top: 20px;
 }
 
-/* Estilos para el carrusel de tarjetas de juegos */
-.games-carousel-section {
+/* Estilos para las secciones de juegos y gift cards */
+.games-section, .giftcards-section {
     margin: 30px 0;
     background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
     border-radius: 20px;
@@ -253,21 +253,21 @@ header {
     box-shadow: 0 15px 35px rgba(0,0,0,0.4);
 }
 
-.games-carousel-header {
+.section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
 }
 
-.games-carousel-title {
+.section-title {
     color: #ffffff;
     font-size: 24px;
     font-weight: 700;
     margin: 0;
 }
 
-.games-carousel-more {
+.section-more-btn {
     background: linear-gradient(135deg, #28a745, #20c997);
     color: white;
     border: none;
@@ -280,7 +280,7 @@ header {
     box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
 }
 
-.games-carousel-more:hover {
+.section-more-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
 }
@@ -375,21 +375,33 @@ header {
     right: 10px;
 }
 
+/* Grid de gift cards */
+.giftcards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+}
+
 /* Responsive para móviles */
 @media (max-width: 768px) {
-    .games-carousel-section {
+    .games-section, .giftcards-section {
         margin: 20px 0;
         padding: 20px;
         border-radius: 15px;
     }
 
-    .games-carousel-title {
+    .section-title {
         font-size: 20px;
     }
 
-    .games-carousel-more {
+    .section-more-btn {
         padding: 8px 16px;
         font-size: 12px;
+    }
+
+    .giftcards-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
     }
 
     .games-carousel-card {

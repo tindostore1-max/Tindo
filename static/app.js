@@ -525,60 +525,12 @@ function mostrarProductos() {
         return;
     }
 
-    // Si no hay filtro específico, mostrar carrusel de juegos + todos los productos
+    // Si no hay filtro específico, mostrar carrusel de juegos + gift cards separadas
     if (!filtroActual || filtroActual === 'todos') {
         const carruselHtml = crearCarruselJuegos();
-        let html = carruselHtml;
-
-        // Agregar productos en grid normal
-        productos.forEach(producto => {
-            // Corregir ruta de imagen
-            let imagenUrl = producto.imagen || '';
-            if (imagenUrl && !imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
-                imagenUrl = `/static/${imagenUrl}`;
-            }
-            if (!imagenUrl) {
-                imagenUrl = 'https://via.placeholder.com/300x200/007bff/ffffff?text=Producto';
-            }
-
-            // Calcular precio mínimo y máximo
-            let precioMinimo = 0;
-            let precioMaximo = 0;
-            if (producto.paquetes && Array.isArray(producto.paquetes) && producto.paquetes.length > 0) {
-                const precios = producto.paquetes.map(p => parseFloat(p.precio) || 0);
-                precioMinimo = Math.min(...precios);
-                precioMaximo = Math.max(...precios);
-            }
-
-            // Mostrar rango de precios según la moneda
-            let rangoPrecio = '';
-            if (precioMinimo === precioMaximo) {
-                // Si solo hay un precio
-                if (monedaActual === 'VES') {
-                    rangoPrecio = `Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)}`;
-                } else {
-                    rangoPrecio = `$${precioMinimo.toFixed(2)}`;
-                }
-            } else {
-                // Si hay rango de precios
-                if (monedaActual === 'VES') {
-                    rangoPrecio = `Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)} - Bs. ${(precioMaximo * tasaUSDVES).toFixed(2)}`;
-                } else {
-                    rangoPrecio = `$${precioMinimo.toFixed(2)} - $${precioMaximo.toFixed(2)}`;
-                }
-            }
-
-            html += `
-                <div class="product-card" onclick="verDetalleProducto(${producto.id})">
-                    <img src="${imagenUrl}" alt="${producto.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
-                    <div class="product-name">${producto.nombre || 'Producto sin nombre'}</div>
-                    <div class="product-description">${producto.descripcion || 'Sin descripción'}</div>
-                    <div class="price-desde">${rangoPrecio}</div>
-                </div>
-            `;
-        });
-
-        grid.innerHTML = html;
+        const giftCardsHtml = crearSeccionGiftCards();
+        
+        grid.innerHTML = carruselHtml + giftCardsHtml;
         return;
     }
 
@@ -1745,10 +1697,10 @@ function crearCarruselJuegos() {
     });
 
     return `
-        <div class="games-carousel-section">
-            <div class="games-carousel-header">
-                <h3 class="games-carousel-title">🎮 Juegos Destacados</h3>
-                <button class="games-carousel-more" onclick="mostrarTodosLosJuegos()">Ver más</button>
+        <div class="games-section">
+            <div class="section-header">
+                <h3 class="section-title">🎮 Juegos Destacados</h3>
+                <button class="section-more-btn" onclick="mostrarTodosLosJuegos()">Ver más</button>
             </div>
             <div class="games-carousel-container">
                 <div class="games-carousel-track" id="games-carousel-track">
@@ -1758,6 +1710,72 @@ function crearCarruselJuegos() {
                     <button class="games-carousel-nav prev" onclick="moverCarruselJuegos(-1)">‹</button>
                     <button class="games-carousel-nav next" onclick="moverCarruselJuegos(1)">›</button>
                 ` : ''}
+            </div>
+        </div>
+    `;
+}
+
+// Función para crear sección de Gift Cards
+function crearSeccionGiftCards() {
+    const giftCards = productos.filter(producto => producto.categoria === 'gift-cards');
+    if (giftCards.length === 0) return '';
+
+    let cardsHtml = '';
+    giftCards.forEach(giftCard => {
+        // Corregir ruta de imagen
+        let imagenUrl = giftCard.imagen || '';
+        if (imagenUrl && !imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
+            imagenUrl = `/static/${imagenUrl}`;
+        }
+        if (!imagenUrl) {
+            imagenUrl = 'https://via.placeholder.com/300x200/007bff/ffffff?text=Producto';
+        }
+
+        // Calcular precio mínimo y máximo
+        let precioMinimo = 0;
+        let precioMaximo = 0;
+        if (giftCard.paquetes && Array.isArray(giftCard.paquetes) && giftCard.paquetes.length > 0) {
+            const precios = giftCard.paquetes.map(p => parseFloat(p.precio) || 0);
+            precioMinimo = Math.min(...precios);
+            precioMaximo = Math.max(...precios);
+        }
+
+        // Mostrar rango de precios según la moneda
+        let rangoPrecio = '';
+        if (precioMinimo === precioMaximo) {
+            // Si solo hay un precio
+            if (monedaActual === 'VES') {
+                rangoPrecio = `Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)}`;
+            } else {
+                rangoPrecio = `$${precioMinimo.toFixed(2)}`;
+            }
+        } else {
+            // Si hay rango de precios
+            if (monedaActual === 'VES') {
+                rangoPrecio = `Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)} - Bs. ${(precioMaximo * tasaUSDVES).toFixed(2)}`;
+            } else {
+                rangoPrecio = `$${precioMinimo.toFixed(2)} - $${precioMaximo.toFixed(2)}`;
+            }
+        }
+
+        cardsHtml += `
+            <div class="product-card" onclick="verDetalleProducto(${giftCard.id})">
+                <img src="${imagenUrl}" alt="${giftCard.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
+                <div class="product-name">${giftCard.nombre || 'Producto sin nombre'}</div>
+                <div class="product-description">${giftCard.descripcion || 'Sin descripción'}</div>
+                <div class="price-desde">${rangoPrecio}</div>
+            </div>
+        `;
+    });
+
+    return `
+        <div class="giftcards-section">
+            <div class="section-header">
+                <h3 class="section-title">🎁 Gift Cards</h3>
+                <button class="section-more-btn" onclick="mostrarTodasLasGiftCards()">Ver más</button>
+            </div>
+            <div class="giftcards-grid">
+                ${cardsHtml}
             </div>
         </div>
     `;
@@ -1788,6 +1806,20 @@ function moverCarruselJuegos(direccion) {
 function mostrarTodosLosJuegos() {
     // Activar pestaña de juegos y mostrar catálogo
     filtrarProductos('juegos');
+    mostrarTab('catalogo');
+    
+    // Hacer scroll hacia los productos
+    setTimeout(() => {
+        const productosGrid = document.getElementById('productos-grid');
+        if (productosGrid) {
+            productosGrid.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, 300);
+}
+
+function mostrarTodasLasGiftCards() {
+    // Activar pestaña de gift cards y mostrar catálogo
+    filtrarProductos('gift-cards');
     mostrarTab('catalogo');
     
     // Hacer scroll hacia los productos
