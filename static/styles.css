@@ -1758,10 +1758,10 @@ header {
 }
 
 .payment-method-btn.selected {
-    border-color: #007bff;
-    background: linear-gradient(135deg, rgba(0, 123, 255, 0.2), rgba(0, 86, 179, 0.1));
+    border-color: #28a745;
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.2), rgba(32, 201, 151, 0.1));
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
 }
 
 .payment-method-btn.selected::after {
@@ -1771,7 +1771,7 @@ header {
     right: -5px;
     width: 25px;
     height: 25px;
-    background: #007bff;
+    background: #28a745;
     color: white;
     border-radius: 50%;
     display: flex;
@@ -1779,7 +1779,7 @@ header {
     justify-content: center;
     font-size: 12px;
     font-weight: 700;
-    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.4);
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.4);
 }
 
 .payment-icon {
