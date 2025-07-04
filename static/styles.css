@@ -14,7 +14,7 @@ body {
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 100px 10px 15px 10px; /* Reducido padding lateral de 20px a 10px y inferior de 20px a 15px */
+    padding: 100px 2px 8px 2px; /* Padding lateral mínimo de 2px y inferior de 8px */
 }
 
 header {
@@ -583,7 +583,7 @@ header {
 /* Responsive para móviles */
 @media (max-width: 768px) {
     .container {
-        padding: 5px 5px 15px 5px; /* Reducido para expandir el área transparente */
+        padding: 2px 2px 8px 2px; /* Padding mínimo para expandir al máximo el área transparente */
     }
 
     header {
