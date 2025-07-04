@@ -6,14 +6,16 @@ let tasaUSDVES = 36.50;
 let configuracion = {};
 let productoSeleccionado = null;
 
-// Variables para el carrusel de juegos
+// Variables globales para los carruseles
 let gamesCarouselIndex = 0;
 let gamesCarouselItems = [];
+let giftCardsCarouselIndex = 0;
+let giftCardsCarouselItems = [];
 
 // Inicialización
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM cargado, iniciando aplicación...');
-    
+
     cargarConfiguracion();
     cargarProductos();
     inicializarEventos();
@@ -23,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Manejar la ruta actual del navegador después de un pequeño delay
     setTimeout(() => {
         manejarRutaActual();
-        
+
         // Activar automáticamente la pestaña de Todos al cargar
         filtrarProductos('todos');
     }, 200);
@@ -81,9 +83,9 @@ async function verificarSesion() {
 function manejarRutaActual() {
     const path = window.location.pathname;
     const hash = window.location.hash.replace('#', '');
-    
+
     console.log('Manejando ruta actual:', { path, hash });
-    
+
     // Mapear rutas a pestañas
     const rutasPestanas = {
         '/': 'catalogo',
@@ -94,11 +96,11 @@ function manejarRutaActual() {
         '/cuenta': 'login',
         '/admin': 'admin'
     };
-    
+
     // Determinar qué pestaña mostrar
     let pestanaActiva = 'catalogo'; // Por defecto
     let productoId = null;
-    
+
     // Verificar si es un hash de detalles con ID de producto
     if (hash && hash.startsWith('detalles-')) {
         const id = hash.replace('detalles-', '');
@@ -113,9 +115,9 @@ function manejarRutaActual() {
     } else if (rutasPestanas[path]) {
         pestanaActiva = rutasPestanas[path];
     }
-    
+
     console.log('Pestaña activa determinada:', pestanaActiva, 'Producto ID:', productoId);
-    
+
     // Si es detalles con ID de producto, cargar el producto
     if (pestanaActiva === 'detalles' && productoId) {
         // Esperar a que los productos se carguen
@@ -125,7 +127,7 @@ function manejarRutaActual() {
                 setTimeout(cargarProductoDesdeURL, 100);
                 return;
             }
-            
+
             const producto = productos.find(p => p.id === productoId);
             if (producto) {
                 console.log('Producto encontrado en URL:', producto.nombre);
@@ -138,11 +140,11 @@ function manejarRutaActual() {
                 mostrarTab('catalogo');
             }
         };
-        
+
         cargarProductoDesdeURL();
         return;
     }
-    
+
     // Verificar que la pestaña existe antes de mostrarla
     const elementoPestana = document.getElementById(pestanaActiva);
     if (elementoPestana) {
@@ -179,7 +181,7 @@ window.addEventListener('popstate', function(event) {
 // Funciones de navegación
 function mostrarTab(tabName, element) {
     console.log('Mostrando tab:', tabName);
-    
+
     // Verificar que la pestaña existe
     const targetSection = document.getElementById(tabName);
     if (!targetSection) {
@@ -254,7 +256,7 @@ function mostrarTab(tabName, element) {
             return;
         }
     }
-    
+
     console.log('Tab mostrada exitosamente:', tabName);
 }
 
@@ -529,8 +531,8 @@ function mostrarProductos() {
     if (!filtroActual || filtroActual === 'todos') {
         const carruselHtml = crearCarruselJuegos();
         const giftCardsHtml = crearSeccionGiftCards();
-        
-        grid.innerHTML = carruselHtml + giftCardsHtml;
+
+        grid.innerHTML = carruselHtml + '<br>' + giftCardsHtml;
         return;
     }
 
@@ -612,7 +614,7 @@ function mostrarDetalleProductoDesdeURL(producto) {
     // Generar el mismo HTML que verDetalleProducto pero sin cambiar la pestaña
     const detalleHTML = generarHTMLDetalleProducto(producto);
     document.getElementById('producto-detalle').innerHTML = detalleHTML;
-    
+
     // Mostrar la pestaña de detalles
     mostrarTab('detalles');
 }
@@ -816,7 +818,7 @@ function agregarPaqueteSeleccionado() {
 
     const producto = productoSeleccionado;
     if (!producto) {
-        mostrarAlerta('Error: Producto no encontrado', 'error');
+        mostrarAlerta('Error:Producto no encontrado', 'error');
         return;
     }
 
@@ -1791,7 +1793,7 @@ function moverCarruselJuegos(direccion) {
     const maxIndex = Math.max(0, gamesCarouselItems.length - visibleCards);
 
     gamesCarouselIndex += direccion;
-    
+
     if (gamesCarouselIndex < 0) {
         gamesCarouselIndex = 0;
     }
@@ -1807,7 +1809,7 @@ function mostrarTodosLosJuegos() {
     // Activar pestaña de juegos y mostrar catálogo
     filtrarProductos('juegos');
     mostrarTab('catalogo');
-    
+
     // Hacer scroll hacia los productos
     setTimeout(() => {
         const productosGrid = document.getElementById('productos-grid');
@@ -1821,7 +1823,7 @@ function mostrarTodasLasGiftCards() {
     // Activar pestaña de gift cards y mostrar catálogo
     filtrarProductos('gift-cards');
     mostrarTab('catalogo');
-    
+
     // Hacer scroll hacia los productos
     setTimeout(() => {
         const productosGrid = document.getElementById('productos-grid');
@@ -1944,9 +1946,9 @@ function mostrarTerminos() {
                 </div>
             </div>
         `;
-        
+
         document.body.appendChild(modal);
-        
+
         // Agregar estilos del modal
         if (!document.getElementById('terms-modal-styles')) {
             const styles = document.createElement('style');
