@@ -54,26 +54,22 @@ document.addEventListener('DOMContentLoaded', function() {
     // Actualizar contador del carrito al cargar
     actualizarContadorCarrito();
 
-    // Crear tooltip del carrito para desktop con mejor timing
-    setTimeout(() => {
-        if (window.innerWidth > 768) {
-            crearTooltipCarrito();
-        }
-    }, 1500);
+    // Crear tooltip del carrito para desktop inmediatamente
+    if (window.innerWidth > 768) {
+        crearTooltipCarrito();
+    }
 
     // Recrear tooltip en cambios de tamaño de ventana
     window.addEventListener('resize', function() {
         if (window.innerWidth > 768) {
             // En desktop, asegurar que el tooltip existe
-            setTimeout(() => {
-                const existingTooltip = document.getElementById('cart-tooltip');
-                if (!existingTooltip) {
-                    crearTooltipCarrito();
-                } else {
-                    // Re-configurar eventos si ya existe
-                    configurarEventosTooltip();
-                }
-            }, 200);
+            const existingTooltip = document.getElementById('cart-tooltip');
+            if (!existingTooltip) {
+                crearTooltipCarrito();
+            } else {
+                // Re-configurar eventos si ya existe
+                configurarEventosTooltip();
+            }
         } else {
             // En móvil, remover tooltip si existe
             const tooltip = document.getElementById('cart-tooltip');
@@ -86,28 +82,22 @@ document.addEventListener('DOMContentLoaded', function() {
     // Establecer VES como moneda por defecto en el selector
     document.getElementById('selector-moneda').value = 'VES';
 
-    // Inicializar eventos táctiles para carruseles
-    setTimeout(() => {
-        inicializarSwipeCarruseles();
-    }, 500);
+    // Inicializar eventos táctiles para carruseles inmediatamente
+    inicializarSwipeCarruseles();
 
-    // Manejar la ruta actual del navegador después de un pequeño delay
-    setTimeout(() => {
-        manejarRutaActual();
+    // Manejar la ruta actual del navegador inmediatamente
+    manejarRutaActual();
 
-        // Activar categoría desde URL o por defecto "todos"
-        if (window.categoriaDesdeURL) {
-            filtrarProductos(window.categoriaDesdeURL);
-            window.categoriaDesdeURL = null; // Limpiar después de usar
-        } else if (!filtroActual) {
-            filtrarProductos('todos');
-        }
-    }, 200);
+    // Activar categoría desde URL o por defecto "todos"
+    if (window.categoriaDesdeURL) {
+        filtrarProductos(window.categoriaDesdeURL);
+        window.categoriaDesdeURL = null; // Limpiar después de usar
+    } else if (!filtroActual) {
+        filtrarProductos('todos');
+    }
 
-    // Mostrar el footer después de que se carguen los productos
-    setTimeout(() => {
-        mostrarFooterCopyright();
-    }, 3000);
+    // Mostrar el footer inmediatamente
+    mostrarFooterCopyright();
 });
 
 // Funciones del carrusel
@@ -460,23 +450,14 @@ async function cargarConfiguracion() {
 
         if (!response.ok) {
             console.warn('No se pudo cargar la configuración del servidor');
+            aplicarConfiguracionPorDefecto();
             return;
         }
 
         configuracion = await response.json();
 
-        // Actualizar logo si existe
-        const logoImg = document.getElementById('logo-img');
-        if (logoImg) {
-            if (configuracion.logo && configuracion.logo.trim() !== '') {
-                logoImg.src = configuracion.logo;
-                logoImg.onerror = function() {
-                    this.src = 'https://via.placeholder.com/150x60/007bff/ffffff?text=INEFABLESTORE';
-                };
-            } else {
-                logoImg.src = 'https://via.placeholder.com/150x60/007bff/ffffff?text=INEFABLESTORE';
-            }
-        }
+        // Actualizar logo inmediatamente si existe
+        actualizarLogo();
 
         // Actualizar tasa de cambio
         if (configuracion.tasa_usd_ves) {
@@ -487,14 +468,34 @@ async function cargarConfiguracion() {
         actualizarImagenesCarrusel();
     } catch (error) {
         console.warn('Error al cargar configuración:', error.message || 'Error desconocido');
-        // Usar configuración por defecto
-        configuracion = {
-            tasa_usd_ves: '36.50',
-            pago_movil: 'Información no disponible',
-            binance: 'Información no disponible'
-        };
-        tasaUSDVES = 36.50;
+        aplicarConfiguracionPorDefecto();
     }
+}
+
+// Función separada para actualizar el logo
+function actualizarLogo() {
+    const logoImg = document.getElementById('logo-img');
+    if (logoImg) {
+        if (configuracion.logo && configuracion.logo.trim() !== '') {
+            logoImg.src = configuracion.logo;
+            logoImg.onerror = function() {
+                this.src = 'https://via.placeholder.com/150x60/007bff/ffffff?text=INEFABLESTORE';
+            };
+        } else {
+            logoImg.src = 'https://via.placeholder.com/150x60/007bff/ffffff?text=INEFABLESTORE';
+        }
+    }
+}
+
+// Función para aplicar configuración por defecto
+function aplicarConfiguracionPorDefecto() {
+    configuracion = {
+        tasa_usd_ves: '36.50',
+        pago_movil: 'Información no disponible',
+        binance: 'Información no disponible'
+    };
+    tasaUSDVES = 36.50;
+    actualizarLogo();
 }
 
 // Función para actualizar las imágenes del carrusel
@@ -2831,16 +2832,16 @@ function procederAlPagoDesdeCarritoLateral() {
 function mostrarFooterCopyright() {
     const footer = document.querySelector('.copyright-footer');
     if (footer) {
-        // Inicialmente oculto
+        // Mostrar inmediatamente con animación suave
         footer.style.opacity = '0';
         footer.style.transform = 'translateY(20px)';
-        footer.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+        footer.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
 
-        // Mostrar con animación
-        setTimeout(() => {
+        // Aplicar animación inmediatamente
+        requestAnimationFrame(() => {
             footer.style.opacity = '1';
             footer.style.transform = 'translateY(0)';
-        }, 100);
+        });
     }
 }
 
