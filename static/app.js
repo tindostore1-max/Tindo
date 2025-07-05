@@ -54,20 +54,32 @@ document.addEventListener('DOMContentLoaded', function() {
     // Actualizar contador del carrito al cargar
     actualizarContadorCarrito();
 
-    // Crear tooltip del carrito para desktop
+    // Crear tooltip del carrito para desktop con mejor timing
     setTimeout(() => {
-        crearTooltipCarrito();
-    }, 1000);
+        if (window.innerWidth > 768) {
+            crearTooltipCarrito();
+        }
+    }, 1500);
     
     // Recrear tooltip en cambios de tamaño de ventana
     window.addEventListener('resize', function() {
         if (window.innerWidth > 768) {
             // En desktop, asegurar que el tooltip existe
             setTimeout(() => {
-                if (!document.getElementById('cart-tooltip')) {
+                const existingTooltip = document.getElementById('cart-tooltip');
+                if (!existingTooltip) {
                     crearTooltipCarrito();
+                } else {
+                    // Re-configurar eventos si ya existe
+                    configurarEventosTooltip();
                 }
-            }, 100);
+            }, 200);
+        } else {
+            // En móvil, remover tooltip si existe
+            const tooltip = document.getElementById('cart-tooltip');
+            if (tooltip) {
+                tooltip.remove();
+            }
         }
     });
 
@@ -1211,7 +1223,10 @@ function agregarPaqueteSeleccionado() {
 // Actualizar contador del carrito
 function actualizarContadorCarrito() {
     const total = carrito.reduce((sum, item) => sum + item.cantidad, 0);
-    document.getElementById('cart-count').textContent = total;
+    const mobileCounter = document.getElementById('cart-count');
+    if (mobileCounter) {
+        mobileCounter.textContent = total;
+    }
 
     // Actualizar también el contador desktop
     const desktopCounter = document.getElementById('cart-count-desktop');
@@ -1219,11 +1234,16 @@ function actualizarContadorCarrito() {
         desktopCounter.textContent = total;
     }
 
-    // Actualizar tooltip del carrito si existe
+    // Actualizar tooltip del carrito si existe en desktop
     if (window.innerWidth > 768) {
-        if (!document.getElementById('cart-tooltip')) {
-            crearTooltipCarrito();
+        const tooltip = document.getElementById('cart-tooltip');
+        if (!tooltip) {
+            // Crear tooltip si no existe
+            setTimeout(() => {
+                crearTooltipCarrito();
+            }, 100);
         } else {
+            // Actualizar contenido existente
             actualizarTooltipCarrito();
         }
     }
@@ -1728,7 +1748,7 @@ function mostrarMensajePago(mensaje, tipo) {
 // Procesar login
 async function procesarLogin() {
     const emailElement = document.getElementById('login-email');
-    const passwordElement = documentgetElementById('login-password');
+    const passwordElement = document.getElementById('login-password');
 
     if (!emailElement || !passwordElement) {
         mostrarAlerta('Error en el formulario de login', 'error');
@@ -2743,8 +2763,11 @@ function crearTooltipCarrito() {
     // Solo en desktop
     if (window.innerWidth <= 768) return;
     
-    // Verificar si ya existe
-    if (document.getElementById('cart-tooltip')) return;
+    // Verificar si ya existe y removerlo para recrearlo
+    const existingTooltip = document.getElementById('cart-tooltip');
+    if (existingTooltip) {
+        existingTooltip.remove();
+    }
 
     const tooltip = document.createElement('div');
     tooltip.id = 'cart-tooltip';
@@ -2779,21 +2802,48 @@ function crearTooltipCarrito() {
     if (cartButton) {
         cartButton.appendChild(tooltip);
         
-        // Limpiar eventos previos
-        cartButton.removeEventListener('mouseenter', mostrarTooltipCarrito);
-        cartButton.removeEventListener('mouseleave', ocultarTooltipCarrito);
+        // Configurar eventos
+        configurarEventosTooltip();
         
-        // Eventos para mostrar/ocultar tooltip
-        cartButton.addEventListener('mouseenter', mostrarTooltipCarrito);
-        cartButton.addEventListener('mouseleave', iniciarOcultarTooltip);
-        
-        // Mantener tooltip visible cuando el mouse está sobre él
-        tooltip.addEventListener('mouseenter', cancelarOcultarTooltip);
-        tooltip.addEventListener('mouseleave', iniciarOcultarTooltip);
+        // Actualizar contenido inicial
+        actualizarTooltipCarrito();
         
         console.log('Tooltip del carrito creado exitosamente');
     } else {
         console.error('No se encontró el botón del carrito desktop');
+        // Intentar encontrar el botón de otra manera
+        setTimeout(() => {
+            const alternativeButton = document.querySelector('.desktop-nav-btn[title*="Carrito"], .desktop-nav-btn:nth-child(2)');
+            if (alternativeButton) {
+                alternativeButton.appendChild(tooltip);
+                configurarEventosTooltip();
+                actualizarTooltipCarrito();
+                console.log('Tooltip del carrito creado en botón alternativo');
+            }
+        }, 500);
+    }
+}
+
+// Función separada para configurar eventos del tooltip
+function configurarEventosTooltip() {
+    const cartButton = document.querySelector('.desktop-nav-btn[title="Carrito"]');
+    const tooltip = document.getElementById('cart-tooltip');
+    
+    if (!cartButton || !tooltip) return;
+    
+    // Limpiar eventos previos para evitar duplicados
+    const newCartButton = cartButton.cloneNode(true);
+    cartButton.parentNode.replaceChild(newCartButton, cartButton);
+    
+    // Agregar eventos al nuevo botón
+    newCartButton.addEventListener('mouseenter', mostrarTooltipCarrito);
+    newCartButton.addEventListener('mouseleave', iniciarOcultarTooltip);
+    
+    // Re-obtener el tooltip después del reemplazo
+    const newTooltip = document.getElementById('cart-tooltip');
+    if (newTooltip) {
+        newTooltip.addEventListener('mouseenter', cancelarOcultarTooltip);
+        newTooltip.addEventListener('mouseleave', iniciarOcultarTooltip);
     }
 }
 
