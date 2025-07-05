@@ -65,10 +65,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Activar categoría desde URL o por defecto "todos"
         if (window.categoriaDesdeURL) {
-            filtrarProductos(window.categoriaDesdeURL);
-            window.categoriaDesdeURL = null; // Limpiar después de usar
+            setTimeout(() => {
+                filtrarProductos(window.categoriaDesdeURL);
+                window.categoriaDesdeURL = null; // Limpiar después de usar
+            }, 300);
         } else if (!filtroActual) {
-            filtrarProductos('todos');
+            setTimeout(() => {
+                filtrarProductos('todos');
+            }, 300);
         }
     }, 200);
 
@@ -169,7 +173,7 @@ function manejarRutaActual() {
         pestanaActiva = rutasPestanas[path];
     }
 
-    console.log('Pestaña activa determinada:', pestanaActiva, 'Producto ID:', productoId);
+    console.log('Pestaña activa determinada:', pestanaActiva, 'Categoría:', categoriaSeleccionada);
 
     // Si es detalles con ID de producto, cargar el producto
     if (pestanaActiva === 'detalles' && productoId) {
@@ -281,10 +285,12 @@ function mostrarTab(tabName, element) {
             btn.classList.add('active');
         });
 
-        // Siempre activar el filtro "Todos" cuando se hace clic en el botón Catálogo
-        setTimeout(() => {
-            filtrarProductos('todos');
-        }, 50);
+        // No activar automáticamente "Todos" si ya hay una categoría activa
+        if (!filtroActual || filtroActual === '') {
+            setTimeout(() => {
+                filtrarProductos('todos');
+            }, 50);
+        }
 
     } else if (tabName === 'carrito') {
         document.querySelectorAll('.nav-btn[onclick*="carrito"], .desktop-nav-btn[onclick*="carrito"]').forEach(btn => {
