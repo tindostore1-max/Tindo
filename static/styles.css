@@ -705,7 +705,7 @@ header {
     .games-carousel-card {
         flex: 0 0 calc(50% - 10px); /* Mostrar exactamente 2 productos por pantalla */
         max-width: 150px; /* Máximo ancho para pantallas muy pequeñas */
-        padding: 12px;
+        padding: 15px;
         margin-right: 8px;
     }
 
@@ -725,9 +725,9 @@ header {
     }
 
     .games-carousel-card .product-image {
-        height: 120px; /* Altura aumentada */
+        height: 140px; /* Altura aumentada aún más */
         object-fit: cover;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
     }
 
     .games-carousel-nav {
@@ -754,7 +754,7 @@ header {
     .todos-carousel-card {
         flex: 0 0 calc(50% - 10px); /* Mostrar exactamente 2 productos por pantalla */
         max-width: 150px; /* Máximo ancho para pantallas muy pequeñas */
-        padding: 12px;
+        padding: 15px;
         margin-right: 8px;
     }
 
@@ -774,9 +774,9 @@ header {
     }
 
     .todos-carousel-card .product-image {
-        height: 120px; /* Altura aumentada */
+        height: 140px; /* Altura aumentada aún más */
         object-fit: cover;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
     }
 
     .todos-carousel-nav {
@@ -810,13 +810,13 @@ header {
         .todos-carousel-card {
             flex: 0 0 calc(50% - 6px);
             max-width: 140px;
-            padding: 10px;
+            padding: 12px;
             margin-right: 6px;
         }
 
         .games-carousel-card .product-image,
         .todos-carousel-card .product-image {
-            height: 100px;
+            height: 115px;
         }
 
         .games-carousel-track, .todos-carousel-track {
