@@ -1234,6 +1234,8 @@ function actualizarContadorCarrito() {
         desktopCounter.textContent = total;
     }
 
+    console.log('Actualizando contador del carrito. Total items:', total, 'Carrito:', carrito);
+
     // Actualizar tooltip del carrito si existe en desktop
     if (window.innerWidth > 768) {
         const tooltip = document.getElementById('cart-tooltip');
@@ -1243,8 +1245,10 @@ function actualizarContadorCarrito() {
                 crearTooltipCarrito();
             }, 100);
         } else {
-            // Actualizar contenido existente
-            actualizarTooltipCarrito();
+            // Forzar actualización del contenido
+            setTimeout(() => {
+                actualizarTooltipCarrito();
+            }, 50);
         }
     }
 }
@@ -2766,11 +2770,12 @@ function crearTooltipCarrito() {
     // Verificar si ya existe - no recrear si ya está presente
     const existingTooltip = document.getElementById('cart-tooltip');
     if (existingTooltip) {
-        console.log('Tooltip ya existe, configurando eventos...');
-        configurarEventosTooltip();
+        console.log('Tooltip ya existe, actualizando contenido...');
         actualizarTooltipCarrito();
         return;
     }
+
+    console.log('Creando nuevo tooltip del carrito...');
 
     const tooltip = document.createElement('div');
     tooltip.id = 'cart-tooltip';
@@ -2804,26 +2809,29 @@ function crearTooltipCarrito() {
     const cartButton = document.querySelector('.desktop-nav-btn[title="Carrito"]');
     if (cartButton) {
         cartButton.appendChild(tooltip);
-        
-        // Configurar eventos
         configurarEventosTooltip();
-        
-        // Actualizar contenido inicial
         actualizarTooltipCarrito();
-        
-        console.log('Tooltip del carrito creado exitosamente');
+        console.log('Tooltip del carrito creado exitosamente con', carrito.length, 'items');
     } else {
-        console.error('No se encontró el botón del carrito desktop');
-        // Intentar encontrar el botón de otra manera
-        setTimeout(() => {
-            const alternativeButton = document.querySelector('.desktop-nav-btn[title*="Carrito"], .desktop-nav-btn:nth-child(2)');
-            if (alternativeButton) {
-                alternativeButton.appendChild(tooltip);
-                configurarEventosTooltip();
-                actualizarTooltipCarrito();
-                console.log('Tooltip del carrito creado en botón alternativo');
+        console.error('No se encontró el botón del carrito desktop, buscando alternativas...');
+        // Buscar de manera más amplia
+        const allDesktopBtns = document.querySelectorAll('.desktop-nav-btn');
+        let cartBtn = null;
+        
+        allDesktopBtns.forEach(btn => {
+            if (btn.innerHTML.includes('cart') || btn.title === 'Carrito' || btn.querySelector('svg')) {
+                cartBtn = btn;
             }
-        }, 500);
+        });
+        
+        if (cartBtn) {
+            cartBtn.appendChild(tooltip);
+            configurarEventosTooltip();
+            actualizarTooltipCarrito();
+            console.log('Tooltip del carrito creado en botón alternativo');
+        } else {
+            console.error('No se pudo encontrar ningún botón de carrito desktop');
+        }
     }
 }
 
@@ -2914,11 +2922,7 @@ function actualizarTooltipCarrito() {
         return;
     }
 
-    // Prevenir actualizaciones múltiples simultáneas
-    if (content.dataset.updating === 'true') {
-        return;
-    }
-    content.dataset.updating = 'true';
+    console.log('Actualizando tooltip con carrito:', carrito);
 
     if (carrito.length === 0) {
         content.innerHTML = `
@@ -2949,11 +2953,8 @@ function actualizarTooltipCarrito() {
             imagenUrl = 'https://via.placeholder.com/45x45/007bff/ffffff?text=J';
         }
 
-        // Usar un identificador único más confiable
-        const uniqueId = `tooltip-item-${item.id}-${index}`;
-
         html += `
-            <div class="cart-tooltip-item" data-item-id="${item.id}" id="${uniqueId}">
+            <div class="cart-tooltip-item" data-item-id="${item.id}">
                 <div class="cart-tooltip-item-header">
                     <img src="${imagenUrl}" alt="${item.productoNombre}" class="cart-tooltip-image" onerror="this.src='https://via.placeholder.com/45x45/007bff/ffffff?text=J'">
                     <div class="cart-tooltip-info">
@@ -2983,13 +2984,7 @@ function actualizarTooltipCarrito() {
     // Actualizar header con contador de items
     actualizarHeaderTooltip();
     
-    // Marcar actualización como completada
-    setTimeout(() => {
-        content.dataset.updating = 'false';
-    }, 100);
-    
-    // Log para debugging
-    console.log('Tooltip actualizado con', carrito.length, 'items');
+    console.log('Tooltip actualizado con', carrito.length, 'items, HTML:', html.substring(0, 100));
 }
 
 function cambiarCantidadTooltip(itemId, cambio) {
