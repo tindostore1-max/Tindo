@@ -605,7 +605,7 @@
 
             <!-- TAB PRODUCTOS -->
             <div id="productos" class="tab-pane">
-                
+
 
                 <div class="card">
                     <h3>🎮 Gestión de Productos</h3>
@@ -634,6 +634,10 @@
                         <div class="form-group">
                             <label>URL de la Imagen</label>
                             <input type="text" id="product-image" class="form-control">
+                        </div>
+                         <div class="form-group">
+                            <label>Etiquetas (separadas por comas)</label>
+                            <input type="text" id="product-etiquetas" class="form-control">
                         </div>
                         <div class="form-group">
                             <label>Paquetes</label>
@@ -918,7 +922,7 @@
             }
         }
 
-        // Función para determinar si una orden es de Gift Card
+        // Función para determinar siuna orden es de Gift Card
         function esGiftCard(orden) {
             // Verificar por nombre del juego o categoria almacenada
             const nombreJuego = (orden.juego_nombre || '').toLowerCase();
@@ -1075,12 +1079,15 @@
             // Limpiar paquetes y agregar uno vacío
             const container = document.getElementById('paquetes-container');
             container.innerHTML = `
-                <div class="paquete-item">
-                    <input type="number" placeholder="Orden" class="form-control paquete-orden" min="1" style="width: 80px; display: inline-block; margin-right: 10px;">
-                    <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre" style="width: calc(50% - 50px); display: inline-block; margin-right: 10px;">
-                    <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio" style="width: calc(30% - 50px); display: inline-block;">
-                </div>
-            `;
+                    <div class="paquete-item">
+                        <input type="number" placeholder="Orden" class="form-control paquete-orden" min="1" style="width: 80px; display: inline-block; margin-right: 10px;">
+                        <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre" style="width: calc(50% - 50px); display: inline-block; margin-right: 10px;">
+                        <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio" style="width: calc(30% - 50px); display: inline-block;">
+                    </div>
+                `;
+
+                // Limpiar campo de etiquetas
+                document.getElementById('product-etiquetas').value = '';
         }
 
         function addPaquete() {
@@ -1103,6 +1110,7 @@
             const descripcion = document.getElementById('product-description').value;
             const imagen = document.getElementById('product-image').value;
             const categoria = document.getElementById('product-category').value;
+            const etiquetas = document.getElementById('product-etiquetas').value;
 
             const paquetes = [];
             document.querySelectorAll('.paquete-item').forEach(item => {
@@ -1137,6 +1145,7 @@
                             descripcion,
                             imagen,
                             categoria,
+                            etiquetas,
                             paquetes
                         })
                     });
@@ -1152,6 +1161,7 @@
                             descripcion,
                             imagen,
                             categoria,
+                            etiquetas,
                             paquetes
                         })
                     });
@@ -1189,6 +1199,7 @@
                 document.getElementById('product-description').value = producto.descripcion || '';
                 document.getElementById('product-category').value = producto.categoria || 'juegos';
                 document.getElementById('product-image').value = producto.imagen || '';
+                document.getElementById('product-etiquetas').value = producto.etiquetas || '';
 
                 // Limpiar paquetes existentes y agregar los del producto
                 const container = document.getElementById('paquetes-container');
@@ -1534,7 +1545,7 @@
         // Función para mover producto arriba/abajo
         async function moverProducto(productoId, direccion) {
             if (!window.productos) return;
-            
+
             const index = window.productos.findIndex(p => p.id === productoId);
             if (index === -1) return;
 
@@ -1544,15 +1555,15 @@
                 try {
                     // Intercambiar posiciones en el array local
                     [window.productos[index], window.productos[newIndex]] = [window.productos[newIndex], window.productos[index]];
-                    
+
                     // Actualizar los órdenes en la base de datos
                     const producto1 = window.productos[index];
                     const producto2 = window.productos[newIndex];
-                    
+
                     // Asignar nuevos órdenes basados en la nueva posición
                     producto1.orden = index + 1;
                     producto2.orden = newIndex + 1;
-                    
+
                     // Enviar actualizaciones a la base de datos
                     await Promise.all([
                         fetch(`/admin/producto/${producto1.id}`, {
@@ -1566,7 +1577,8 @@
                                 imagen: producto1.imagen,
                                 categoria: producto1.categoria,
                                 orden: producto1.orden,
-                                paquetes: producto1.paquetes
+                                paquetes: producto1.paquetes,
+                                etiquetas: producto1.etiquetas
                             })
                         }),
                         fetch(`/admin/producto/${producto2.id}`, {
@@ -1580,15 +1592,16 @@
                                 imagen: producto2.imagen,
                                 categoria: producto2.categoria,
                                 orden: producto2.orden,
-                                paquetes: producto2.paquetes
+                                paquetes: producto2.paquetes,
+                                etiquetas: producto2.etiquetas
                             })
                         })
                     ]);
-                    
+
                     // Recargar la tabla para reflejar los cambios
                     await loadProductos();
                     showAlert(`Producto movido ${direccion === 'up' ? 'arriba' : 'abajo'}`);
-                    
+
                 } catch (error) {
                     console.error('Error al mover producto:', error);
                     showAlert('Error al cambiar el orden del producto', 'error');
@@ -1598,7 +1611,7 @@
             }
         }
 
-        
+
     </script>
 </body>
 </html>

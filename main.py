@@ -382,6 +382,12 @@ def init_db():
             ADD COLUMN IF NOT EXISTS orden INTEGER DEFAULT 0;
         '''))
 
+        # Agregar columna etiquetas si no existe (migración)
+        conn.execute(text('''
+            ALTER TABLE juegos 
+            ADD COLUMN IF NOT EXISTS etiquetas VARCHAR(255);
+        '''))
+
         conn.execute(text('''
             CREATE TABLE IF NOT EXISTS imagenes (
                 id SERIAL PRIMARY KEY,
@@ -813,15 +819,16 @@ def create_producto():
     imagen = data.get('imagen', '')
     categoria = data.get('categoria', 'juegos')
     orden = data.get('orden', 0)
+    etiquetas = data.get('etiquetas', '')
     paquetes = data.get('paquetes', [])
 
     conn = get_db_connection()
     try:
         # Insertar producto
         result = conn.execute(text('''
-            INSERT INTO juegos (nombre, descripcion, imagen, categoria, orden) 
-            VALUES (:nombre, :descripcion, :imagen, :categoria, :orden) RETURNING id
-        '''), {'nombre': nombre, 'descripcion': descripcion, 'imagen': imagen, 'categoria': categoria, 'orden': orden})
+            INSERT INTO juegos (nombre, descripcion, imagen, categoria, orden, etiquetas) 
+            VALUES (:nombre, :descripcion, :imagen, :categoria, :orden, :etiquetas) RETURNING id
+        '''), {'nombre': nombre, 'descripcion': descripcion, 'imagen': imagen, 'categoria': categoria, 'orden': orden, 'etiquetas': etiquetas})
 
         producto_id = result.fetchone()[0]
 
@@ -854,13 +861,14 @@ def update_producto(producto_id):
     imagen = data.get('imagen', '')
     categoria = data.get('categoria', 'juegos')
     orden = data.get('orden', 0)
+    etiquetas = data.get('etiquetas', '')
     paquetes = data.get('paquetes', [])
 
     conn = get_db_connection()
     try:
         # Actualizar producto
         conn.execute(text('''
-            UPDATE juegos SET nombre = :nombre, descripcion = :descripcion, imagen = :imagen, categoria = :categoria, orden = :orden 
+            UPDATE juegos SET nombre = :nombre, descripcion = :descripcion, imagen = :imagen, categoria = :categoria, orden = :orden, etiquetas = :etiquetas 
             WHERE id = :producto_id
         '''), {
             'nombre': nombre, 
@@ -868,6 +876,7 @@ def update_producto(producto_id):
             'imagen': imagen, 
             'categoria': categoria,
             'orden': orden,
+            'etiquetas': etiquetas,
             'producto_id': producto_id
         })
 
