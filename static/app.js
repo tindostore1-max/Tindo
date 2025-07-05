@@ -2994,7 +2994,7 @@ function cambiarCantidadTooltip(itemId, cambio) {
         btnElement.disabled = true;
         setTimeout(() => {
             btnElement.disabled = false;
-        }, 300);
+        }, 100);
     }
 
     // Convertir itemId a número para comparar correctamente
