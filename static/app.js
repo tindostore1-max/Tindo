@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
             crearTooltipCarrito();
         }
     }, 1500);
-    
+
     // Recrear tooltip en cambios de tamaño de ventana
     window.addEventListener('resize', function() {
         if (window.innerWidth > 768) {
@@ -629,7 +629,7 @@ function closeMobileCategoryMenu() {
 
     menu.classList.remove('show');
     hamburger.classList.remove('active');
-    
+
     // Restaurar scroll natural
     if (window.innerWidth <= 768) {
         document.body.style.position = '';
@@ -678,7 +678,7 @@ function filtrarProductos(categoria, element) {
         document.querySelectorAll('.nav-btn[onclick*="catalogo"], .desktop-nav-btn[onclick*="catalogo"]').forEach(btn => {
             btn.classList.add('active');
         });
-        
+
         // Mostrar sección catálogo
         document.querySelectorAll('.tab-section').forEach(section => {
             section.classList.remove('active');
@@ -782,12 +782,21 @@ function mostrarProductos() {
                 }
             }
 
-            // Procesar etiquetas
+            // Procesar etiquetas del juego
             let etiquetasHtml = '';
             if (juego.etiquetas && juego.etiquetas.trim()) {
                 const etiquetasArray = juego.etiquetas.split(',').map(e => e.trim()).filter(e => e);
                 etiquetasHtml = etiquetasArray.map(etiqueta => {
-                    const clase = etiqueta.toLowerCase().replace(/[^a-z0-9]/g, '');
+                    let clase = 'default';
+                    if (etiqueta.includes('%') || etiqueta.toLowerCase().includes('descuento') || etiqueta.toLowerCase().includes('oferta')) {
+                        clase = 'descuento';
+                    } else if (etiqueta.toLowerCase().includes('hot')) {
+                        clase = 'hot';
+                    } else if (etiqueta.toLowerCase().includes('nuevo')) {
+                        clase = 'nuevo';
+                    } else if (etiqueta.toLowerCase().includes('popular')) {
+                        clase = 'popular';
+                    }
                     return `<span class="product-tag ${clase}">${etiqueta}</span>`;
                 }).join('');
             }
@@ -967,12 +976,21 @@ function mostrarProductos() {
             }
         }
 
-        // Procesar etiquetas del producto
+        // Procesando etiquetas
         let etiquetasHtml = '';
         if (producto.etiquetas && producto.etiquetas.trim()) {
             const etiquetasArray = producto.etiquetas.split(',').map(e => e.trim()).filter(e => e);
             etiquetasHtml = etiquetasArray.map(etiqueta => {
-                const clase = etiqueta.toLowerCase().replace(/[^a-z0-9]/g, '');
+                let clase = 'default';
+                if (etiqueta.includes('%') || etiqueta.toLowerCase().includes('descuento') || etiqueta.toLowerCase().includes('oferta')) {
+                    clase = 'descuento';
+                } else if (etiqueta.toLowerCase().includes('hot')) {
+                    clase = 'hot';
+                } else if (etiqueta.toLowerCase().includes('nuevo')) {
+                    clase = 'nuevo';
+                } else if (etiqueta.toLowerCase().includes('popular')) {
+                    clase = 'popular';
+                }
                 return `<span class="product-tag ${clase}">${etiqueta}</span>`;
             }).join('');
         }
@@ -1620,7 +1638,7 @@ function inicializarEventos() {
             actualizarPreciosDetalles();
         }
 
-        // Actualizar total en página de pago si está visible
+        // Actualizar total en la página de pago si está visible
         const pagoSection = document.getElementById('pago');
         if (pagoSection && pagoSection.classList.contains('active')) {
             const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
@@ -2113,7 +2131,16 @@ function crearCarruselJuegos() {
         if (juego.etiquetas && juego.etiquetas.trim()) {
             const etiquetasArray = juego.etiquetas.split(',').map(e => e.trim()).filter(e => e);
             etiquetasHtml = etiquetasArray.map(etiqueta => {
-                const clase = etiqueta.toLowerCase().replace(/[^a-z0-9]/g, '');
+                let clase = 'default';
+                if (etiqueta.includes('%') || etiqueta.toLowerCase().includes('descuento') || etiqueta.toLowerCase().includes('oferta')) {
+                    clase = 'descuento';
+                } else if (etiqueta.toLowerCase().includes('hot')) {
+                    clase = 'hot';
+                } else if (etiqueta.toLowerCase().includes('nuevo')) {
+                    clase = 'nuevo';
+                } else if (etiqueta.toLowerCase().includes('popular')) {
+                    clase = 'popular';
+                }
                 return `<span class="product-tag ${clase}">${etiqueta}</span>`;
             }).join('');
         }
@@ -2339,7 +2366,7 @@ function mostrarTodosLosJuegos() {
 
     // Activar pestaña de juegos y mostrar catálogo
     filtrarProductos('juegos');
-    
+
     // Asegurar que estamos en la pestaña de catálogo
     if (!document.getElementById('catalogo').classList.contains('active')) {
         mostrarTab('catalogo');
@@ -2368,7 +2395,7 @@ function mostrarTodasLasGiftCards() {
 
     // Activar pestaña de gift cards y mostrar catálogo
     filtrarProductos('gift-cards');
-    
+
     // Asegurar que estamos en la pestaña de catálogo
     if (!document.getElementById('catalogo').classList.contains('active')) {
         mostrarTab('catalogo');
@@ -2696,7 +2723,7 @@ function crearCarritoLateral() {
     const overlay = document.createElement('div');
     overlay.id = 'mobile-cart-overlay';
     overlay.className = 'mobile-cart-overlay';
-    
+
     overlay.innerHTML = `
         <div class="mobile-cart-sidebar">
             <div class="mobile-cart-header">
@@ -2821,7 +2848,7 @@ function mostrarFooterCopyright() {
 function crearTooltipCarrito() {
     // Solo en desktop
     if (window.innerWidth <= 768) return;
-    
+
     // Verificar si ya existe - no recrear si ya está presente
     const existingTooltip = document.getElementById('cart-tooltip');
     if (existingTooltip) {
@@ -2835,7 +2862,7 @@ function crearTooltipCarrito() {
     const tooltip = document.createElement('div');
     tooltip.id = 'cart-tooltip';
     tooltip.className = 'cart-tooltip';
-    
+
     tooltip.innerHTML = `
         <div class="cart-tooltip-header">
             <h4>🛒 Tu Carrito (${carrito.reduce((sum, item) => sum + item.cantidad, 0)} items)</h4>
@@ -2872,13 +2899,13 @@ function crearTooltipCarrito() {
         // Buscar de manera más amplia
         const allDesktopBtns = document.querySelectorAll('.desktop-nav-btn');
         let cartBtn = null;
-        
+
         allDesktopBtns.forEach(btn => {
             if (btn.innerHTML.includes('cart') || btn.title === 'Carrito' || btn.querySelector('svg')) {
                 cartBtn = btn;
             }
         });
-        
+
         if (cartBtn) {
             cartBtn.appendChild(tooltip);
             configurarEventosTooltip();
@@ -2894,21 +2921,21 @@ function crearTooltipCarrito() {
 function configurarEventosTooltip() {
     const cartButton = document.querySelector('.desktop-nav-btn[title="Carrito"]');
     const tooltip = document.getElementById('cart-tooltip');
-    
+
     if (!cartButton || !tooltip) return;
-    
+
     // Verificar si ya tienen los eventos configurados para evitar duplicados
     if (cartButton.dataset.tooltipConfigured === 'true') {
         return;
     }
-    
+
     // Marcar como configurado
     cartButton.dataset.tooltipConfigured = 'true';
-    
+
     // Agregar eventos al botón
     cartButton.addEventListener('mouseenter', mostrarTooltipCarrito);
     cartButton.addEventListener('mouseleave', iniciarOcultarTooltip);
-    
+
     // Agregar eventos al tooltip
     if (tooltip) {
         tooltip.addEventListener('mouseenter', cancelarOcultarTooltip);
@@ -2922,7 +2949,7 @@ let tooltipTimeout = null;
 function mostrarTooltipCarrito() {
     // Solo en desktop
     if (window.innerWidth <= 768) return;
-    
+
     const tooltip = document.getElementById('cart-tooltip');
     if (!tooltip) {
         console.log('Tooltip no encontrado, creando...');
@@ -2938,7 +2965,7 @@ function mostrarTooltipCarrito() {
 
     // Actualizar contenido del tooltip
     actualizarTooltipCarrito();
-    
+
     // Mostrar tooltip
     setTimeout(() => {
         tooltip.classList.add('show');
@@ -2950,7 +2977,7 @@ function iniciarOcultarTooltip() {
     if (tooltipTimeout) {
         clearTimeout(tooltipTimeout);
     }
-    
+
     // Crear nuevo timeout para ocultar
     tooltipTimeout = setTimeout(() => {
         const tooltip = document.getElementById('cart-tooltip');
@@ -2971,7 +2998,7 @@ function cancelarOcultarTooltip() {
 function actualizarTooltipCarrito() {
     const content = document.getElementById('cart-tooltip-content');
     const total = document.getElementById('cart-tooltip-total');
-    
+
     if (!content || !total) {
         console.log('Elementos del tooltip no encontrados');
         return;
@@ -3035,10 +3062,10 @@ function actualizarTooltipCarrito() {
     // Actualizar contenido
     content.innerHTML = html;
     total.textContent = `Total: ${convertirPrecio(totalAmount)}`;
-    
+
     // Actualizar header con contador de items
     actualizarHeaderTooltip();
-    
+
     console.log('Tooltip actualizado con', carrito.length, 'items, HTML:', html.substring(0, 100));
 }
 
@@ -3072,7 +3099,7 @@ function cambiarCantidadTooltip(itemId, cambio) {
     // Guardar cambios
     guardarCarritoEnStorage();
     actualizarContadorCarrito();
-    
+
     // Actualizar tooltip inmediatamente
     actualizarTooltipCarrito();
 
@@ -3096,12 +3123,12 @@ function eliminarDelCarritoTooltip(itemId) {
 
     // Guardar nombre del item antes de eliminarlo
     const nombreItem = itemAEliminar.paqueteNombre;
-    
+
     // Eliminar del carrito
     carrito = carrito.filter(item => parseInt(item.id) !== numericItemId);
     guardarCarritoEnStorage();
     actualizarContadorCarrito();
-    
+
     // Actualizar tooltip con un pequeño delay
     setTimeout(() => {
         actualizarTooltipCarrito();
@@ -3117,7 +3144,7 @@ function procederAlPagoDesdeTooltip() {
     if (tooltip) {
         tooltip.classList.remove('show');
     }
-    
+
     // Proceder al pago
     procederAlPago();
 }
@@ -3125,7 +3152,7 @@ function procederAlPagoDesdeTooltip() {
 // Función para limpiar todo el carrito desde el tooltip
 function limpiarCarritoCompleto() {
     if (carrito.length === 0) return;
-    
+
     if (confirm('¿Estás seguro de que quieres limpiar todo el carrito?')) {
         carrito = [];
         limpiarCarritoStorage();
@@ -3141,7 +3168,7 @@ function cerrarTooltipCarrito() {
     if (tooltip) {
         tooltip.classList.remove('show');
     }
-    
+
     // Cancelar cualquier timeout pendiente
     if (tooltipTimeout) {
         clearTimeout(tooltipTimeout);
@@ -3153,7 +3180,7 @@ function cerrarTooltipCarrito() {
 function abrirCarritoCompleto() {
     // Ocultar tooltip
     cerrarTooltipCarrito();
-    
+
     // Ir a la pestaña del carrito
     mostrarTab('carrito');
 }
@@ -3162,13 +3189,13 @@ function abrirCarritoCompleto() {
 function actualizarHeaderTooltip() {
     const header = document.querySelector('.cart-tooltip-header h4');
     const itemsCount = document.getElementById('cart-tooltip-items');
-    
+
     const totalItems = carrito.reduce((sum, item) => sum + item.cantidad, 0);
-    
+
     if (header) {
         header.textContent = `🛒 Tu Carrito (${totalItems} items)`;
     }
-    
+
     if (itemsCount) {
         itemsCount.textContent = `${totalItems} producto${totalItems !== 1 ? 's' : ''}`;
     }
