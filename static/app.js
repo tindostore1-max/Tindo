@@ -600,6 +600,11 @@ document.addEventListener('click', function(e) {
 
 // Función para filtrar productos por categoría
 function filtrarProductos(categoria, element) {
+    // Si ya estamos en la misma categoría y no hay elemento específico, no hacer nada
+    if (filtroActual === categoria && !element) {
+        return;
+    }
+
     filtroActual = categoria;
 
     // Actualizar URL con la categoría seleccionada
@@ -2175,9 +2180,24 @@ function moverCarruselGiftCardsTodos(direccion) {
 }
 
 function mostrarTodosLosJuegos() {
+    // Si ya estamos en la categoría juegos, solo hacer scroll
+    if (filtroActual === 'juegos') {
+        setTimeout(() => {
+            const productosGrid = document.getElementById('productos-grid');
+            if (productosGrid) {
+                productosGrid.scrollIntoView({ behavior: 'smooth' });
+            }
+        }, 100);
+        return;
+    }
+
     // Activar pestaña de juegos y mostrar catálogo
     filtrarProductos('juegos');
-    mostrarTab('catalogo');
+    
+    // Asegurar que estamos en la pestaña de catálogo
+    if (!document.getElementById('catalogo').classList.contains('active')) {
+        mostrarTab('catalogo');
+    }
 
     // Hacer scroll hacia los productos
     setTimeout(() => {
@@ -2189,9 +2209,24 @@ function mostrarTodosLosJuegos() {
 }
 
 function mostrarTodasLasGiftCards() {
+    // Si ya estamos en la categoría gift-cards, solo hacer scroll
+    if (filtroActual === 'gift-cards') {
+        setTimeout(() => {
+            const productosGrid = document.getElementById('productos-grid');
+            if (productosGrid) {
+                productosGrid.scrollIntoView({ behavior: 'smooth' });
+            }
+        }, 100);
+        return;
+    }
+
     // Activar pestaña de gift cards y mostrar catálogo
     filtrarProductos('gift-cards');
-    mostrarTab('catalogo');
+    
+    // Asegurar que estamos en la pestaña de catálogo
+    if (!document.getElementById('catalogo').classList.contains('active')) {
+        mostrarTab('catalogo');
+    }
 
     // Hacer scroll hacia los productos
     setTimeout(() => {
