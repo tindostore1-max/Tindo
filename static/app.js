@@ -1,7 +1,7 @@
 // Variables globales
 let productos = [];
 let carrito = cargarCarritoDesdeStorage();
-let monedaActual = 'USD';
+let monedaActual = 'VES';
 let tasaUSDVES = 36.50;
 let configuracion = {};
 let productoSeleccionado = null;
@@ -53,6 +53,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Actualizar contador del carrito al cargar
     actualizarContadorCarrito();
+
+    // Establecer VES como moneda por defecto en el selector
+    document.getElementById('selector-moneda').value = 'VES';
 
     // Inicializar eventos táctiles para carruseles
     setTimeout(() => {
