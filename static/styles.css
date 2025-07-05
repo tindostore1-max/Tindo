@@ -969,6 +969,20 @@ header {
     position: relative;
 }
 
+/* Posicionamiento de las etiquetas */
+.product-tags {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-width: calc(100% - 16px);
+}card {
+    position: relative;
+}
+
 /* Versión desktop para imagen del producto seleccionado */
 @media (min-width: 769px) {
     .selected-product-image {

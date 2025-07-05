@@ -782,8 +782,19 @@ function mostrarProductos() {
                 }
             }
 
+            // Procesar etiquetas
+            let etiquetasHtml = '';
+            if (juego.etiquetas && juego.etiquetas.trim()) {
+                const etiquetasArray = juego.etiquetas.split(',').map(e => e.trim()).filter(e => e);
+                etiquetasHtml = etiquetasArray.map(etiqueta => {
+                    const clase = etiqueta.toLowerCase().replace(/[^a-z0-9]/g, '');
+                    return `<span class="product-tag ${clase}">${etiqueta}</span>`;
+                }).join('');
+            }
+
             cardsHtml += `
                 <div class="todos-carousel-card" onclick="verDetalleProducto(${juego.id})">
+                    ${etiquetasHtml ? `<div class="product-tags">${etiquetasHtml}</div>` : ''}
                     <img src="${imagenUrl}" alt="${juego.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
                     <div class="product-name">${juego.nombre || 'Producto sin nombre'}</div>
                     <div class="price-desde">${rangoPrecio}</div>
@@ -831,8 +842,19 @@ function mostrarProductos() {
                     }
                 }
 
+                // Procesar etiquetas para gift cards
+                let etiquetasHtml = '';
+                if (giftCard.etiquetas && giftCard.etiquetas.trim()) {
+                    const etiquetasArray = giftCard.etiquetas.split(',').map(e => e.trim()).filter(e => e);
+                    etiquetasHtml = etiquetasArray.map(etiqueta => {
+                        const clase = etiqueta.toLowerCase().replace(/[^a-z0-9]/g, '');
+                        return `<span class="product-tag ${clase}">${etiqueta}</span>`;
+                    }).join('');
+                }
+
                 giftCardsHtml += `
                     <div class="todos-carousel-card" onclick="verDetalleProducto(${giftCard.id})">
+                        ${etiquetasHtml ? `<div class="product-tags">${etiquetasHtml}</div>` : ''}
                         <img src="${imagenUrl}" alt="${giftCard.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
                         <div class="product-name">${giftCard.nombre || 'Producto sin nombre'}</div>
                         <div class="price-desde">${rangoPrecio}</div>
@@ -945,8 +967,19 @@ function mostrarProductos() {
             }
         }
 
+        // Procesar etiquetas del producto
+        let etiquetasHtml = '';
+        if (producto.etiquetas && producto.etiquetas.trim()) {
+            const etiquetasArray = producto.etiquetas.split(',').map(e => e.trim()).filter(e => e);
+            etiquetasHtml = etiquetasArray.map(etiqueta => {
+                const clase = etiqueta.toLowerCase().replace(/[^a-z0-9]/g, '');
+                return `<span class="product-tag ${clase}">${etiqueta}</span>`;
+            }).join('');
+        }
+
         html += `
             <div class="product-card" onclick="verDetalleProducto(${producto.id})">
+                ${etiquetasHtml ? `<div class="product-tags">${etiquetasHtml}</div>` : ''}
                 <img src="${imagenUrl}" alt="${producto.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
                 <div class="product-name">${producto.nombre || 'Producto sin nombre'}</div>
                 <div class="product-description">${producto.descripcion || 'Sin descripción'}</div>
@@ -2075,8 +2108,19 @@ function crearCarruselJuegos() {
             }
         }
 
+        // Procesar etiquetas del juego
+        let etiquetasHtml = '';
+        if (juego.etiquetas && juego.etiquetas.trim()) {
+            const etiquetasArray = juego.etiquetas.split(',').map(e => e.trim()).filter(e => e);
+            etiquetasHtml = etiquetasArray.map(etiqueta => {
+                const clase = etiqueta.toLowerCase().replace(/[^a-z0-9]/g, '');
+                return `<span class="product-tag ${clase}">${etiqueta}</span>`;
+            }).join('');
+        }
+
         cardsHtml += `
             <div class="games-carousel-card" onclick="verDetalleProducto(${juego.id})">
+                ${etiquetasHtml ? `<div class="product-tags">${etiquetasHtml}</div>` : ''}
                 <img src="${imagenUrl}" alt="${juego.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
                 <div class="product-name">${juego.nombre || 'Producto sin nombre'}</div>
                 <div class="price-desde">${rangoPrecio}</div>
@@ -2146,8 +2190,19 @@ function crearSeccionGiftCards() {
             }
         }
 
+        // Procesar etiquetas de la gift card
+        let etiquetasHtml = '';
+        if (giftCard.etiquetas && giftCard.etiquetas.trim()) {
+            const etiquetasArray = giftCard.etiquetas.split(',').map(e => e.trim()).filter(e => e);
+            etiquetasHtml = etiquetasArray.map(etiqueta => {
+                const clase = etiqueta.toLowerCase().replace(/[^a-z0-9]/g, '');
+                return `<span class="product-tag ${clase}">${etiqueta}</span>`;
+            }).join('');
+        }
+
         cardsHtml += `
             <div class="games-carousel-card" onclick="verDetalleProducto(${giftCard.id})">
+                ${etiquetasHtml ? `<div class="product-tags">${etiquetasHtml}</div>` : ''}
                 <img src="${imagenUrl}" alt="${giftCard.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
                 <div class="product-name">${giftCard.nombre || 'Producto sin nombre'}</div>
                 <div class="price-desde">${rangoPrecio}</div>
