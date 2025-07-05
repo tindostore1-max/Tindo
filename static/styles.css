@@ -9,6 +9,9 @@ body {
     background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
     min-height: 100vh;
     color: #333;
+    /* Mejorar scroll táctil en móviles */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
 }
 
 .container {
@@ -796,7 +799,7 @@ header {
 
     /* Asegurar que el track permita scroll horizontal suave */
     .games-carousel-track, .todos-carousel-track {
-        touch-action: pan-x; /* Permitir solo deslizamiento horizontal */
+        touch-action: pan-x pan-y; /* Permitir deslizamiento horizontal Y vertical */
         user-select: none;
         -webkit-user-select: none;
         -moz-user-select: none;
@@ -2275,6 +2278,26 @@ header {
 @media (min-width: 769px) {
     .mobile-notification {
         display: none;
+    }
+}
+
+/* Mejorar scroll táctil en móviles */
+@media (max-width: 768px) {
+    * {
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    body {
+        touch-action: manipulation; /* Mejorar respuesta táctil */
+    }
+    
+    .container {
+        touch-action: auto; /* Permitir scroll natural */
+    }
+    
+    .content {
+        touch-action: auto; /* Permitir scroll natural */
+        overflow-x: hidden; /* Evitar scroll horizontal no deseado */
     }
 }
 

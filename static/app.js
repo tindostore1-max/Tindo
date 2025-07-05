@@ -571,7 +571,14 @@ function toggleMobileCategoryMenu() {
         menu.style.display = 'block';
         menu.classList.add('show');
         hamburger.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Prevenir scroll del body
+        // Mejorar control del scroll en móviles
+        if (window.innerWidth <= 768) {
+            document.body.style.position = 'fixed';
+            document.body.style.width = '100%';
+            document.body.style.height = '100%';
+        } else {
+            document.body.style.overflow = 'hidden';
+        }
     }
 }
 
@@ -581,7 +588,14 @@ function closeMobileCategoryMenu() {
 
     menu.classList.remove('show');
     hamburger.classList.remove('active');
-    document.body.style.overflow = ''; // Restaurar scroll del body
+    
+    // Restaurar scroll natural
+    if (window.innerWidth <= 768) {
+        document.body.style.position = '';
+        document.body.style.width = '';
+        document.body.style.height = '';
+    }
+    document.body.style.overflow = '';
 
     setTimeout(() => {
         menu.style.display = 'none';
