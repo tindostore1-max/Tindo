@@ -223,6 +223,29 @@ header {
     cursor: pointer;
 }
 
+/* Banderas SVG para desktop - mejora la compatibilidad */
+@media (min-width: 769px) {
+    .currency-selector option[value="VES"]:before {
+        content: "";
+        display: inline-block;
+        width: 16px;
+        height: 12px;
+        margin-right: 8px;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 3 2'%3E%3Cpath fill='%23ffcc00' d='M0 0h3v.67H0z'/%3E%3Cpath fill='%23005ce6' d='M0 .67h3V1.33H0z'/%3E%3Cpath fill='%23e4002b' d='M0 1.33h3V2H0z'/%3E%3C/svg%3E") no-repeat center;
+        background-size: contain;
+    }
+    
+    .currency-selector option[value="USD"]:before {
+        content: "";
+        display: inline-block;
+        width: 16px;
+        height: 12px;
+        margin-right: 8px;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 19 10'%3E%3Cpath fill='%23fff' d='M0 0h19v10H0z'/%3E%3Cpath fill='%23bf0a30' d='M0 0h19v.77H0zm0 1.54h19v.77H0zm0 1.54h19v.77H0zm0 1.54h19v.77H0zm0 1.54h19v.77H0zm0 1.54h19v.77H0zm0 1.54h19V10H0z'/%3E%3Cpath fill='%23002868' d='M0 0h9.5v5.4H0z'/%3E%3C/svg%3E") no-repeat center;
+        background-size: contain;
+    }
+}
+
 .footer-nav {
     position: fixed;
     bottom: 0;
