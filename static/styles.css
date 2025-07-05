@@ -2588,8 +2588,8 @@ header {
     position: absolute;
     top: calc(100% + 10px);
     right: 0;
-    width: 380px;
-    max-height: 500px;
+    width: 420px;
+    max-height: 600px;
     background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
     border-radius: 15px;
     box-shadow: 0 15px 35px rgba(0,0,0,0.5);
@@ -2626,16 +2626,49 @@ header {
     border-bottom: 1px solid #444;
     background: rgba(40, 167, 69, 0.1);
     border-radius: 15px 15px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .cart-tooltip-header h4 {
     color: #ffffff;
     margin: 0;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
+    flex: 1;
+}
+
+.cart-tooltip-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.cart-tooltip-clear,
+.cart-tooltip-close {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 6px;
+    color: #ffffff;
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: center;
+}
+
+.cart-tooltip-clear:hover {
+    background: rgba(220, 53, 69, 0.8);
+    transform: scale(1.1);
+}
+
+.cart-tooltip-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
 }
 
 .cart-tooltip-content {
@@ -2659,9 +2692,7 @@ header {
 }
 
 .cart-tooltip-item {
-    display: flex;
-    align-items: center;
-    padding: 12px 0;
+    padding: 15px 0;
     border-bottom: 1px solid rgba(255,255,255,0.1);
     transition: all 0.3s ease;
 }
@@ -2673,13 +2704,19 @@ header {
 .cart-tooltip-item:hover {
     background: rgba(255,255,255,0.05);
     border-radius: 8px;
-    padding: 12px 8px;
+    padding: 15px 8px;
     margin: 0 -8px;
 }
 
+.cart-tooltip-item-header {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
 .cart-tooltip-image {
-    width: 45px;
-    height: 45px;
+    width: 50px;
+    height: 50px;
     object-fit: cover;
     border-radius: 8px;
     margin-right: 12px;
@@ -2696,7 +2733,7 @@ header {
     color: #ffffff;
     font-weight: 600;
     font-size: 14px;
-    margin-bottom: 2px;
+    margin-bottom: 3px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -2705,11 +2742,25 @@ header {
 .cart-tooltip-package {
     color: #20c997;
     font-size: 12px;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
 }
 
 .cart-tooltip-price {
     color: #28a745;
+    font-weight: 600;
+    font-size: 12px;
+    margin-bottom: 2px;
+}
+
+.cart-tooltip-userid {
+    color: #ffc107;
+    font-size: 11px;
+    margin-bottom: 3px;
+    font-weight: 500;
+}
+
+.cart-tooltip-subtotal {
+    color: #ffffff;
     font-weight: 700;
     font-size: 13px;
 }
@@ -2717,8 +2768,18 @@ header {
 .cart-tooltip-controls {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.cart-tooltip-quantity-control {
+    display: flex;
+    align-items: center;
     gap: 6px;
-    flex-shrink: 0;
+    background: rgba(255,255,255,0.05);
+    border-radius: 15px;
+    padding: 3px;
+    border: 1px solid rgba(255,255,255,0.1);
 }
 
 .cart-tooltip-qty-btn {
@@ -2791,22 +2852,54 @@ header {
     border-radius: 0 0 15px 15px;
 }
 
+.cart-tooltip-summary {
+    text-align: center;
+    margin-bottom: 12px;
+}
+
 .cart-tooltip-total {
     color: #28a745;
     font-weight: 700;
     font-size: 16px;
-    text-align: center;
-    margin-bottom: 10px;
+    margin-bottom: 4px;
+}
+
+.cart-tooltip-items {
+    color: #cccccc;
+    font-size: 12px;
+}
+
+.cart-tooltip-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.cart-tooltip-view-cart {
+    flex: 1;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.cart-tooltip-view-cart:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
 }
 
 .cart-tooltip-checkout {
-    width: 100%;
+    flex: 2;
     padding: 10px 15px;
     background: linear-gradient(135deg, #28a745, #20c997);
     color: white;
     border: none;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;

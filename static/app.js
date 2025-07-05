@@ -2727,21 +2727,33 @@ function crearTooltipCarrito() {
     
     tooltip.innerHTML = `
         <div class="cart-tooltip-header">
-            <h4>🛒 Tu Carrito</h4>
+            <h4>🛒 Tu Carrito (${carrito.reduce((sum, item) => sum + item.cantidad, 0)} items)</h4>
+            <div class="cart-tooltip-actions">
+                <button onclick="limpiarCarritoCompleto()" class="cart-tooltip-clear" title="Limpiar carrito">🗑️</button>
+                <button onclick="cerrarTooltipCarrito()" class="cart-tooltip-close" title="Cerrar">✕</button>
+            </div>
         </div>
         <div class="cart-tooltip-content" id="cart-tooltip-content">
             <!-- Contenido del carrito -->
         </div>
         <div class="cart-tooltip-footer">
-            <div class="cart-tooltip-total" id="cart-tooltip-total">Total: $0.00</div>
-            <button class="cart-tooltip-checkout" onclick="procederAlPagoDesdeTooltip()">
-                💳 Proceder al Pago
-            </button>
+            <div class="cart-tooltip-summary">
+                <div class="cart-tooltip-total" id="cart-tooltip-total">Total: $0.00</div>
+                <div class="cart-tooltip-items-count" id="cart-tooltip-items">0 productos</div>
+            </div>
+            <div class="cart-tooltip-buttons">
+                <button class="cart-tooltip-view-cart" onclick="abrirCarritoCompleto()">
+                    👁️ Ver Carrito
+                </button>
+                <button class="cart-tooltip-checkout" onclick="procederAlPagoDesdeTooltip()">
+                    💳 Proceder al Pago
+                </button>
+            </div>
         </div>
     `;
 
     // Agregar el tooltip al botón del carrito desktop
-    const cartButton = document.querySelector('.desktop-nav-btn[onclick*="carrito"]');
+    const cartButton = document.querySelector('.desktop-nav-btn[title="Carrito"]');
     if (cartButton) {
         cartButton.appendChild(tooltip);
         
@@ -2826,17 +2838,23 @@ function actualizarTooltipCarrito() {
 
         html += `
             <div class="cart-tooltip-item">
-                <img src="${imagenUrl}" alt="${item.productoNombre}" class="cart-tooltip-image" onerror="this.src='https://via.placeholder.com/45x45/007bff/ffffff?text=J'">
-                <div class="cart-tooltip-info">
-                    <div class="cart-tooltip-name">${item.productoNombre}</div>
-                    <div class="cart-tooltip-package">${item.paqueteNombre}</div>
-                    <div class="cart-tooltip-price">${convertirPrecio(item.precio)}</div>
+                <div class="cart-tooltip-item-header">
+                    <img src="${imagenUrl}" alt="${item.productoNombre}" class="cart-tooltip-image" onerror="this.src='https://via.placeholder.com/45x45/007bff/ffffff?text=J'">
+                    <div class="cart-tooltip-info">
+                        <div class="cart-tooltip-name">${item.productoNombre}</div>
+                        <div class="cart-tooltip-package">${item.paqueteNombre}</div>
+                        <div class="cart-tooltip-price">${convertirPrecio(item.precio)} × ${item.cantidad}</div>
+                        ${item.usuarioId && item.usuarioId !== 'gift-card' ? `<div class="cart-tooltip-userid">ID: ${item.usuarioId}</div>` : ''}
+                        <div class="cart-tooltip-subtotal">Subtotal: ${convertirPrecio(subtotal)}</div>
+                    </div>
                 </div>
                 <div class="cart-tooltip-controls">
-                    <button onclick="cambiarCantidadTooltip(${item.id}, -1)" class="cart-tooltip-qty-btn" title="Reducir cantidad">-</button>
-                    <span class="cart-tooltip-qty">${item.cantidad}</span>
-                    <button onclick="cambiarCantidadTooltip(${item.id}, 1)" class="cart-tooltip-qty-btn" title="Aumentar cantidad">+</button>
-                    <button onclick="eliminarDelCarritoTooltip(${item.id})" class="cart-tooltip-remove" title="Eliminar">🗑️</button>
+                    <div class="cart-tooltip-quantity-control">
+                        <button onclick="cambiarCantidadTooltip(${item.id}, -1)" class="cart-tooltip-qty-btn" title="Reducir cantidad">-</button>
+                        <span class="cart-tooltip-qty">${item.cantidad}</span>
+                        <button onclick="cambiarCantidadTooltip(${item.id}, 1)" class="cart-tooltip-qty-btn" title="Aumentar cantidad">+</button>
+                    </div>
+                    <button onclick="eliminarDelCarritoTooltip(${item.id})" class="cart-tooltip-remove" title="Eliminar del carrito">🗑️</button>
                 </div>
             </div>
         `;
@@ -2844,6 +2862,9 @@ function actualizarTooltipCarrito() {
 
     content.innerHTML = html;
     total.textContent = `Total: ${convertirPrecio(totalAmount)}`;
+    
+    // Actualizar header con contador de items
+    actualizarHeaderTooltip();
 }
 
 function cambiarCantidadTooltip(itemId, cambio) {
@@ -2871,4 +2892,50 @@ function procederAlPagoDesdeTooltip() {
     
     // Proceder al pago
     procederAlPago();
+}
+
+// Función para limpiar todo el carrito desde el tooltip
+function limpiarCarritoCompleto() {
+    if (carrito.length === 0) return;
+    
+    if (confirm('¿Estás seguro de que quieres limpiar todo el carrito?')) {
+        carrito = [];
+        limpiarCarritoStorage();
+        actualizarContadorCarrito();
+        actualizarTooltipCarrito();
+        mostrarAlerta('🗑️ Carrito limpiado completamente', 'success');
+    }
+}
+
+// Función para cerrar el tooltip manualmente
+function cerrarTooltipCarrito() {
+    const tooltip = document.getElementById('cart-tooltip');
+    if (tooltip) {
+        tooltip.classList.remove('show');
+    }
+}
+
+// Función para abrir el carrito completo desde el tooltip
+function abrirCarritoCompleto() {
+    // Ocultar tooltip
+    cerrarTooltipCarrito();
+    
+    // Ir a la pestaña del carrito
+    mostrarTab('carrito');
+}
+
+// Actualizar contador de items en el header del tooltip
+function actualizarHeaderTooltip() {
+    const header = document.querySelector('.cart-tooltip-header h4');
+    const itemsCount = document.getElementById('cart-tooltip-items');
+    
+    const totalItems = carrito.reduce((sum, item) => sum + item.cantidad, 0);
+    
+    if (header) {
+        header.textContent = `🛒 Tu Carrito (${totalItems} items)`;
+    }
+    
+    if (itemsCount) {
+        itemsCount.textContent = `${totalItems} producto${totalItems !== 1 ? 's' : ''}`;
+    }
 }
