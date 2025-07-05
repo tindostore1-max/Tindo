@@ -2909,7 +2909,10 @@ function actualizarTooltipCarrito() {
     const content = document.getElementById('cart-tooltip-content');
     const total = document.getElementById('cart-tooltip-total');
     
-    if (!content || !total) return;
+    if (!content || !total) {
+        console.log('Elementos del tooltip no encontrados');
+        return;
+    }
 
     if (carrito.length === 0) {
         content.innerHTML = `
@@ -2920,13 +2923,14 @@ function actualizarTooltipCarrito() {
             </div>
         `;
         total.textContent = 'Total: $0.00';
+        actualizarHeaderTooltip();
         return;
     }
 
     let html = '';
     let totalAmount = 0;
 
-    carrito.forEach(item => {
+    carrito.forEach((item, index) => {
         const subtotal = parseFloat(item.precio) * item.cantidad;
         totalAmount += subtotal;
 
@@ -2939,8 +2943,11 @@ function actualizarTooltipCarrito() {
             imagenUrl = 'https://via.placeholder.com/45x45/007bff/ffffff?text=J';
         }
 
+        // Usar un identificador único más confiable
+        const uniqueId = `tooltip-item-${item.id}-${index}`;
+
         html += `
-            <div class="cart-tooltip-item">
+            <div class="cart-tooltip-item" data-item-id="${item.id}" id="${uniqueId}">
                 <div class="cart-tooltip-item-header">
                     <img src="${imagenUrl}" alt="${item.productoNombre}" class="cart-tooltip-image" onerror="this.src='https://via.placeholder.com/45x45/007bff/ffffff?text=J'">
                     <div class="cart-tooltip-info">
@@ -2953,21 +2960,25 @@ function actualizarTooltipCarrito() {
                 </div>
                 <div class="cart-tooltip-controls">
                     <div class="cart-tooltip-quantity-control">
-                        <button onclick="cambiarCantidadTooltip(${item.id}, -1)" class="cart-tooltip-qty-btn" title="Reducir cantidad">-</button>
+                        <button onclick="cambiarCantidadTooltip(${item.id}, -1)" class="cart-tooltip-qty-btn" title="Reducir cantidad" type="button">-</button>
                         <span class="cart-tooltip-qty">${item.cantidad}</span>
-                        <button onclick="cambiarCantidadTooltip(${item.id}, 1)" class="cart-tooltip-qty-btn" title="Aumentar cantidad">+</button>
+                        <button onclick="cambiarCantidadTooltip(${item.id}, 1)" class="cart-tooltip-qty-btn" title="Aumentar cantidad" type="button">+</button>
                     </div>
-                    <button onclick="eliminarDelCarritoTooltip(${item.id})" class="cart-tooltip-remove" title="Eliminar del carrito">🗑️</button>
+                    <button onclick="eliminarDelCarritoTooltip(${item.id})" class="cart-tooltip-remove" title="Eliminar del carrito" type="button">🗑️</button>
                 </div>
             </div>
         `;
     });
 
+    // Actualizar contenido
     content.innerHTML = html;
     total.textContent = `Total: ${convertirPrecio(totalAmount)}`;
     
     // Actualizar header con contador de items
     actualizarHeaderTooltip();
+    
+    // Log para debugging
+    console.log('Tooltip actualizado con', carrito.length, 'items');
 }
 
 function cambiarCantidadTooltip(itemId, cambio) {
@@ -2980,16 +2991,24 @@ function cambiarCantidadTooltip(itemId, cambio) {
         return;
     }
 
+    // Guardar cantidad anterior para verificar cambio
+    const cantidadAnterior = item.cantidad;
     item.cantidad += cambio;
 
     if (item.cantidad <= 0) {
         eliminarDelCarritoTooltip(itemId);
-    } else {
+        return;
+    }
+
+    // Solo proceder si realmente cambió la cantidad
+    if (item.cantidad !== cantidadAnterior) {
         guardarCarritoEnStorage();
         actualizarContadorCarrito();
         
-        // Actualizar tooltip inmediatamente
-        actualizarTooltipCarrito();
+        // Actualizar tooltip con un pequeño delay para evitar conflictos
+        setTimeout(() => {
+            actualizarTooltipCarrito();
+        }, 50);
 
         // Mostrar mensaje de actualización
         if (cambio > 0) {
@@ -3010,15 +3029,21 @@ function eliminarDelCarritoTooltip(itemId) {
         return;
     }
 
+    // Guardar nombre del item antes de eliminarlo
+    const nombreItem = itemAEliminar.paqueteNombre;
+    
+    // Eliminar del carrito
     carrito = carrito.filter(item => parseInt(item.id) !== numericItemId);
     guardarCarritoEnStorage();
     actualizarContadorCarrito();
     
-    // Actualizar tooltip inmediatamente
-    actualizarTooltipCarrito();
+    // Actualizar tooltip con un pequeño delay
+    setTimeout(() => {
+        actualizarTooltipCarrito();
+    }, 50);
 
     // Mostrar mensaje de confirmación
-    mostrarAlerta(`🗑️ ${itemAEliminar.paqueteNombre} eliminado del carrito`, 'success');
+    mostrarAlerta(`🗑️ ${nombreItem} eliminado del carrito`, 'success');
 }
 
 function procederAlPagoDesdeTooltip() {
