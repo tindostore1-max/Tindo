@@ -261,6 +261,11 @@ function mostrarTab(tabName, element) {
         return;
     }
 
+    // En desktop, ignorar clicks en carrito ya que se maneja solo por tooltip
+    if (tabName === 'carrito' && window.innerWidth > 768) {
+        return;
+    }
+
     // Verificar que la pestaña existe
     const targetSection = document.getElementById(tabName);
     if (!targetSection) {
@@ -301,7 +306,8 @@ function mostrarTab(tabName, element) {
         }, 50);
 
     } else if (tabName === 'carrito') {
-        document.querySelectorAll('.nav-btn[onclick*="carrito"], .desktop-nav-btn[onclick*="carrito"]').forEach(btn => {
+        // Solo activar botón móvil del carrito, no el desktop
+        document.querySelectorAll('.nav-btn[onclick*="carrito"]').forEach(btn => {
             btn.classList.add('active');
         });
     } else if (tabName === 'login') {

@@ -141,7 +141,7 @@ header {
     filter: brightness(0) invert(1);
 }
 
-.desktop-nav-btn[onclick*="carrito"] .nav-icon {
+.desktop-nav-btn[title="Carrito"] .nav-icon {
     background-image: url('/static/images/cart-icon.svg');
     filter: brightness(0) invert(1);
 }
@@ -2929,8 +2929,15 @@ header {
     }
 
     /* Posicionar relativamente el botón del carrito para el tooltip */
-    .desktop-nav-btn[onclick*="carrito"] {
+    .desktop-nav-btn[title="Carrito"] {
         position: relative;
+        cursor: default; /* Cambiar cursor para indicar que no es clickeable */
+    }
+
+    .desktop-nav-btn[title="Carrito"]:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        transform: translateY(-1px);
     }
 }
 
