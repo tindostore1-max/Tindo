@@ -57,7 +57,19 @@ document.addEventListener('DOMContentLoaded', function() {
     // Crear tooltip del carrito para desktop
     setTimeout(() => {
         crearTooltipCarrito();
-    }, 500);
+    }, 1000);
+    
+    // Recrear tooltip en cambios de tamaño de ventana
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+            // En desktop, asegurar que el tooltip existe
+            setTimeout(() => {
+                if (!document.getElementById('cart-tooltip')) {
+                    crearTooltipCarrito();
+                }
+            }, 100);
+        }
+    });
 
     // Establecer VES como moneda por defecto en el selector
     document.getElementById('selector-moneda').value = 'VES';
@@ -1208,8 +1220,12 @@ function actualizarContadorCarrito() {
     }
 
     // Actualizar tooltip del carrito si existe
-    if (document.getElementById('cart-tooltip')) {
-        actualizarTooltipCarrito();
+    if (window.innerWidth > 768) {
+        if (!document.getElementById('cart-tooltip')) {
+            crearTooltipCarrito();
+        } else {
+            actualizarTooltipCarrito();
+        }
     }
 }
 
@@ -2724,6 +2740,9 @@ function mostrarFooterCopyright() {
 
 // Funciones para el tooltip del carrito en desktop
 function crearTooltipCarrito() {
+    // Solo en desktop
+    if (window.innerWidth <= 768) return;
+    
     // Verificar si ya existe
     if (document.getElementById('cart-tooltip')) return;
 
@@ -2760,22 +2779,43 @@ function crearTooltipCarrito() {
     if (cartButton) {
         cartButton.appendChild(tooltip);
         
+        // Limpiar eventos previos
+        cartButton.removeEventListener('mouseenter', mostrarTooltipCarrito);
+        cartButton.removeEventListener('mouseleave', ocultarTooltipCarrito);
+        
         // Eventos para mostrar/ocultar tooltip
         cartButton.addEventListener('mouseenter', mostrarTooltipCarrito);
-        cartButton.addEventListener('mouseleave', ocultarTooltipCarrito);
+        cartButton.addEventListener('mouseleave', iniciarOcultarTooltip);
         
         // Mantener tooltip visible cuando el mouse está sobre él
-        tooltip.addEventListener('mouseenter', mantenerTooltipVisible);
-        tooltip.addEventListener('mouseleave', ocultarTooltipCarrito);
+        tooltip.addEventListener('mouseenter', cancelarOcultarTooltip);
+        tooltip.addEventListener('mouseleave', iniciarOcultarTooltip);
+        
+        console.log('Tooltip del carrito creado exitosamente');
+    } else {
+        console.error('No se encontró el botón del carrito desktop');
     }
 }
+
+// Variable para controlar el timeout del tooltip
+let tooltipTimeout = null;
 
 function mostrarTooltipCarrito() {
     // Solo en desktop
     if (window.innerWidth <= 768) return;
     
     const tooltip = document.getElementById('cart-tooltip');
-    if (!tooltip) return;
+    if (!tooltip) {
+        console.log('Tooltip no encontrado, creando...');
+        crearTooltipCarrito();
+        return;
+    }
+
+    // Cancelar cualquier timeout pendiente
+    if (tooltipTimeout) {
+        clearTimeout(tooltipTimeout);
+        tooltipTimeout = null;
+    }
 
     // Actualizar contenido del tooltip
     actualizarTooltipCarrito();
@@ -2786,22 +2826,26 @@ function mostrarTooltipCarrito() {
     }, 50);
 }
 
-function ocultarTooltipCarrito() {
-    const tooltip = document.getElementById('cart-tooltip');
-    if (!tooltip) return;
+function iniciarOcultarTooltip() {
+    // Cancelar timeout previo
+    if (tooltipTimeout) {
+        clearTimeout(tooltipTimeout);
+    }
     
-    // Dar un pequeño delay para permitir moverse al tooltip
-    setTimeout(() => {
-        if (!tooltip.matches(':hover') && !tooltip.parentElement.matches(':hover')) {
+    // Crear nuevo timeout para ocultar
+    tooltipTimeout = setTimeout(() => {
+        const tooltip = document.getElementById('cart-tooltip');
+        if (tooltip && !tooltip.matches(':hover')) {
             tooltip.classList.remove('show');
         }
-    }, 100);
+    }, 200);
 }
 
-function mantenerTooltipVisible() {
-    const tooltip = document.getElementById('cart-tooltip');
-    if (tooltip) {
-        tooltip.classList.add('show');
+function cancelarOcultarTooltip() {
+    // Cancelar el timeout de ocultar
+    if (tooltipTimeout) {
+        clearTimeout(tooltipTimeout);
+        tooltipTimeout = null;
     }
 }
 
@@ -2915,6 +2959,12 @@ function cerrarTooltipCarrito() {
     const tooltip = document.getElementById('cart-tooltip');
     if (tooltip) {
         tooltip.classList.remove('show');
+    }
+    
+    // Cancelar cualquier timeout pendiente
+    if (tooltipTimeout) {
+        clearTimeout(tooltipTimeout);
+        tooltipTimeout = null;
     }
 }
 
