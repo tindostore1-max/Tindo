@@ -250,6 +250,12 @@ window.addEventListener('popstate', function(event) {
 function mostrarTab(tabName, element) {
     console.log('Mostrando tab:', tabName);
 
+    // Si es carrito en móvil, abrir sidebar lateral
+    if (tabName === 'carrito' && window.innerWidth <= 768) {
+        abrirCarritoLateral();
+        return;
+    }
+
     // Verificar que la pestaña existe
     const targetSection = document.getElementById(tabName);
     if (!targetSection) {
@@ -1270,6 +1276,12 @@ function cambiarCantidad(itemId, cambio) {
         mostrarCarrito();
         actualizarContadorCarrito();
 
+        // Actualizar carrito lateral si está abierto
+        const overlay = document.getElementById('mobile-cart-overlay');
+        if (overlay && overlay.classList.contains('show')) {
+            mostrarCarritoLateral();
+        }
+
         // Mostrar mensaje de actualización
         if (cambio > 0) {
             mostrarAlerta(`✅ Cantidad aumentada a ${item.cantidad}`, 'success');
@@ -1294,6 +1306,12 @@ function eliminarDelCarrito(itemId) {
     guardarCarritoEnStorage();
     mostrarCarrito();
     actualizarContadorCarrito();
+
+    // Actualizar carrito lateral si está abierto
+    const overlay = document.getElementById('mobile-cart-overlay');
+    if (overlay && overlay.classList.contains('show')) {
+        mostrarCarritoLateral();
+    }
 
     // Mostrar mensaje de confirmación
     mostrarAlerta(`🗑️ ${itemAEliminar.paqueteNombre} eliminado del carrito`, 'success');
@@ -2526,6 +2544,149 @@ function cerrarModalTerminos() {
     if (modal) {
         modal.remove();
     }
+}
+
+// Funciones para el carrito lateral en móviles
+function abrirCarritoLateral() {
+    // Crear overlay del carrito si no existe
+    let overlay = document.getElementById('mobile-cart-overlay');
+    if (!overlay) {
+        crearCarritoLateral();
+        overlay = document.getElementById('mobile-cart-overlay');
+    }
+
+    // Actualizar contenido del carrito
+    mostrarCarritoLateral();
+
+    // Mostrar overlay
+    overlay.style.display = 'block';
+    setTimeout(() => {
+        overlay.classList.add('show');
+    }, 10);
+
+    // Prevenir scroll del body
+    document.body.style.overflow = 'hidden';
+}
+
+function cerrarCarritoLateral() {
+    const overlay = document.getElementById('mobile-cart-overlay');
+    if (overlay) {
+        overlay.classList.remove('show');
+        setTimeout(() => {
+            overlay.style.display = 'none';
+        }, 300);
+    }
+
+    // Restaurar scroll del body
+    document.body.style.overflow = '';
+}
+
+function crearCarritoLateral() {
+    const overlay = document.createElement('div');
+    overlay.id = 'mobile-cart-overlay';
+    overlay.className = 'mobile-cart-overlay';
+    
+    overlay.innerHTML = `
+        <div class="mobile-cart-sidebar">
+            <div class="mobile-cart-header">
+                <h3>🛒 Tu Carrito</h3>
+                <button class="close-mobile-cart" onclick="cerrarCarritoLateral()">✕</button>
+            </div>
+            <div class="mobile-cart-content">
+                <div class="mobile-cart-items" id="mobile-cart-items">
+                    <!-- Contenido del carrito -->
+                </div>
+                <div class="mobile-cart-summary">
+                    <div class="mobile-cart-total" id="mobile-cart-total">Total: $0.00</div>
+                    <button class="mobile-checkout-btn" onclick="procederAlPagoDesdeCarritoLateral()">
+                        💳 Proceder al Pago
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    // Cerrar al hacer clic fuera del sidebar
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+            cerrarCarritoLateral();
+        }
+    });
+}
+
+function mostrarCarritoLateral() {
+    const carritoItems = document.getElementById('mobile-cart-items');
+    const carritoTotal = document.getElementById('mobile-cart-total');
+
+    if (!carritoItems || !carritoTotal) return;
+
+    if (carrito.length === 0) {
+        carritoItems.innerHTML = `
+            <div class="cart-empty" style="text-align: center; padding: 40px 20px; color: #cccccc;">
+                <div style="font-size: 48px; margin-bottom: 15px;">🛒</div>
+                <h3 style="color: #888; margin-bottom: 10px; font-size: 18px;">Tu carrito está vacío</h3>
+                <p style="color: #666; font-size: 14px;">Agrega productos para comenzar</p>
+            </div>
+        `;
+        carritoTotal.textContent = 'Total: $0.00';
+        return;
+    }
+
+    let html = '';
+    let total = 0;
+
+    carrito.forEach(item => {
+        const subtotal = parseFloat(item.precio) * item.cantidad;
+        total += subtotal;
+
+        // Corregir ruta de imagen del item
+        let imagenUrl = item.imagen || '';
+        if (imagenUrl && !imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
+            imagenUrl = `/static/${imagenUrl}`;
+        }
+        if (!imagenUrl) {
+            imagenUrl = 'https://via.placeholder.com/60x60/007bff/ffffff?text=Juego';
+        }
+
+        html += `
+            <div class="cart-item" style="margin-bottom: 15px;">
+                <div class="cart-item-header">
+                    <img src="${imagenUrl}" alt="${item.productoNombre}" class="cart-item-image" style="width: 50px; height: 50px;" onerror="this.src='https://via.placeholder.com/50x50/007bff/ffffff?text=Juego'">
+                    <div class="cart-item-info">
+                        <div class="cart-item-name" style="font-size: 14px;">${item.productoNombre}</div>
+                        <div class="cart-item-package" style="font-size: 12px;">${item.paqueteNombre}</div>
+                        <div class="cart-item-price" style="font-size: 13px;">${convertirPrecio(item.precio)}</div>
+                    </div>
+                </div>
+                <div class="cart-item-controls" style="margin-top: 10px;">
+                    <div class="quantity-control">
+                        <button onclick="cambiarCantidad(${item.id}, -1)" class="quantity-btn" style="width: 28px; height: 28px; font-size: 12px;">-</button>
+                        <span class="quantity-display" style="font-size: 14px;">${item.cantidad}</span>
+                        <button onclick="cambiarCantidad(${item.id}, 1)" class="quantity-btn" style="width: 28px; height: 28px; font-size: 12px;">+</button>
+                    </div>
+                    <button onclick="eliminarDelCarrito(${item.id})" class="remove-btn" style="width: 28px; height: 28px; font-size: 12px;">🗑️</button>
+                </div>
+            </div>
+        `;
+    });
+
+    carritoItems.innerHTML = html;
+    carritoTotal.textContent = `Total: ${convertirPrecio(total)}`;
+}
+
+function procederAlPagoDesdeCarritoLateral() {
+    if (carrito.length === 0) {
+        mostrarAlerta('Tu carrito está vacío', 'error');
+        return;
+    }
+
+    // Cerrar carrito lateral
+    cerrarCarritoLateral();
+
+    // Proceder al pago normal
+    procederAlPago();
 }
 
 // Función para mostrar el footer con animación

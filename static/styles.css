@@ -2304,6 +2304,121 @@ header {
     }
 }
 
+/* Carrito lateral tipo hamburguesa para móviles */
+.mobile-cart-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 9999;
+    display: none;
+    backdrop-filter: blur(5px);
+}
+
+.mobile-cart-sidebar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 90%;
+    max-width: 400px;
+    height: 100%;
+    background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+    box-shadow: -5px 0 25px rgba(0, 0, 0, 0.5);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    border-left: 1px solid #444;
+    display: flex;
+    flex-direction: column;
+}
+
+.mobile-cart-overlay.show .mobile-cart-sidebar {
+    transform: translateX(0);
+}
+
+.mobile-cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #444;
+    background: rgba(40, 167, 69, 0.1);
+    flex-shrink: 0;
+}
+
+.mobile-cart-header h3 {
+    color: #ffffff;
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.close-mobile-cart {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.close-mobile-cart:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: rotate(90deg);
+}
+
+.mobile-cart-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.mobile-cart-items {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.mobile-cart-summary {
+    background: rgba(255,255,255,0.03);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding: 20px;
+    flex-shrink: 0;
+}
+
+.mobile-cart-total {
+    font-size: 24px;
+    font-weight: 700;
+    color: #28a745;
+    text-align: center;
+    margin-bottom: 15px;
+    text-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+}
+
+.mobile-checkout-btn {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+}
+
+.mobile-checkout-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(40, 167, 69, 0.4);
+}
+
 /* Mejorar scroll táctil en móviles */
 @media (max-width: 768px) {
     * {
