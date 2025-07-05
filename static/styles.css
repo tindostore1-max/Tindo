@@ -751,7 +751,7 @@ header {
     }
 
     .games-carousel-card .product-image {
-        height: 140px; /* Altura aumentada aún más */
+        height: 155px; /* Altura aumentada un poco más */
         object-fit: cover;
         margin-bottom: 10px;
     }
@@ -800,7 +800,7 @@ header {
     }
 
     .todos-carousel-card .product-image {
-        height: 140px; /* Altura aumentada aún más */
+        height: 155px; /* Altura aumentada un poco más */
         object-fit: cover;
         margin-bottom: 10px;
     }
@@ -842,7 +842,7 @@ header {
 
         .games-carousel-card .product-image,
         .todos-carousel-card .product-image {
-            height: 115px;
+            height: 130px;
         }
 
         .games-carousel-track, .todos-carousel-track {
