@@ -2914,6 +2914,12 @@ function actualizarTooltipCarrito() {
         return;
     }
 
+    // Prevenir actualizaciones múltiples simultáneas
+    if (content.dataset.updating === 'true') {
+        return;
+    }
+    content.dataset.updating = 'true';
+
     if (carrito.length === 0) {
         content.innerHTML = `
             <div class="cart-tooltip-empty">
@@ -2977,11 +2983,25 @@ function actualizarTooltipCarrito() {
     // Actualizar header con contador de items
     actualizarHeaderTooltip();
     
+    // Marcar actualización como completada
+    setTimeout(() => {
+        content.dataset.updating = 'false';
+    }, 100);
+    
     // Log para debugging
     console.log('Tooltip actualizado con', carrito.length, 'items');
 }
 
 function cambiarCantidadTooltip(itemId, cambio) {
+    // Prevenir múltiples clicks rápidos
+    const btnElement = event?.target;
+    if (btnElement) {
+        btnElement.disabled = true;
+        setTimeout(() => {
+            btnElement.disabled = false;
+        }, 300);
+    }
+
     // Convertir itemId a número para comparar correctamente
     const numericItemId = parseInt(itemId);
     const item = carrito.find(i => parseInt(i.id) === numericItemId);
@@ -2991,8 +3011,7 @@ function cambiarCantidadTooltip(itemId, cambio) {
         return;
     }
 
-    // Guardar cantidad anterior para verificar cambio
-    const cantidadAnterior = item.cantidad;
+    // Aplicar el cambio
     item.cantidad += cambio;
 
     if (item.cantidad <= 0) {
@@ -3000,22 +3019,18 @@ function cambiarCantidadTooltip(itemId, cambio) {
         return;
     }
 
-    // Solo proceder si realmente cambió la cantidad
-    if (item.cantidad !== cantidadAnterior) {
-        guardarCarritoEnStorage();
-        actualizarContadorCarrito();
-        
-        // Actualizar tooltip con un pequeño delay para evitar conflictos
-        setTimeout(() => {
-            actualizarTooltipCarrito();
-        }, 50);
+    // Guardar cambios
+    guardarCarritoEnStorage();
+    actualizarContadorCarrito();
+    
+    // Actualizar tooltip inmediatamente
+    actualizarTooltipCarrito();
 
-        // Mostrar mensaje de actualización
-        if (cambio > 0) {
-            mostrarAlerta(`✅ Cantidad aumentada a ${item.cantidad}`, 'success');
-        } else {
-            mostrarAlerta(`📉 Cantidad reducida a ${item.cantidad}`, 'success');
-        }
+    // Mostrar mensaje de actualización
+    if (cambio > 0) {
+        mostrarAlerta(`✅ Cantidad aumentada a ${item.cantidad}`, 'success');
+    } else {
+        mostrarAlerta(`📉 Cantidad reducida a ${item.cantidad}`, 'success');
     }
 }
 
