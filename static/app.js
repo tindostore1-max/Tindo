@@ -63,8 +63,11 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         manejarRutaActual();
 
-        // Activar automáticamente la pestaña de Todos solo si no hay filtro definido
-        if (!filtroActual) {
+        // Activar categoría desde URL o por defecto "todos"
+        if (window.categoriaDesdeURL) {
+            filtrarProductos(window.categoriaDesdeURL);
+            window.categoriaDesdeURL = null; // Limpiar después de usar
+        } else if (!filtroActual) {
             filtrarProductos('todos');
         }
     }, 200);
@@ -144,6 +147,7 @@ function manejarRutaActual() {
     // Determinar qué pestaña mostrar
     let pestanaActiva = 'catalogo'; // Por defecto
     let productoId = null;
+    let categoriaSeleccionada = null;
 
     // Verificar si es un hash de detalles con ID de producto
     if (hash && hash.startsWith('detalles-')) {
@@ -152,6 +156,11 @@ function manejarRutaActual() {
             pestanaActiva = 'detalles';
             productoId = parseInt(id);
         }
+    }
+    // Verificar si es una categoría válida
+    else if (hash && ['todos', 'juegos', 'gift-cards'].includes(hash)) {
+        pestanaActiva = 'catalogo';
+        categoriaSeleccionada = hash;
     }
     // Si hay hash válido, usarlo como pestaña
     else if (hash && ['catalogo', 'carrito', 'pago', 'login', 'detalles'].includes(hash)) {
@@ -189,6 +198,13 @@ function manejarRutaActual() {
         return;
     }
 
+    // Si hay una categoría seleccionada en la URL, activarla
+    if (categoriaSeleccionada && pestanaActiva === 'catalogo') {
+        // Guardar la categoría para usar después de cargar los productos
+        window.categoriaDesdeURL = categoriaSeleccionada;
+        console.log('Categoría desde URL:', categoriaSeleccionada);
+    }
+
     // Verificar que la pestaña existe antes de mostrarla
     const elementoPestana = document.getElementById(pestanaActiva);
     if (elementoPestana) {
@@ -209,7 +225,12 @@ function manejarRutaActual() {
 // Función para actualizar la URL sin recargar
 function actualizarURL(tabName) {
     if (tabName === 'catalogo') {
-        window.history.replaceState({}, '', '/');
+        // Si estamos en catálogo, usar la categoría actual en lugar de la raíz
+        if (filtroActual && filtroActual !== 'todos') {
+            window.history.replaceState({}, '', `#${filtroActual}`);
+        } else {
+            window.history.replaceState({}, '', '#todos');
+        }
     } else if (tabName === 'detalles' && productoSeleccionado) {
         window.history.replaceState({}, '', `#detalles-${productoSeleccionado.id}`);
     } else {
@@ -580,6 +601,9 @@ document.addEventListener('click', function(e) {
 // Función para filtrar productos por categoría
 function filtrarProductos(categoria, element) {
     filtroActual = categoria;
+
+    // Actualizar URL con la categoría seleccionada
+    window.history.replaceState({}, '', `#${categoria}`);
 
     // Si no estamos en la pestaña de catálogo, cambiar a ella primero
     const catalogoSection = document.getElementById('catalogo');
