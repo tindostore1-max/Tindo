@@ -54,6 +54,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Actualizar contador del carrito al cargar
     actualizarContadorCarrito();
 
+    // Crear tooltip del carrito para desktop
+    setTimeout(() => {
+        crearTooltipCarrito();
+    }, 500);
+
     // Establecer VES como moneda por defecto en el selector
     document.getElementById('selector-moneda').value = 'VES';
 
@@ -1194,6 +1199,11 @@ function actualizarContadorCarrito() {
     const desktopCounter = document.getElementById('cart-count-desktop');
     if (desktopCounter) {
         desktopCounter.textContent = total;
+    }
+
+    // Actualizar tooltip del carrito si existe
+    if (document.getElementById('cart-tooltip')) {
+        actualizarTooltipCarrito();
     }
 }
 
@@ -2704,4 +2714,161 @@ function mostrarFooterCopyright() {
             footer.style.transform = 'translateY(0)';
         }, 100);
     }
+}
+
+// Funciones para el tooltip del carrito en desktop
+function crearTooltipCarrito() {
+    // Verificar si ya existe
+    if (document.getElementById('cart-tooltip')) return;
+
+    const tooltip = document.createElement('div');
+    tooltip.id = 'cart-tooltip';
+    tooltip.className = 'cart-tooltip';
+    
+    tooltip.innerHTML = `
+        <div class="cart-tooltip-header">
+            <h4>🛒 Tu Carrito</h4>
+        </div>
+        <div class="cart-tooltip-content" id="cart-tooltip-content">
+            <!-- Contenido del carrito -->
+        </div>
+        <div class="cart-tooltip-footer">
+            <div class="cart-tooltip-total" id="cart-tooltip-total">Total: $0.00</div>
+            <button class="cart-tooltip-checkout" onclick="procederAlPagoDesdeTooltip()">
+                💳 Proceder al Pago
+            </button>
+        </div>
+    `;
+
+    // Agregar el tooltip al botón del carrito desktop
+    const cartButton = document.querySelector('.desktop-nav-btn[onclick*="carrito"]');
+    if (cartButton) {
+        cartButton.appendChild(tooltip);
+        
+        // Eventos para mostrar/ocultar tooltip
+        cartButton.addEventListener('mouseenter', mostrarTooltipCarrito);
+        cartButton.addEventListener('mouseleave', ocultarTooltipCarrito);
+        
+        // Mantener tooltip visible cuando el mouse está sobre él
+        tooltip.addEventListener('mouseenter', mantenerTooltipVisible);
+        tooltip.addEventListener('mouseleave', ocultarTooltipCarrito);
+    }
+}
+
+function mostrarTooltipCarrito() {
+    // Solo en desktop
+    if (window.innerWidth <= 768) return;
+    
+    const tooltip = document.getElementById('cart-tooltip');
+    if (!tooltip) return;
+
+    // Actualizar contenido del tooltip
+    actualizarTooltipCarrito();
+    
+    // Mostrar tooltip
+    setTimeout(() => {
+        tooltip.classList.add('show');
+    }, 50);
+}
+
+function ocultarTooltipCarrito() {
+    const tooltip = document.getElementById('cart-tooltip');
+    if (!tooltip) return;
+    
+    // Dar un pequeño delay para permitir moverse al tooltip
+    setTimeout(() => {
+        if (!tooltip.matches(':hover') && !tooltip.parentElement.matches(':hover')) {
+            tooltip.classList.remove('show');
+        }
+    }, 100);
+}
+
+function mantenerTooltipVisible() {
+    const tooltip = document.getElementById('cart-tooltip');
+    if (tooltip) {
+        tooltip.classList.add('show');
+    }
+}
+
+function actualizarTooltipCarrito() {
+    const content = document.getElementById('cart-tooltip-content');
+    const total = document.getElementById('cart-tooltip-total');
+    
+    if (!content || !total) return;
+
+    if (carrito.length === 0) {
+        content.innerHTML = `
+            <div class="cart-tooltip-empty">
+                <span class="cart-tooltip-empty-icon">🛒</span>
+                <div style="color: #888; font-size: 14px; font-weight: 600;">Tu carrito está vacío</div>
+                <div style="color: #666; font-size: 12px; margin-top: 4px;">Agrega productos para comenzar</div>
+            </div>
+        `;
+        total.textContent = 'Total: $0.00';
+        return;
+    }
+
+    let html = '';
+    let totalAmount = 0;
+
+    carrito.forEach(item => {
+        const subtotal = parseFloat(item.precio) * item.cantidad;
+        totalAmount += subtotal;
+
+        // Corregir ruta de imagen del item
+        let imagenUrl = item.imagen || '';
+        if (imagenUrl && !imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
+            imagenUrl = `/static/${imagenUrl}`;
+        }
+        if (!imagenUrl) {
+            imagenUrl = 'https://via.placeholder.com/45x45/007bff/ffffff?text=J';
+        }
+
+        html += `
+            <div class="cart-tooltip-item">
+                <img src="${imagenUrl}" alt="${item.productoNombre}" class="cart-tooltip-image" onerror="this.src='https://via.placeholder.com/45x45/007bff/ffffff?text=J'">
+                <div class="cart-tooltip-info">
+                    <div class="cart-tooltip-name">${item.productoNombre}</div>
+                    <div class="cart-tooltip-package">${item.paqueteNombre}</div>
+                    <div class="cart-tooltip-price">${convertirPrecio(item.precio)}</div>
+                </div>
+                <div class="cart-tooltip-controls">
+                    <button onclick="cambiarCantidadTooltip(${item.id}, -1)" class="cart-tooltip-qty-btn" title="Reducir cantidad">-</button>
+                    <span class="cart-tooltip-qty">${item.cantidad}</span>
+                    <button onclick="cambiarCantidadTooltip(${item.id}, 1)" class="cart-tooltip-qty-btn" title="Aumentar cantidad">+</button>
+                    <button onclick="eliminarDelCarritoTooltip(${item.id})" class="cart-tooltip-remove" title="Eliminar">🗑️</button>
+                </div>
+            </div>
+        `;
+    });
+
+    content.innerHTML = html;
+    total.textContent = `Total: ${convertirPrecio(totalAmount)}`;
+}
+
+function cambiarCantidadTooltip(itemId, cambio) {
+    cambiarCantidad(itemId, cambio);
+    // Actualizar tooltip después del cambio
+    setTimeout(() => {
+        actualizarTooltipCarrito();
+    }, 100);
+}
+
+function eliminarDelCarritoTooltip(itemId) {
+    eliminarDelCarrito(itemId);
+    // Actualizar tooltip después de eliminar
+    setTimeout(() => {
+        actualizarTooltipCarrito();
+    }, 100);
+}
+
+function procederAlPagoDesdeTooltip() {
+    // Ocultar tooltip
+    const tooltip = document.getElementById('cart-tooltip');
+    if (tooltip) {
+        tooltip.classList.remove('show');
+    }
+    
+    // Proceder al pago
+    procederAlPago();
 }
