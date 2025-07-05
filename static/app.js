@@ -2742,9 +2742,6 @@ function crearTooltipCarrito() {
                 <div class="cart-tooltip-items-count" id="cart-tooltip-items">0 productos</div>
             </div>
             <div class="cart-tooltip-buttons">
-                <button class="cart-tooltip-view-cart" onclick="abrirCarritoCompleto()">
-                    👁️ Ver Carrito
-                </button>
                 <button class="cart-tooltip-checkout" onclick="procederAlPagoDesdeTooltip()">
                     💳 Proceder al Pago
                 </button>

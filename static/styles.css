@@ -2893,7 +2893,7 @@ header {
 }
 
 .cart-tooltip-checkout {
-    flex: 2;
+    width: 100%;
     padding: 10px 15px;
     background: linear-gradient(135deg, #28a745, #20c997);
     color: white;
