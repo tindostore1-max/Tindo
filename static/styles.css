@@ -703,8 +703,8 @@ header {
 
     /* Ajustar tamaño de cards para mostrar mínimo 2 productos en móvil */
     .games-carousel-card {
-        flex: 0 0 calc(50% - 10px); /* Mostrar exactamente 2 productos por pantalla */
-        max-width: 150px; /* Máximo ancho para pantallas muy pequeñas */
+        flex: 0 0 calc(50% - 8px); /* Mostrar exactamente 2 productos por pantalla */
+        max-width: 165px; /* Máximo ancho aumentado */
         padding: 15px;
         margin-right: 8px;
     }
@@ -752,8 +752,8 @@ header {
     }
 
     .todos-carousel-card {
-        flex: 0 0 calc(50% - 10px); /* Mostrar exactamente 2 productos por pantalla */
-        max-width: 150px; /* Máximo ancho para pantallas muy pequeñas */
+        flex: 0 0 calc(50% - 8px); /* Mostrar exactamente 2 productos por pantalla */
+        max-width: 165px; /* Máximo ancho aumentado */
         padding: 15px;
         margin-right: 8px;
     }
@@ -809,7 +809,7 @@ header {
         .games-carousel-card,
         .todos-carousel-card {
             flex: 0 0 calc(50% - 6px);
-            max-width: 140px;
+            max-width: 155px;
             padding: 12px;
             margin-right: 6px;
         }
