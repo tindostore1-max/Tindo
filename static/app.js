@@ -237,7 +237,7 @@ function mostrarTab(tabName, element) {
         section.classList.remove('active');
     });
 
-    // Quitar clase active de todos los botones (mobile y desktop)
+    // Quitar clase active SOLO de los botones de navegación (no de categorías)
     const navBtns = document.querySelectorAll('.nav-btn');
     const desktopNavBtns = document.querySelectorAll('.desktop-nav-btn');
 
@@ -252,19 +252,6 @@ function mostrarTab(tabName, element) {
     // Mostrar sección seleccionada
     targetSection.classList.add('active');
 
-    // Activar botón correspondiente si se proporciona
-    if (element) {
-        element.classList.add('active');
-    }
-
-    // Sincronizar botones por nombre de pestaña
-    const allNavBtns = [...navBtns, ...desktopNavBtns];
-    allNavBtns.forEach(btn => {
-        if (btn.onclick && btn.onclick.toString().includes(tabName)) {
-            btn.classList.add('active');
-        }
-    });
-
     // Activar botones específicos según la pestaña
     if (tabName === 'catalogo') {
         document.querySelectorAll('.nav-btn[onclick*="catalogo"], .desktop-nav-btn[onclick*="catalogo"]').forEach(btn => {
@@ -276,24 +263,6 @@ function mostrarTab(tabName, element) {
         if (!window.skipAutoTodos && (!filtroActual || filtroActual === 'todos')) {
             setTimeout(() => {
                 filtrarProductos('todos');
-
-                // Activar el botón "Todos" en las categorías desktop
-                document.querySelectorAll('.desktop-category-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                });
-                const todosBtnDesktop = document.querySelector('.desktop-category-btn[onclick*="todos"]');
-                if (todosBtnDesktop) {
-                    todosBtnDesktop.classList.add('active');
-                }
-
-                // Activar el item "Todos" en el menú móvil
-                document.querySelectorAll('.mobile-category-item').forEach(item => {
-                    item.classList.remove('active');
-                });
-                const todosBtnMobile = document.querySelector('.mobile-category-item[onclick*="todos"]');
-                if (todosBtnMobile) {
-                    todosBtnMobile.classList.add('active');
-                }
             }, 50);
         } else if (filtroActual && filtroActual !== 'todos') {
             // Si hay un filtro activo que no es "todos", mantenerlo
@@ -623,7 +592,21 @@ function filtrarProductos(categoria, element) {
     if (!catalogoSection || !catalogoSection.classList.contains('active')) {
         // Temporalmente deshabilitar la activación automática de "todos"
         window.skipAutoTodos = true;
-        mostrarTab('catalogo');
+        
+        // Asegurar que el botón de catálogo esté activo
+        document.querySelectorAll('.nav-btn, .desktop-nav-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelectorAll('.nav-btn[onclick*="catalogo"], .desktop-nav-btn[onclick*="catalogo"]').forEach(btn => {
+            btn.classList.add('active');
+        });
+        
+        // Mostrar sección catálogo
+        document.querySelectorAll('.tab-section').forEach(section => {
+            section.classList.remove('active');
+        });
+        catalogoSection.classList.add('active');
+        
         // Restaurar después de un breve delay
         setTimeout(() => {
             window.skipAutoTodos = false;
