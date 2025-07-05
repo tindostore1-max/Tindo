@@ -933,11 +933,11 @@ header {
 
 /* Diferentes colores para diferentes tipos de etiquetas */
 .product-tag.hot {
-    background: linear-gradient(135deg, #ff4757, #ff3742);
+    background: linear-gradient(135deg, #ff8c00, #ff6347);
 }
 
 .product-tag.nuevo {
-    background: linear-gradient(135deg, #2ed573, #1dd1a1);
+    background: linear-gradient(135deg, #007bff, #0056b3);
 }
 
 .product-tag.oferta {
@@ -945,7 +945,7 @@ header {
 }
 
 .product-tag.descuento {
-    background: linear-gradient(135deg, #3742fa, #2f3542);
+    background: linear-gradient(135deg, #28a745, #20c997);
 }
 
 .product-tag.popular {
