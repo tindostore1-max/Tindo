@@ -63,8 +63,10 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         manejarRutaActual();
 
-        // Activar automáticamente la pestaña de Todos al cargar
-        filtrarProductos('todos');
+        // Activar automáticamente la pestaña de Todos solo si no hay filtro definido
+        if (!filtroActual) {
+            filtrarProductos('todos');
+        }
     }, 200);
 
     // Mostrar el footer después de que se carguen los productos
@@ -258,18 +260,10 @@ function mostrarTab(tabName, element) {
             btn.classList.add('active');
         });
 
-        // Solo activar automáticamente el filtro "Todos" si no hay una categoría específica seleccionada
-        // y no se está navegando desde otra categoría
-        if (!window.skipAutoTodos && (!filtroActual || filtroActual === 'todos')) {
-            setTimeout(() => {
-                filtrarProductos('todos');
-            }, 50);
-        } else if (filtroActual && filtroActual !== 'todos') {
-            // Si hay un filtro activo que no es "todos", mantenerlo
-            setTimeout(() => {
-                mostrarProductos();
-            }, 50);
-        }
+        // Siempre activar el filtro "Todos" cuando se hace clic en el botón Catálogo
+        setTimeout(() => {
+            filtrarProductos('todos');
+        }, 50);
 
     } else if (tabName === 'carrito') {
         document.querySelectorAll('.nav-btn[onclick*="carrito"], .desktop-nav-btn[onclick*="carrito"]').forEach(btn => {
@@ -590,9 +584,6 @@ function filtrarProductos(categoria, element) {
     // Si no estamos en la pestaña de catálogo, cambiar a ella primero
     const catalogoSection = document.getElementById('catalogo');
     if (!catalogoSection || !catalogoSection.classList.contains('active')) {
-        // Temporalmente deshabilitar la activación automática de "todos"
-        window.skipAutoTodos = true;
-        
         // Asegurar que el botón de catálogo esté activo
         document.querySelectorAll('.nav-btn, .desktop-nav-btn').forEach(btn => {
             btn.classList.remove('active');
@@ -606,11 +597,6 @@ function filtrarProductos(categoria, element) {
             section.classList.remove('active');
         });
         catalogoSection.classList.add('active');
-        
-        // Restaurar después de un breve delay
-        setTimeout(() => {
-            window.skipAutoTodos = false;
-        }, 100);
     }
 
     // Actualizar categorías del header (desktop)
