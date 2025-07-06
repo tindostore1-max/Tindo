@@ -1176,31 +1176,39 @@ def logout():
     session.clear()
     return jsonify({'message': 'Sesión cerrada correctamente'})
 
-@app.route('/usuario', methods=['GET'])
-def get_usuario():
+# Modify /usuario endpoint to include admin status
+@app.route('/usuario')
+def obtener_usuario():
     if 'user_id' not in session:
         return jsonify({'error': 'No hay sesión activa'}), 401
 
-    conn = get_db_connection()
     try:
-        result = conn.execute(text('SELECT id, nombre, email, es_admin, fecha_registro FROM usuarios WHERE id = :user_id'), 
-                             {'user_id': session['user_id']})
-        usuario = result.fetchone()
+        with get_db_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                    SELECT id, nombre, email, fecha_registro, es_admin 
+                    FROM usuarios 
+                    WHERE id = %s
+                """, (session['user_id'],))
 
-        if usuario:
-            return jsonify({
-                'usuario': {
-                    'id': usuario[0],
-                    'nombre': usuario[1],
-                    'email': usuario[2],
-                    'es_admin': usuario[3],
-                    'fecha_registro': usuario[4].isoformat()
-                }
-            })
-        else:
-            return jsonify({'error': 'Usuario no encontrado'}), 404
-    finally:
-        conn.close()
+                usuario = cursor.fetchone()
+
+                if not usuario:
+                    return jsonify({'error': 'Usuario no encontrado'}), 404
+
+                return jsonify({
+                    'usuario': {
+                        'id': usuario[0],
+                        'nombre': usuario[1],
+                        'email': usuario[2],
+                        'fecha_registro': usuario[3].isoformat() if usuario[3] else None,
+                        'es_admin': usuario[4] if usuario[4] is not None else False
+                    }
+                })
+
+    except Exception as e:
+        print(f"Error al obtener usuario: {e}")
+        return jsonify({'error': 'Error interno del servidor'}), 500
 
 @app.route('/usuario/historial', methods=['GET'])
 def get_historial_compras():
@@ -1236,14 +1244,14 @@ def serve_image(filename):
     """Endpoint para servir imágenes desde la base de datos"""
     # Limpiar el nombre del archivo para evitar problemas de seguridad
     filename = secure_filename(filename)
-    
+
     # Buscar la imagen en la base de datos
     conn = get_db_connection()
     try:
         result = conn.execute(text('SELECT ruta FROM imagenes WHERE ruta LIKE :filename'), 
                              {'filename': f'%{filename}%'})
         imagen = result.fetchone()
-        
+
         if imagen:
             # Redirigir a la ruta real de la imagen
             return redirect(f'/static/{imagen[0]}')

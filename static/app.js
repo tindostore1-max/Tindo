@@ -1901,8 +1901,19 @@ function actualizarInterfazUsuario(usuario) {
     window.session = {
         user_id: usuario.id,
         user_email: usuario.email,
-        user_name: usuario.nombre
+        user_name: usuario.nombre,
+        es_admin: usuario.es_admin
     };
+
+    // Crear botón de administrador si el usuario es admin
+    let botonAdminHtml = '';
+    if (usuario.es_admin) {
+        botonAdminHtml = `
+            <button class="account-btn" onclick="window.location.href='/admin'" style="width: 100%; margin-bottom: 15px; background: linear-gradient(135deg, #dc3545, #c82333); color: white; box-shadow: 0 8px 25px rgba(220, 53, 69, 0.3);">
+                🛡️ Panel de Administración
+            </button>
+        `;
+    }
 
     // Cambiar contenido de la pestaña de cuenta
     const loginSection = document.getElementById('login');
@@ -1914,9 +1925,11 @@ function actualizarInterfazUsuario(usuario) {
                 <h3>🌟 Bienvenido, ${usuario.nombre}</h3>
                 <p><strong>Email:</strong> ${usuario.email}</p>
                 <p><strong>Miembro desde:</strong> ${new Date(usuario.fecha_registro).toLocaleDateString()}</p>
+                ${usuario.es_admin ? '<p style="color: #dc3545; font-weight: 700; margin-top: 10px;">🛡️ Administrador del Sistema</p>' : ''}
             </div>
 
             <div class="account-actions">
+                ${botonAdminHtml}
                 <button class="account-btn account-btn-primary" onclick="mostrarHistorialCompras()">
                     📋 Ver Historial de Compras
                 </button>
