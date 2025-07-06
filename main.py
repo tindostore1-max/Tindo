@@ -1176,39 +1176,39 @@ def logout():
     session.clear()
     return jsonify({'message': 'Sesión cerrada correctamente'})
 
-# Modify /usuario endpoint to include admin status
 @app.route('/usuario')
 def obtener_usuario():
     if 'user_id' not in session:
         return jsonify({'error': 'No hay sesión activa'}), 401
 
+    conn = get_db_connection()
     try:
-        with get_db_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute("""
-                    SELECT id, nombre, email, fecha_registro, es_admin 
-                    FROM usuarios 
-                    WHERE id = %s
-                """, (session['user_id'],))
+        result = conn.execute(text("""
+            SELECT id, nombre, email, fecha_registro, es_admin 
+            FROM usuarios 
+            WHERE id = :user_id
+        """), {'user_id': session['user_id']})
 
-                usuario = cursor.fetchone()
+        usuario = result.fetchone()
 
-                if not usuario:
-                    return jsonify({'error': 'Usuario no encontrado'}), 404
+        if not usuario:
+            return jsonify({'error': 'Usuario no encontrado'}), 404
 
-                return jsonify({
-                    'usuario': {
-                        'id': usuario[0],
-                        'nombre': usuario[1],
-                        'email': usuario[2],
-                        'fecha_registro': usuario[3].isoformat() if usuario[3] else None,
-                        'es_admin': usuario[4] if usuario[4] is not None else False
-                    }
-                })
+        return jsonify({
+            'usuario': {
+                'id': usuario[0],
+                'nombre': usuario[1],
+                'email': usuario[2],
+                'fecha_registro': usuario[4].isoformat() if usuario[4] else None,
+                'es_admin': usuario[4] if usuario[4] is not None else False
+            }
+        })
 
     except Exception as e:
         print(f"Error al obtener usuario: {e}")
         return jsonify({'error': 'Error interno del servidor'}), 500
+    finally:
+        conn.close()
 
 @app.route('/usuario/historial', methods=['GET'])
 def get_historial_compras():
