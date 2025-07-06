@@ -356,6 +356,65 @@ header {
     margin-top: 20px;
 }
 
+/* Estilos para cards placeholder de carga */
+.placeholder-card {
+    background: #2a2a2a;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    border: 1px solid #444;
+    animation: pulse 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+.placeholder-image {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: linear-gradient(90deg, #333 25%, #444 50%, #333 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.placeholder-name {
+    height: 20px;
+    background: linear-gradient(90deg, #333 25%, #444 50%, #333 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    width: 80%;
+}
+
+.placeholder-description {
+    height: 16px;
+    background: linear-gradient(90deg, #333 25%, #444 50%, #333 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    width: 60%;
+}
+
+.placeholder-price {
+    height: 18px;
+    background: linear-gradient(90deg, #28a745 25%, #20c997 50%, #28a745 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 5px;
+    width: 40%;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
 /* Estilos para las secciones de juegos y gift cards */
 .games-section, .giftcards-section {
     margin: 20px 0 30px 0;

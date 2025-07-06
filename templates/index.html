@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inefablestore - Tu tienda de juegos favorita</title>
+    
+    <!-- Preload de recursos críticos -->
+    <link rel="preload" href="/static/styles.css" as="style">
+    <link rel="preload" href="/static/app.js" as="script">
+    
+    <!-- Prefetch de imágenes por defecto -->
+    <link rel="prefetch" href="https://via.placeholder.com/200x60/007bff/ffffff?text=INEFABLESTORE">
+    <link rel="prefetch" href="https://via.placeholder.com/800x300/007bff/ffffff?text=🎮+Ofertas+Especiales+Free+Fire">
+    <link rel="prefetch" href="https://via.placeholder.com/800x300/28a745/ffffff?text=🔥+Mejores+Precios+PUBG">
+    <link rel="prefetch" href="https://via.placeholder.com/800x300/dc3545/ffffff?text=⚡+Entrega+Inmediata+COD">
+    
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
@@ -11,7 +22,13 @@
         <!-- Header con logo y selector de moneda -->
         <header>
             <div class="header-left">
-                <img src="https://via.placeholder.com/200x60/007bff/ffffff?text=INEFABLESTORE" alt="Logo Inefablestore" class="logo" id="logo-img" onclick="filtrarProductos('todos'); mostrarTab('catalogo');" style="cursor: pointer;">
+                <img src="https://via.placeholder.com/200x60/007bff/ffffff?text=INEFABLESTORE" 
+                     alt="Logo Inefablestore" 
+                     class="logo" 
+                     id="logo-img" 
+                     onclick="filtrarProductos('todos'); mostrarTab('catalogo');" 
+                     style="cursor: pointer; opacity: 1; transition: opacity 0.3s ease;"
+                     loading="eager">
                 
                 <!-- Categorías centradas para desktop -->
                 <nav class="desktop-categories">
@@ -86,17 +103,26 @@
         <div class="content">
             <!-- Sección Catálogo -->
             <section id="catalogo" class="tab-section active">
-                <!-- Carrusel de imágenes -->
+                <!-- Carrusel de imágenes optimizado -->
                 <div class="carousel-container" style="margin-bottom: 30px;">
                     <div class="carousel">
                         <div class="carousel-slide active">
-                            <img src="https://via.placeholder.com/800x300/007bff/ffffff?text=🎮+Ofertas+Especiales+Free+Fire" alt="Oferta 1">
+                            <img src="https://via.placeholder.com/800x300/007bff/ffffff?text=🎮+Ofertas+Especiales+Free+Fire" 
+                                 alt="Oferta 1" 
+                                 loading="eager"
+                                 style="opacity: 1; transition: opacity 0.3s ease;">
                         </div>
                         <div class="carousel-slide">
-                            <img src="https://via.placeholder.com/800x300/28a745/ffffff?text=🔥+Mejores+Precios+PUBG" alt="Oferta 2">
+                            <img src="https://via.placeholder.com/800x300/28a745/ffffff?text=🔥+Mejores+Precios+PUBG" 
+                                 alt="Oferta 2" 
+                                 loading="lazy"
+                                 style="opacity: 1; transition: opacity 0.3s ease;">
                         </div>
                         <div class="carousel-slide">
-                            <img src="https://via.placeholder.com/800x300/dc3545/ffffff?text=⚡+Entrega+Inmediata+COD" alt="Oferta 3">
+                            <img src="https://via.placeholder.com/800x300/dc3545/ffffff?text=⚡+Entrega+Inmediata+COD" 
+                                 alt="Oferta 3" 
+                                 loading="lazy"
+                                 style="opacity: 1; transition: opacity 0.3s ease;">
                         </div>
                     </div>
                     <div class="carousel-dots">

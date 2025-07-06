@@ -41,63 +41,114 @@ function limpiarCarritoStorage() {
     }
 }
 
-// Inicialización
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM cargado, iniciando aplicación...');
+// Variables para control de carga optimizada
+let configuracionCargada = false;
+let productosCargados = false;
+let sesionVerificada = false;
+let interfazLista = false;
 
-    cargarConfiguracion();
-    cargarProductos();
-    inicializarEventos();
-    verificarSesion();
-    inicializarCarrusel();
+// Cache para optimizar cargas
+let configCache = null;
+let productosCache = null;
 
-    // Actualizar contador del carrito al cargar
-    actualizarContadorCarrito();
+// Función para verificar si todo está cargado
+function verificarCargaCompleta() {
+    if (configuracionCargada && productosCargados && sesionVerificada && interfazLista) {
+        console.log('✅ Carga completa - todos los recursos listos');
+        // Todo listo, la aplicación ya es funcional
+    }
+}
 
-    // Crear tooltip del carrito para desktop inmediatamente
-    if (window.innerWidth > 768) {
-        crearTooltipCarrito();
+// Función para cargar elementos críticos primero
+function cargarElementosCriticos() {
+    // Cargar logo inmediatamente con placeholder
+    const logoImg = document.getElementById('logo-img');
+    if (logoImg) {
+        logoImg.src = 'https://via.placeholder.com/200x60/007bff/ffffff?text=INEFABLESTORE';
+        logoImg.style.opacity = '1';
     }
 
-    // Recrear tooltip en cambios de tamaño de ventana
-    window.addEventListener('resize', function() {
-        if (window.innerWidth > 768) {
-            // En desktop, asegurar que el tooltip existe
-            const existingTooltip = document.getElementById('cart-tooltip');
-            if (!existingTooltip) {
-                crearTooltipCarrito();
-            } else {
-                // Re-configurar eventos si ya existe
-                configurarEventosTooltip();
-            }
-        } else {
-            // En móvil, remover tooltip si existe
-            const tooltip = document.getElementById('cart-tooltip');
-            if (tooltip) {
-                tooltip.remove();
-            }
-        }
+    // Mostrar carrusel con imágenes por defecto inmediatamente
+    mostrarCarruselPorDefecto();
+
+    // Mostrar grid de productos con loading
+    mostrarProductosPlaceholder();
+}
+
+// Inicialización optimizada
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Iniciando carga optimizada...');
+
+    // 1. Cargar elementos críticos inmediatamente
+    cargarElementosCriticos();
+
+    // 2. Inicializar eventos básicos
+    inicializarEventos();
+
+    // 3. Cargar datos en paralelo (sin bloquear UI)
+    Promise.all([
+        cargarConfiguracionOptimizada(),
+        cargarProductosOptimizado(),
+        verificarSesionOptimizada()
+    ]).then(() => {
+        console.log('✅ Carga de datos completada');
+        interfazLista = true;
+        verificarCargaCompleta();
+    }).catch(error => {
+        console.error('❌ Error en carga:', error);
+        interfazLista = true; // Permitir que la app funcione aunque haya errores
     });
 
-    // Establecer VES como moneda por defecto en el selector
-    document.getElementById('selector-moneda').value = 'VES';
+    // 4. Tareas no críticas después del render
+    setTimeout(() => {
+        // Inicializar carrusel automático
+        inicializarCarrusel();
 
-    // Inicializar eventos táctiles para carruseles inmediatamente
-    inicializarSwipeCarruseles();
+        // Actualizar contador del carrito
+        actualizarContadorCarrito();
 
-    // Manejar la ruta actual del navegador inmediatamente
-    manejarRutaActual();
+        // Crear tooltip del carrito para desktop
+        if (window.innerWidth > 768) {
+            crearTooltipCarrito();
+        }
 
-    // Activar categoría desde URL o por defecto "todos"
-    if (window.categoriaDesdeURL) {
-        filtrarProductos(window.categoriaDesdeURL);
-        window.categoriaDesdeURL = null; // Limpiar después de usar
-    } else if (!filtroActual) {
-        filtrarProductos('todos');
-    }
+        // Configurar eventos de resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                const existingTooltip = document.getElementById('cart-tooltip');
+                if (!existingTooltip) {
+                    crearTooltipCarrito();
+                } else {
+                    configurarEventosTooltip();
+                }
+            } else {
+                const tooltip = document.getElementById('cart-tooltip');
+                if (tooltip) {
+                    tooltip.remove();
+                }
+            }
+        });
 
-    // Mostrar el footer inmediatamente
-    mostrarFooterCopyright();
+        // Establecer VES como moneda por defecto
+        document.getElementById('selector-moneda').value = 'VES';
+
+        // Inicializar eventos táctiles
+        inicializarSwipeCarruseles();
+
+        // Manejar la ruta actual
+        manejarRutaActual();
+
+        // Activar categoría desde URL o por defecto
+        if (window.categoriaDesdeURL) {
+            filtrarProductos(window.categoriaDesdeURL);
+            window.categoriaDesdeURL = null;
+        } else if (!filtroActual) {
+            filtrarProductos('todos');
+        }
+
+        // Mostrar footer
+        mostrarFooterCopyright();
+    }, 50);
 });
 
 // Funciones del carrusel
@@ -135,20 +186,28 @@ function showSlide(n) {
     }
 }
 
-// Verificar si hay sesión activa
-async function verificarSesion() {
+// Versión optimizada de verificar sesión
+async function verificarSesionOptimizada() {
     try {
         const response = await fetch('/usuario');
         if (response.ok) {
             const data = await response.json();
             console.log('Usuario logueado encontrado:', data.usuario);
-            actualizarInterfazUsuario(data.usuario);
+            // Actualizar interfaz de forma lazy
+            setTimeout(() => actualizarInterfazUsuario(data.usuario), 50);
         } else {
             console.log('No hay sesión activa, código:', response.status);
         }
+        sesionVerificada = true;
     } catch (error) {
         console.log('Error al verificar sesión:', error);
+        sesionVerificada = true;
     }
+}
+
+// Verificar si hay sesión activa (mantener para compatibilidad)
+async function verificarSesion() {
+    return verificarSesionOptimizada();
 }
 
 // Función para manejar la ruta actual del navegador
@@ -446,20 +505,31 @@ function mostrarNotificacionFlotante(mensaje, tipo = 'success') {
     });
 }
 
-// Cargar configuración del sistema
-async function cargarConfiguracion() {
+// Versión optimizada de cargar configuración
+async function cargarConfiguracionOptimizada() {
     try {
+        // Usar cache si está disponible
+        if (configCache) {
+            configuracion = configCache;
+            actualizarLogo();
+            actualizarImagenesCarrusel();
+            configuracionCargada = true;
+            return;
+        }
+
         const response = await fetch('/config');
 
         if (!response.ok) {
             console.warn('No se pudo cargar la configuración del servidor');
             aplicarConfiguracionPorDefecto();
+            configuracionCargada = true;
             return;
         }
 
         configuracion = await response.json();
+        configCache = configuracion; // Guardar en cache
 
-        // Actualizar logo inmediatamente si existe
+        // Actualizar logo solo si cambió
         actualizarLogo();
 
         // Actualizar tasa de cambio
@@ -467,12 +537,20 @@ async function cargarConfiguracion() {
             tasaUSDVES = parseFloat(configuracion.tasa_usd_ves);
         }
 
-        // Actualizar imágenes del carrusel
-        actualizarImagenesCarrusel();
+        // Actualizar imágenes del carrusel de forma lazy
+        setTimeout(() => actualizarImagenesCarrusel(), 100);
+
+        configuracionCargada = true;
     } catch (error) {
         console.warn('Error al cargar configuración:', error.message || 'Error desconocido');
         aplicarConfiguracionPorDefecto();
+        configuracionCargada = true;
     }
+}
+
+// Cargar configuración del sistema (mantener para compatibilidad)
+async function cargarConfiguracion() {
+    return cargarConfiguracionOptimizada();
 }
 
 // Función separada para actualizar el logo
@@ -574,11 +652,17 @@ function actualizarImagenesCarrusel() {
     }
 }
 
-// Cargar productos del backend
-async function cargarProductos() {
-    const productosGrid = document.getElementById('productos-grid');
-
+// Versión optimizada de cargar productos
+async function cargarProductosOptimizado() {
     try {
+        // Usar cache si está disponible
+        if (productosCache) {
+            productos = productosCache;
+            mostrarProductos();
+            productosCargados = true;
+            return;
+        }
+
         const response = await fetch('/productos');
 
         if (!response.ok) {
@@ -586,10 +670,17 @@ async function cargarProductos() {
         }
 
         productos = await response.json();
-        console.log('Productos cargados:', productos);
+        productosCache = productos; // Guardar en cache
+
+        console.log('Productos cargados:', productos.length, 'productos');
+
+        // Mostrar productos de forma optimizada
         mostrarProductos();
+        productosCargados = true;
+
     } catch (error) {
         console.error('Error al cargar productos:', error.message || 'Error desconocido');
+        const productosGrid = document.getElementById('productos-grid');
         if (productosGrid) {
             productosGrid.innerHTML = `
                 <div class="no-products">
@@ -599,7 +690,13 @@ async function cargarProductos() {
                 </div>
             `;
         }
+        productosCargados = true;
     }
+}
+
+// Cargar productos del backend (mantener para compatibilidad)
+async function cargarProductos() {
+    return cargarProductosOptimizado();
 }
 
 // Variable para almacenar el filtro actual
@@ -3216,4 +3313,44 @@ function actualizarHeaderTooltip() {
     if (itemsCount) {
         itemsCount.textContent = `${totalItems} producto${totalItems !== 1 ? 's' : ''}`;
     }
+}
+
+// Función para mostrar el carrusel con imágenes por defecto
+function mostrarCarruselPorDefecto() {
+    const slides = document.querySelectorAll('.carousel-slide img');
+
+    // Definir imágenes predeterminadas mejoradas
+    const defaultImages = [
+        'https://via.placeholder.com/800x300/007bff/ffffff?text=🎮+Ofertas+Especiales+Free+Fire',
+        'https://via.placeholder.com/800x300/28a745/ffffff?text=🔥+Mejores+Precios+PUBG',
+        'https://via.placeholder.com/800x300/dc3545/ffffff?text=⚡+Entrega+Inmediata+COD'
+    ];
+
+    // Asignar imágenes por defecto a los slides
+    slides.forEach((slide, index) => {
+        slide.src = defaultImages[index % defaultImages.length];
+        slide.alt = 'Cargando...';
+        slide.style.opacity = '0.7'; // Indicar que están cargando
+    });
+}
+
+// Función para mostrar productos placeholder
+function mostrarProductosPlaceholder() {
+    const grid = document.getElementById('productos-grid');
+    grid.className = 'product-grid loading-grid';
+
+    // Crear placeholders
+    let placeholdersHTML = '';
+    for (let i = 0; i < 6; i++) {
+        placeholdersHTML += `
+            <div class="product-card placeholder">
+                <div class="product-image-placeholder"></div>
+                <div class="product-name-placeholder"></div>
+                <div class="product-description-placeholder"></div>
+                <div class="product-price-placeholder"></div>
+            </div>
+        `;
+    }
+
+    grid.innerHTML = placeholdersHTML;
 }
