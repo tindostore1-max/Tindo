@@ -1199,7 +1199,7 @@ def obtener_usuario():
                 'id': usuario[0],
                 'nombre': usuario[1],
                 'email': usuario[2],
-                'fecha_registro': usuario[4].isoformat() if usuario[4] else None,
+                'fecha_registro': usuario[3].isoformat() if usuario[3] else None,
                 'es_admin': usuario[4] if usuario[4] is not None else False
             }
         })

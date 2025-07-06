@@ -141,10 +141,13 @@ async function verificarSesion() {
         const response = await fetch('/usuario');
         if (response.ok) {
             const data = await response.json();
+            console.log('Usuario logueado encontrado:', data.usuario);
             actualizarInterfazUsuario(data.usuario);
+        } else {
+            console.log('No hay sesión activa, código:', response.status);
         }
     } catch (error) {
-        console.log('No hay sesión activa');
+        console.log('Error al verificar sesión:', error);
     }
 }
 
