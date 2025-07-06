@@ -623,7 +623,7 @@ header {
 /* Responsive para móviles */
 @media (max-width: 768px) {
     .container {
-        padding: 60px 1px 8px 1px; /* Reducir padding superior para acercar al header */
+        padding: 40px 1px 8px 1px; /* Acercar aún más al header */
     }
 
     header {
