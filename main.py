@@ -1,9 +1,9 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session, make_response
 from sqlalchemy import create_engine, text
 from sqlalchemy.pool import NullPool
 import os
 from werkzeug.utils import secure_filename
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -13,12 +13,33 @@ from email.mime.multipart import MIMEMultipart
 import threading
 import psycopg2
 from psycopg2.extras import RealDictCursor
+import gzip
+from functools import wraps
 
 load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'tu_clave_secreta_aqui'
 app.config['UPLOAD_FOLDER'] = 'static/images'
+
+# Middleware para compresión gzip
+def gzip_response(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        response = make_response(f(*args, **kwargs))
+        
+        # Solo comprimir respuestas JSON y HTML grandes
+        if (response.content_type and 
+            ('application/json' in response.content_type or 'text/html' in response.content_type) and
+            len(response.get_data()) > 1000):
+            
+            if 'gzip' in request.headers.get('Accept-Encoding', ''):
+                response.data = gzip.compress(response.get_data())
+                response.headers['Content-Encoding'] = 'gzip'
+                response.headers['Content-Length'] = len(response.data)
+        
+        return response
+    return decorated_function
 
 # Configuración de SQLAlchemy con DATABASE_URL
 def create_db_engine():
@@ -930,6 +951,7 @@ def delete_producto(producto_id):
 
 # ENDPOINT PÚBLICO PARA PRODUCTOS (FRONTEND DE USUARIOS)
 @app.route('/productos', methods=['GET'])
+@gzip_response
 def get_productos_publico():
     conn = get_db_connection()
     try:
@@ -949,12 +971,19 @@ def get_productos_publico():
 
             productos_list.append(producto_dict)
 
-        return jsonify(productos_list)
+        response = make_response(jsonify(productos_list))
+        
+        # Headers de cache optimizados
+        response.headers['Cache-Control'] = 'public, max-age=600'  # 10 minutos
+        response.headers['ETag'] = f'productos-{len(productos_list)}-{hash(str(productos_list))}'
+        
+        return response
     finally:
         conn.close()
 
 # ENDPOINT PÚBLICO PARA CONFIGURACIÓN (FRONTEND DE USUARIOS)
 @app.route('/config', methods=['GET'])
+@gzip_response
 def get_config_publico():
     conn = get_db_connection()
     try:
@@ -966,7 +995,13 @@ def get_config_publico():
         for config in configs:
             config_dict[config[0]] = config[1]  # campo, valor
 
-        return jsonify(config_dict)
+        response = make_response(jsonify(config_dict))
+        
+        # Headers de cache más agresivos para configuración
+        response.headers['Cache-Control'] = 'public, max-age=300'  # 5 minutos
+        response.headers['ETag'] = f'config-{hash(str(config_dict))}'
+        
+        return response
     finally:
         conn.close()
 

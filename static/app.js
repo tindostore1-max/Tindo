@@ -12,6 +12,20 @@ let gamesCarouselItems = [];
 let giftCardsCarouselIndex = 0;
 let giftCardsCarouselItems = [];
 
+// Variables para control de carga optimizado
+let configuracionCargada = false;
+let productosCargados = false;
+let sesionVerificada = false;
+let carruselInicializado = false;
+let eventosTactiles = false;
+
+// Cache para evitar recargas innecesarias
+const cache = {
+    productos: null,
+    configuracion: null,
+    ultimaActualizacion: 0
+};
+
 // Funciones para persistencia del carrito
 function guardarCarritoEnStorage() {
     try {
@@ -41,63 +55,116 @@ function limpiarCarritoStorage() {
     }
 }
 
-// Inicialización
+// Función optimizada para verificar carga completa
+function verificarCargaCompleta() {
+    if (configuracionCargada && productosCargados && sesionVerificada) {
+        // Batch DOM updates para mejor performance
+        requestAnimationFrame(() => {
+            const preloader = document.getElementById('preloader');
+            const mainContainer = document.getElementById('main-container');
+
+            if (preloader && mainContainer) {
+                // Optimizar transición
+                preloader.style.opacity = '0';
+                mainContainer.style.opacity = '1';
+                mainContainer.style.visibility = 'visible';
+
+                setTimeout(() => {
+                    preloader.style.display = 'none';
+                    // Inicializar funciones no críticas después de mostrar contenido
+                    if (!carruselInicializado) {
+                        inicializarCarrusel();
+                        carruselInicializado = true;
+                    }
+                    if (!eventosTactiles) {
+                        inicializarSwipeCarruseles();
+                        eventosTactiles = true;
+                    }
+                }, 300);
+            }
+        });
+    }
+}
+
+// Inicialización optimizada
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM cargado, iniciando aplicación...');
+    console.log('DOM cargado, iniciando aplicación optimizada...');
 
-    cargarConfiguracion();
-    cargarProductos();
-    inicializarEventos();
-    verificarSesion();
-    inicializarCarrusel();
-
-    // Actualizar contador del carrito al cargar
-    actualizarContadorCarrito();
-
-    // Crear tooltip del carrito para desktop inmediatamente
-    if (window.innerWidth > 768) {
-        crearTooltipCarrito();
+    // Mostrar preloader inmediatamente
+    const preloader = document.getElementById('preloader');
+    if (preloader) {
+        preloader.style.display = 'flex';
     }
 
-    // Recrear tooltip en cambios de tamaño de ventana
-    window.addEventListener('resize', function() {
-        if (window.innerWidth > 768) {
-            // En desktop, asegurar que el tooltip existe
-            const existingTooltip = document.getElementById('cart-tooltip');
-            if (!existingTooltip) {
-                crearTooltipCarrito();
-            } else {
-                // Re-configurar eventos si ya existe
-                configurarEventosTooltip();
-            }
-        } else {
-            // En móvil, remover tooltip si existe
-            const tooltip = document.getElementById('cart-tooltip');
-            if (tooltip) {
-                tooltip.remove();
-            }
-        }
+    // Cargar recursos críticos primero
+    Promise.all([
+        cargarConfiguracion(),
+        cargarProductos(),
+        verificarSesion()
+    ]).then(() => {
+        console.log('Recursos críticos cargados');
+    }).catch(error => {
+        console.error('Error cargando recursos críticos:', error);
+        // Continuar con configuración por defecto
+        aplicarConfiguracionPorDefecto();
+        configuracionCargada = true;
+        productosCargados = true;
+        sesionVerificada = true;
+        verificarCargaCompleta();
     });
 
-    // Establecer VES como moneda por defecto en el selector
-    document.getElementById('selector-moneda').value = 'VES';
+    // Inicializar elementos críticos inmediatamente
+    inicializarEventos();
+    actualizarContadorCarrito();
 
-    // Inicializar eventos táctiles para carruseles inmediatamente
-    inicializarSwipeCarruseles();
-
-    // Manejar la ruta actual del navegador inmediatamente
-    manejarRutaActual();
-
-    // Activar categoría desde URL o por defecto "todos"
-    if (window.categoriaDesdeURL) {
-        filtrarProductos(window.categoriaDesdeURL);
-        window.categoriaDesdeURL = null; // Limpiar después de usar
-    } else if (!filtroActual) {
-        filtrarProductos('todos');
+    // Establecer VES como moneda por defecto
+    const selectorMoneda = document.getElementById('selector-moneda');
+    if (selectorMoneda) {
+        selectorMoneda.value = 'VES';
     }
 
-    // Mostrar el footer inmediatamente
-    mostrarFooterCopyright();
+    // Manejar ruta actual
+    manejarRutaActual();
+
+    // Lazy loading para funciones no críticas
+    setTimeout(() => {
+        // Crear tooltip del carrito para desktop
+        if (window.innerWidth > 768) {
+            crearTooltipCarrito();
+        }
+
+        // Mostrar footer
+        mostrarFooterCopyright();
+
+        // Activar categoría desde URL
+        if (window.categoriaDesdeURL) {
+            filtrarProductos(window.categoriaDesdeURL);
+            window.categoriaDesdeURL = null;
+        } else if (!filtroActual) {
+            filtrarProductos('todos');
+        }
+    }, 100);
+
+    // Event listeners optimizados
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            if (window.innerWidth > 768) {
+                const existingTooltip = document.getElementById('cart-tooltip');
+                if (!existingTooltip) {
+                    crearTooltipCarrito();
+                } else {
+                    configurarEventosTooltip();
+                }
+            } else {
+                const tooltip = document.getElementById('cart-tooltip');
+                if (tooltip) {
+                    tooltip.remove();
+                }
+            }
+        }, 150);
+    });
 });
 
 // Funciones del carrusel
@@ -135,19 +202,39 @@ function showSlide(n) {
     }
 }
 
-// Verificar si hay sesión activa
+// Verificar sesión optimizada con timeout
 async function verificarSesion() {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 segundos timeout
+
     try {
-        const response = await fetch('/usuario');
+        const response = await fetch('/usuario', {
+            signal: controller.signal,
+            headers: {
+                'Cache-Control': 'no-cache'
+            }
+        });
+
+        clearTimeout(timeoutId);
+
         if (response.ok) {
             const data = await response.json();
             console.log('Usuario logueado encontrado:', data.usuario);
-            actualizarInterfazUsuario(data.usuario);
+            // Aplicar interfaz de usuario de forma lazy
+            setTimeout(() => actualizarInterfazUsuario(data.usuario), 50);
         } else {
             console.log('No hay sesión activa, código:', response.status);
         }
     } catch (error) {
-        console.log('Error al verificar sesión:', error);
+        clearTimeout(timeoutId);
+        if (error.name === 'AbortError') {
+            console.log('Verificación de sesión timeout - continuando sin usuario');
+        } else {
+            console.log('Error al verificar sesión:', error);
+        }
+    } finally {
+        sesionVerificada = true;
+        verificarCargaCompleta();
     }
 }
 
@@ -446,10 +533,24 @@ function mostrarNotificacionFlotante(mensaje, tipo = 'success') {
     });
 }
 
-// Cargar configuración del sistema
+// Cargar configuración optimizada con cache
 async function cargarConfiguracion() {
     try {
-        const response = await fetch('/config');
+        // Verificar cache primero
+        const ahora = Date.now();
+        if (cache.configuracion && (ahora - cache.ultimaActualizacion) < 300000) { // 5 minutos cache
+            configuracion = cache.configuracion;
+            aplicarConfiguracionRapida();
+            configuracionCargada = true;
+            verificarCargaCompleta();
+            return;
+        }
+
+        const response = await fetch('/config', {
+            headers: {
+                'Cache-Control': 'max-age=300' // 5 minutos browser cache
+            }
+        });
 
         if (!response.ok) {
             console.warn('No se pudo cargar la configuración del servidor');
@@ -459,19 +560,33 @@ async function cargarConfiguracion() {
 
         configuracion = await response.json();
 
-        // Actualizar logo inmediatamente si existe
-        actualizarLogo();
+        // Guardar en cache
+        cache.configuracion = configuracion;
+        cache.ultimaActualizacion = ahora;
 
-        // Actualizar tasa de cambio
-        if (configuracion.tasa_usd_ves) {
-            tasaUSDVES = parseFloat(configuracion.tasa_usd_ves);
-        }
+        // Aplicar configuración crítica primero
+        aplicarConfiguracionRapida();
 
-        // Actualizar imágenes del carrusel
-        actualizarImagenesCarrusel();
+        // Actualizar imágenes del carrusel de forma lazy
+        setTimeout(() => actualizarImagenesCarrusel(), 100);
+
     } catch (error) {
         console.warn('Error al cargar configuración:', error.message || 'Error desconocido');
         aplicarConfiguracionPorDefecto();
+    } finally {
+        configuracionCargada = true;
+        verificarCargaCompleta();
+    }
+}
+
+// Función optimizada para aplicar configuración crítica
+function aplicarConfiguracionRapida() {
+    // Solo actualizar elementos críticos inmediatamente
+    actualizarLogo();
+
+    // Actualizar tasa de cambio
+    if (configuracion.tasa_usd_ves) {
+        tasaUSDVES = parseFloat(configuracion.tasa_usd_ves);
     }
 }
 
@@ -579,13 +694,32 @@ async function cargarProductos() {
     const productosGrid = document.getElementById('productos-grid');
 
     try {
-        const response = await fetch('/productos');
+        // Verificar cache primero
+        const ahora = Date.now();
+        if (cache.productos && (ahora - cache.ultimaActualizacion) < 60000) {
+            productos = cache.productos;
+            mostrarProductos();
+            productosCargados = true;
+            verificarCargaCompleta();
+            return;
+        }
+
+        const response = await fetch('/productos', {
+            headers: {
+                'Cache-Control': 'max-age=60'
+            }
+        });
 
         if (!response.ok) {
             throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
 
         productos = await response.json();
+
+        // Guardar en cache
+        cache.productos = productos;
+        cache.ultimaActualizacion = ahora;
+
         console.log('Productos cargados:', productos);
         mostrarProductos();
     } catch (error) {
@@ -599,6 +733,9 @@ async function cargarProductos() {
                 </div>
             `;
         }
+    } finally {
+        productosCargados = true;
+        verificarCargaCompleta();
     }
 }
 
@@ -1541,7 +1678,7 @@ function seleccionarMetodoPago(metodo) {
                 banco = linea.replace('Banco:', '').trim();
             } else if (linea.includes('Telefono:')) {
                 telefono = linea.replace('Telefono:', '').trim();
-            } else if (linea.includes('Cédula:')) {
+            } else if (linea.includes('Cédula:') {
                 cedula = linea.replace('Cédula:', '').trim();
             } else if (linea.includes('Nombre:')) {
                 nombre = linea.replace('Nombre:', '').trim();
