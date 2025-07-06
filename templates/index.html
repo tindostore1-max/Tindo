@@ -4,24 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inefablestore - Tu tienda de juegos favorita</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://via.placeholder.com">
-    <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link rel="stylesheet" href="/static/styles.css">
-    <style>
-        /* CSS crítico inline para faster rendering */
-        .preloader{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:99999;transition:opacity 0.5s ease}.preloader.fade-out{opacity:0;pointer-events:none}.preloader-content{text-align:center;color:#fff}.preloader-logo{font-size:24px;font-weight:700;color:#007bff;margin-bottom:20px;letter-spacing:2px}.preloader-spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,0.3);border-top:3px solid #007bff;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto}@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
-    </style>
 </head>
 <body>
-    <!-- Preloader -->
-    <div class="preloader" id="preloader">
-        <div class="preloader-content">
-            <div class="preloader-logo">INEFABLESTORE</div>
-            <div class="preloader-spinner"></div>
-        </div>
-    </div>
-    <div class="container" id="main-container" style="opacity: 0; visibility: hidden; transition: opacity 0.5s ease, visibility 0.5s ease;">
+    <div class="container">
         <!-- Header con logo y selector de moneda -->
         <header>
             <div class="header-left">
@@ -302,24 +288,7 @@
         </button>
     </footer>
 
-    <!-- Cargar JavaScript de forma optimizada -->
-    <script>
-        // Precargar recursos críticos
-        const criticalResources = [
-            '/config',
-            '/productos',
-            '/usuario'
-        ];
-        
-        // Precargar APIs críticas
-        criticalResources.forEach(url => {
-            const link = document.createElement('link');
-            link.rel = 'prefetch';
-            link.href = url;
-            document.head.appendChild(link);
-        });
-    </script>
-    <script src="/static/app.js" defer></script>
+    <script src="/static/app.js"></script>
 
     <!-- Footer con copyright -->
     <div class="copyright-footer">
