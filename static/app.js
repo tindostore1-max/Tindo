@@ -1681,8 +1681,7 @@ function seleccionarMetodoPago(metodo) {
         `;
         infoPago.style.display = 'block';
     } else if (metodo === 'Binance') {
-        // Procesar datos de Binance
-```javascript
+        // Procesar datos de Binance```javascript
         const binanceData = configuracion.binance || 'Información no disponible';
         const lineasBinance = binanceData.split('\n');
 
@@ -3330,3 +3329,27 @@ function actualizarHeaderTooltip() {
 
 // Funciones de placeholder removidas para evitar parpadeo visual
 // El contenido se carga directamente cuando los datos están listos
+
+// Función para ordenar productos en el panel de administración
+async function ordenarProductosAdmin() {
+    try {
+        // Obtener productos ordenados del servidor
+        const response = await fetch('/admin/productos/ordenar');
+        if (!response.ok) {
+            throw new Error('No se pudieron obtener los productos ordenados');
+        }
+
+        const productosOrdenados = await response.json();
+
+        // Verificar si hay productos ordenados
+        if (!productosOrdenados || !Array.isArray(productosOrdenados)) {
+            throw new Error('No se recibieron productos ordenados válidos');
+        }
+
+        // Actualizar variable global de productos
+        window.productosAdmin = productosOrdenados;
+    } catch (error) {
+        console.error('Error al ordenar productos:', error);
+        mostrarAlerta('Error al ordenar productos', 'error');
+    }
+}
