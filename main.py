@@ -456,6 +456,7 @@ def init_db():
                 id SERIAL PRIMARY KEY,
                 nombre VARCHAR(100) NOT NULL,
                 email VARCHAR(100) UNIQUE NOT NULL,
+                telefono VARCHAR(20),
                 password_hash VARCHAR(255) NOT NULL,
                 es_admin BOOLEAN DEFAULT FALSE,
                 fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -466,6 +467,12 @@ def init_db():
         conn.execute(text('''
             ALTER TABLE usuarios 
             ADD COLUMN IF NOT EXISTS es_admin BOOLEAN DEFAULT FALSE;
+        '''))
+
+        # Agregar columna telefono si no existe (migración)
+        conn.execute(text('''
+            ALTER TABLE usuarios 
+            ADD COLUMN IF NOT EXISTS telefono VARCHAR(20);
         '''))
 
         # Verificar si ya hay productos
@@ -1179,9 +1186,10 @@ def registro():
     data = request.get_json()
     nombre = data.get('nombre')
     email = data.get('email')
+    telefono = data.get('telefono')
     password = data.get('password')
 
-    if not nombre or not email or not password:
+    if not nombre or not email or not telefono or not password:
         return jsonify({'error': 'Todos los campos son requeridos'}), 400
 
     # Verificar si el email ya existe
@@ -1196,9 +1204,9 @@ def registro():
         password_hash = generate_password_hash(password)
 
         result = conn.execute(text('''
-            INSERT INTO usuarios (nombre, email, password_hash)
-            VALUES (:nombre, :email, :password_hash) RETURNING id
-        '''), {'nombre': nombre, 'email': email, 'password_hash': password_hash})
+            INSERT INTO usuarios (nombre, email, telefono, password_hash)
+            VALUES (:nombre, :email, :telefono, :password_hash) RETURNING id
+        '''), {'nombre': nombre, 'email': email, 'telefono': telefono, 'password_hash': password_hash})
 
         user_id = result.fetchone()[0]
         conn.commit()
