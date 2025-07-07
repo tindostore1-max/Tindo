@@ -3341,6 +3341,12 @@ header {
     overflow: hidden;
     box-shadow: 0 15px 40px rgba(0,0,0,0.4);
     background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    min-height: 200px;
+}
+
+/* Ocultar carrusel si no hay imágenes cargadas */
+.carousel-container:has(.carousel-slide img[style*="display: none"]:first-child) {
+    display: none;
 }
 
 .carousel {

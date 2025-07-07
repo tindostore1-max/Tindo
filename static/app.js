@@ -622,13 +622,6 @@ function aplicarConfiguracionPorDefecto() {
 function actualizarImagenesCarrusel() {
     const slides = document.querySelectorAll('.carousel-slide img');
 
-    // Definir imágenes predeterminadas mejoradas
-    const defaultImages = [
-        'https://via.placeholder.com/800x300/007bff/ffffff?text=🎮+Ofertas+Especiales+Free+Fire',
-        'https://via.placeholder.com/800x300/28a745/ffffff?text=🔥+Mejores+Precios+PUBG',
-        'https://via.placeholder.com/800x300/dc3545/ffffff?text=⚡+Entrega+Inmediata+COD'
-    ];
-
     function prepararUrlImagen(url) {
         if (!url || url.trim() === '') return null;
 
@@ -651,35 +644,33 @@ function actualizarImagenesCarrusel() {
         return `/static/${url}`;
     }
 
-    // Función para cargar imagen de forma suave
-    function cargarImagenCarrusel(slide, url, defaultUrl) {
+    // Función para cargar imagen de forma suave sin placeholders
+    function cargarImagenCarrusel(slide, url) {
         if (!slide) return;
         
-        slide.style.opacity = '0.5';
-        slide.style.transition = 'opacity 0.3s ease';
-        
-        if (url && !defaultImages.includes(url)) {
+        if (url) {
             // Precargar la imagen
             const img = new Image();
             img.onload = function() {
                 slide.src = url;
+                slide.style.display = 'block';
                 slide.style.opacity = '1';
             };
             img.onerror = function() {
-                slide.src = defaultUrl;
-                slide.style.opacity = '1';
+                // Si la imagen falla al cargar, simplemente no mostrar nada
+                slide.style.display = 'none';
             };
             img.src = url;
         } else {
-            slide.src = defaultUrl;
-            slide.style.opacity = '1';
+            // Si no hay URL, no mostrar nada
+            slide.style.display = 'none';
         }
     }
 
-    // Configurar imágenes del carrusel con precarga
-    cargarImagenCarrusel(slides[0], prepararUrlImagen(configuracion.carousel1), defaultImages[0]);
-    cargarImagenCarrusel(slides[1], prepararUrlImagen(configuracion.carousel2), defaultImages[1]);
-    cargarImagenCarrusel(slides[2], prepararUrlImagen(configuracion.carousel3), defaultImages[2]);
+    // Configurar imágenes del carrusel solo si existen URLs válidas
+    cargarImagenCarrusel(slides[0], prepararUrlImagen(configuracion.carousel1));
+    cargarImagenCarrusel(slides[1], prepararUrlImagen(configuracion.carousel2));
+    cargarImagenCarrusel(slides[2], prepararUrlImagen(configuracion.carousel3));
 }
 
 // Versión optimizada de cargar productos
