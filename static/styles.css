@@ -3698,6 +3698,16 @@ header {
         height: 250px;
     }
 
+    /* Ocultar flechas de navegación en móvil */
+    .carousel-arrow {
+        display: none;
+    }
+
+    /* Mostrar indicador de desplazamiento en móvil */
+    .carousel-scroll-indicator {
+        display: block;
+    }
+
     .carousel-arrow {
         width: 40px;
         height: 40px;
