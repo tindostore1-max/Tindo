@@ -982,22 +982,48 @@ def delete_producto(producto_id):
 def get_productos_publico():
     conn = get_db_connection()
     try:
-        result = conn.execute(text('SELECT * FROM juegos ORDER BY orden ASC, id ASC'))
-        productos = result.fetchall()
-
-        # Convertir a lista de diccionarios y obtener paquetes para cada producto
-        productos_list = []
-        for producto in productos:
-            producto_dict = dict(producto._mapping)
-
-            # Obtener paquetes para este producto
-            paquetes_result = conn.execute(text('SELECT * FROM paquetes WHERE juego_id = :juego_id ORDER BY orden ASC, precio ASC'), 
-                                         {'juego_id': producto_dict['id']})
-            paquetes = paquetes_result.fetchall()
-            producto_dict['paquetes'] = [dict(paq._mapping) for paq in paquetes]
-
-            productos_list.append(producto_dict)
-
+        # Optimización: Una sola consulta con JOIN para obtener productos y paquetes
+        result = conn.execute(text('''
+            SELECT 
+                j.id, j.nombre, j.descripcion, j.imagen, j.categoria, j.orden, j.etiquetas,
+                p.id as paquete_id, p.nombre as paquete_nombre, p.precio, p.orden as paquete_orden
+            FROM juegos j
+            LEFT JOIN paquetes p ON j.id = p.juego_id
+            ORDER BY j.orden ASC, j.id ASC, p.orden ASC, p.precio ASC
+        '''))
+        
+        rows = result.fetchall()
+        
+        # Agrupar productos con sus paquetes
+        productos_dict = {}
+        for row in rows:
+            row_dict = dict(row._mapping)
+            producto_id = row_dict['id']
+            
+            if producto_id not in productos_dict:
+                productos_dict[producto_id] = {
+                    'id': row_dict['id'],
+                    'nombre': row_dict['nombre'],
+                    'descripcion': row_dict['descripcion'],
+                    'imagen': row_dict['imagen'],
+                    'categoria': row_dict['categoria'],
+                    'orden': row_dict['orden'],
+                    'etiquetas': row_dict['etiquetas'],
+                    'paquetes': []
+                }
+            
+            # Agregar paquete si existe
+            if row_dict['paquete_id']:
+                productos_dict[producto_id]['paquetes'].append({
+                    'id': row_dict['paquete_id'],
+                    'nombre': row_dict['paquete_nombre'],
+                    'precio': row_dict['precio'],
+                    'orden': row_dict['paquete_orden']
+                })
+        
+        # Convertir a lista
+        productos_list = list(productos_dict.values())
+        
         return jsonify(productos_list)
     finally:
         conn.close()

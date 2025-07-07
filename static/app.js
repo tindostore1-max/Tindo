@@ -47,9 +47,14 @@ let productosCargados = false;
 let sesionVerificada = false;
 let interfazLista = false;
 
-// Cache para optimizar cargas
+// Cache para optimizar cargas con timestamp
 let configCache = null;
 let productosCache = null;
+let cacheTimestamp = null;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
+
+// Flag para evitar múltiples cargas simultáneas
+let cargandoDatos = false;
 
 // Función para verificar si todo está cargado
 function verificarCargaCompleta() {
@@ -121,19 +126,43 @@ document.addEventListener('DOMContentLoaded', function() {
     // 2. Inicializar eventos básicos
     inicializarEventos();
 
-    // 3. Cargar datos en paralelo (sin bloquear UI)
-    Promise.all([
-        cargarConfiguracionOptimizada(),
-        cargarProductosOptimizado(),
-        verificarSesionOptimizada()
-    ]).then(() => {
-        console.log('✅ Carga de datos completada');
-        interfazLista = true;
-        verificarCargaCompleta();
-    }).catch(error => {
-        console.error('❌ Error en carga:', error);
-        interfazLista = true; // Permitir que la app funcione aunque haya errores
-    });
+    // 3. Verificar cache antes de cargar datos
+    if (cacheValido()) {
+        console.log('📦 Usando datos del cache');
+        configuracion = configCache;
+        productos = productosCache;
+        configuracionCargada = true;
+        productosCargados = true;
+        
+        // Mostrar datos del cache inmediatamente
+        actualizarLogo();
+        mostrarProductos();
+        
+        // Verificar sesión en background
+        verificarSesionOptimizada().then(() => {
+            interfazLista = true;
+            verificarCargaCompleta();
+        });
+    } else {
+        // 4. Cargar datos en paralelo solo si no hay cache válido
+        if (!cargandoDatos) {
+            cargandoDatos = true;
+            Promise.all([
+                cargarConfiguracionOptimizada(),
+                cargarProductosOptimizado(),
+                verificarSesionOptimizada()
+            ]).then(() => {
+                console.log('✅ Carga de datos completada');
+                interfazLista = true;
+                verificarCargaCompleta();
+                cargandoDatos = false;
+            }).catch(error => {
+                console.error('❌ Error en carga:', error);
+                interfazLista = true;
+                cargandoDatos = false;
+            });
+        }
+    }
 
     // 4. Tareas no críticas después del render
     setTimeout(() => {
@@ -544,11 +573,12 @@ function mostrarNotificacionFlotante(mensaje, tipo = 'success') {
 // Versión optimizada de cargar configuración
 async function cargarConfiguracionOptimizada() {
     try {
-        // Usar cache si está disponible
-        if (configCache) {
+        // Usar cache si está disponible y es válido
+        if (configCache && cacheValido()) {
             configuracion = configCache;
             actualizarLogo();
-            actualizarImagenesCarrusel();
+            // Carrusel se actualiza después para no bloquear
+            setTimeout(() => actualizarImagenesCarrusel(), 500);
             configuracionCargada = true;
             return;
         }
@@ -563,9 +593,8 @@ async function cargarConfiguracionOptimizada() {
         }
 
         configuracion = await response.json();
-        configCache = configuracion; // Guardar en cache
 
-        console.log('Configuración cargada:', configuracion);
+        console.log('Configuración cargada desde servidor');
 
         // Actualizar logo inmediatamente
         actualizarLogo();
@@ -575,13 +604,8 @@ async function cargarConfiguracionOptimizada() {
             tasaUSDVES = parseFloat(configuracion.tasa_usd_ves);
         }
 
-        // Actualizar imágenes del carrusel de forma lazy
-        setTimeout(() => actualizarImagenesCarrusel(), 100);
-
-        // Forzar otra actualización del logo por si no se aplicó la primera vez
-        setTimeout(() => {
-            actualizarLogo();
-        }, 200);
+        // Actualizar imágenes del carrusel de forma diferida
+        setTimeout(() => actualizarImagenesCarrusel(), 300);
 
         configuracionCargada = true;
     } catch (error) {
@@ -702,10 +726,11 @@ function actualizarImagenesCarrusel() {
 // Versión optimizada de cargar productos
 async function cargarProductosOptimizado() {
     try {
-        // Usar cache si está disponible
-        if (productosCache) {
+        // Usar cache si está disponible y es válido
+        if (productosCache && cacheValido()) {
             productos = productosCache;
-            mostrarProductos();
+            // Mostrar productos de forma diferida para no bloquear UI
+            setTimeout(() => mostrarProductos(), 50);
             productosCargados = true;
             return;
         }
@@ -717,9 +742,13 @@ async function cargarProductosOptimizado() {
         }
 
         productos = await response.json();
-        productosCache = productos; // Guardar en cache
 
-        console.log('Productos cargados:', productos.length, 'productos');
+        console.log('Productos cargados desde servidor:', productos.length, 'productos');
+
+        // Guardar en cache junto con configuración
+        if (configuracion) {
+            guardarEnCache(configuracion, productos);
+        }
 
         // Mostrar productos de forma optimizada
         mostrarProductos();
@@ -733,7 +762,7 @@ async function cargarProductosOptimizado() {
                 <div class="no-products">
                     <h3>Error al cargar productos</h3>
                     <p>No se pudieron cargar los productos. Verifica la conexión e intenta recargar la página.</p>
-                    <button class="btn btn-primary" onclick="cargarProductos()">🔄 Reintentar</button>
+                    <button class="btn btn-primary" onclick="location.reload()">🔄 Recargar Página</button>
                 </div>
             `;
         }
@@ -3325,6 +3354,56 @@ function actualizarHeaderTooltip() {
     if (itemsCount) {
         itemsCount.textContent = `${totalItems} producto${totalItems !== 1 ? 's' : ''}`;
     }
+}
+
+// Función para validar cache
+function cacheValido() {
+    if (!configCache || !productosCache || !cacheTimestamp) {
+        return false;
+    }
+    
+    const tiempoActual = Date.now();
+    return (tiempoActual - cacheTimestamp) < CACHE_DURATION;
+}
+
+// Función para guardar en cache con timestamp
+function guardarEnCache(config, productos) {
+    configCache = config;
+    productosCache = productos;
+    cacheTimestamp = Date.now();
+    
+    // Guardar también en localStorage para persistencia entre sesiones
+    try {
+        localStorage.setItem('inefablestore_cache', JSON.stringify({
+            config: config,
+            productos: productos,
+            timestamp: cacheTimestamp
+        }));
+    } catch (error) {
+        console.warn('No se pudo guardar cache en localStorage:', error);
+    }
+}
+
+// Función para cargar cache desde localStorage
+function cargarCacheDesdeStorage() {
+    try {
+        const cacheData = localStorage.getItem('inefablestore_cache');
+        if (cacheData) {
+            const parsed = JSON.parse(cacheData);
+            configCache = parsed.config;
+            productosCache = parsed.productos;
+            cacheTimestamp = parsed.timestamp;
+            return cacheValido();
+        }
+    } catch (error) {
+        console.warn('No se pudo cargar cache desde localStorage:', error);
+    }
+    return false;
+}
+
+// Cargar cache al inicio
+if (cargarCacheDesdeStorage()) {
+    console.log('💾 Cache cargado desde localStorage');
 }
 
 // Funciones de placeholder removidas para evitar parpadeo visual

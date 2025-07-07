@@ -4,18 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inefablestore - Tu tienda de juegos favorita</title>
-    
-    <!-- Preload de recursos críticos -->
-    <link rel="preload" href="/static/styles.css" as="style">
-    <link rel="preload" href="/static/app.js" as="script">
-    
-    <!-- Prefetch de imágenes por defecto -->
-    <link rel="prefetch" href="https://via.placeholder.com/200x60/007bff/ffffff?text=INEFABLESTORE">
-    <link rel="prefetch" href="https://via.placeholder.com/800x300/007bff/ffffff?text=🎮+Ofertas+Especiales+Free+Fire">
-    <link rel="prefetch" href="https://via.placeholder.com/800x300/28a745/ffffff?text=🔥+Mejores+Precios+PUBG">
-    <link rel="prefetch" href="https://via.placeholder.com/800x300/dc3545/ffffff?text=⚡+Entrega+Inmediata+COD">
-    
+
+    <!-- CSS crítico primero -->
     <link rel="stylesheet" href="/static/styles.css">
+
+    <!-- Preload de recursos críticos -->
+    <link rel="preload" href="/static/app.js" as="script">
+
+    <!-- DNS prefetch para mejorar velocidad de imágenes externas -->
+    <link rel="dns-prefetch" href="//via.placeholder.com">
 </head>
 <body>
     <div class="container">
@@ -29,7 +26,7 @@
                      onclick="filtrarProductos('todos'); mostrarTab('catalogo');" 
                      style="cursor: pointer; opacity: 0.3; transition: opacity 0.5s ease;"
                      loading="eager">
-                
+
                 <!-- Categorías centradas para desktop -->
                 <nav class="desktop-categories">
                     <button class="desktop-category-btn active" onclick="filtrarProductos('todos', this)">Todos</button>
@@ -45,7 +42,7 @@
                     <span></span>
                     <span></span>
                 </button>
-                
+
                 <!-- Navegación para desktop -->
                 <nav class="desktop-nav">
                     <button class="desktop-nav-btn active" onclick="mostrarTab('catalogo')" title="Catálogo">
@@ -59,7 +56,7 @@
                         <span class="nav-icon"></span>
                     </button>
                 </nav>
-                
+
                 <select id="selector-moneda" class="currency-selector">
                     <option value="VES">🇻🇪 VES</option>
                     <option value="USD">🇺🇸 USD</option>
@@ -129,7 +126,7 @@
                     </div>
                 </div>
 
-                
+
 
                 <div id="productos-grid" class="product-grid" style="display: none; opacity: 0; transition: opacity 0.5s ease;">
                 </div>
