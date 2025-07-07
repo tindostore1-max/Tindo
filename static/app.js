@@ -88,11 +88,13 @@ function cargarElementosCriticos() {
         mainContainer.style.transition = 'opacity 0.5s ease';
     }
 
-    // Cargar logo con opacity baja inicialmente
+    // Mostrar logo inmediatamente
     const logoImg = document.getElementById('logo-img');
     if (logoImg) {
-        logoImg.style.opacity = '0.3';
+        logoImg.style.display = 'block';
+        logoImg.style.opacity = '1';
         logoImg.src = 'https://via.placeholder.com/200x60/007bff/ffffff?text=INEFABLESTORE';
+        console.log('Logo inicial mostrado');
     }
 
     // Ocultar carrusel inicialmente
@@ -563,7 +565,9 @@ async function cargarConfiguracionOptimizada() {
         configuracion = await response.json();
         configCache = configuracion; // Guardar en cache
 
-        // Actualizar logo solo si cambió
+        console.log('Configuración cargada:', configuracion);
+
+        // Actualizar logo inmediatamente
         actualizarLogo();
 
         // Actualizar tasa de cambio
@@ -573,6 +577,11 @@ async function cargarConfiguracionOptimizada() {
 
         // Actualizar imágenes del carrusel de forma lazy
         setTimeout(() => actualizarImagenesCarrusel(), 100);
+
+        // Forzar otra actualización del logo por si no se aplicó la primera vez
+        setTimeout(() => {
+            actualizarLogo();
+        }, 200);
 
         configuracionCargada = true;
     } catch (error) {
@@ -590,28 +599,36 @@ async function cargarConfiguracion() {
 // Función separada para actualizar el logo
 function actualizarLogo() {
     const logoImg = document.getElementById('logo-img');
-    if (logoImg) {
-        if (configuracion.logo && configuracion.logo.trim() !== '') {
-            // Precargar la imagen antes de mostrarla
-            const img = new Image();
-            img.onload = function() {
-                logoImg.src = configuracion.logo;
-                logoImg.style.display = 'block';
-                logoImg.style.opacity = '1';
-            };
-            img.onerror = function() {
-                // Si la imagen falla al cargar, mostrar logo por defecto
-                logoImg.src = 'https://via.placeholder.com/200x60/007bff/ffffff?text=INEFABLESTORE';
-                logoImg.style.display = 'block';
-                logoImg.style.opacity = '1';
-            };
-            img.src = configuracion.logo;
-        } else {
-            // Si no hay logo configurado, mostrar logo por defecto
-            logoImg.src = 'https://via.placeholder.com/200x60/007bff/ffffff?text=INEFABLESTORE';
-            logoImg.style.display = 'block';
+    if (!logoImg) {
+        console.log('Elemento logo-img no encontrado');
+        return;
+    }
+
+    console.log('Actualizando logo con configuración:', configuracion);
+    
+    // Siempre mostrar el elemento primero
+    logoImg.style.display = 'block';
+    
+    if (configuracion && configuracion.logo && configuracion.logo.trim() !== '') {
+        // Precargar la imagen antes de mostrarla
+        const img = new Image();
+        img.onload = function() {
+            logoImg.src = configuracion.logo;
             logoImg.style.opacity = '1';
-        }
+            console.log('Logo personalizado cargado exitosamente:', configuracion.logo);
+        };
+        img.onerror = function() {
+            // Si la imagen falla al cargar, mostrar logo por defecto
+            logoImg.src = 'https://via.placeholder.com/200x60/007bff/ffffff?text=INEFABLESTORE';
+            logoImg.style.opacity = '1';
+            console.log('Error al cargar logo personalizado, usando logo por defecto');
+        };
+        img.src = configuracion.logo;
+    } else {
+        // Si no hay logo configurado, mostrar logo por defecto inmediatamente
+        logoImg.src = 'https://via.placeholder.com/200x60/007bff/ffffff?text=INEFABLESTORE';
+        logoImg.style.opacity = '1';
+        console.log('No hay logo configurado, usando logo por defecto');
     }
 }
 
