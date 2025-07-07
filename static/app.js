@@ -2247,11 +2247,6 @@ async function mostrarHistorialCompras() {
         console.error('Error al cargar historial:', error);
         listaCompras.innerHTML = '<p style="color: #dc3545;">Error al cargar el historial de compras</p>';
     }
-
-    } catch (error) {
-        console.error('Error al cargar historial:', error);
-        listaCompras.innerHTML = '<p style="color: #dc3545;">Error al cargar el historial de compras</p>';
-    }
 }
 
 // Cargar página específica del historial
