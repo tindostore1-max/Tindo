@@ -317,6 +317,7 @@ def enviar_notificacion_orden(orden_data):
         • Paquete: {orden_data['paquete']}
         • Monto: ${orden_data['monto']}
         • Cliente: {orden_data['usuario_email']}
+        • Teléfono: {orden_data.get('usuario_telefono', 'No especificado')}
         • ID del Usuario en el Juego: {orden_data.get('usuario_id', 'No especificado')}
         • Método de Pago: {orden_data['metodo_pago']}
         • Referencia: {orden_data['referencia_pago']}
@@ -397,6 +398,7 @@ def init_db():
                 monto NUMERIC(10,2),
                 usuario_email VARCHAR(100),
                 usuario_id VARCHAR(100),
+                usuario_telefono VARCHAR(20),
                 metodo_pago VARCHAR(50),
                 referencia_pago VARCHAR(100),
                 estado VARCHAR(20) DEFAULT 'procesando',
@@ -414,6 +416,12 @@ def init_db():
         conn.execute(text('''
             ALTER TABLE ordenes 
             ADD COLUMN IF NOT EXISTS codigo_producto VARCHAR(255);
+        '''))
+
+        # Agregar columna usuario_telefono si no existe (migración)
+        conn.execute(text('''
+            ALTER TABLE ordenes 
+            ADD COLUMN IF NOT EXISTS usuario_telefono VARCHAR(20);
         '''))
 
         # Agregar columna orden si no existe (migración)
@@ -676,9 +684,17 @@ def create_orden():
     conn = get_db_connection()
 
     try:
+        # Obtener el teléfono del usuario desde la base de datos
+        result_user = conn.execute(text('''
+            SELECT telefono FROM usuarios WHERE email = :email
+        '''), {'email': usuario_email})
+        
+        usuario_data = result_user.fetchone()
+        usuario_telefono = usuario_data[0] if usuario_data else None
+
         result = conn.execute(text('''
-            INSERT INTO ordenes (juego_id, paquete, monto, usuario_email, usuario_id, metodo_pago, referencia_pago, estado, fecha)
-            VALUES (:juego_id, :paquete, :monto, :usuario_email, :usuario_id, :metodo_pago, :referencia_pago, 'procesando', CURRENT_TIMESTAMP)
+            INSERT INTO ordenes (juego_id, paquete, monto, usuario_email, usuario_id, usuario_telefono, metodo_pago, referencia_pago, estado, fecha)
+            VALUES (:juego_id, :paquete, :monto, :usuario_email, :usuario_id, :usuario_telefono, :metodo_pago, :referencia_pago, 'procesando', CURRENT_TIMESTAMP)
             RETURNING id
         '''), {
             'juego_id': juego_id,
@@ -686,6 +702,7 @@ def create_orden():
             'monto': monto,
             'usuario_email': usuario_email,
             'usuario_id': usuario_id,
+            'usuario_telefono': usuario_telefono,
             'metodo_pago': metodo_pago,
             'referencia_pago': referencia_pago
         })
@@ -721,11 +738,12 @@ def create_orden():
             'monto': orden_completa[3],
             'usuario_email': orden_completa[4],
             'usuario_id': orden_completa[5],
-            'metodo_pago': orden_completa[6],
-            'referencia_pago': orden_completa[7],
-            'estado': orden_completa[8],
-            'fecha': orden_completa[9],
-            'juego_nombre': orden_completa[10]
+            'usuario_telefono': orden_completa[6],
+            'metodo_pago': orden_completa[7],
+            'referencia_pago': orden_completa[8],
+            'estado': orden_completa[9],
+            'fecha': orden_completa[10],
+            'juego_nombre': orden_completa[11]
         }
 
         # Enviar notificación en hilo separado
