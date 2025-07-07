@@ -1241,9 +1241,10 @@ header {
     background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
     border-radius: 20px;
     padding: 30px;
-    margin: 20px 0;
+    margin: 20px auto;
     box-shadow: 0 15px 35px rgba(0,0,0,0.4);
     border: 1px solid #444;
+    max-width: 500px; /* Limitar ancho máximo en desktop */
 }
 
 .auth-tabs {
