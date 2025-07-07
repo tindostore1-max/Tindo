@@ -55,7 +55,7 @@ let productosCache = null;
 function verificarCargaCompleta() {
     if (configuracionCargada && productosCargados && sesionVerificada && interfazLista) {
         console.log('✅ Carga completa - todos los recursos listos');
-        
+
         // Mostrar todo el contenido de forma suave
         setTimeout(() => {
             const mainContainer = document.querySelector('.container');
@@ -656,7 +656,7 @@ function actualizarImagenesCarrusel() {
     // Función para cargar imagen de forma suave sin placeholders
     function cargarImagenCarrusel(slide, url) {
         if (!slide) return;
-        
+
         if (url) {
             // Precargar la imagen
             const img = new Image();
@@ -900,22 +900,12 @@ function mostrarProductos() {
                 precioMaximo = Math.max(...precios);
             }
 
-            // Mostrar rango de precios según la moneda
+            // Mostrar solo precio inicial con "Desde"
             let rangoPrecio = '';
-            if (precioMinimo === precioMaximo) {
-                // Si solo hay un precio
-                if (monedaActual === 'VES') {
-                    rangoPrecio = `Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)}`;
-                } else {
-                    rangoPrecio = `$${precioMinimo.toFixed(2)}`;
-                }
+            if (monedaActual === 'VES') {
+                rangoPrecio = `Desde Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)}`;
             } else {
-                // Si hay rango de precios
-                if (monedaActual === 'VES') {
-                    rangoPrecio = `Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)} - Bs. ${(precioMaximo * tasaUSDVES).toFixed(2)}`;
-                } else {
-                    rangoPrecio = `$${precioMinimo.toFixed(2)} - $${precioMaximo.toFixed(2)}`;
-                }
+                rangoPrecio = `Desde $${precioMinimo.toFixed(2)}`;
             }
 
             // Procesar etiquetas del juego
@@ -955,7 +945,7 @@ function mostrarProductos() {
             giftCards.forEach(giftCard => {
                 // Corregir ruta de imagen
                 let imagenUrl = giftCard.imagen || '';
-                if (imagenUrl && !imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
+                if (imagenUrl && !imagenUrlstartsWith('http') && !imagenUrl.startsWith('/static/')) {
                     imagenUrl = `/static/${imagenUrl}`;
                 }
                 if (!imagenUrl) {
@@ -971,20 +961,12 @@ function mostrarProductos() {
                     precioMaximo = Math.max(...precios);
                 }
 
-                // Mostrar rango de precios según la moneda
+                // Mostrar solo precio inicial con "Desde"
                 let rangoPrecio = '';
-                if (precioMinimo === precioMaximo) {
-                    if (monedaActual === 'VES') {
-                        rangoPrecio = `Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)}`;
-                    } else {
-                        rangoPrecio = `$${precioMinimo.toFixed(2)}`;
-                    }
+                if (monedaActual === 'VES') {
+                    rangoPrecio = `Desde Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)}`;
                 } else {
-                    if (monedaActual === 'VES') {
-                        rangoPrecio = `Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)} - Bs. ${(precioMaximo * tasaUSDVES).toFixed(2)}`;
-                    } else {
-                        rangoPrecio = `$${precioMinimo.toFixed(2)} - $${precioMaximo.toFixed(2)}`;
-                    }
+                    rangoPrecio = `Desde $${precioMinimo.toFixed(2)}`;
                 }
 
                 // Procesar etiquetas para gift cards
@@ -1094,22 +1076,12 @@ function mostrarProductos() {
             precioMaximo = Math.max(...precios);
         }
 
-        // Mostrar rango de precios según la moneda
+        // Mostrar solo precio inicial con "Desde"
         let rangoPrecio = '';
-        if (precioMinimo === precioMaximo) {
-            // Si solo hay un precio
-            if (monedaActual === 'VES') {
-                rangoPrecio = `Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)}`;
-            } else {
-                rangoPrecio = `$${precioMinimo.toFixed(2)}`;
-            }
+        if (monedaActual === 'VES') {
+            rangoPrecio = `Desde Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)}`;
         } else {
-            // Si hay rango de precios
-            if (monedaActual === 'VES') {
-                rangoPrecio = `Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)} - Bs. ${(precioMaximo * tasaUSDVES).toFixed(2)}`;
-            } else {
-                rangoPrecio = `$${precioMinimo.toFixed(2)} - $${precioMaximo.toFixed(2)}`;
-            }
+            rangoPrecio = `Desde $${precioMinimo.toFixed(2)}`;
         }
 
         // Procesando etiquetas
@@ -1708,7 +1680,8 @@ function seleccionarMetodoPago(metodo) {
             }
         });
 
-        infoPago.innerHTML = `
+        infoPago```javascript
+.innerHTML = `
             <h4>🟡 Datos para Binance:</h4>
             <p><strong>📧 Email:</strong> ${email}</p>
             <p><strong>🆔 ID Binance:</strong> ${idBinance}</p>
@@ -2265,22 +2238,12 @@ function crearCarruselJuegos() {
             precioMaximo = Math.max(...precios);
         }
 
-        // Mostrar rango de precios según la moneda
+        // Mostrar solo precio inicial con "Desde"
         let rangoPrecio = '';
-        if (precioMinimo === precioMaximo) {
-            // Si solo hay un precio
-            if (monedaActual === 'VES') {
-                rangoPrecio = `Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)}`;
-            } else {
-                rangoPrecio = `$${precioMinimo.toFixed(2)}`;
-            }
+        if (monedaActual === 'VES') {
+            rangoPrecio = `Desde Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)}`;
         } else {
-            // Si hay rango de precios
-            if (monedaActual === 'VES') {
-                rangoPrecio = `Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)} - Bs. ${(precioMaximo * tasaUSDVES).toFixed(2)}`;
-            } else {
-                rangoPrecio = `$${precioMinimo.toFixed(2)} - $${precioMaximo.toFixed(2)}`;
-            }
+            rangoPrecio = `Desde $${precioMinimo.toFixed(2)}`;
         }
 
         // Procesar etiquetas del juego
@@ -2356,22 +2319,12 @@ function crearSeccionGiftCards() {
             precioMaximo = Math.max(...precios);
         }
 
-        // Mostrar rango de precios según la moneda
+        // Mostrar solo precio inicial con "Desde"
         let rangoPrecio = '';
-        if (precioMinimo === precioMaximo) {
-            // Si solo hay un precio
-            if (monedaActual === 'VES') {
-                rangoPrecio = `Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)}`;
-            } else {
-                rangoPrecio = `$${precioMinimo.toFixed(2)}`;
-            }
+        if (monedaActual === 'VES') {
+            rangoPrecio = `Desde Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)}`;
         } else {
-            // Si hay rango de precios
-            if (monedaActual === 'VES') {
-                rangoPrecio = `Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)} - Bs. ${(precioMaximo * tasaUSDVES).toFixed(2)}`;
-            } else {
-                rangoPrecio = `$${precioMinimo.toFixed(2)} - $${precioMaximo.toFixed(2)}`;
-            }
+            rangoPrecio = `Desde $${precioMinimo.toFixed(2)}`;
         }
 
         // Procesar etiquetas de la gift card
@@ -2592,7 +2545,8 @@ function mostrarAuthTab(tabName, element) {
     // Mostrar contenido seleccionado
     targetContent.classList.add('active');
 
-    // Activar el tab seleccionado si se proporciona el elemento
+    // Activar el tab seleccionado```javascript
+ si se proporciona el elemento
     if (element) {
         element.classList.add('active');
     }
