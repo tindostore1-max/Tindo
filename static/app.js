@@ -136,6 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Mostrar datos del cache inmediatamente
         actualizarLogo();
+        actualizarImagenesCarrusel(); // Actualizar carrusel desde cache
         mostrarProductos();
 
         // Verificar sesión en background
@@ -594,7 +595,7 @@ async function cargarConfiguracionOptimizada() {
 
         configuracion = await response.json();
 
-        console.log('Configuración cargada desde servidor');
+        console.log('Configuración cargada desde servidor:', configuracion);
 
         // Actualizar logo inmediatamente
         actualizarLogo();
@@ -604,8 +605,13 @@ async function cargarConfiguracionOptimizada() {
             tasaUSDVES = parseFloat(configuracion.tasa_usd_ves);
         }
 
-        // Actualizar imágenes del carrusel de forma diferida
-        setTimeout(() => actualizarImagenesCarrusel(), 300);
+        // Actualizar imágenes del carrusel inmediatamente
+        actualizarImagenesCarrusel();
+
+        // Guardar en cache
+        if (productos && productos.length > 0) {
+            guardarEnCache(configuracion, productos);
+        }
 
         configuracionCargada = true;
     } catch (error) {
@@ -662,15 +668,30 @@ function aplicarConfiguracionPorDefecto() {
         tasa_usd_ves: '36.50',
         pago_movil: 'Información no disponible',
         binance: 'Información no disponible',
-        logo: '' // Logo vacío para activar el placeholder
+        logo: '', // Logo vacío para activar el placeholder
+        carousel1: '',
+        carousel2: '',
+        carousel3: ''
     };
     tasaUSDVES = 36.50;
     actualizarLogo();
+    actualizarImagenesCarrusel();
 }
 
 // Función para actualizar las imágenes del carrusel
 function actualizarImagenesCarrusel() {
     const slides = document.querySelectorAll('.carousel-slide img');
+
+    if (!slides.length || !configuracion) {
+        console.log('No hay slides o configuración para actualizar carrusel');
+        return;
+    }
+
+    console.log('Actualizando carrusel con configuración:', {
+        carousel1: configuracion.carousel1,
+        carousel2: configuracion.carousel2,
+        carousel3: configuracion.carousel3
+    });
 
     function prepararUrlImagen(url) {
         if (!url || url.trim() === '') return null;
