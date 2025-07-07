@@ -2039,18 +2039,20 @@ async function procesarLogin() {
 async function procesarRegistro() {
     const nombreElement = document.getElementById('registro-nombre');
     const emailElement = document.getElementById('registro-email');
+    const telefonoElement = document.getElementById('registro-telefono');
     const passwordElement = document.getElementById('registro-password');
 
-    if (!nombreElement || !emailElement || !passwordElement) {
+    if (!nombreElement || !emailElement || !telefonoElement || !passwordElement) {
         mostrarAlerta('Error en el formulario de registro', 'error');
         return;
     }
 
     const nombre = nombreElement.value;
     const email = emailElement.value;
+    const telefono = telefonoElement.value;
     const password = passwordElement.value;
 
-    if (!nombre || !email || !password) {
+    if (!nombre || !email || !telefono || !password) {
         mostrarAlerta('Por favor completa todos los campos', 'error');
         return;
     }
@@ -2061,7 +2063,7 @@ async function procesarRegistro() {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ nombre, email, password })
+            body: JSON.stringify({ nombre, email, telefono, password })
         });
 
         const data = await response.json();

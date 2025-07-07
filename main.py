@@ -250,13 +250,13 @@ def limpiar_ordenes_antiguas(usuario_email):
         result = conn.execute(text('''
             SELECT COUNT(*) FROM ordenes WHERE usuario_email = :email
         '''), {'email': usuario_email})
-        
+
         total_ordenes = result.fetchone()[0]
-        
+
         # Si tiene más de 40 órdenes, eliminar las más antiguas
         if total_ordenes > 40:
             ordenes_a_eliminar = total_ordenes - 40
-            
+
             # Obtener IDs de las órdenes más antiguas
             result = conn.execute(text('''
                 SELECT id FROM ordenes 
@@ -264,17 +264,17 @@ def limpiar_ordenes_antiguas(usuario_email):
                 ORDER BY fecha ASC 
                 LIMIT :limit
             '''), {'email': usuario_email, 'limit': ordenes_a_eliminar})
-            
+
             ids_a_eliminar = [row[0] for row in result.fetchall()]
-            
+
             if ids_a_eliminar:
                 # Eliminar las órdenes más antiguas
                 for orden_id in ids_a_eliminar:
                     conn.execute(text('DELETE FROM ordenes WHERE id = :id'), {'id': orden_id})
-                
+
                 conn.commit()
                 print(f"🧹 Limpieza automática: Eliminadas {len(ids_a_eliminar)} órdenes antiguas del usuario {usuario_email}")
-                
+
     except Exception as e:
         print(f"❌ Error al limpiar órdenes antiguas: {e}")
         conn.rollback()
@@ -450,17 +450,24 @@ def init_db():
             );
         '''))
 
-        # Crear tabla de usuarios
-        conn.execute(text('''
+        # Crear tabla usuarios
+        conn.execute(text("""
             CREATE TABLE IF NOT EXISTS usuarios (
                 id SERIAL PRIMARY KEY,
                 nombre VARCHAR(100) NOT NULL,
                 email VARCHAR(100) UNIQUE NOT NULL,
+                telefono VARCHAR(20),
                 password_hash VARCHAR(255) NOT NULL,
                 es_admin BOOLEAN DEFAULT FALSE,
                 fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-        '''))
+            )
+        """))
+
+        # Añadir columna telefono si no existe (para compatibilidad con bases de datos existentes)
+        try:
+            conn.execute(text("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS telefono VARCHAR(20)"))
+        except Exception as e:
+            print(f"Columna telefono ya existe o error menor: {e}")
 
         # Agregar columna es_admin si no existe (migración)
         conn.execute(text('''
@@ -695,7 +702,7 @@ def create_orden():
 
         orden_completa = result.fetchone()
         conn.commit()
-        
+
         # Limpiar órdenes antiguas del usuario (mantener solo las últimas 40)
         limpiar_ordenes_antiguas(usuario_email)
 
@@ -794,7 +801,8 @@ def update_orden(orden_id):
         orden_info = result.fetchone()
 
         if not orden_info:
-            return jsonify({'error': 'Orden no encontrada'}), 404
+            ```python
+return jsonify({'error': 'Orden no encontrada'}), 404
 
         # Preparar la consulta de actualización
         if codigo_producto is not None:
@@ -991,15 +999,15 @@ def get_productos_publico():
             LEFT JOIN paquetes p ON j.id = p.juego_id
             ORDER BY j.orden ASC, j.id ASC, p.orden ASC, p.precio ASC
         '''))
-        
+
         rows = result.fetchall()
-        
+
         # Agrupar productos con sus paquetes
         productos_dict = {}
         for row in rows:
             row_dict = dict(row._mapping)
             producto_id = row_dict['id']
-            
+
             if producto_id not in productos_dict:
                 productos_dict[producto_id] = {
                     'id': row_dict['id'],
@@ -1011,7 +1019,7 @@ def get_productos_publico():
                     'etiquetas': row_dict['etiquetas'],
                     'paquetes': []
                 }
-            
+
             # Agregar paquete si existe
             if row_dict['paquete_id']:
                 productos_dict[producto_id]['paquetes'].append({
@@ -1020,10 +1028,10 @@ def get_productos_publico():
                     'precio': row_dict['precio'],
                     'orden': row_dict['paquete_orden']
                 })
-        
+
         # Convertir a lista
         productos_list = list(productos_dict.values())
-        
+
         return jsonify(productos_list)
     finally:
         conn.close()
@@ -1179,9 +1187,10 @@ def registro():
     data = request.get_json()
     nombre = data.get('nombre')
     email = data.get('email')
+    telefono = data.get('telefono')
     password = data.get('password')
 
-    if not nombre or not email or not password:
+    if not nombre or not email or not telefono or not password:
         return jsonify({'error': 'Todos los campos son requeridos'}), 400
 
     # Verificar si el email ya existe
@@ -1196,9 +1205,9 @@ def registro():
         password_hash = generate_password_hash(password)
 
         result = conn.execute(text('''
-            INSERT INTO usuarios (nombre, email, password_hash)
-            VALUES (:nombre, :email, :password_hash) RETURNING id
-        '''), {'nombre': nombre, 'email': email, 'password_hash': password_hash})
+            INSERT INTO usuarios (nombre, email, telefono, password_hash)
+            VALUES (:nombre, :email, :telefono, :password_hash) RETURNING id
+        '''), {'nombre': nombre, 'email': email, 'telefono': telefono, 'password_hash': password_hash})
 
         user_id = result.fetchone()[0]
         conn.commit()
