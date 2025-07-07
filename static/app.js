@@ -227,8 +227,8 @@ async function verificarSesionOptimizada() {
         if (response.ok) {
             const data = await response.json();
             console.log('Usuario logueado encontrado:', data.usuario);
-            // Actualizar interfaz de forma lazy
-            setTimeout(() => actualizarInterfazUsuario(data.usuario), 50);
+            // Actualizar interfaz inmediatamente para evitar problemas de sincronización
+            actualizarInterfazUsuario(data.usuario);
         } else {
             console.log('No hay sesión activa, código:', response.status);
         }
@@ -2040,6 +2040,13 @@ function actualizarInterfazUsuario(usuario) {
         es_admin: usuario.es_admin
     };
 
+    // Asegurar que el elemento existe antes de modificarlo
+    const loginSection = document.getElementById('login');
+    if (!loginSection) {
+        console.error('Elemento login no encontrado');
+        return;
+    }
+
     // Crear botón de administrador si el usuario es admin
     let botonAdminHtml = '';
     if (usuario.es_admin) {
@@ -2050,8 +2057,7 @@ function actualizarInterfazUsuario(usuario) {
         `;
     }
 
-    // Cambiar contenido de la pestaña de cuenta
-    const loginSection = document.getElementById('login');
+    // Cambiar contenido de la pestaña de cuenta inmediatamente
     loginSection.innerHTML = `
         <div class="auth-section">
             <h2 style="color: #ffffff; text-align: center; font-size: 28px; margin-bottom: 30px;">👤 Mi Cuenta</h2>
@@ -2093,6 +2099,8 @@ function actualizarInterfazUsuario(usuario) {
             emailInput.style.cursor = 'not-allowed';
         }
     }
+
+    console.log('Interfaz de usuario actualizada para:', usuario.nombre, 'Es admin:', usuario.es_admin);
 }
 
 // Cerrar sesión
