@@ -2803,7 +2803,14 @@ function mostrarAuthTab(tabName, element) {
 function cerrarNotificacion() {
     const notification = document.querySelector('.mobile-notification.show');
     if (notification) {
-        notification.classList.add('hide');
+        notification.classList.remove('show');
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }
+}ation.classList.add('hide');
         setTimeout(() => {
             if (notification.parentNode) {
                 notification.remove();
