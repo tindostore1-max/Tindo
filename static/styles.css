@@ -3349,6 +3349,11 @@ header {
     display: none;
 }
 
+/* Ocultar grid de productos cuando está vacío */
+.product-grid:empty {
+    display: none !important;
+}
+
 .carousel {
     position: relative;
     width: 100%;

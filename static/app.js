@@ -596,13 +596,16 @@ function actualizarLogo() {
             const img = new Image();
             img.onload = function() {
                 logoImg.src = configuracion.logo;
+                logoImg.style.opacity = '1';
             };
             img.onerror = function() {
-                logoImg.src = 'https://via.placeholder.com/150x60/007bff/ffffff?text=INEFABLESTORE';
+                // Si la imagen falla al cargar, simplemente no mostrar nada
+                logoImg.style.display = 'none';
             };
             img.src = configuracion.logo;
         } else {
-            logoImg.src = 'https://via.placeholder.com/150x60/007bff/ffffff?text=INEFABLESTORE';
+            // Si no hay logo configurado, no mostrar nada
+            logoImg.style.display = 'none';
         }
     }
 }
@@ -844,9 +847,14 @@ function mostrarProductos() {
     grid.className = 'product-grid';
 
     if (!productos || productos.length === 0) {
-        grid.innerHTML = '<p>No hay productos disponibles</p>';
+        grid.innerHTML = '';
+        grid.style.display = 'none';
         return;
     }
+
+    // Mostrar el grid cuando hay productos
+    grid.style.display = 'grid';
+    grid.style.opacity = '1';
 
     // Si es la categoría "todos", mostrar carrusel horizontal de juegos
     if (!filtroActual || filtroActual === 'todos') {
