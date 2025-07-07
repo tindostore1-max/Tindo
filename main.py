@@ -20,6 +20,13 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'tu_clave_secreta_aqui'
 app.config['UPLOAD_FOLDER'] = 'static/images'
 
+# Configuración de sesión
+from datetime import timedelta
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)  # 24 horas
+app.config['SESSION_COOKIE_SECURE'] = False  # True en producción con HTTPS
+app.config['SESSION_COOKIE_HTTPONLY'] = True  # Previene acceso via JavaScript
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Protección CSRF
+
 # Configuración de SQLAlchemy con DATABASE_URL
 def create_db_engine():
     database_url = os.environ.get('DATABASE_URL')
@@ -1152,7 +1159,8 @@ def login():
         usuario = result.fetchone()
 
         if usuario and check_password_hash(usuario[3], password):  # password_hash es índice 3
-            # Guardar sesión
+            # Guardar sesión permanente con tiempo de expiración
+            session.permanent = True
             session['user_id'] = usuario[0]      # id
             session['user_email'] = usuario[2]   # email
             session['user_name'] = usuario[1]    # nombre
