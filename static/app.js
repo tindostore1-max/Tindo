@@ -963,8 +963,7 @@ function mostrarProductos() {
                     if (etiqueta.includes('%') || etiqueta.toLowerCase().includes('descuento') || etiqueta.toLowerCase().includes('oferta')) {
                         clase = 'descuento';
                     } else if (etiqueta.toLowerCase().includes('hot')) {
-```text
-clase = 'hot';
+                        clase = 'hot';
                     } else if (etiqueta.toLowerCase().includes('nuevo')) {
                         clase = 'nuevo';
                     } else if (etiqueta.toLowerCase().includes('popular')) {
