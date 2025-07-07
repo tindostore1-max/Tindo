@@ -605,10 +605,10 @@ function actualizarLogo() {
     }
 
     console.log('Actualizando logo con configuración:', configuracion);
-    
+
     // Siempre mostrar el elemento primero
     logoImg.style.display = 'block';
-    
+
     if (configuracion && configuracion.logo && configuracion.logo.trim() !== '') {
         // Precargar la imagen antes de mostrarla
         const img = new Image();
@@ -1682,6 +1682,7 @@ function seleccionarMetodoPago(metodo) {
         infoPago.style.display = 'block';
     } else if (metodo === 'Binance') {
         // Procesar datos de Binance
+```javascript
         const binanceData = configuracion.binance || 'Información no disponible';
         const lineasBinance = binanceData.split('\n');
 
@@ -1697,8 +1698,7 @@ function seleccionarMetodoPago(metodo) {
             }
         });
 
-        infoPago```javascript
-.innerHTML = `
+        infoPago.innerHTML = `
             <h4>🟡 Datos para Binance:</h4>
             <p><strong>📧 Email:</strong> ${email}</p>
             <p><strong>🆔 ID Binance:</strong> ${idBinance}</p>
@@ -2541,7 +2541,7 @@ function mostrarTodasLasGiftCards() {
 function mostrarAuthTab(tabName, element) {
     // Verificar que los elementos existen antes de manipularlos
     const authContents = document.querySelectorAll('.auth-content');
-    const authTabs = document.querySelectorAll('.auth-tab');
+    const authTabs = document.querySelectorAll('.auth-content');
     const targetContent = document.getElementById(tabName);
 
     if (!authContents.length || !authTabs.length || !targetContent) {
@@ -2562,8 +2562,7 @@ function mostrarAuthTab(tabName, element) {
     // Mostrar contenido seleccionado
     targetContent.classList.add('active');
 
-    // Activar el tab seleccionado```javascript
- si se proporciona el elemento
+    // Activar el tab seleccionado si se proporciona el elemento
     if (element) {
         element.classList.add('active');
     }
