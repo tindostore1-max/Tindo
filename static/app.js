@@ -945,7 +945,7 @@ function mostrarProductos() {
             giftCards.forEach(giftCard => {
                 // Corregir ruta de imagen
                 let imagenUrl = giftCard.imagen || '';
-                if (imagenUrl && !imagenUrlstartsWith('http') && !imagenUrl.startsWith('/static/')) {
+                if (imagenUrl && !imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
                     imagenUrl = `/static/${imagenUrl}`;
                 }
                 if (!imagenUrl) {
