@@ -596,16 +596,21 @@ function actualizarLogo() {
             const img = new Image();
             img.onload = function() {
                 logoImg.src = configuracion.logo;
+                logoImg.style.display = 'block';
                 logoImg.style.opacity = '1';
             };
             img.onerror = function() {
-                // Si la imagen falla al cargar, simplemente no mostrar nada
-                logoImg.style.display = 'none';
+                // Si la imagen falla al cargar, mostrar logo por defecto
+                logoImg.src = 'https://via.placeholder.com/200x60/007bff/ffffff?text=INEFABLESTORE';
+                logoImg.style.display = 'block';
+                logoImg.style.opacity = '1';
             };
             img.src = configuracion.logo;
         } else {
-            // Si no hay logo configurado, no mostrar nada
-            logoImg.style.display = 'none';
+            // Si no hay logo configurado, mostrar logo por defecto
+            logoImg.src = 'https://via.placeholder.com/200x60/007bff/ffffff?text=INEFABLESTORE';
+            logoImg.style.display = 'block';
+            logoImg.style.opacity = '1';
         }
     }
 }
@@ -615,7 +620,8 @@ function aplicarConfiguracionPorDefecto() {
     configuracion = {
         tasa_usd_ves: '36.50',
         pago_movil: 'Información no disponible',
-        binance: 'Información no disponible'
+        binance: 'Información no disponible',
+        logo: '' // Logo vacío para activar el placeholder
     };
     tasaUSDVES = 36.50;
     actualizarLogo();
