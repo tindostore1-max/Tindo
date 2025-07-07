@@ -2177,7 +2177,13 @@ async function cerrarSesion() {
     }
 }
 
-// Mostrar historial de compras
+// Variables para paginación del historial
+let historialCurrentPage = 1;
+let historialItemsPerPage = 5;
+let historialTotalItems = 0;
+let historialData = [];
+
+// Mostrar historial de compras con paginación
 async function mostrarHistorialCompras() {
     const historialDiv = document.getElementById('historial-compras');
     const listaCompras = document.getElementById('lista-compras');
@@ -2195,9 +2201,10 @@ async function mostrarHistorialCompras() {
             throw new Error('Error al cargar historial');
         }
 
-        const historial = await response.json();
+        historialData = await response.json();
+        historialTotalItems = historialData.length;
 
-        if (historial.length === 0) {
+        if (historialData.length === 0) {
             listaCompras.innerHTML = `
                 <div class="no-purchases">
                     <i>🛒</i>
@@ -2208,71 +2215,168 @@ async function mostrarHistorialCompras() {
             return;
         }
 
-        let html = '';
-        historial.forEach(compra => {
-            const fecha = new Date(compra.fecha).toLocaleDateString('es-ES', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-
-            let imagenUrl = compra.juego_imagen || '';
-            if (imagenUrl && !imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
-                imagenUrl = `/static/${imagenUrl}`;
-            }
-            if (!imagenUrl) {
-                imagenUrl = 'https://via.placeholder.com/60x60/007bff/ffffff?text=Juego';
-            }
-
-            // Verificar si es Gift Card y tiene código
-            const esGiftCard = compra.categoria === 'gift-cards' || 
-                              (compra.juego_nombre && compra.juego_nombre.toLowerCase().includes('gift'));
-
-            let codigoHtml = '';
-            if (esGiftCard && compra.codigo_producto && compra.estado === 'procesado') {
-                codigoHtml = `
-                    <div class="purchase-code">
-                        <strong>🎁 Código de Gift Card:</strong>
-                        <div class="code-display">
-                            <span class="code-text">${compra.codigo_producto}</span>
-                            <button onclick="copiarCodigo('${compra.codigo_producto}')" class="copy-code-btn" title="Copiar código">
-                                📋
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }
-
-            html += `
-                <div class="purchase-card">
-                    <div class="purchase-header">
-                        <img src="${imagenUrl}" alt="${compra.juego_nombre || 'Juego'}" class="purchase-game-image" onerror="this.src='https://via.placeholder.com/60x60/007bff/ffffff?text=Juego'">
-                        <div class="purchase-info">
-                            <h4>${compra.juego_nombre || 'Juego'}</h4>
-                            <p class="purchase-package">${compra.paquete}</p>
-                            <p class="purchase-date">${fecha}</p>
-                        </div>
-                    </div>
-                    <div class="purchase-details">
-                        <span class="purchase-amount">$${parseFloat(compra.monto).toFixed(2)}</span>
-                        <span class="purchase-status ${compra.estado}">${compra.estado.toUpperCase()}</span>
-                    </div>
-                    ${codigoHtml}
-                    <div class="purchase-payment">
-                        <small><strong>Método:</strong> ${compra.metodo_pago}</small>
-                        <small><strong>Referencia:</strong> ${compra.referencia_pago}</small>
-                    </div>
+        // Crear controles de paginación
+        const paginationControls = `
+            <div class="historial-pagination-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <span style="font-size: 14px; color: #ffffff;">Compras por página:</span>
+                    <select id="historial-per-page" onchange="changeHistorialPerPage()" style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; background: rgba(255,255,255,0.1); color: #ffffff; font-size: 14px;">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                    </select>
                 </div>
-            `;
-        });
+                
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button id="historial-prev-page" class="btn btn-sm" onclick="previousHistorialPage()" disabled style="padding: 8px 15px; font-size: 12px; background: rgba(255,255,255,0.1); color: #ffffff; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;">⬅️ Anterior</button>
+                    <span id="historial-page-info" style="margin: 0 10px; font-size: 14px; color: #ffffff;">Página 1 de 1</span>
+                    <button id="historial-next-page" class="btn btn-sm" onclick="nextHistorialPage()" disabled style="padding: 8px 15px; font-size: 12px; background: rgba(255,255,255,0.1); color: #ffffff; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;">Siguiente ➡️</button>
+                </div>
+            </div>
+            <div id="historial-items-container">
+                <!-- Aquí se cargarán las compras paginadas -->
+            </div>
+        `;
 
-        listaCompras.innerHTML = html;
+        listaCompras.innerHTML = paginationControls;
+
+        // Cargar la primera página
+        loadHistorialPage();
 
     } catch (error) {
         console.error('Error al cargar historial:', error);
         listaCompras.innerHTML = '<p style="color: #dc3545;">Error al cargar el historial de compras</p>';
+    }
+}
+
+// Cargar página específica del historial
+function loadHistorialPage() {
+    const container = document.getElementById('historial-items-container');
+    if (!container) return;
+
+    const startIndex = (historialCurrentPage - 1) * historialItemsPerPage;
+    const endIndex = startIndex + historialItemsPerPage;
+    const pageItems = historialData.slice(startIndex, endIndex);
+
+    let html = '';
+    pageItems.forEach(compra => {
+        const fecha = new Date(compra.fecha).toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        let imagenUrl = compra.juego_imagen || '';
+        if (imagenUrl && !imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
+            imagenUrl = `/static/${imagenUrl}`;
+        }
+        if (!imagenUrl) {
+            imagenUrl = 'https://via.placeholder.com/60x60/007bff/ffffff?text=Juego';
+        }
+
+        // Verificar si es Gift Card y tiene código
+        const esGiftCard = compra.categoria === 'gift-cards' || 
+                          (compra.juego_nombre && compra.juego_nombre.toLowerCase().includes('gift'));
+
+        let codigoHtml = '';
+        if (esGiftCard && compra.codigo_producto && compra.estado === 'procesado') {
+            codigoHtml = `
+                <div class="purchase-code">
+                    <strong>🎁 Código de Gift Card:</strong>
+                    <div class="code-display">
+                        <span class="code-text">${compra.codigo_producto}</span>
+                        <button onclick="copiarCodigo('${compra.codigo_producto}')" class="copy-code-btn" title="Copiar código">
+                            📋
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        html += `
+            <div class="purchase-card">
+                <div class="purchase-header">
+                    <img src="${imagenUrl}" alt="${compra.juego_nombre || 'Juego'}" class="purchase-game-image" onerror="this.src='https://via.placeholder.com/60x60/007bff/ffffff?text=Juego'">
+                    <div class="purchase-info">
+                        <h4>${compra.juego_nombre || 'Juego'}</h4>
+                        <p class="purchase-package">${compra.paquete}</p>
+                        <p class="purchase-date">${fecha}</p>
+                    </div>
+                </div>
+                <div class="purchase-details">
+                    <span class="purchase-amount">$${parseFloat(compra.monto).toFixed(2)}</span>
+                    <span class="purchase-status ${compra.estado}">${compra.estado.toUpperCase()}</span>
+                </div>
+                ${codigoHtml}
+                <div class="purchase-payment">
+                    <small><strong>Método:</strong> ${compra.metodo_pago}</small>
+                    <small><strong>Referencia:</strong> ${compra.referencia_pago}</small>
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+    updateHistorialPaginationControls();
+}
+
+// Actualizar controles de paginación del historial
+function updateHistorialPaginationControls() {
+    const totalPages = Math.ceil(historialTotalItems / historialItemsPerPage);
+    
+    // Actualizar información de página
+    const pageInfo = document.getElementById('historial-page-info');
+    if (pageInfo) {
+        pageInfo.textContent = `Página ${historialCurrentPage} de ${totalPages}`;
+    }
+
+    // Actualizar botones
+    const prevBtn = document.getElementById('historial-prev-page');
+    const nextBtn = document.getElementById('historial-next-page');
+    
+    if (prevBtn) {
+        prevBtn.disabled = historialCurrentPage <= 1;
+        prevBtn.style.opacity = historialCurrentPage <= 1 ? '0.5' : '1';
+    }
+    
+    if (nextBtn) {
+        nextBtn.disabled = historialCurrentPage >= totalPages;
+        nextBtn.style.opacity = historialCurrentPage >= totalPages ? '0.5' : '1';
+    }
+
+    // Actualizar selector de items por página
+    const perPageSelect = document.getElementById('historial-per-page');
+    if (perPageSelect) {
+        perPageSelect.value = historialItemsPerPage;
+    }
+}
+
+// Cambiar número de items por página en el historial
+function changeHistorialPerPage() {
+    const select = document.getElementById('historial-per-page');
+    if (select) {
+        historialItemsPerPage = parseInt(select.value);
+        historialCurrentPage = 1; // Volver a la primera página
+        loadHistorialPage();
+    }
+}
+
+// Ir a la página anterior del historial
+function previousHistorialPage() {
+    if (historialCurrentPage > 1) {
+        historialCurrentPage--;
+        loadHistorialPage();
+    }
+}
+
+// Ir a la siguiente página del historial
+function nextHistorialPage() {
+    const totalPages = Math.ceil(historialTotalItems / historialItemsPerPage);
+    if (historialCurrentPage < totalPages) {
+        historialCurrentPage++;
+        loadHistorialPage();
     }
 }
 
