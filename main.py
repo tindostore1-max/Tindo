@@ -242,6 +242,45 @@ def enviar_correo_recarga_completada(orden_info):
         print(f"❌ Error al enviar correo de confirmación: {str(e)}")
         return False
 
+def limpiar_ordenes_antiguas(usuario_email):
+    """Mantiene solo las últimas 40 órdenes por usuario, eliminando las más antiguas"""
+    conn = get_db_connection()
+    try:
+        # Contar órdenes del usuario
+        result = conn.execute(text('''
+            SELECT COUNT(*) FROM ordenes WHERE usuario_email = :email
+        '''), {'email': usuario_email})
+        
+        total_ordenes = result.fetchone()[0]
+        
+        # Si tiene más de 40 órdenes, eliminar las más antiguas
+        if total_ordenes > 40:
+            ordenes_a_eliminar = total_ordenes - 40
+            
+            # Obtener IDs de las órdenes más antiguas
+            result = conn.execute(text('''
+                SELECT id FROM ordenes 
+                WHERE usuario_email = :email 
+                ORDER BY fecha ASC 
+                LIMIT :limit
+            '''), {'email': usuario_email, 'limit': ordenes_a_eliminar})
+            
+            ids_a_eliminar = [row[0] for row in result.fetchall()]
+            
+            if ids_a_eliminar:
+                # Eliminar las órdenes más antiguas
+                for orden_id in ids_a_eliminar:
+                    conn.execute(text('DELETE FROM ordenes WHERE id = :id'), {'id': orden_id})
+                
+                conn.commit()
+                print(f"🧹 Limpieza automática: Eliminadas {len(ids_a_eliminar)} órdenes antiguas del usuario {usuario_email}")
+                
+    except Exception as e:
+        print(f"❌ Error al limpiar órdenes antiguas: {e}")
+        conn.rollback()
+    finally:
+        conn.close()
+
 def enviar_notificacion_orden(orden_data):
     """Envía notificación por correo de nueva orden"""
     try:
@@ -656,6 +695,9 @@ def create_orden():
 
         orden_completa = result.fetchone()
         conn.commit()
+        
+        # Limpiar órdenes antiguas del usuario (mantener solo las últimas 40)
+        limpiar_ordenes_antiguas(usuario_email)
 
     except Exception as e:
         conn.rollback()
