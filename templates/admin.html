@@ -946,7 +946,11 @@
                 // Mostrar página actual
                 displayOrdenesPage();
 
-                }
+            } catch (error) {
+                console.error('Error al cargar órdenes:', error);
+                document.getElementById('ordenes-list').innerHTML = '<p>Error al cargar órdenes</p>';
+            }
+        }
 
         function displayOrdenesPage() {
             const startIndex = (currentPage - 1) * ordenesPerPage;
@@ -1107,10 +1111,7 @@
             currentPage = 1; // Resetear a primera página
             displayOrdenesPage();
         }
-            } catch (error) {
-                document.getElementById('ordenes-list').innerHTML = '<p>Error al cargar órdenes</p>';
-            }
-        }
+            
 
         async function updateEstado(ordenId, nuevoEstado) {
             try {
