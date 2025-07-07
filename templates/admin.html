@@ -947,10 +947,10 @@
                                     ${esGiftCard(orden) ? 
                                         `<input type="text" placeholder="Código" id="codigo-${orden.id}" class="codigo-input-cajita" value="${orden.codigo_producto || ''}">
                                          <button class="btn-cajita ${orden.estado === 'procesando' ? 'btn-success' : 'btn-warning'}" onclick="updateEstadoConCodigo(${orden.id}, '${orden.estado === 'procesando' ? 'procesado' : 'procesando'}')">
-                                            ${orden.estado === 'procesando' ? '✅' : '⏳'}
+                                            ${orden.estado === 'procesando' ? '✓' : '✗'}
                                          </button>` :
                                         `<button class="btn-cajita ${orden.estado === 'procesando' ? 'btn-success' : 'btn-warning'}" onclick="updateEstado(${orden.id}, '${orden.estado === 'procesando' ? 'procesado' : 'procesando'}')">
-                                            ${orden.estado === 'procesando' ? '✅' : '⏳'}
+                                            ${orden.estado === 'procesando' ? '✓' : '✗'}
                                          </button>`
                                     }
                                 </div>
@@ -1003,11 +1003,11 @@
                                         `<div class="gift-card-actions">
                                             <input type="text" placeholder="Código" id="codigo-${orden.id}" class="codigo-input-compact" value="${orden.codigo_producto || ''}">
                                             <button class="btn btn-sm ${orden.estado === 'procesando' ? 'btn-success' : 'btn-warning'}" onclick="updateEstadoConCodigo(${orden.id}, '${orden.estado === 'procesando' ? 'procesado' : 'procesando'}')">
-                                                ${orden.estado === 'procesando' ? '✅' : '⏳'}
+                                                ${orden.estado === 'procesando' ? '✓' : '✗'}
                                             </button>
                                         </div>` :
                                         `<button class="btn btn-sm ${orden.estado === 'procesando' ? 'btn-success' : 'btn-warning'}" onclick="updateEstado(${orden.id}, '${orden.estado === 'procesando' ? 'procesado' : 'procesando'}')">
-                                            ${orden.estado === 'procesando' ? '✅' : '⏳'}
+                                            ${orden.estado === 'procesando' ? '✓' : '✗'}
                                         </button>`
                                     }
                                 </td>
