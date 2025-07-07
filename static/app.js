@@ -3617,33 +3617,25 @@ async function ordenarProductosAdmin() {
     try {
         // Obtener productos del admin
         const response = await fetch('/admin/productos');
-        const productos = await response.json();
         
-        // Aquí puedes agregar la lógica de ordenamiento
-        console.log('Productos ordenados:', productos);
-        
-        return productos;
-    } catch (error) {
-        console.error('Error al ordenar productos:', error);
-        return [];
-    }
-} productos ordenados del servidor
-        const response = await fetch('/admin/productos/ordenar');
         if (!response.ok) {
             throw new Error('No se pudieron obtener los productos ordenados');
         }
 
-        const productosOrdenados = await response.json();
+        const productos = await response.json();
 
         // Verificar si hay productos ordenados
-        if (!productosOrdenados || !Array.isArray(productosOrdenados)) {
+        if (!productos || !Array.isArray(productos)) {
             throw new Error('No se recibieron productos ordenados válidos');
         }
 
         // Actualizar variable global de productos
-        window.productosAdmin = productosOrdenados;
+        window.productosAdmin = productos;
+        
+        console.log('Productos ordenados:', productos);
+        return productos;
     } catch (error) {
         console.error('Error al ordenar productos:', error);
-        mostrarAlerta('Error al ordenar productos', 'error');
+        return [];
     }
 }
