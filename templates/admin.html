@@ -372,6 +372,23 @@
             font-weight: 600;
         }
 
+        .orden-userid {
+            color: #28a745;
+            font-weight: 600;
+            word-break: break-all;
+        }
+
+        .orden-referencia {
+            color: #ffc107;
+            font-weight: 500;
+            word-break: break-all;
+        }
+
+        .orden-tiempo {
+            color: #6f42c1;
+            font-weight: 500;
+        }
+
         .orden-cajita-actions {
             display: flex;
             flex-direction: column;
@@ -559,7 +576,7 @@
             .ordenes-mobile-grid {
                 display: none;
             }
-            
+
             .ordenes-mobile {
                 display: none;
             }
@@ -914,14 +931,17 @@
                                 <div class="orden-cajita-content">
                                     <div class="orden-game-info">
                                         <span class="game-emoji">🎮</span>
-                                        <span class="game-name">${(orden.juego_nombre || 'N/A').substring(0, 12)}${(orden.juego_nombre || '').length > 12 ? '...' : ''}</span>
+                                        <span class="game-name">${orden.juego_nombre || 'N/A'}</span>
                                     </div>
-                                    <div class="orden-package">📦 ${orden.paquete.substring(0, 15)}${orden.paquete.length > 15 ? '...' : ''}</div>
+                                    <div class="orden-package">📦 ${orden.paquete}</div>
                                     <div class="orden-precio-grande">$${orden.monto}</div>
-                                    <div class="orden-cliente">👤 ${orden.usuario_email.split('@')[0]}...</div>
+                                    <div class="orden-cliente">👤 ${orden.usuario_email}</div>
                                     ${orden.usuario_telefono ? `<div class="orden-telefono">📱 ${orden.usuario_telefono}</div>` : ''}
+                                    ${orden.usuario_id && orden.usuario_id !== 'gift-card' ? `<div class="orden-userid">🎮 ID: ${orden.usuario_id}</div>` : ''}
                                     <div class="orden-fecha">📅 ${fechaCorta}</div>
                                     <div class="orden-pago">💳 ${orden.metodo_pago}</div>
+                                    ${orden.referencia_pago ? `<div class="orden-referencia">🔗 Ref: ${orden.referencia_pago}</div>` : ''}
+                                    ${orden.tiempo_pago ? `<div class="orden-tiempo">🕐 ${new Date(orden.tiempo_pago).toLocaleString('es')}</div>` : ''}
                                 </div>
                                 <div class="orden-cajita-actions">
                                     ${esGiftCard(orden) ? 
@@ -965,13 +985,15 @@
                                 <td>
                                     <div class="cliente-info">
                                         <div>${orden.usuario_email}</div>
-                                        ${orden.usuario_id ? `<small>🎮 ${orden.usuario_id}</small>` : ''}
+                                        ${orden.usuario_telefono ? `<small>📱 ${orden.usuario_telefono}</small>` : ''}
+                                        ${orden.usuario_id && orden.usuario_id !== 'gift-card' ? `<small>🎮 ID: ${orden.usuario_id}</small>` : ''}
                                     </div>
                                 </td>
                                 <td>
                                     <div class="pago-info">
                                         <div>${orden.metodo_pago}</div>
-                                        ${orden.referencia_pago ? `<small>${orden.referencia_pago}</small>` : ''}
+                                        ${orden.referencia_pago ? `<small>🔗 ${orden.referencia_pago}</small>` : ''}
+                                        ${orden.tiempo_pago ? `<small>🕐 ${new Date(orden.tiempo_pago).toLocaleString('es')}</small>` : ''}
                                     </div>
                                 </td>
                                 <td><span class="status-badge status-${orden.estado}">${orden.estado}</span></td>
