@@ -694,8 +694,8 @@ function actualizarImagenesCarrusel() {
         return `/static/${url}`;
     }
 
-    // Función para cargar imagen de forma suave sin placeholders
-    function cargarImagenCarrusel(slide, url) {
+    // Función para cargar imagen de forma suave
+    function cargarImagenCarrusel(slide, url, index) {
         if (!slide) return;
 
         if (url) {
@@ -705,22 +705,36 @@ function actualizarImagenesCarrusel() {
                 slide.src = url;
                 slide.style.display = 'block';
                 slide.style.opacity = '1';
+                console.log(`Imagen del carrusel ${index + 1} cargada:`, url);
             };
             img.onerror = function() {
-                // Si la imagen falla al cargar, simplemente no mostrar nada
-                slide.style.display = 'none';
+                console.warn(`Error al cargar imagen del carrusel ${index + 1}:`, url);
+                // Usar imagen placeholder si falla
+                slide.src = `https://via.placeholder.com/800x300/007bff/ffffff?text=Oferta+${index + 1}`;
+                slide.style.display = 'block';
+                slide.style.opacity = '1';
             };
             img.src = url;
         } else {
-            // Si no hay URL, no mostrar nada
-            slide.style.display = 'none';
+            // Si no hay URL, usar placeholder
+            slide.src = `https://via.placeholder.com/800x300/007bff/ffffff?text=Oferta+${index + 1}`;
+            slide.style.display = 'block';
+            slide.style.opacity = '1';
+            console.log(`Usando placeholder para carrusel ${index + 1}`);
         }
     }
 
-    // Configurar imágenes del carrusel solo si existen URLs válidas
-    cargarImagenCarrusel(slides[0], prepararUrlImagen(configuracion.carousel1));
-    cargarImagenCarrusel(slides[1], prepararUrlImagen(configuracion.carousel2));
-    cargarImagenCarrusel(slides[2], prepararUrlImagen(configuracion.carousel3));
+    // Configurar imágenes del carrusel
+    cargarImagenCarrusel(slides[0], prepararUrlImagen(configuracion.carousel1), 0);
+    cargarImagenCarrusel(slides[1], prepararUrlImagen(configuracion.carousel2), 1);
+    cargarImagenCarrusel(slides[2], prepararUrlImagen(configuracion.carousel3), 2);
+
+    // Asegurar que el carrusel esté visible
+    const carouselContainer = document.querySelector('.carousel-container');
+    if (carouselContainer) {
+        carouselContainer.style.opacity = '1';
+        console.log('Carrusel visible');
+    }
 }
 
 // Versión optimizada de cargar productos
