@@ -3601,39 +3601,6 @@ header {
     color: #28a745;
 }
 
-/* Barra de desplazamiento del carrusel */
-.carousel-scroll-indicator {
-    position: absolute;
-    bottom: 50px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80%;
-    max-width: 200px;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 2px;
-    overflow: hidden;
-    display: none; /* Oculta por defecto, se muestra en móvil */
-}
-
-.carousel-scroll-indicator::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 33.33%;
-    background: linear-gradient(90deg, #28a745, #20c997);
-    border-radius: 2px;
-    animation: carouselProgress 15s infinite;
-}
-
-@keyframes carouselProgress {
-    0%, 33.33% { transform: translateX(0); }
-    33.34%, 66.66% { transform: translateX(100%); }
-    66.67%, 100% { transform: translateX(200%); }
-}
-
 /* Ocultar categorías normales en móvil */
 .desktop-only {
     display: flex;
@@ -3733,12 +3700,18 @@ header {
 
     /* Ocultar flechas de navegación en móvil */
     .carousel-arrow {
-        display: none !important;
+        display: none;
     }
 
     /* Mostrar indicador de desplazamiento en móvil */
     .carousel-scroll-indicator {
-        display: block !important;
+        display: block;
+    }
+
+    .carousel-arrow {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
     }
 
     .carousel-arrow.prev {
