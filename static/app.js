@@ -86,11 +86,11 @@ function verificarCargaCompleta() {
 
 // Función para cargar elementos críticos primero
 function cargarElementosCriticos() {
-    // Ocultar contenido hasta que esté listo
+    // Mostrar contenido inmediatamente sin desvanecimientos
     const mainContainer = document.querySelector('.container');
     if (mainContainer) {
-        mainContainer.style.opacity = '0.3';
-        mainContainer.style.transition = 'opacity 0.5s ease';
+        mainContainer.style.opacity = '1';
+        mainContainer.style.transition = 'none';
     }
 
     // Mostrar logo inmediatamente
@@ -102,17 +102,17 @@ function cargarElementosCriticos() {
         console.log('Logo inicial mostrado');
     }
 
-    // Ocultar carrusel inicialmente
+    // Mostrar carrusel inmediatamente
     const carousel = document.querySelector('.carousel-container');
     if (carousel) {
-        carousel.style.opacity = '0.3';
+        carousel.style.opacity = '1';
     }
 
-    // Mostrar grid de productos con loading mínimo
+    // Mostrar grid de productos inmediatamente
     const grid = document.getElementById('productos-grid');
     if (grid) {
-        grid.style.opacity = '0.3';
-        grid.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">Cargando...</div>';
+        grid.style.opacity = '1';
+        grid.innerHTML = '';
     }
 }
 
@@ -133,11 +133,11 @@ document.addEventListener('DOMContentLoaded', function() {
         productos = productosCache;
         configuracionCargada = true;
         productosCargados = true;
-        
+
         // Mostrar datos del cache inmediatamente
         actualizarLogo();
         mostrarProductos();
-        
+
         // Verificar sesión en background
         verificarSesionOptimizada().then(() => {
             interfazLista = true;
@@ -963,7 +963,8 @@ function mostrarProductos() {
                     if (etiqueta.includes('%') || etiqueta.toLowerCase().includes('descuento') || etiqueta.toLowerCase().includes('oferta')) {
                         clase = 'descuento';
                     } else if (etiqueta.toLowerCase().includes('hot')) {
-                        clase = 'hot';
+```text
+clase = 'hot';
                     } else if (etiqueta.toLowerCase().includes('nuevo')) {
                         clase = 'nuevo';
                     } else if (etiqueta.toLowerCase().includes('popular')) {
@@ -3361,7 +3362,7 @@ function cacheValido() {
     if (!configCache || !productosCache || !cacheTimestamp) {
         return false;
     }
-    
+
     const tiempoActual = Date.now();
     return (tiempoActual - cacheTimestamp) < CACHE_DURATION;
 }
@@ -3371,7 +3372,7 @@ function guardarEnCache(config, productos) {
     configCache = config;
     productosCache = productos;
     cacheTimestamp = Date.now();
-    
+
     // Guardar también en localStorage para persistencia entre sesiones
     try {
         localStorage.setItem('inefablestore_cache', JSON.stringify({
