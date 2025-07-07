@@ -22,7 +22,7 @@ app.config['UPLOAD_FOLDER'] = 'static/images'
 
 # Configuración de sesión
 from datetime import timedelta
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)  # 24 horas
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)  # 1 hora
 app.config['SESSION_COOKIE_SECURE'] = False  # True en producción con HTTPS
 app.config['SESSION_COOKIE_HTTPONLY'] = True  # Previene acceso via JavaScript
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Protección CSRF
