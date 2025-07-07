@@ -805,7 +805,69 @@ async function cargarProductosOptimizado() {
     }
 }
 
-// Cargar productos del backend (mantener para compatibilidad)
+// Función para cargar configuración inicial
+async function cargarConfiguracion() {
+    try {
+        const response = await fetch('/config');
+        if (response.ok) {
+            const config = await response.json();
+            configCache = config;
+            console.log('Configuración cargada:', config);
+        }
+    } catch (error) {
+        console.error('Error al cargar configuración:', error);
+    }
+}
+
+// Función para mostrar productos en el grid
+function mostrarProductos() {
+    const productosGrid = document.getElementById('productos-grid');
+    if (!productosGrid || !productosCache || productosCache.length === 0) {
+        return;
+    }
+
+    let html = '';
+    productosCache.forEach(producto => {
+        if (producto.paquetes && producto.paquetes.length > 0) {
+            html += `
+                <div class="product-card" data-categoria="${producto.categoria}">
+                    <div class="product-image">
+                        <img src="${producto.imagen}" alt="${producto.nombre}" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=${encodeURIComponent(producto.nombre)}'">
+                    </div>
+                    <div class="product-info">
+                        <h3>${producto.nombre}</h3>
+                        <p>${producto.descripcion || ''}</p>
+                        <div class="product-packages">
+                            ${producto.paquetes.map(paquete => `
+                                <div class="package-option">
+                                    <span>${paquete.nombre}</span>
+                                    <span class="price">$${paquete.precio}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button class="btn btn-primary" onclick="seleccionarProducto(${producto.id})">
+                            Comprar
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+    });
+
+    productosGrid.innerHTML = html;
+}
+
+// Función para seleccionar producto
+function seleccionarProducto(productoId) {
+    const producto = productosCache.find(p => p.id === productoId);
+    if (producto) {
+        // Mostrar modal de compra o redirigir
+        console.log('Producto seleccionado:', producto);
+        // Aquí puedes agregar la lógica para mostrar el modal de compra
+    }
+}
+
+// Cargar datos iniciales productos del backend (mantener para compatibilidad)
 async function cargarProductos() {
     return cargarProductosOptimizado();
 }
@@ -3553,7 +3615,19 @@ if (cargarCacheDesdeStorage()) {
 // Función para ordenar productos en el panel de administración
 async function ordenarProductosAdmin() {
     try {
-        // Obtener productos ordenados del servidor
+        // Obtener productos del admin
+        const response = await fetch('/admin/productos');
+        const productos = await response.json();
+        
+        // Aquí puedes agregar la lógica de ordenamiento
+        console.log('Productos ordenados:', productos);
+        
+        return productos;
+    } catch (error) {
+        console.error('Error al ordenar productos:', error);
+        return [];
+    }
+} productos ordenados del servidor
         const response = await fetch('/admin/productos/ordenar');
         if (!response.ok) {
             throw new Error('No se pudieron obtener los productos ordenados');
