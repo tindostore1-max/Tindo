@@ -55,24 +55,58 @@ let productosCache = null;
 function verificarCargaCompleta() {
     if (configuracionCargada && productosCargados && sesionVerificada && interfazLista) {
         console.log('✅ Carga completa - todos los recursos listos');
-        // Todo listo, la aplicación ya es funcional
+        
+        // Mostrar todo el contenido de forma suave
+        setTimeout(() => {
+            const mainContainer = document.querySelector('.container');
+            const logoImg = document.getElementById('logo-img');
+            const carousel = document.querySelector('.carousel-container');
+            const grid = document.getElementById('productos-grid');
+
+            if (mainContainer) {
+                mainContainer.style.opacity = '1';
+            }
+            if (logoImg) {
+                logoImg.style.opacity = '1';
+            }
+            if (carousel) {
+                carousel.style.opacity = '1';
+            }
+            if (grid) {
+                grid.style.opacity = '1';
+            }
+        }, 100);
     }
 }
 
 // Función para cargar elementos críticos primero
 function cargarElementosCriticos() {
-    // Cargar logo inmediatamente con placeholder
-    const logoImg = document.getElementById('logo-img');
-    if (logoImg) {
-        logoImg.src = 'https://via.placeholder.com/200x60/007bff/ffffff?text=INEFABLESTORE';
-        logoImg.style.opacity = '1';
+    // Ocultar contenido hasta que esté listo
+    const mainContainer = document.querySelector('.container');
+    if (mainContainer) {
+        mainContainer.style.opacity = '0.3';
+        mainContainer.style.transition = 'opacity 0.5s ease';
     }
 
-    // Mostrar carrusel con imágenes por defecto inmediatamente
-    mostrarCarruselPorDefecto();
+    // Cargar logo con opacity baja inicialmente
+    const logoImg = document.getElementById('logo-img');
+    if (logoImg) {
+        logoImg.style.opacity = '0.3';
+        logoImg.src = 'https://via.placeholder.com/200x60/007bff/ffffff?text=INEFABLESTORE';
+    }
 
-    // Mostrar grid de productos con loading
-    mostrarProductosPlaceholder();
+    // Ocultar carrusel inicialmente
+    const carousel = document.querySelector('.carousel-container');
+    if (carousel) {
+        carousel.style.opacity = '0.3';
+    }
+
+    // Mostrar grid de productos con loading mínimo
+    const grid = document.getElementById('productos-grid');
+    if (grid) {
+        grid.style.opacity = '0.3';
+        grid.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">Cargando...</div>';
+    }
 }
 
 // Inicialización optimizada
@@ -558,10 +592,15 @@ function actualizarLogo() {
     const logoImg = document.getElementById('logo-img');
     if (logoImg) {
         if (configuracion.logo && configuracion.logo.trim() !== '') {
-            logoImg.src = configuracion.logo;
-            logoImg.onerror = function() {
-                this.src = 'https://via.placeholder.com/150x60/007bff/ffffff?text=INEFABLESTORE';
+            // Precargar la imagen antes de mostrarla
+            const img = new Image();
+            img.onload = function() {
+                logoImg.src = configuracion.logo;
             };
+            img.onerror = function() {
+                logoImg.src = 'https://via.placeholder.com/150x60/007bff/ffffff?text=INEFABLESTORE';
+            };
+            img.src = configuracion.logo;
         } else {
             logoImg.src = 'https://via.placeholder.com/150x60/007bff/ffffff?text=INEFABLESTORE';
         }
@@ -612,44 +651,35 @@ function actualizarImagenesCarrusel() {
         return `/static/${url}`;
     }
 
-    // Configurar imagen 1 del carrusel
-    if (slides[0]) {
-        const url1 = prepararUrlImagen(configuracion.carousel1);
-        if (url1 && !defaultImages.includes(configuracion.carousel1)) {
-            slides[0].src = url1;
-            slides[0].onerror = function() {
-                this.src = defaultImages[0];
+    // Función para cargar imagen de forma suave
+    function cargarImagenCarrusel(slide, url, defaultUrl) {
+        if (!slide) return;
+        
+        slide.style.opacity = '0.5';
+        slide.style.transition = 'opacity 0.3s ease';
+        
+        if (url && !defaultImages.includes(url)) {
+            // Precargar la imagen
+            const img = new Image();
+            img.onload = function() {
+                slide.src = url;
+                slide.style.opacity = '1';
             };
+            img.onerror = function() {
+                slide.src = defaultUrl;
+                slide.style.opacity = '1';
+            };
+            img.src = url;
         } else {
-            slides[0].src = defaultImages[0];
+            slide.src = defaultUrl;
+            slide.style.opacity = '1';
         }
     }
 
-    // Configurar imagen 2 del carrusel
-    if (slides[1]) {
-        const url2 = prepararUrlImagen(configuracion.carousel2);
-        if (url2 && !defaultImages.includes(configuracion.carousel2)) {
-            slides[1].src = url2;
-            slides[1].onerror = function() {
-                this.src = defaultImages[1];
-            };
-        } else {
-            slides[1].src = defaultImages[1];
-        }
-    }
-
-    // Configurar imagen 3 del carrusel
-    if (slides[2]) {
-        const url3 = prepararUrlImagen(configuracion.carousel3);
-        if (url3 && !defaultImages.includes(configuracion.carousel3)) {
-            slides[2].src = url3;
-            slides[2].onerror = function() {
-                this.src = defaultImages[2];
-            };
-        } else {
-            slides[2].src = defaultImages[2];
-        }
-    }
+    // Configurar imágenes del carrusel con precarga
+    cargarImagenCarrusel(slides[0], prepararUrlImagen(configuracion.carousel1), defaultImages[0]);
+    cargarImagenCarrusel(slides[1], prepararUrlImagen(configuracion.carousel2), defaultImages[1]);
+    cargarImagenCarrusel(slides[2], prepararUrlImagen(configuracion.carousel3), defaultImages[2]);
 }
 
 // Versión optimizada de cargar productos
@@ -3315,42 +3345,5 @@ function actualizarHeaderTooltip() {
     }
 }
 
-// Función para mostrar el carrusel con imágenes por defecto
-function mostrarCarruselPorDefecto() {
-    const slides = document.querySelectorAll('.carousel-slide img');
-
-    // Definir imágenes predeterminadas mejoradas
-    const defaultImages = [
-        'https://via.placeholder.com/800x300/007bff/ffffff?text=🎮+Ofertas+Especiales+Free+Fire',
-        'https://via.placeholder.com/800x300/28a745/ffffff?text=🔥+Mejores+Precios+PUBG',
-        'https://via.placeholder.com/800x300/dc3545/ffffff?text=⚡+Entrega+Inmediata+COD'
-    ];
-
-    // Asignar imágenes por defecto a los slides
-    slides.forEach((slide, index) => {
-        slide.src = defaultImages[index % defaultImages.length];
-        slide.alt = 'Cargando...';
-        slide.style.opacity = '0.7'; // Indicar que están cargando
-    });
-}
-
-// Función para mostrar productos placeholder
-function mostrarProductosPlaceholder() {
-    const grid = document.getElementById('productos-grid');
-    grid.className = 'product-grid loading-grid';
-
-    // Crear placeholders
-    let placeholdersHTML = '';
-    for (let i = 0; i < 6; i++) {
-        placeholdersHTML += `
-            <div class="product-card placeholder">
-                <div class="product-image-placeholder"></div>
-                <div class="product-name-placeholder"></div>
-                <div class="product-description-placeholder"></div>
-                <div class="product-price-placeholder"></div>
-            </div>
-        `;
-    }
-
-    grid.innerHTML = placeholdersHTML;
-}
+// Funciones de placeholder removidas para evitar parpadeo visual
+// El contenido se carga directamente cuando los datos están listos
