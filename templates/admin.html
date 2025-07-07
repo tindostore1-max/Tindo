@@ -722,7 +722,32 @@
             <div id="ordenes" class="tab-pane active">
                 <div class="card">
                     <h3>📦 Gestión de Órdenes</h3>
-                    <button class="btn btn-primary" onclick="loadOrdenes()">🔄 Actualizar</button>
+                    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
+                        <button class="btn btn-primary" onclick="loadOrdenes()">🔄 Actualizar</button>
+                        <span style="margin-left: 20px; color: #6c757d; font-size: 14px;">
+                            Mostrando <span id="ordenes-info">0</span> órdenes
+                        </span>
+                    </div>
+                    
+                    <!-- Controles de paginación -->
+                    <div id="pagination-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <span style="font-size: 14px; color: #495057;">Órdenes por página:</span>
+                            <select id="ordenes-per-page" onchange="changeOrdenesPerPage()" style="padding: 5px; border: 1px solid #ddd; border-radius: 4px;">
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+                        
+                        <div style="display: flex; gap: 5px; align-items: center;">
+                            <button id="prev-page" class="btn btn-sm btn-warning" onclick="previousPage()" disabled>⬅️ Anterior</button>
+                            <span id="page-info" style="margin: 0 15px; font-size: 14px; color: #495057;">Página 1 de 1</span>
+                            <button id="next-page" class="btn btn-sm btn-warning" onclick="nextPage()" disabled>Siguiente ➡️</button>
+                        </div>
+                    </div>
+
                     <div id="ordenes-list" class="loading">Cargando órdenes...</div>
                 </div>
             </div>
@@ -902,14 +927,37 @@
             }, 3000);
         }
 
+        // Variables para paginación
+        let currentPage = 1;
+        let ordenesPerPage = 10;
+        let totalOrdenes = 0;
+        let allOrdenes = [];
+
         // FUNCIONES PARA ÓRDENES
         async function loadOrdenes() {
             try {
                 const response = await fetch('/admin/ordenes');
-                const ordenes = await response.json();
+                allOrdenes = await response.json();
+                totalOrdenes = allOrdenes.length;
+                
+                // Actualizar información
+                document.getElementById('ordenes-info').textContent = `${totalOrdenes}`;
+                
+                // Mostrar página actual
+                displayOrdenesPage();
 
-                // Vista móvil con cards compactas más pequeñas
-                const isMobile = window.innerWidth <= 768;
+                }
+
+        function displayOrdenesPage() {
+            const startIndex = (currentPage - 1) * ordenesPerPage;
+            const endIndex = startIndex + ordenesPerPage;
+            const ordenes = allOrdenes.slice(startIndex, endIndex);
+            
+            // Actualizar controles de paginación
+            updatePaginationControls();
+
+            // Vista móvil con cards compactas más pequeñas
+            const isMobile = window.innerWidth <= 768;
 
                 if (isMobile) {
                     let html = '<div class="ordenes-mobile-grid">';
@@ -1018,8 +1066,49 @@
                     html += '</tbody></table>';
                     document.getElementById('ordenes-list').innerHTML = html;
                 }
+        }
+
+        function updatePaginationControls() {
+            const totalPages = Math.ceil(totalOrdenes / ordenesPerPage);
+            
+            // Actualizar información de página
+            document.getElementById('page-info').textContent = `Página ${currentPage} de ${totalPages}`;
+            
+            // Actualizar botones
+            document.getElementById('prev-page').disabled = currentPage <= 1;
+            document.getElementById('next-page').disabled = currentPage >= totalPages;
+            
+            // Mostrar/ocultar controles si no hay órdenes
+            const paginationControls = document.getElementById('pagination-controls');
+            if (totalOrdenes === 0) {
+                paginationControls.style.display = 'none';
+            } else {
+                paginationControls.style.display = 'flex';
+            }
+        }
+
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                displayOrdenesPage();
+            }
+        }
+
+        function nextPage() {
+            const totalPages = Math.ceil(totalOrdenes / ordenesPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                displayOrdenesPage();
+            }
+        }
+
+        function changeOrdenesPerPage() {
+            ordenesPerPage = parseInt(document.getElementById('ordenes-per-page').value);
+            currentPage = 1; // Resetear a primera página
+            displayOrdenesPage();
+        }
             } catch (error) {
-                document.getElementById('ordenes-list').innerHTML = '<p>Error al cargarórdenes</p>';
+                document.getElementById('ordenes-list').innerHTML = '<p>Error al cargar órdenes</p>';
             }
         }
 
@@ -1035,7 +1124,12 @@
 
                 if (response.ok) {
                     showAlert('Estado actualizado correctamente');
-                    loadOrdenes();
+                    // Recargar solo la página actual
+                    const response = await fetch('/admin/ordenes');
+                    allOrdenes = await response.json();
+                    totalOrdenes = allOrdenes.length;
+                    document.getElementById('ordenes-info').textContent = `${totalOrdenes}`;
+                    displayOrdenesPage();
                 } else {
                     showAlert('Error al actualizar estado', 'error');
                 }
@@ -1081,7 +1175,12 @@
                     showAlert(nuevoEstado === 'procesado' ? 
                         'Gift Card procesada y código enviado por correo' : 
                         'Estado actualizado correctamente');
-                    loadOrdenes();
+                    // Recargar solo la página actual
+                    const response = await fetch('/admin/ordenes');
+                    allOrdenes = await response.json();
+                    totalOrdenes = allOrdenes.length;
+                    document.getElementById('ordenes-info').textContent = `${totalOrdenes}`;
+                    displayOrdenesPage();
                 } else {
                     const errorData = await response.json().catch(() => ({}));
                     showAlert(errorData.error || 'Error al actualizar estado', 'error');
@@ -1656,8 +1755,8 @@
         window.addEventListener('resize', function() {
             // Solo recargar si estamos en la pestaña de órdenes
             const ordenesTab = document.getElementById('ordenes');
-            if (ordenesTab && ordenesTab.classList.contains('active')) {
-                loadOrdenes();
+            if (ordenesTab && ordenesTab.classList.contains('active') && allOrdenes.length > 0) {
+                displayOrdenesPage();
             }
         });
 
