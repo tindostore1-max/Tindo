@@ -764,8 +764,6 @@ async function cargarProductosOptimizado() {
         // Usar cache si está disponible y es válido
         if (productosCache && cacheValido()) {
             productos = productosCache;
-            // Validar productos del cache antes de mostrar
-            productos = validarProductos(productos);
             // Mostrar productos de forma diferida para no bloquear UI
             setTimeout(() => mostrarProductos(), 50);
             productosCargados = true;
@@ -778,12 +776,9 @@ async function cargarProductosOptimizado() {
             throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
 
-        const productosRaw = await response.json();
-        
-        // Validar y limpiar productos antes de usar
-        productos = validarProductos(productosRaw);
+        productos = await response.json();
 
-        console.log('Productos cargados desde servidor:', productos.length, 'productos válidos de', productosRaw.length, 'totales');
+        console.log('Productos cargados desde servidor:', productos.length, 'productos');
 
         // Guardar en cache junto con configuración
         if (configuracion) {
@@ -808,84 +803,6 @@ async function cargarProductosOptimizado() {
         }
         productosCargados = true;
     }
-}
-
-// Función para validar y limpiar productos
-function validarProductos(productosRaw) {
-    if (!Array.isArray(productosRaw)) {
-        console.error('Productos no es un array:', productosRaw);
-        return [];
-    }
-    
-    const productosValidos = [];
-    
-    productosRaw.forEach((producto, index) => {
-        try {
-            // Validar estructura básica del producto
-            if (!producto || typeof producto !== 'object') {
-                console.warn(`Producto ${index} no es un objeto válido:`, producto);
-                return;
-            }
-            
-            // Validar campos requeridos
-            if (!producto.id || !producto.nombre) {
-                console.warn(`Producto ${index} sin ID o nombre:`, producto);
-                return;
-            }
-            
-            // Limpiar y validar datos
-            const productoLimpio = {
-                id: producto.id,
-                nombre: producto.nombre || 'Producto sin nombre',
-                descripcion: producto.descripcion || 'Sin descripción',
-                imagen: producto.imagen || '',
-                categoria: producto.categoria || 'juegos',
-                orden: producto.orden || 0,
-                etiquetas: producto.etiquetas || '',
-                paquetes: []
-            };
-            
-            // Validar paquetes
-            if (Array.isArray(producto.paquetes)) {
-                producto.paquetes.forEach((paquete, paqueteIndex) => {
-                    try {
-                        if (paquete && paquete.id && paquete.nombre && paquete.precio !== undefined) {
-                            // Validar precio
-                            const precio = parseFloat(paquete.precio);
-                            if (isNaN(precio) || precio < 0) {
-                                console.warn(`Precio inválido en paquete ${paqueteIndex} del producto ${producto.nombre}:`, paquete.precio);
-                                return;
-                            }
-                            
-                            productoLimpio.paquetes.push({
-                                id: paquete.id,
-                                nombre: paquete.nombre,
-                                precio: precio,
-                                orden: paquete.orden || 0
-                            });
-                        } else {
-                            console.warn(`Paquete ${paqueteIndex} inválido en producto ${producto.nombre}:`, paquete);
-                        }
-                    } catch (paqueteError) {
-                        console.error(`Error procesando paquete ${paqueteIndex} del producto ${producto.nombre}:`, paqueteError);
-                    }
-                });
-            }
-            
-            // Solo agregar productos que tengan al menos un paquete válido
-            if (productoLimpio.paquetes.length > 0) {
-                productosValidos.push(productoLimpio);
-            } else {
-                console.warn(`Producto ${producto.nombre} descartado por no tener paquetes válidos`);
-            }
-            
-        } catch (productoError) {
-            console.error(`Error procesando producto ${index}:`, productoError, producto);
-        }
-    });
-    
-    console.log(`✅ Validación completada: ${productosValidos.length} productos válidos de ${productosRaw.length} originales`);
-    return productosValidos;
 }
 
 // Función para cargar configuración inicial
