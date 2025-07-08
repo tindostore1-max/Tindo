@@ -1142,7 +1142,7 @@ function mostrarProductos() {
                 <div class="todos-carousel-track" id="todos-carousel-track">
                     ${cardsHtml}
                 </div>
-                ${juegos.length > 3 ? `
+                ${juegos.length > 2 ? `
                     <button class="todos-carousel-nav prev" onclick="moverCarruselTodos(-1)">‹</button>
                     <button class="todos-carousel-nav next" onclick="moverCarruselTodos(1)">›</button>
                 ` : ''}
@@ -1157,7 +1157,7 @@ function mostrarProductos() {
                 <div class="todos-carousel-track" id="giftcards-todos-carousel-track">
                     ${giftCardsHtml}
                 </div>
-                ${giftCards.length > 3 ? `
+                ${giftCards.length > 2 ? `
                     <button class="todos-carousel-nav prev" onclick="moverCarruselGiftCardsTodos(-1)">‹</button>
                     <button class="todos-carousel-nav next" onclick="moverCarruselGiftCardsTodos(1)">›</button>
                 ` : ''}
@@ -2626,7 +2626,15 @@ function moverCarruselJuegos(direccion) {
     const cardWidth = 220 + 15; // ancho de tarjeta + gap
     const containerWidth = track.parentElement.offsetWidth;
     const visibleCards = Math.floor(containerWidth / cardWidth);
-    const maxIndex = Math.max(0, gamesCarouselItems.length - visibleCards);
+    
+    // Si hay menos tarjetas que las visibles, no permitir movimiento
+    if (gamesCarouselItems.length <= visibleCards) {
+        gamesCarouselIndex = 0;
+        track.style.transform = `translateX(0px)`;
+        return;
+    }
+
+    const maxIndex = gamesCarouselItems.length - visibleCards;
 
     gamesCarouselIndex += direccion;
 
@@ -2648,7 +2656,15 @@ function moverCarruselGiftCards(direccion) {
     const cardWidth = 220 + 15; // ancho de tarjeta + gap
     const containerWidth = track.parentElement.offsetWidth;
     const visibleCards = Math.floor(containerWidth / cardWidth);
-    const maxIndex = Math.max(0, giftCardsCarouselItems.length - visibleCards);
+    
+    // Si hay menos tarjetas que las visibles, no permitir movimiento
+    if (giftCardsCarouselItems.length <= visibleCards) {
+        giftCardsCarouselIndex = 0;
+        track.style.transform = `translateX(0px)`;
+        return;
+    }
+
+    const maxIndex = giftCardsCarouselItems.length - visibleCards;
 
     giftCardsCarouselIndex += direccion;
 
@@ -2670,7 +2686,15 @@ function moverCarruselTodos(direccion) {
     const cardWidth = 220 + 15; // ancho de tarjeta + gap
     const containerWidth = track.parentElement.offsetWidth;
     const visibleCards = Math.floor(containerWidth / cardWidth);
-    const maxIndex = Math.max(0, window.todosCarouselItems.length - visibleCards);
+    
+    // Si hay menos tarjetas que las visibles, no permitir movimiento
+    if (window.todosCarouselItems.length <= visibleCards) {
+        window.todosCarouselIndex = 0;
+        track.style.transform = `translateX(0px)`;
+        return;
+    }
+
+    const maxIndex = window.todosCarouselItems.length - visibleCards;
 
     window.todosCarouselIndex += direccion;
 
@@ -2700,7 +2724,15 @@ function moverCarruselGiftCardsTodos(direccion) {
     const cardWidth = 220 + 15; // ancho de tarjeta + gap
     const containerWidth = track.parentElement.offsetWidth;
     const visibleCards = Math.floor(containerWidth / cardWidth);
-    const maxIndex = Math.max(0, giftCards.length - visibleCards);
+    
+    // Si hay menos tarjetas que las visibles, no permitir movimiento
+    if (giftCards.length <= visibleCards) {
+        window.giftCardsTodosCarouselIndex = 0;
+        track.style.transform = `translateX(0px)`;
+        return;
+    }
+
+    const maxIndex = giftCards.length - visibleCards;
 
     window.giftCardsTodosCarouselIndex += direccion;
 
