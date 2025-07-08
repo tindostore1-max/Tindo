@@ -906,15 +906,58 @@ header {
     @media (max-width: 360px) {
         .games-carousel-card,
         .todos-carousel-card {
-            flex: 0 0 calc(58% - 6px); /* Mantener efecto 1.8 en pantallas pequeñas */
-            max-width: 160px;
-            padding: 12px;
+            flex: 0 0 calc(60% - 8px); /* Ajustar para mostrar mejor 1.8 tarjetas */
+            max-width: 170px;
+            padding: 10px;
+            margin-right: 8px;
+        }
+
+        .games-carousel-card .product-image,
+        .todos-carousel-card .product-image {
+            height: 120px;
+        }
+
+        .games-carousel-card .product-name,
+        .todos-carousel-card .product-name {
+            font-size: 11px;
+            line-height: 1.2;
+        }
+
+        .games-carousel-card .price-desde,
+        .todos-carousel-card .price-desde {
+            font-size: 10px;
+        }
+
+        .games-carousel-track, .todos-carousel-track {
+            gap: 8px;
+        }
+    }
+
+    /* Ajustes para pantallas extremadamente pequeñas */
+    @media (max-width: 320px) {
+        .games-carousel-card,
+        .todos-carousel-card {
+            flex: 0 0 calc(62% - 6px); /* Mostrar 1.8 tarjetas en pantallas muy pequeñas */
+            max-width: 150px;
+            padding: 8px;
             margin-right: 6px;
         }
 
         .games-carousel-card .product-image,
         .todos-carousel-card .product-image {
-            height: 130px;
+            height: 110px;
+        }
+
+        .games-carousel-card .product-name,
+        .todos-carousel-card .product-name {
+            font-size: 10px;
+            margin-bottom: 6px;
+        }
+
+        .games-carousel-card .price-desde,
+        .todos-carousel-card .price-desde {
+            font-size: 9px;
+            margin-top: 6px;
         }
 
         .games-carousel-track, .todos-carousel-track {
