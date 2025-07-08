@@ -1,16 +1,18 @@
-from flask import Flask, request, jsonify, render_template, session, redirect, url_for
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session
+from sqlalchemy import create_engine, text
+from sqlalchemy.pool import NullPool
 import os
+from werkzeug.utils import secure_filename
+from datetime import datetime
+import json
+from dotenv import load_dotenv
+from werkzeug.security import generate_password_hash, check_password_hash
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import threading
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from werkzeug.security import generate_password_hash, check_password_hash
-from werkzeug.utils import secure_filename
-from sqlalchemy import create_engine, text
-import secrets
-from datetime import datetime, timedelta
-import uuid
-import sqlite3
-from pathlib import Path
-import time
 
 load_dotenv()
 
@@ -248,13 +250,13 @@ def limpiar_ordenes_antiguas(usuario_email):
         result = conn.execute(text('''
             SELECT COUNT(*) FROM ordenes WHERE usuario_email = :email
         '''), {'email': usuario_email})
-
+        
         total_ordenes = result.fetchone()[0]
-
+        
         # Si tiene más de 40 órdenes, eliminar las más antiguas
         if total_ordenes > 40:
             ordenes_a_eliminar = total_ordenes - 40
-
+            
             # Obtener IDs de las órdenes más antiguas
             result = conn.execute(text('''
                 SELECT id FROM ordenes 
@@ -262,17 +264,17 @@ def limpiar_ordenes_antiguas(usuario_email):
                 ORDER BY fecha ASC 
                 LIMIT :limit
             '''), {'email': usuario_email, 'limit': ordenes_a_eliminar})
-
+            
             ids_a_eliminar = [row[0] for row in result.fetchall()]
-
+            
             if ids_a_eliminar:
                 # Eliminar las órdenes más antiguas
                 for orden_id in ids_a_eliminar:
                     conn.execute(text('DELETE FROM ordenes WHERE id = :id'), {'id': orden_id})
-
+                
                 conn.commit()
                 print(f"🧹 Limpieza automática: Eliminadas {len(ids_a_eliminar)} órdenes antiguas del usuario {usuario_email}")
-
+                
     except Exception as e:
         print(f"❌ Error al limpiar órdenes antiguas: {e}")
         conn.rollback()
@@ -642,9 +644,24 @@ def catch_all(path):
 
 @app.route('/admin')
 def admin():
-    # Cache busting para admin también
-    cache_bust = str(int(time.time()))
-    return render_template('admin.html', cache_bust=cache_bust)
+    # Verificar si el usuario está logueado y es administrador
+    if 'user_id' not in session:
+        return redirect(url_for('index') + '?login_required=true&admin=true')
+
+    # Verificar si el usuario es administrador
+    conn = get_db_connection()
+    try:
+        result = conn.execute(text('SELECT es_admin FROM usuarios WHERE id = :user_id'), 
+                             {'user_id': session['user_id']})
+        usuario = result.fetchone()
+
+        if not usuario or not usuario[0]:  # es_admin es False
+            return jsonify({'error': 'Acceso denegado. No tienes permisos de administrador.'}), 403
+
+    finally:
+        conn.close()
+
+    return render_template('admin.html')
 
 # ENDPOINT PARA CREAR ÓRDENES DESDE EL FRONTEND
 @app.route('/orden', methods=['POST'])
@@ -671,7 +688,7 @@ def create_orden():
         result_user = conn.execute(text('''
             SELECT telefono FROM usuarios WHERE email = :email
         '''), {'email': usuario_email})
-
+        
         usuario_data = result_user.fetchone()
         usuario_telefono = usuario_data[0] if usuario_data else None
 
@@ -702,7 +719,7 @@ def create_orden():
 
         orden_completa = result.fetchone()
         conn.commit()
-
+        
         # Limpiar órdenes antiguas del usuario (mantener solo las últimas 40)
         limpiar_ordenes_antiguas(usuario_email)
 
@@ -899,7 +916,7 @@ def create_producto():
         })
 
         producto_id = result.fetchone()[0]
-
+        
         print(f"✅ Producto creado con ID: {producto_id}, categoría: {categoria}")
 
         # Insertar paquetes
@@ -1013,19 +1030,19 @@ def get_productos_publico():
             LEFT JOIN paquetes p ON j.id = p.juego_id
             ORDER BY j.orden ASC, j.id ASC, p.orden ASC, p.precio ASC
         '''))
-
+        
         rows = result.fetchall()
-
+        
         # Agrupar productos con sus paquetes
         productos_dict = {}
         for row in rows:
             row_dict = dict(row._mapping)
             producto_id = row_dict['id']
-
+            
             if producto_id not in productos_dict:
                 # Asegurar que la categoría no sea None
                 categoria = row_dict['categoria'] or 'juegos'
-
+                
                 productos_dict[producto_id] = {
                     'id': row_dict['id'],
                     'nombre': row_dict['nombre'],
@@ -1036,10 +1053,10 @@ def get_productos_publico():
                     'etiquetas': row_dict['etiquetas'],
                     'paquetes': []
                 }
-
+                
                 # Debug: imprimir categoría de cada producto
                 print(f"📦 Producto: {row_dict['nombre']} | Categoría: {categoria}")
-
+            
             # Agregar paquete si existe
             if row_dict['paquete_id']:
                 productos_dict[producto_id]['paquetes'].append({
@@ -1048,18 +1065,18 @@ def get_productos_publico():
                     'precio': row_dict['precio'],
                     'orden': row_dict['paquete_orden']
                 })
-
+        
         # Convertir a lista
         productos_list = list(productos_dict.values())
-
+        
         # Debug: contar productos por categoría
         categorias_count = {}
         for producto in productos_list:
             cat = producto['categoria']
             categorias_count[cat] = categorias_count.get(cat, 0) + 1
-
+        
         print(f"📊 Productos por categoría: {categorias_count}")
-
+        
         return jsonify(productos_list)
     finally:
         conn.close()
@@ -1374,16 +1391,6 @@ def serve_image(filename):
     finally:
         conn.close()
 
-# Configurar headers para evitar caché en desarrollo
-@app.after_request
-def after_request(response):
-    # Solo en modo debug/desarrollo
-    if app.debug:
-        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-        response.headers['Pragma'] = 'no-cache'
-        response.headers['Expires'] = '0'
-    return response
-
 if __name__ == '__main__':
     # Crear directorio para imágenes
     os.makedirs('static/images', exist_ok=True)
@@ -1395,6 +1402,4 @@ if __name__ == '__main__':
     except Exception as e:
         print(f"Error al inicializar la base de datos: {e}")
 
-    port = int(os.environ.get('PORT', 5000))
-    print(f'🚀 Iniciando servidor en puerto {port}')
-    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
