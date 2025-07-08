@@ -615,6 +615,7 @@ async function cargarConfiguracionOptimizada() {
             const nuevaTasa = parseFloat(nuevaConfiguracion.tasa_usd_ves);
             tasaUSDVES = nuevaTasa;
             console.log('✅ Tasa de cambio actualizada desde el servidor:', tasaUSDVES);
+            console.log('✅ Verificación: 10 USD = Bs.', (10 * nuevaTasa).toFixed(2));
         } else {
             console.warn('Tasa inválida en configuración del servidor, manteniendo tasa actual:', tasaUSDVES);
         }
@@ -626,6 +627,11 @@ async function cargarConfiguracionOptimizada() {
 
         // Actualizar imágenes del carrusel inmediatamente
         actualizarImagenesCarrusel();
+
+        // Verificar cálculos después de cargar configuración
+        setTimeout(() => {
+            verificarCalculos();
+        }, 500);
 
         // Guardar en cache OTROS elementos pero NO la tasa (para que siempre sea tiempo real)
         if (productos && productos.length > 0) {
@@ -1424,25 +1430,22 @@ function convertirPrecio(precioUSD) {
     const precio = parseFloat(precioUSD) || 0;
     
     if (monedaActual === 'VES') {
-        // Obtener la tasa más actualizada directamente desde configuración o global
-        let tasaActual = tasaUSDVES;
+        // SIEMPRE usar la tasa de la configuración como fuente principal
+        let tasaActual = 142; // Valor por defecto
         
-        // Si hay configuración disponible, usar esa tasa
         if (configuracion && configuracion.tasa_usd_ves) {
             const tasaConfig = parseFloat(configuracion.tasa_usd_ves);
             if (tasaConfig > 0) {
                 tasaActual = tasaConfig;
+                console.log(`💱 Usando tasa de configuración: ${tasaActual}`);
             }
-        }
-        
-        // Fallback solo si no hay ninguna tasa válida
-        if (!tasaActual || tasaActual <= 0) {
-            tasaActual = 142; // Valor de emergencia
-            console.warn('⚠️ Usando tasa de emergencia:', tasaActual);
+        } else if (tasaUSDVES && tasaUSDVES > 0) {
+            tasaActual = tasaUSDVES;
+            console.log(`💱 Usando tasa global: ${tasaActual}`);
         }
         
         const precioVES = (precio * tasaActual).toFixed(2);
-        console.log(`💱 Conversión: $${precio} USD × ${tasaActual} = Bs. ${precioVES} VES`);
+        console.log(`💱 Conversión FINAL: $${precio} USD × ${tasaActual} = Bs. ${precioVES} VES`);
         return `Bs. ${precioVES}`;
     }
     return `$${precio.toFixed(2)}`;
@@ -1939,6 +1942,23 @@ function actualizarPreciosDetalles() {
             `;
         }
     }
+}
+
+// Función de verificación de cálculos
+function verificarCalculos() {
+    console.log('🔍 VERIFICACIÓN DE CÁLCULOS:');
+    console.log('- Moneda actual:', monedaActual);
+    console.log('- Tasa global tasaUSDVES:', tasaUSDVES);
+    console.log('- Tasa en configuración:', configuracion?.tasa_usd_ves);
+    
+    // Prueba con 10 USD
+    const resultadoPrueba = convertirPrecio(10);
+    console.log('- Resultado de 10 USD:', resultadoPrueba);
+    
+    // Cálculo manual para verificar
+    const tasaParaCalculo = configuracion?.tasa_usd_ves ? parseFloat(configuracion.tasa_usd_ves) : tasaUSDVES;
+    const calculoManual = (10 * tasaParaCalculo).toFixed(2);
+    console.log('- Cálculo manual 10 USD × ' + tasaParaCalculo + ':', calculoManual);
 }
 
 // Inicializar eventos
