@@ -1180,14 +1180,19 @@ function mostrarProductos() {
     // Filtrar productos según la categoría seleccionada
     let productosFiltrados = productos;
     if (filtroActual === 'gift-cards') {
-        productosFiltrados = productos.filter(producto => 
-            producto.categoria === 'gift-cards'
-        );
+        productosFiltrados = productos.filter(producto => {
+            console.log('🔍 Producto:', producto.nombre, 'Categoría:', producto.categoria);
+            return producto.categoria === 'gift-cards';
+        });
+        console.log('🎁 Gift Cards filtradas:', productosFiltrados.length);
     } else if (filtroActual === 'juegos') {
-        productosFiltrados = productos.filter(producto => 
-            producto.categoria === 'juegos'
-        );
+        productosFiltrados = productos.filter(producto => {
+            return producto.categoria === 'juegos' || !producto.categoria || producto.categoria === '';
+        });
+        console.log('🎮 Juegos filtrados:', productosFiltrados.length);
     }
+    
+    console.log('📊 Total productos filtrados:', productosFiltrados.length, 'para categoría:', filtroActual);
 
     if (productosFiltrados.length === 0) {
         grid.innerHTML = `

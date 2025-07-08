@@ -896,15 +896,28 @@ def create_producto():
     etiquetas = data.get('etiquetas', '')
     paquetes = data.get('paquetes', [])
 
+    # Debug: Imprimir los datos recibidos
+    print(f"🔍 Creando producto con categoría: {categoria}")
+    print(f"🔍 Datos completos: {data}")
+
     conn = get_db_connection()
     try:
         # Insertar producto
         result = conn.execute(text('''
             INSERT INTO juegos (nombre, descripcion, imagen, categoria, orden, etiquetas) 
             VALUES (:nombre, :descripcion, :imagen, :categoria, :orden, :etiquetas) RETURNING id
-        '''), {'nombre': nombre, 'descripcion': descripcion, 'imagen': imagen, 'categoria': categoria, 'orden': orden, 'etiquetas': etiquetas})
+        '''), {
+            'nombre': nombre, 
+            'descripcion': descripcion, 
+            'imagen': imagen, 
+            'categoria': categoria, 
+            'orden': orden, 
+            'etiquetas': etiquetas
+        })
 
         producto_id = result.fetchone()[0]
+        
+        print(f"✅ Producto creado con ID: {producto_id}, categoría: {categoria}")
 
         # Insertar paquetes
         for index, paquete in enumerate(paquetes):
@@ -921,6 +934,7 @@ def create_producto():
         conn.commit()
         return jsonify({'message': 'Producto creado correctamente', 'id': producto_id})
     except Exception as e:
+        print(f"❌ Error al crear producto: {str(e)}")
         conn.rollback()
         return jsonify({'error': f'Error al crear producto: {str(e)}'}), 500
     finally:
@@ -1026,16 +1040,22 @@ def get_productos_publico():
             producto_id = row_dict['id']
             
             if producto_id not in productos_dict:
+                # Asegurar que la categoría no sea None
+                categoria = row_dict['categoria'] or 'juegos'
+                
                 productos_dict[producto_id] = {
                     'id': row_dict['id'],
                     'nombre': row_dict['nombre'],
                     'descripcion': row_dict['descripcion'],
                     'imagen': row_dict['imagen'],
-                    'categoria': row_dict['categoria'],
+                    'categoria': categoria,
                     'orden': row_dict['orden'],
                     'etiquetas': row_dict['etiquetas'],
                     'paquetes': []
                 }
+                
+                # Debug: imprimir categoría de cada producto
+                print(f"📦 Producto: {row_dict['nombre']} | Categoría: {categoria}")
             
             # Agregar paquete si existe
             if row_dict['paquete_id']:
@@ -1048,6 +1068,14 @@ def get_productos_publico():
         
         # Convertir a lista
         productos_list = list(productos_dict.values())
+        
+        # Debug: contar productos por categoría
+        categorias_count = {}
+        for producto in productos_list:
+            cat = producto['categoria']
+            categorias_count[cat] = categorias_count.get(cat, 0) + 1
+        
+        print(f"📊 Productos por categoría: {categorias_count}")
         
         return jsonify(productos_list)
     finally:
