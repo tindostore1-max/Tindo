@@ -799,10 +799,10 @@ header {
         gap: 10px;
     }
 
-    /* Ajustar tamaño de cards para mostrar mínimo 2 productos en móvil */
+    /* Ajustar tamaño de cards para mostrar 1.8 productos en móvil (mostrar pedacito del siguiente) */
     .games-carousel-card {
-        flex: 0 0 calc(50% - 8px); /* Mostrar exactamente 2 productos por pantalla */
-        max-width: 165px; /* Máximo ancho aumentado */
+        flex: 0 0 calc(55% - 8px); /* Mostrar 1.8 productos para indicar que hay más contenido */
+        max-width: 180px; /* Máximo ancho ajustado */
         padding: 15px;
         margin-right: 8px;
     }
@@ -850,8 +850,8 @@ header {
     }
 
     .todos-carousel-card {
-        flex: 0 0 calc(50% - 8px); /* Mostrar exactamente 2 productos por pantalla */
-        max-width: 165px; /* Máximo ancho aumentado */
+        flex: 0 0 calc(55% - 8px); /* Mostrar 1.8 productos para indicar que hay más contenido */
+        max-width: 180px; /* Máximo ancho ajustado */
         padding: 15px;
         margin-right: 8px;
     }
@@ -906,8 +906,8 @@ header {
     @media (max-width: 360px) {
         .games-carousel-card,
         .todos-carousel-card {
-            flex: 0 0 calc(50% - 6px);
-            max-width: 155px;
+            flex: 0 0 calc(58% - 6px); /* Mantener efecto 1.8 en pantallas pequeñas */
+            max-width: 160px;
             padding: 12px;
             margin-right: 6px;
         }
