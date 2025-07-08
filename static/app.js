@@ -583,8 +583,8 @@ async function cargarConfiguracionOptimizada() {
         if (configCache && cacheValido()) {
             configuracion = configCache;
             
-            // Actualizar tasa de cambio desde cache
-            if (configuracion.tasa_usd_ves) {
+            // Actualizar tasa de cambio desde cache SOLO si es válida
+            if (configuracion.tasa_usd_ves && parseFloat(configuracion.tasa_usd_ves) > 0) {
                 tasaUSDVES = parseFloat(configuracion.tasa_usd_ves);
                 console.log('Tasa de cambio cargada desde cache:', tasaUSDVES);
             }
@@ -599,21 +599,42 @@ async function cargarConfiguracionOptimizada() {
         const response = await fetch('/config');
 
         if (!response.ok) {
-            console.warn('No se pudo cargar la configuración del servidor');
-            aplicarConfiguracionPorDefecto();
+            console.warn('No se pudo cargar la configuración del servidor, manteniendo tasa actual');
+            // No aplicar configuración por defecto que resetea la tasa
+            // Solo configurar elementos básicos sin cambiar la tasa
+            if (!configuracion) {
+                configuracion = {
+                    tasa_usd_ves: tasaUSDVES.toString(), // Mantener tasa actual
+                    pago_movil: 'Información no disponible',
+                    binance: 'Información no disponible',
+                    logo: '',
+                    carousel1: '',
+                    carousel2: '',
+                    carousel3: ''
+                };
+            }
             configuracionCargada = true;
             return;
         }
 
-        configuracion = await response.json();
+        const nuevaConfiguracion = await response.json();
 
-        console.log('Configuración cargada desde servidor:', configuracion);
+        console.log('Configuración cargada desde servidor:', nuevaConfiguracion);
 
-        // Actualizar tasa de cambio ANTES de actualizar otros elementos
-        if (configuracion.tasa_usd_ves) {
-            tasaUSDVES = parseFloat(configuracion.tasa_usd_ves);
-            console.log('Tasa de cambio actualizada desde servidor:', tasaUSDVES);
+        // Verificar que la nueva tasa sea válida antes de aplicarla
+        if (nuevaConfiguracion.tasa_usd_ves && parseFloat(nuevaConfiguracion.tasa_usd_ves) > 0) {
+            const nuevaTasa = parseFloat(nuevaConfiguracion.tasa_usd_ves);
+            // Solo actualizar si la nueva tasa es diferente y válida
+            if (nuevaTasa !== tasaUSDVES) {
+                tasaUSDVES = nuevaTasa;
+                console.log('Tasa de cambio actualizada desde servidor:', tasaUSDVES);
+            }
+        } else {
+            console.warn('Tasa inválida en configuración del servidor, manteniendo tasa actual:', tasaUSDVES);
+            nuevaConfiguracion.tasa_usd_ves = tasaUSDVES.toString();
         }
+
+        configuracion = nuevaConfiguracion;
 
         // Actualizar logo inmediatamente
         actualizarLogo();
@@ -621,15 +642,26 @@ async function cargarConfiguracionOptimizada() {
         // Actualizar imágenes del carrusel inmediatamente
         actualizarImagenesCarrusel();
 
-        // Guardar en cache
-        if (productos && productos.length > 0) {
+        // Guardar en cache solo si la configuración es válida
+        if (productos && productos.length > 0 && configuracion.tasa_usd_ves) {
             guardarEnCache(configuracion, productos);
         }
 
         configuracionCargada = true;
     } catch (error) {
         console.warn('Error al cargar configuración:', error.message || 'Error desconocido');
-        aplicarConfiguracionPorDefecto();
+        // No resetear la tasa en caso de error, solo mantener la actual
+        if (!configuracion) {
+            configuracion = {
+                tasa_usd_ves: tasaUSDVES.toString(),
+                pago_movil: 'Información no disponible',
+                binance: 'Información no disponible',
+                logo: '',
+                carousel1: '',
+                carousel2: '',
+                carousel3: ''
+            };
+        }
         configuracionCargada = true;
     }
 }
@@ -675,10 +707,13 @@ function actualizarLogo() {
     }
 }
 
-// Función para aplicar configuración por defecto
+// Función para aplicar configuración por defecto (manteniendo tasa actual)
 function aplicarConfiguracionPorDefecto() {
+    // No resetear la tasa, mantener la actual o usar la del servidor
+    const tasaActual = tasaUSDVES || 142.00;
+    
     configuracion = {
-        tasa_usd_ves: '142.00',
+        tasa_usd_ves: tasaActual.toString(),
         pago_movil: 'Información no disponible',
         binance: 'Información no disponible',
         logo: '', // Logo vacío para activar el placeholder
@@ -686,8 +721,13 @@ function aplicarConfiguracionPorDefecto() {
         carousel2: '',
         carousel3: ''
     };
-    tasaUSDVES = parseFloat(configuracion.tasa_usd_ves);
-    console.log('Configuración por defecto aplicada, tasa:', tasaUSDVES);
+    
+    // Solo actualizar la tasa si no estaba establecida
+    if (!tasaUSDVES || tasaUSDVES <= 0) {
+        tasaUSDVES = tasaActual;
+    }
+    
+    console.log('Configuración por defecto aplicada, manteniendo tasa:', tasaUSDVES);
     actualizarLogo();
     actualizarImagenesCarrusel();
 }
@@ -1907,9 +1947,13 @@ function inicializarEventos() {
     document.getElementById('selector-moneda').addEventListener('change', function() {
         monedaActual = this.value;
         
-        // Actualizar tasa desde configuración si está disponible
-        if (configuracion && configuracion.tasa_usd_ves) {
-            tasaUSDVES = parseFloat(configuracion.tasa_usd_ves);
+        // Asegurar que tenemos la tasa correcta desde configuración
+        if (configuracion && configuracion.tasa_usd_ves && parseFloat(configuracion.tasa_usd_ves) > 0) {
+            const nuevaTasa = parseFloat(configuracion.tasa_usd_ves);
+            if (nuevaTasa !== tasaUSDVES) {
+                tasaUSDVES = nuevaTasa;
+                console.log('Tasa actualizada desde configuración:', tasaUSDVES);
+            }
         }
         
         console.log('Moneda cambiada a:', monedaActual, 'Tasa actual:', tasaUSDVES);
@@ -3639,8 +3683,20 @@ function cacheValido() {
         return false;
     }
 
+    // Verificar que la tasa en cache sea válida
+    if (!configCache.tasa_usd_ves || parseFloat(configCache.tasa_usd_ves) <= 0) {
+        console.warn('Cache inválido: tasa de conversión no válida');
+        return false;
+    }
+
     const tiempoActual = Date.now();
-    return (tiempoActual - cacheTimestamp) < CACHE_DURATION;
+    const esValido = (tiempoActual - cacheTimestamp) < CACHE_DURATION;
+    
+    if (!esValido) {
+        console.log('Cache expirado, será renovado');
+    }
+    
+    return esValido;
 }
 
 // Función para guardar en cache con timestamp
