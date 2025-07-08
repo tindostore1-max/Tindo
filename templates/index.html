@@ -6,10 +6,10 @@
     <title>Inefablestore - Tu tienda de juegos favorita</title>
 
     <!-- CSS crítico primero -->
-    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/styles.css?v={{ cache_bust }}">
 
     <!-- Preload de recursos críticos -->
-    <link rel="preload" href="/static/app.js" as="script">
+    <link rel="preload" href="/static/app.js?v={{ cache_bust }}" as="script">
 
     <!-- DNS prefetch para mejorar velocidad de imágenes externas -->
     <link rel="dns-prefetch" href="//via.placeholder.com">
@@ -315,7 +315,7 @@
         </button>
     </footer>
 
-        <script src="/static/app.js"></script>
+        <script src="/static/app.js?v={{ cache_bust }}"></script>
 
     <!-- Footer con copyright -->
     <div class="copyright-footer">
