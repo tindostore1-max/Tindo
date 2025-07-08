@@ -196,7 +196,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // Establecer VES como moneda por defecto
-        document.getElementById('selector-moneda').value = 'VES';
+        const selectorMoneda = document.getElementById('selector-moneda');
+        if (selectorMoneda) {
+            selectorMoneda.value = 'VES';
+            monedaActual = 'VES';
+            console.log('Moneda inicial establecida:', monedaActual);
+        }
 
         // Inicializar eventos táctiles
         inicializarSwipeCarruseles();
@@ -603,6 +608,7 @@ async function cargarConfiguracionOptimizada() {
         // Actualizar tasa de cambio
         if (configuracion.tasa_usd_ves) {
             tasaUSDVES = parseFloat(configuracion.tasa_usd_ves);
+            console.log('Tasa de cambio actualizada:', tasaUSDVES);
         }
 
         // Actualizar imágenes del carrusel inmediatamente
@@ -665,7 +671,7 @@ function actualizarLogo() {
 // Función para aplicar configuración por defecto
 function aplicarConfiguracionPorDefecto() {
     configuracion = {
-        tasa_usd_ves: '36.50',
+        tasa_usd_ves: '142.00',
         pago_movil: 'Información no disponible',
         binance: 'Información no disponible',
         logo: '', // Logo vacío para activar el placeholder
@@ -673,7 +679,8 @@ function aplicarConfiguracionPorDefecto() {
         carousel2: '',
         carousel3: ''
     };
-    tasaUSDVES = 36.50;
+    tasaUSDVES = 142.00;
+    console.log('Configuración por defecto aplicada, tasa:', tasaUSDVES);
     actualizarLogo();
     actualizarImagenesCarrusel();
 }
@@ -1380,11 +1387,13 @@ function verDetalleProducto(productoId) {
 
 // Convertir precio según moneda seleccionada
 function convertirPrecio(precioUSD) {
+    const precio = parseFloat(precioUSD) || 0;
+    
     if (monedaActual === 'VES') {
-        const precioVES = (precioUSD * tasaUSDVES).toFixed(2);
+        const precioVES = (precio * tasaUSDVES).toFixed(2);
         return `Bs. ${precioVES}`;
     }
-    return `$${precioUSD.toFixed(2)}`;
+    return `$${precio.toFixed(2)}`;
 }
 
 // Variables para el paquete seleccionado
@@ -1885,23 +1894,33 @@ function inicializarEventos() {
     // Selector de moneda
     document.getElementById('selector-moneda').addEventListener('change', function() {
         monedaActual = this.value;
-        mostrarProductos();
-        mostrarCarrito();
+        console.log('Moneda cambiada a:', monedaActual, 'Tasa actual:', tasaUSDVES);
+        
+        // Forzar actualización inmediata de la vista
+        setTimeout(() => {
+            mostrarProductos();
+            mostrarCarrito();
 
-        // Actualizar precios en página de detalles si está visible
-        const detallesSection = document.getElementById('detalles');
-        if (detallesSection && detallesSection.classList.contains('active') && productoSeleccionado) {
-            actualizarPreciosDetalles();
-        }
+            // Actualizar precios en página de detalles si está visible
+            const detallesSection = document.getElementById('detalles');
+            if (detallesSection && detallesSection.classList.contains('active') && productoSeleccionado) {
+                actualizarPreciosDetalles();
+            }
 
-        // Actualizar total en la página de pago si está visible
-        const pagoSection = document.getElementById('pago');
-        if (pagoSection && pagoSection.classList.contains('active')) {
-            const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-            mostrarTotalPago(total);
-            // Actualizar métodos de pago según la nueva moneda
-            actualizarMetodosPagoSegunMoneda();
-        }
+            // Actualizar total en la página de pago si está visible
+            const pagoSection = document.getElementById('pago');
+            if (pagoSection && pagoSection.classList.contains('active')) {
+                const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+                mostrarTotalPago(total);
+                // Actualizar métodos de pago según la nueva moneda
+                actualizarMetodosPagoSegunMoneda();
+            }
+
+            // Actualizar tooltip del carrito si existe
+            if (window.innerWidth > 768) {
+                actualizarTooltipCarrito();
+            }
+        }, 50);
 
         mostrarAlerta(`💱 Moneda cambiada a ${monedaActual}`, 'success');
     });
