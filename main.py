@@ -5,12 +5,18 @@ from psycopg2.extras import RealDictCursor
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from sqlalchemy import create_engine, text
+from sqlalchemy.pool import NullPool
 import secrets
 from datetime import datetime, timedelta
 import uuid
 import sqlite3
 from pathlib import Path
 import time
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import threading
+from dotenv import load_dotenv
 
 load_dotenv()
 
