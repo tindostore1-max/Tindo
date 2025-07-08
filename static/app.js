@@ -613,17 +613,10 @@ async function cargarConfiguracionOptimizada() {
         // SIEMPRE actualizar la tasa desde el servidor (tiempo real)
         if (nuevaConfiguracion.tasa_usd_ves && parseFloat(nuevaConfiguracion.tasa_usd_ves) > 0) {
             const nuevaTasa = parseFloat(nuevaConfiguracion.tasa_usd_ves);
-            // Validar que la tasa sea razonable (mínimo 1, máximo 10000)
-            if (nuevaTasa >= 1 && nuevaTasa <= 10000) {
-                tasaUSDVES = nuevaTasa;
-                console.log('✅ Tasa de cambio actualizada en TIEMPO REAL desde admin:', tasaUSDVES);
-            } else {
-                console.warn('Tasa fuera de rango razonable:', nuevaTasa, 'manteniendo tasa actual:', tasaUSDVES);
-                nuevaConfiguracion.tasa_usd_ves = tasaUSDVES.toString();
-            }
+            tasaUSDVES = nuevaTasa;
+            console.log('✅ Tasa de cambio actualizada desde el servidor:', tasaUSDVES);
         } else {
             console.warn('Tasa inválida en configuración del servidor, manteniendo tasa actual:', tasaUSDVES);
-            nuevaConfiguracion.tasa_usd_ves = tasaUSDVES.toString();
         }
 
         configuracion = nuevaConfiguracion;
@@ -1431,17 +1424,25 @@ function convertirPrecio(precioUSD) {
     const precio = parseFloat(precioUSD) || 0;
     
     if (monedaActual === 'VES') {
-        // SIEMPRE usar la tasa global que se actualiza en tiempo real desde el servidor
+        // Obtener la tasa más actualizada directamente desde configuración o global
         let tasaActual = tasaUSDVES;
         
-        // Solo como último recurso si algo falla gravemente
+        // Si hay configuración disponible, usar esa tasa
+        if (configuracion && configuracion.tasa_usd_ves) {
+            const tasaConfig = parseFloat(configuracion.tasa_usd_ves);
+            if (tasaConfig > 0) {
+                tasaActual = tasaConfig;
+            }
+        }
+        
+        // Fallback solo si no hay ninguna tasa válida
         if (!tasaActual || tasaActual <= 0) {
-            console.warn('⚠️ Tasa no disponible, usando valor de emergencia');
             tasaActual = 142; // Valor de emergencia
+            console.warn('⚠️ Usando tasa de emergencia:', tasaActual);
         }
         
         const precioVES = (precio * tasaActual).toFixed(2);
-        console.log(`💱 Conversión TIEMPO REAL: $${precio} USD × ${tasaActual} = Bs. ${precioVES} VES`);
+        console.log(`💱 Conversión: $${precio} USD × ${tasaActual} = Bs. ${precioVES} VES`);
         return `Bs. ${precioVES}`;
     }
     return `$${precio.toFixed(2)}`;
@@ -1943,30 +1944,10 @@ function actualizarPreciosDetalles() {
 // Inicializar eventos
 function inicializarEventos() {
     // Selector de moneda
-    document.getElementById('selector-moneda').addEventListener('change', async function() {
+    document.getElementById('selector-moneda').addEventListener('change', function() {
         monedaActual = this.value;
         
-        // Si cambia a VES, obtener la tasa más actual del servidor
-        if (monedaActual === 'VES') {
-            console.log('🔄 Actualizando tasa en tiempo real...');
-            try {
-                const response = await fetch('/config');
-                if (response.ok) {
-                    const configActual = await response.json();
-                    if (configActual.tasa_usd_ves && parseFloat(configActual.tasa_usd_ves) > 0) {
-                        const tasaActualizada = parseFloat(configActual.tasa_usd_ves);
-                        if (tasaActualizada >= 1 && tasaActualizada <= 10000) {
-                            tasaUSDVES = tasaActualizada;
-                            console.log('✅ Tasa actualizada EN TIEMPO REAL:', tasaUSDVES);
-                        }
-                    }
-                }
-            } catch (error) {
-                console.warn('No se pudo actualizar la tasa en tiempo real:', error);
-            }
-        }
-        
-        console.log('Moneda cambiada a:', monedaActual, 'Tasa TIEMPO REAL:', tasaUSDVES);
+        console.log('Moneda cambiada a:', monedaActual, 'Usando tasa de configuración:', configuracion.tasa_usd_ves);
         
         // Forzar actualización inmediata de la vista
         setTimeout(() => {
@@ -1994,7 +1975,8 @@ function inicializarEventos() {
             }
         }, 50);
 
-        mostrarAlerta(`💱 Moneda cambiada a ${monedaActual} (Tasa tiempo real: ${tasaUSDVES})`, 'success');
+        const tasaActual = configuracion && configuracion.tasa_usd_ves ? configuracion.tasa_usd_ves : tasaUSDVES;
+        mostrarAlerta(`💱 Moneda cambiada a ${monedaActual} (Tasa: ${tasaActual})`, 'success');
     });
 
     // Event listener para el checkbox de términos y condiciones
