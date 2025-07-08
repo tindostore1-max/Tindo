@@ -1022,34 +1022,80 @@ def get_productos_publico():
         # Agrupar productos con sus paquetes
         productos_dict = {}
         for row in rows:
-            row_dict = dict(row._mapping)
-            producto_id = row_dict['id']
-            
-            if producto_id not in productos_dict:
-                productos_dict[producto_id] = {
-                    'id': row_dict['id'],
-                    'nombre': row_dict['nombre'],
-                    'descripcion': row_dict['descripcion'],
-                    'imagen': row_dict['imagen'],
-                    'categoria': row_dict['categoria'],
-                    'orden': row_dict['orden'],
-                    'etiquetas': row_dict['etiquetas'],
-                    'paquetes': []
-                }
-            
-            # Agregar paquete si existe
-            if row_dict['paquete_id']:
-                productos_dict[producto_id]['paquetes'].append({
-                    'id': row_dict['paquete_id'],
-                    'nombre': row_dict['paquete_nombre'],
-                    'precio': row_dict['precio'],
-                    'orden': row_dict['paquete_orden']
-                })
+            try:
+                row_dict = dict(row._mapping)
+                producto_id = row_dict['id']
+                
+                # Validar datos del producto
+                if not producto_id:
+                    print(f"⚠️ Producto sin ID encontrado: {row_dict}")
+                    continue
+                
+                if producto_id not in productos_dict:
+                    # Limpiar y validar datos del producto
+                    nombre = row_dict['nombre'] or 'Producto sin nombre'
+                    descripcion = row_dict['descripcion'] or 'Sin descripción'
+                    imagen = row_dict['imagen'] or ''
+                    categoria = row_dict['categoria'] or 'juegos'
+                    orden = row_dict['orden'] or 0
+                    etiquetas = row_dict['etiquetas'] or ''
+                    
+                    productos_dict[producto_id] = {
+                        'id': producto_id,
+                        'nombre': nombre,
+                        'descripcion': descripcion,
+                        'imagen': imagen,
+                        'categoria': categoria,
+                        'orden': orden,
+                        'etiquetas': etiquetas,
+                        'paquetes': []
+                    }
+                
+                # Agregar paquete si existe y es válido
+                if row_dict['paquete_id']:
+                    paquete_precio = row_dict['precio']
+                    paquete_nombre = row_dict['paquete_nombre']
+                    
+                    # Validar precio del paquete
+                    try:
+                        precio_float = float(paquete_precio) if paquete_precio else 0.0
+                    except (ValueError, TypeError):
+                        print(f"⚠️ Precio inválido para paquete {paquete_nombre}: {paquete_precio}")
+                        precio_float = 0.0
+                    
+                    if paquete_nombre:
+                        productos_dict[producto_id]['paquetes'].append({
+                            'id': row_dict['paquete_id'],
+                            'nombre': paquete_nombre,
+                            'precio': precio_float,
+                            'orden': row_dict['paquete_orden'] or 0
+                        })
+                    
+            except Exception as e:
+                print(f"❌ Error procesando producto/paquete: {e}")
+                print(f"Datos del row: {dict(row._mapping) if hasattr(row, '_mapping') else row}")
+                continue
         
-        # Convertir a lista
-        productos_list = list(productos_dict.values())
+        # Convertir a lista y filtrar productos válidos
+        productos_list = []
+        for producto in productos_dict.values():
+            try:
+                # Solo incluir productos que tengan al menos un paquete válido
+                if producto['paquetes'] and len(producto['paquetes']) > 0:
+                    productos_list.append(producto)
+                else:
+                    print(f"⚠️ Producto {producto['nombre']} sin paquetes válidos")
+            except Exception as e:
+                print(f"❌ Error validando producto: {e}")
+                continue
         
+        print(f"✅ Cargados {len(productos_list)} productos válidos")
         return jsonify(productos_list)
+        
+    except Exception as e:
+        print(f"❌ Error crítico en get_productos_publico: {e}")
+        # Devolver lista vacía en caso de error para no romper el frontend
+        return jsonify([])
     finally:
         conn.close()
 
