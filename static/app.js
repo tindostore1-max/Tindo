@@ -582,6 +582,13 @@ async function cargarConfiguracionOptimizada() {
         // Usar cache si está disponible y es válido
         if (configCache && cacheValido()) {
             configuracion = configCache;
+            
+            // Actualizar tasa de cambio desde cache
+            if (configuracion.tasa_usd_ves) {
+                tasaUSDVES = parseFloat(configuracion.tasa_usd_ves);
+                console.log('Tasa de cambio cargada desde cache:', tasaUSDVES);
+            }
+            
             actualizarLogo();
             // Carrusel se actualiza después para no bloquear
             setTimeout(() => actualizarImagenesCarrusel(), 500);
@@ -602,14 +609,14 @@ async function cargarConfiguracionOptimizada() {
 
         console.log('Configuración cargada desde servidor:', configuracion);
 
-        // Actualizar logo inmediatamente
-        actualizarLogo();
-
-        // Actualizar tasa de cambio
+        // Actualizar tasa de cambio ANTES de actualizar otros elementos
         if (configuracion.tasa_usd_ves) {
             tasaUSDVES = parseFloat(configuracion.tasa_usd_ves);
-            console.log('Tasa de cambio actualizada:', tasaUSDVES);
+            console.log('Tasa de cambio actualizada desde servidor:', tasaUSDVES);
         }
+
+        // Actualizar logo inmediatamente
+        actualizarLogo();
 
         // Actualizar imágenes del carrusel inmediatamente
         actualizarImagenesCarrusel();
@@ -679,7 +686,7 @@ function aplicarConfiguracionPorDefecto() {
         carousel2: '',
         carousel3: ''
     };
-    tasaUSDVES = 142.00;
+    tasaUSDVES = parseFloat(configuracion.tasa_usd_ves);
     console.log('Configuración por defecto aplicada, tasa:', tasaUSDVES);
     actualizarLogo();
     actualizarImagenesCarrusel();
@@ -1390,7 +1397,12 @@ function convertirPrecio(precioUSD) {
     const precio = parseFloat(precioUSD) || 0;
     
     if (monedaActual === 'VES') {
-        const precioVES = (precio * tasaUSDVES).toFixed(2);
+        // Asegurar que tenemos la tasa más actualizada
+        const tasaActual = configuracion && configuracion.tasa_usd_ves ? 
+                          parseFloat(configuracion.tasa_usd_ves) : tasaUSDVES;
+        
+        const precioVES = (precio * tasaActual).toFixed(2);
+        console.log(`💱 Conversión: $${precio} USD × ${tasaActual} = Bs. ${precioVES} VES`);
         return `Bs. ${precioVES}`;
     }
     return `$${precio.toFixed(2)}`;
@@ -1894,6 +1906,12 @@ function inicializarEventos() {
     // Selector de moneda
     document.getElementById('selector-moneda').addEventListener('change', function() {
         monedaActual = this.value;
+        
+        // Actualizar tasa desde configuración si está disponible
+        if (configuracion && configuracion.tasa_usd_ves) {
+            tasaUSDVES = parseFloat(configuracion.tasa_usd_ves);
+        }
+        
         console.log('Moneda cambiada a:', monedaActual, 'Tasa actual:', tasaUSDVES);
         
         // Forzar actualización inmediata de la vista
@@ -1922,7 +1940,7 @@ function inicializarEventos() {
             }
         }, 50);
 
-        mostrarAlerta(`💱 Moneda cambiada a ${monedaActual}`, 'success');
+        mostrarAlerta(`💱 Moneda cambiada a ${monedaActual} (Tasa: ${tasaUSDVES})`, 'success');
     });
 
     // Event listener para el checkbox de términos y condiciones
