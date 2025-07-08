@@ -2,7 +2,7 @@
 let productos = [];
 let carrito = cargarCarritoDesdeStorage();
 let monedaActual = 'VES';
-let tasaUSDVES = 36.50;
+let tasaUSDVES = 142.00; // Inicializar con tasa conocida actual
 let configuracion = {};
 let productoSeleccionado = null;
 
@@ -585,8 +585,14 @@ async function cargarConfiguracionOptimizada() {
             
             // Actualizar tasa de cambio desde cache SOLO si es válida
             if (configuracion.tasa_usd_ves && parseFloat(configuracion.tasa_usd_ves) > 0) {
-                tasaUSDVES = parseFloat(configuracion.tasa_usd_ves);
-                console.log('Tasa de cambio cargada desde cache:', tasaUSDVES);
+                const tasaCache = parseFloat(configuracion.tasa_usd_ves);
+                // Validar que la tasa del cache sea razonable
+                if (tasaCache >= 50 && tasaCache <= 1000) {
+                    tasaUSDVES = tasaCache;
+                    console.log('Tasa de cambio cargada desde cache:', tasaUSDVES);
+                } else {
+                    console.warn('Tasa del cache fuera de rango:', tasaCache, 'manteniendo tasa por defecto:', tasaUSDVES);
+                }
             }
             
             actualizarLogo();
@@ -624,10 +630,13 @@ async function cargarConfiguracionOptimizada() {
         // Verificar que la nueva tasa sea válida antes de aplicarla
         if (nuevaConfiguracion.tasa_usd_ves && parseFloat(nuevaConfiguracion.tasa_usd_ves) > 0) {
             const nuevaTasa = parseFloat(nuevaConfiguracion.tasa_usd_ves);
-            // Solo actualizar si la nueva tasa es diferente y válida
-            if (nuevaTasa !== tasaUSDVES) {
+            // Validar que la tasa sea razonable (mínimo 50, máximo 1000)
+            if (nuevaTasa >= 50 && nuevaTasa <= 1000) {
                 tasaUSDVES = nuevaTasa;
                 console.log('Tasa de cambio actualizada desde servidor:', tasaUSDVES);
+            } else {
+                console.warn('Tasa fuera de rango razonable:', nuevaTasa, 'manteniendo tasa actual:', tasaUSDVES);
+                nuevaConfiguracion.tasa_usd_ves = tasaUSDVES.toString();
             }
         } else {
             console.warn('Tasa inválida en configuración del servidor, manteniendo tasa actual:', tasaUSDVES);
@@ -1437,9 +1446,22 @@ function convertirPrecio(precioUSD) {
     const precio = parseFloat(precioUSD) || 0;
     
     if (monedaActual === 'VES') {
-        // Asegurar que tenemos la tasa más actualizada
-        const tasaActual = configuracion && configuracion.tasa_usd_ves ? 
-                          parseFloat(configuracion.tasa_usd_ves) : tasaUSDVES;
+        // Obtener la tasa más actualizada con múltiples fallbacks
+        let tasaActual = tasaUSDVES; // Valor por defecto global
+        
+        // Prioridad 1: Tasa desde configuración si es válida
+        if (configuracion && configuracion.tasa_usd_ves) {
+            const tasaConfig = parseFloat(configuracion.tasa_usd_ves);
+            if (tasaConfig > 0 && tasaConfig > 10) { // Validar que sea una tasa razonable
+                tasaActual = tasaConfig;
+            }
+        }
+        
+        // Validar que la tasa final sea razonable (mínimo 50 VES por USD)
+        if (tasaActual < 50) {
+            console.warn('Tasa muy baja detectada, usando tasa por defecto:', tasaActual);
+            tasaActual = 142; // Fallback a tasa conocida
+        }
         
         const precioVES = (precio * tasaActual).toFixed(2);
         console.log(`💱 Conversión: $${precio} USD × ${tasaActual} = Bs. ${precioVES} VES`);
@@ -3683,9 +3705,15 @@ function cacheValido() {
         return false;
     }
 
-    // Verificar que la tasa en cache sea válida
+    // Verificar que la tasa en cache sea válida y razonable
     if (!configCache.tasa_usd_ves || parseFloat(configCache.tasa_usd_ves) <= 0) {
         console.warn('Cache inválido: tasa de conversión no válida');
+        return false;
+    }
+    
+    const tasaCache = parseFloat(configCache.tasa_usd_ves);
+    if (tasaCache < 50 || tasaCache > 1000) {
+        console.warn('Cache inválido: tasa fuera de rango razonable:', tasaCache);
         return false;
     }
 
