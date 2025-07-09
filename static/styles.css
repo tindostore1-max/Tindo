@@ -3236,24 +3236,26 @@ header {
 /* Footer de copyright */
 .copyright-footer {
     position: fixed;
-    bottom: 0; /* Debajo del footer de navegación en móvil */
+    bottom: 70px; /* Sobre el footer de navegación en móvil */
     left: 0;
     right: 0;
-    background: rgba(20, 20, 20, 0.95);
+    background: transparent; /* Fondo transparente, solo mostrar la franja verde */
     color: #cccccc;
-    padding: 8px 15px;
+    padding: 0; /* Sin padding, solo la franja */
     font-size: 12px;
     font-weight: 500;
-    border-top: 1px solid #28a745;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    z-index: 998; /* Menor que el footer de navegación */
+    border-top: 3px solid #28a745; /* Solo la franja verde */
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    z-index: 999; /* Mayor que el footer de navegación para que sobresalga */
     letter-spacing: 0.5px;
-    opacity: 0; /* Inicialmente oculto */
-    transform: translateY(20px);
-    display: flex;
+    opacity: 1; /* Siempre visible en móvil */
+    transform: translateY(0);
+    display: none; /* Inicialmente oculto en desktop */
     justify-content: space-between;
     align-items: center;
+    height: 3px; /* Solo la altura de la franja */
+    overflow: hidden; /* Ocultar contenido, solo mostrar la franja */
 }
 
 .copyright-text {
@@ -3305,7 +3307,26 @@ header {
     height: 16px;
 }
 
-/* En desktop, el footer va hasta abajo */
+/* En móvil, mostrar solo la franja verde sobre el footer de navegación */
+@media (max-width: 768px) {
+    .copyright-footer {
+        display: block !important; /* Mostrar en móvil */
+        bottom: 70px; /* Justo sobre el footer de navegación */
+        height: 3px;
+        background: transparent;
+        border-top: 3px solid #28a745;
+        padding: 0;
+        opacity: 1;
+    }
+
+    /* Ocultar todo el contenido, solo mostrar la franja */
+    .copyright-text,
+    .copyright-social-section {
+        display: none;
+    }
+}
+
+/* En desktop, el footer va hasta abajo con contenido completo */
 @media (min-width: 769px) {
     .copyright-footer {
         bottom: 0;
@@ -3314,6 +3335,21 @@ header {
         border-top: 2px solid #28a745;
         padding: 15px 20px;
         font-size: 13px;
+        background: rgba(20, 20, 20, 0.95);
+        height: auto;
+        display: flex !important;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+
+    .copyright-text,
+    .copyright-social-section {
+        display: flex;
+    }
+
+    .copyright-text {
+        flex: 1;
+        text-align: left;
     }
 
     .copyright-social-title {
