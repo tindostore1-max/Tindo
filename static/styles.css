@@ -3656,12 +3656,14 @@ header {
         height: 100%;
         object-fit: contain; /* Cambiar a contain para mostrar imagen completa */
         border-radius: 15px;
-        background: #000; /* Fondo negro para espacios vacíos */
+        background: transparent; /* Fondo transparente en móvil */
     }
 
     .carousel-container {
         border-radius: 15px;
         margin: 0 10px 20px 10px; /* Agregar márgenes laterales en móvil */
+        background: transparent; /* Fondo del contenedor transparente en móvil */
+        box-shadow: none; /* Eliminar sombra en móvil para mayor transparencia */
     }
 }
 
