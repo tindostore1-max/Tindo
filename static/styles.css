@@ -935,7 +935,8 @@ header {
 
     /* Ajustes para pantallas extremadamente pequeñas */
     @media (max-width: 320px) {
-        .games-carousel-card,
+        .```
+.games-carousel-card,
         .todos-carousel-card {
             flex: 0 0 calc(62% - 6px); /* Mostrar 1.8 tarjetas en pantallas muy pequeñas */
             max-width: 150px;
@@ -1906,8 +1907,7 @@ header {
         border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
     }
 
-    .quantity-control {
-        gap: 6px !important;
+    .quantity-control {        gap: 6px !important;
         padding: 4px !important;
         border-radius: 20px !important;
         flex: 1 !important;
@@ -3214,19 +3214,19 @@ header {
         padding: 15px 10px;
         margin-top: 20px;
     }
-    
+
     .footer-social-buttons {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .footer-social-btn {
         width: 100%;
         max-width: 280px;
         padding: 15px 20px;
         font-size: 16px;
     }
-    
+
     .footer-social-btn svg {
         width: 22px;
         height: 22px;
