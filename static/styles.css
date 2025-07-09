@@ -6,7 +6,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+    background: linear-gradient(135deg, #2c2c2c 0%, #404040 100%);
     min-height: 100vh;
     color: #333;
     /* Mejorar scroll táctil en móviles */
@@ -26,7 +26,7 @@ header {
     left: 0;
     right: 0;
     z-index: 1000;
-    background: rgba(30, 30, 30, 0.4);
+    background: rgba(60, 60, 60, 0.5);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     padding: 15px 20px;
@@ -493,11 +493,11 @@ header {
 
 .games-carousel-card {
     flex: 0 0 220px;
-    background: #2a2a2a;
+    background: #4a4a4a;
     border-radius: 15px;
     padding: 15px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    border: 1px solid #444;
+    border: 1px solid #666;
     transition: transform 0.3s ease;
     cursor: pointer;
 }
@@ -603,11 +603,11 @@ header {
 
 .todos-carousel-card {
     flex: 0 0 220px;
-    background: #2a2a2a;
+    background: #4a4a4a;
     border-radius: 15px;
     padding: 15px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    border: 1px solid #444;
+    border: 1px solid #666;
     transition: transform 0.3s ease;
     cursor: pointer;
 }
@@ -968,11 +968,11 @@ header {
 }
 
 .product-card {
-    background: #2a2a2a;
+    background: #4a4a4a;
     border-radius: 15px;
     padding: 20px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    border: 1px solid #444;
+    border: 1px solid #666;
     transition: transform 0.3s ease;
     cursor: pointer;
 }
@@ -1282,12 +1282,12 @@ header {
 
 /* Estilos mejorados para la pestaña Mi Cuenta */
 .auth-section {
-    background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+    background: linear-gradient(135deg, #4a4a4a 0%, #3a3a3a 100%);
     border-radius: 20px;
     padding: 30px;
     margin: 20px auto;
     box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-    border: 1px solid #444;
+    border: 1px solid #666;
     max-width: 500px; /* Limitar ancho máximo en desktop */
 }
 
@@ -1628,12 +1628,12 @@ header {
 
 /* Estilos mejorados para el carrito */
 .cart-section {
-    background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+    background: linear-gradient(135deg, #4a4a4a 0%, #3a3a3a 100%);
     border-radius: 20px;
     padding: 30px;
     margin: 20px 0;
     box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-    border: 1px solid #444;
+    border: 1px solid #666;
 }
 
 .cart-section h2 {
@@ -2073,12 +2073,12 @@ header {
 
 /* Estilos mejorados para el checkout/pago */
 .payment-section {
-    background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+    background: linear-gradient(135deg, #4a4a4a 0%, #3a3a3a 100%);
     border-radius: 20px;
     padding: 30px;
     margin: 20px auto;
     box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-    border: 1px solid #444;
+    border: 1px solid #666;
     max-width: 600px; /* Limitar ancho máximo en desktop */
 }
 
@@ -3263,7 +3263,7 @@ header {
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(30, 30, 30, 0.4);
+    background: rgba(60, 60, 60, 0.5);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     padding: 8px 15px;
