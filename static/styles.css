@@ -3146,6 +3146,93 @@ header {
     }
 }
 
+/* Sección de redes sociales al final */
+.footer-social-section {
+    background: rgba(30, 30, 30, 0.95);
+    padding: 20px;
+    text-align: center;
+    border-top: 1px solid #28a745;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    margin-top: 30px;
+}
+
+.footer-social-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.footer-social-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    min-width: 120px;
+    justify-content: center;
+}
+
+.footer-social-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.footer-social-btn svg {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.3s ease;
+}
+
+.footer-social-btn:hover svg {
+    transform: scale(1.1);
+}
+
+.footer-social-btn span {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+    .footer-social-section {
+        padding: 15px 10px;
+        margin-top: 20px;
+    }
+    
+    .footer-social-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .footer-social-btn {
+        width: 100%;
+        max-width: 280px;
+        padding: 15px 20px;
+        font-size: 16px;
+    }
+    
+    .footer-social-btn svg {
+        width: 22px;
+        height: 22px;
+    }
+}
+
 /* Footer de copyright */
 .copyright-footer {
     position: fixed;
@@ -3172,7 +3259,7 @@ header {
     .copyright-footer {
         bottom: 0;
         position: relative;
-        margin-top: 40px;
+        margin-top: 20px;
         border-top: 2px solid #28a745;
         padding: 15px;
         font-size: 13px;
