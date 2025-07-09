@@ -3241,7 +3241,6 @@ header {
     right: 0;
     background: rgba(20, 20, 20, 0.95);
     color: #cccccc;
-    text-align: center;
     padding: 8px 15px;
     font-size: 12px;
     font-weight: 500;
@@ -3252,6 +3251,58 @@ header {
     letter-spacing: 0.5px;
     opacity: 0; /* Inicialmente oculto */
     transform: translateY(20px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.copyright-text {
+    flex: 1;
+    text-align: left;
+}
+
+.copyright-social-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.copyright-social-title {
+    color: #28a745;
+    font-size: 11px;
+    font-weight: 600;
+    margin-right: 5px;
+}
+
+.copyright-social-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.copyright-social-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.copyright-social-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.copyright-social-btn svg {
+    width: 16px;
+    height: 16px;
 }
 
 /* En desktop, el footer va hasta abajo */
@@ -3261,8 +3312,44 @@ header {
         position: relative;
         margin-top: 20px;
         border-top: 2px solid #28a745;
-        padding: 15px;
+        padding: 15px 20px;
         font-size: 13px;
+    }
+
+    .copyright-social-title {
+        font-size: 12px;
+    }
+
+    .copyright-social-btn {
+        width: 32px;
+        height: 32px;
+    }
+
+    .copyright-social-btn svg {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+/* Responsive para móviles muy pequeños */
+@media (max-width: 480px) {
+    .copyright-footer {
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px 15px;
+        text-align: center;
+    }
+
+    .copyright-text {
+        text-align: center;
+    }
+
+    .copyright-social-section {
+        justify-content: center;
+    }
+
+    .copyright-social-title {
+        margin-right: 8px;
     }
 }
 .no-products {
