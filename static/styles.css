@@ -3258,6 +3258,23 @@ header {
     overflow: hidden; /* Ocultar contenido, solo mostrar la franja */
 }
 
+.footer-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(30, 30, 30, 0.4);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 8px 15px;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1000;
+    border-top: 3px solid #28a745; /* Franja verde en la línea superior del footer */
+}
+
 .copyright-text {
     flex: 1;
     text-align: left;
@@ -3307,22 +3324,14 @@ header {
     height: 16px;
 }
 
-/* En móvil, mostrar solo la franja verde sobre el footer de navegación */
+/* En móvil, mostrar la franja verde en la línea superior del footer de navegación */
 @media (max-width: 768px) {
     .copyright-footer {
-        display: block !important; /* Mostrar en móvil */
-        bottom: 70px; /* Justo sobre el footer de navegación */
-        height: 3px;
-        background: transparent;
-        border-top: 3px solid #28a745;
-        padding: 0;
-        opacity: 1;
+        display: none !important; /* Ocultar completamente en móvil */
     }
 
-    /* Ocultar todo el contenido, solo mostrar la franja */
-    .copyright-text,
-    .copyright-social-section {
-        display: none;
+    .footer-nav {
+        border-top: 3px solid #28a745; /* Franja verde en la línea superior del footer */
     }
 }
 
