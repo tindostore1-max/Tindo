@@ -4224,8 +4224,14 @@ function mostrarListaValoraciones(juego_id, valoraciones) {
 
 // Función para mostrar promedio de valoraciones en las tarjetas de producto
 function mostrarValoracionEnTarjeta(producto) {
+    // Si no hay valoraciones, mostrar estrellas vacías
     if (!producto.promedio_valoracion || producto.total_valoraciones === 0) {
-        return '';
+        return `
+            <div class="product-rating">
+                <div class="stars-display">${generarEstrellas(0)}</div>
+                <span class="rating-text">Sin valoraciones</span>
+            </div>
+        `;
     }
 
     const promedio = parseFloat(producto.promedio_valoracion);
