@@ -58,7 +58,7 @@ header {
 .mobile-social-toggle {
     display: none; /* Oculto por defecto en desktop */
     position: fixed;
-    top: 60px; /* Alineado exactamente con el borde inferior del header */
+    top: 50px; /* Más cerca del header */
     right: 20px;
     z-index: 999;
     padding: 8px 16px;
@@ -91,7 +91,7 @@ header {
 /* Contenedor de iconos desplegables */
 .mobile-social-dropdown {
     position: fixed;
-    top: 100px; /* Debajo del botón */
+    top: 90px; /* Debajo del botón ajustado */
     right: 20px;
     z-index: 998;
     display: none;
