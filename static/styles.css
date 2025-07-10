@@ -58,7 +58,7 @@ header {
 .mobile-social-icons {
     display: none; /* Oculto por defecto en desktop */
     position: fixed;
-    top: 70px; /* Justo debajo del header */
+    top: 60px; /* Alineado exactamente con el borde inferior del header */
     right: 20px;
     flex-direction: row;
     gap: 8px;
