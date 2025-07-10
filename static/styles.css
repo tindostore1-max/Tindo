@@ -591,7 +591,7 @@ header {
             border-radius: 0 !important;
             box-shadow: none !important;
             margin: 0 !important;
-            padding: 20px 20px 0 0 !important; /* Solo padding superior, sin padding inferior */
+            padding: 10px 20px 0 0 !important; /* Reducir padding superior */
             min-height: 300px; /* Altura ajustada en móvil */
         }
 
@@ -603,7 +603,7 @@ header {
             border-radius: 0 !important;
             box-shadow: none !important;
             margin: 0 !important;
-            padding: 20px 20px 0 0 !important; /* Solo padding superior, sin padding inferior */
+            padding: 10px 20px 0 0 !important; /* Reducir padding superior */
             min-height: 300px; /* Altura ajustada para wrapper */
         }
     }
@@ -915,7 +915,7 @@ header {
     }
 
     .games-section, .giftcards-section {
-        margin: 0;
+        margin: 5px 0; /* Reducir margen superior e inferior */
         padding: 0;
         background: transparent !important;
         border: none !important;
@@ -925,11 +925,17 @@ header {
 
     .section-title {
         font-size: 20px;
+        margin-bottom: 10px; /* Reducir espacio debajo del título */
     }
 
     .section-more-btn {
         padding: 8px 16px;
         font-size: 12px;
+    }
+
+    .section-header {
+        margin-bottom: 10px !important; /* Reducir espacio del header */
+        padding: 0 15px !important; /* Reducir padding lateral */
     }
 
     .giftcards-grid {
