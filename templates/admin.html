@@ -1675,24 +1675,6 @@
             }
         }
 
-        // Función para actualizar vista previa de paquete
-        function updatePaquetePreview(input, preview) {
-            const url = input.value.trim();
-
-            if (url) {
-                const img = preview.querySelector('img');
-                img.src = url;
-                img.onerror = function() {
-                    preview.style.display = 'none';
-                };
-                img.onload = function() {
-                    preview.style.display = 'block';
-                };
-            } else {
-                preview.style.display = 'none';
-            }
-        }
-
         // Función para eliminar imagen
         async function deleteImagen(imagenId) {
             if (confirm('¿Estás seguro de que quieres eliminar esta imagen?')) {
@@ -1752,39 +1734,7 @@
             });
         }
 
-        // Función para mostrar pestañas
-        function showTab(tabName) {
-            // Ocultar todas las pestañas
-            const tabs = document.querySelectorAll('.tab-pane');
-            tabs.forEach(tab => tab.classList.remove('active'));
-
-            // Mostrar la pestaña seleccionada
-            const targetTab = document.getElementById(tabName);
-            if (targetTab) {
-                targetTab.classList.add('active');
-            }
-
-            // Actualizar botones de navegación
-            const navBtns = document.querySelectorAll('.nav-btn');
-            navBtns.forEach(btn => btn.classList.remove('active'));
-
-            // Buscar y activar el botón correspondiente
-            const activeBtn = document.querySelector(`[onclick="showTab('${tabName}')"]`);
-            if (activeBtn) {
-                activeBtn.classList.add('active');
-            }
-
-            // Cargar datos específicos según la pestaña
-            if (tabName === 'ordenes') {
-                loadOrdenes();
-            } else if (tabName === 'productos') {
-                loadProductos();
-            } else if (tabName === 'imagenes') {
-                loadImagenes();
-            } else if (tabName === 'configuracion') {
-                loadConfig();
-            }
-        }
+        
 
         // Función para cerrar sesión del admin
         async function cerrarSesionAdmin() {
@@ -1920,8 +1870,38 @@
             }
         }
 
+        // Función para verificar autenticación de administrador
+        async function verificarAuthAdmin() {
+            try {
+                const response = await fetch('/usuario');
+                if (response.status === 401) {
+                    showAlert('Sesión expirada. Redirigiendo al login...', 'error');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 2000);
+                    return false;
+                } else if (response.ok) {
+                    const data = await response.json();
+                    if (!data.usuario.es_admin) {
+                        showAlert('Acceso denegado. No tienes permisos de administrador.', 'error');
+                        setTimeout(() => {
+                            window.location.href = '/';
+                        }, 2000);
+                        return false;
+                    }
+                    return true;
+                }
+            } catch (error) {
+                console.error('Error verificando autenticación:', error);
+                return false;
+            }
+        }
+
         // Agregar eventos para vistas previas de imágenes en paquetes existentes
         document.addEventListener('DOMContentLoaded', function() {
+            // Verificar autenticación al cargar
+            verificarAuthAdmin();
+            
             // Agregar evento al paquete inicial
             const initialImagenInput = document.querySelector('.paquete-imagen');
             const initialPreview = document.querySelector('.paquete-preview');

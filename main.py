@@ -1003,50 +1003,50 @@ def update_producto(producto_id):
         conn.close()
 
 @app.route('/admin/producto/<int:producto_id>', methods=['DELETE'])
+@admin_required
 def delete_producto(producto_id):
     """Eliminar un producto y todos sus paquetes"""
+    conn = get_db_connection()
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
         # Primero eliminar los paquetes asociados
-        cursor.execute('DELETE FROM paquetes WHERE juego_id = %s', (producto_id,))
+        conn.execute(text('DELETE FROM paquetes WHERE juego_id = :producto_id'), 
+                    {'producto_id': producto_id})
 
         # Luego eliminar el producto
-        cursor.execute('DELETE FROM juegos WHERE id = %s', (producto_id,))
+        conn.execute(text('DELETE FROM juegos WHERE id = :producto_id'), 
+                    {'producto_id': producto_id})
 
         conn.commit()
-        conn.close()
-
         return jsonify({'success': True, 'message': 'Producto eliminado correctamente'})
     except Exception as e:
         print(f"Error al eliminar producto: {e}")
+        conn.rollback()
         return jsonify({'error': 'Error interno del servidor'}), 500
-
-@app.route('/admin/productos/orden', methods=['PUT'])
-def update_productos_orden():
-    """Actualizar el orden de los productos"""
-    try:
-        data = request.get_json()
-        productos = data.get('productos', [])
-
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        # Actualizar el orden de cada producto
-        for producto in productos:
-            cursor.execute(
-                'UPDATE juegos SET orden = %s WHERE id = %s',
-                (producto['orden'], producto['id'])
-            )
-
-        conn.commit()
+    finally:
         conn.close()
 
+@app.route('/admin/productos/orden', methods=['PUT'])
+@admin_required
+def update_productos_orden():
+    """Actualizar el orden de los productos"""
+    data = request.get_json()
+    productos = data.get('productos', [])
+
+    conn = get_db_connection()
+    try:
+        # Actualizar el orden de cada producto
+        for producto in productos:
+            conn.execute(text('UPDATE juegos SET orden = :orden WHERE id = :id'), 
+                        {'orden': producto['orden'], 'id': producto['id']})
+
+        conn.commit()
         return jsonify({'success': True, 'message': 'Orden actualizado correctamente'})
     except Exception as e:
         print(f"Error al actualizar orden de productos: {e}")
+        conn.rollback()
         return jsonify({'error': 'Error interno del servidor'}), 500
+    finally:
+        conn.close()
 
 # ENDPOINT PÚBLICO PARA PRODUCTOS (FRONTEND DE USUARIOS)
 @app.route('/productos', methods=['GET'])
