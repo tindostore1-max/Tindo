@@ -93,14 +93,40 @@ function cargarElementosCriticos() {
         mainContainer.style.transition = 'none';
     }
 
-    // Mostrar logo inmediatamente
+    // Precargar logo desde cache si está disponible
+    cargarCacheDesdeStorage();
+    
+    // Mostrar logo inmediatamente - usar cache si está disponible
     const logoImg = document.getElementById('logo-img');
     if (logoImg) {
         logoImg.style.display = 'block';
         logoImg.style.opacity = '1';
-        logoImg.src = 'https://via.placeholder.com/200x60/007bff/ffffff?text=INEFABLESTORE';
+        
+        // Si hay cache con logo, usarlo inmediatamente
+        if (configCache && configCache.logo && configCache.logo.trim() !== '') {
+            let logoUrl = configCache.logo;
+            if (!logoUrl.startsWith('http') && !logoUrl.startsWith('/static/')) {
+                logoUrl = `/static/${logoUrl}`;
+            }
+            
+            // Precargar imagen del logo
+            const img = new Image();
+            img.onload = function() {
+                logoImg.src = logoUrl;
+                console.log('Logo del cache cargado inmediatamente:', logoUrl);
+            };
+            img.onerror = function() {
+                logoImg.src = 'https://via.placeholder.com/200x60/007bff/ffffff?text=INEFABLESTORE';
+            };
+            img.src = logoUrl;
+        } else {
+            logoImg.src = 'https://via.placeholder.com/200x60/007bff/ffffff?text=INEFABLESTORE';
+        }
         console.log('Logo inicial mostrado');
     }
+
+    // Precargar carrusel desde cache si está disponible
+    precargarCarruselDesdeCache();
 
     // Mostrar carrusel inmediatamente
     const carousel = document.querySelector('.carousel-container');
@@ -120,49 +146,47 @@ function cargarElementosCriticos() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Iniciando carga optimizada...');
 
-    // 1. Cargar elementos críticos inmediatamente
+    // 1. Cargar elementos críticos inmediatamente (incluye precarga de logo y carrusel)
     cargarElementosCriticos();
 
     // 2. Inicializar eventos básicos
     inicializarEventos();
 
-    // 3. Verificar cache antes de cargar datos
-    if (cacheValido()) {
-        console.log('📦 Usando datos del cache');
-        configuracion = configCache;
-        productos = productosCache;
-        configuracionCargada = true;
-        productosCargados = true;
-
-        // Mostrar datos del cache inmediatamente
-        actualizarLogo();
-        actualizarImagenesCarrusel(); // Actualizar carrusel desde cache
-        mostrarProductos();
-
-        // Verificar sesión en background
-        verificarSesionOptimizada().then(() => {
+    // 3. Cargar datos en paralelo SIEMPRE para mantener actualizada la información
+    if (!cargandoDatos) {
+        cargandoDatos = true;
+        
+        // Si hay cache válido, usar para mostrar contenido inmediatamente
+        if (cacheValido()) {
+            console.log('📦 Usando datos del cache para mostrar contenido inmediato');
+            configuracion = configCache;
+            productos = productosCache;
+            configuracionCargada = true;
+            productosCargados = true;
+            mostrarProductos();
+        }
+        
+        // Cargar datos frescos del servidor en paralelo (especialmente para tasa de cambio)
+        Promise.all([
+            cargarConfiguracionOptimizada(),
+            cargarProductosOptimizado(),
+            verificarSesionOptimizada()
+        ]).then(() => {
+            console.log('✅ Carga de datos completada');
             interfazLista = true;
             verificarCargaCompleta();
+            cargandoDatos = false;
+            
+            // Solo actualizar logo y carrusel si cambió la configuración
+            if (configuracion) {
+                actualizarLogo();
+                actualizarImagenesCarrusel();
+            }
+        }).catch(error => {
+            console.error('❌ Error en carga:', error);
+            interfazLista = true;
+            cargandoDatos = false;
         });
-    } else {
-        // 4. Cargar datos en paralelo solo si no hay cache válido
-        if (!cargandoDatos) {
-            cargandoDatos = true;
-            Promise.all([
-                cargarConfiguracionOptimizada(),
-                cargarProductosOptimizado(),
-                verificarSesionOptimizada()
-            ]).then(() => {
-                console.log('✅ Carga de datos completada');
-                interfazLista = true;
-                verificarCargaCompleta();
-                cargandoDatos = false;
-            }).catch(error => {
-                console.error('❌ Error en carga:', error);
-                interfazLista = true;
-                cargandoDatos = false;
-            });
-        }
     }
 
     // 4. Tareas no críticas después del render
@@ -678,25 +702,35 @@ function actualizarLogo() {
     logoImg.style.display = 'block';
 
     if (configuracion && configuracion.logo && configuracion.logo.trim() !== '') {
-        // Precargar la imagen antes de mostrarla
-        const img = new Image();
-        img.onload = function() {
-            logoImg.src = configuracion.logo;
-            logoImg.style.opacity = '1';
-            console.log('Logo personalizado cargado exitosamente:', configuracion.logo);
-        };
-        img.onerror = function() {
-            // Si la imagen falla al cargar, mostrar logo por defecto
+        let logoUrl = configuracion.logo;
+        if (!logoUrl.startsWith('http') && !logoUrl.startsWith('/static/')) {
+            logoUrl = `/static/${logoUrl}`;
+        }
+        
+        // Solo actualizar si la URL es diferente para evitar parpadeos
+        if (logoImg.src !== logoUrl && !logoImg.src.includes(logoUrl)) {
+            // Precargar la imagen antes de mostrarla
+            const img = new Image();
+            img.onload = function() {
+                logoImg.src = logoUrl;
+                logoImg.style.opacity = '1';
+                console.log('Logo personalizado cargado exitosamente:', logoUrl);
+            };
+            img.onerror = function() {
+                // Si la imagen falla al cargar, mostrar logo por defecto
+                logoImg.src = 'https://via.placeholder.com/200x60/007bff/ffffff?text=INEFABLESTORE';
+                logoImg.style.opacity = '1';
+                console.log('Error al cargar logo personalizado, usando logo por defecto');
+            };
+            img.src = logoUrl;
+        }
+    } else {
+        // Solo cambiar si no está ya el logo por defecto
+        if (!logoImg.src.includes('placeholder.com')) {
             logoImg.src = 'https://via.placeholder.com/200x60/007bff/ffffff?text=INEFABLESTORE';
             logoImg.style.opacity = '1';
-            console.log('Error al cargar logo personalizado, usando logo por defecto');
-        };
-        img.src = configuracion.logo;
-    } else {
-        // Si no hay logo configurado, mostrar logo por defecto inmediatamente
-        logoImg.src = 'https://via.placeholder.com/200x60/007bff/ffffff?text=INEFABLESTORE';
-        logoImg.style.opacity = '1';
-        console.log('No hay logo configurado, usando logo por defecto');
+            console.log('No hay logo configurado, usando logo por defecto');
+        }
     }
 }
 
@@ -766,29 +800,34 @@ function actualizarImagenesCarrusel() {
     function cargarImagenCarrusel(slide, url, index) {
         if (!slide) return;
 
-        if (url) {
-            // Precargar la imagen
-            const img = new Image();
-            img.onload = function() {
-                slide.src = url;
+        const urlFinal = url || `https://via.placeholder.com/800x300/007bff/ffffff?text=Oferta+${index + 1}`;
+        
+        // Solo cargar si la URL es diferente para evitar recargas innecesarias
+        if (slide.src !== urlFinal && !slide.src.includes(urlFinal.split('/').pop())) {
+            if (url) {
+                // Precargar la imagen
+                const img = new Image();
+                img.onload = function() {
+                    slide.src = urlFinal;
+                    slide.style.display = 'block';
+                    slide.style.opacity = '1';
+                    console.log(`Imagen del carrusel ${index + 1} cargada:`, urlFinal);
+                };
+                img.onerror = function() {
+                    console.warn(`Error al cargar imagen del carrusel ${index + 1}:`, urlFinal);
+                    // Usar imagen placeholder si falla
+                    slide.src = `https://via.placeholder.com/800x300/007bff/ffffff?text=Oferta+${index + 1}`;
+                    slide.style.display = 'block';
+                    slide.style.opacity = '1';
+                };
+                img.src = urlFinal;
+            } else {
+                // Si no hay URL, usar placeholder
+                slide.src = urlFinal;
                 slide.style.display = 'block';
                 slide.style.opacity = '1';
-                console.log(`Imagen del carrusel ${index + 1} cargada:`, url);
-            };
-            img.onerror = function() {
-                console.warn(`Error al cargar imagen del carrusel ${index + 1}:`, url);
-                // Usar imagen placeholder si falla
-                slide.src = `https://via.placeholder.com/800x300/007bff/ffffff?text=Oferta+${index + 1}`;
-                slide.style.display = 'block';
-                slide.style.opacity = '1';
-            };
-            img.src = url;
-        } else {
-            // Si no hay URL, usar placeholder
-            slide.src = `https://via.placeholder.com/800x300/007bff/ffffff?text=Oferta+${index + 1}`;
-            slide.style.display = 'block';
-            slide.style.opacity = '1';
-            console.log(`Usando placeholder para carrusel ${index + 1}`);
+                console.log(`Usando placeholder para carrusel ${index + 1}`);
+            }
         }
     }
 
@@ -3782,6 +3821,57 @@ function cargarCacheDesdeStorage() {
         console.warn('No se pudo cargar cache desde localStorage:', error);
     }
     return false;
+}
+
+// Función para precargar carrusel desde cache inmediatamente
+function precargarCarruselDesdeCache() {
+    if (!configCache) return;
+    
+    const slides = document.querySelectorAll('.carousel-slide img');
+    if (!slides.length) return;
+    
+    console.log('Precargando carrusel desde cache:', {
+        carousel1: configCache.carousel1,
+        carousel2: configCache.carousel2,
+        carousel3: configCache.carousel3
+    });
+    
+    function prepararUrlImagen(url) {
+        if (!url || url.trim() === '') return null;
+        if (url.startsWith('http://') || url.startsWith('https://')) return url;
+        if (url.startsWith('images/')) return `/static/${url}`;
+        if (url.startsWith('/static/')) return url;
+        return `/static/${url}`;
+    }
+    
+    function cargarImagenCarruselCache(slide, url, index) {
+        if (!slide) return;
+        
+        if (url) {
+            const img = new Image();
+            img.onload = function() {
+                slide.src = url;
+                slide.style.display = 'block';
+                slide.style.opacity = '1';
+                console.log(`Imagen del carrusel ${index + 1} precargada desde cache:`, url);
+            };
+            img.onerror = function() {
+                slide.src = `https://via.placeholder.com/800x300/007bff/ffffff?text=Oferta+${index + 1}`;
+                slide.style.display = 'block';
+                slide.style.opacity = '1';
+            };
+            img.src = url;
+        } else {
+            slide.src = `https://via.placeholder.com/800x300/007bff/ffffff?text=Oferta+${index + 1}`;
+            slide.style.display = 'block';
+            slide.style.opacity = '1';
+        }
+    }
+    
+    // Precargar imágenes del carrusel desde cache
+    cargarImagenCarruselCache(slides[0], prepararUrlImagen(configCache.carousel1), 0);
+    cargarImagenCarruselCache(slides[1], prepararUrlImagen(configCache.carousel2), 1);
+    cargarImagenCarruselCache(slides[2], prepararUrlImagen(configCache.carousel3), 2);
 }
 
 // Cargar cache al inicio
