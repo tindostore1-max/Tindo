@@ -1014,8 +1014,12 @@ html
                     throw new Error('Respuesta del servidor inválida: se esperaba un array de órdenes.');
                 }
 
-                ordenesGlobal = data;
+                // Asignar correctamente los datos
+                ordenesGlobal = [...data];
+                allOrdenes = [...data];
                 totalOrdenes = data.length;
+
+                console.log(`✅ Órdenes cargadas exitosamente: ${totalOrdenes} órdenes`);
 
                 // Actualizar información
                 const ordenesInfoElement = document.getElementById('ordenes-info');
@@ -1069,15 +1073,25 @@ html
         }
 
         function displayOrdenesPage() {
-            if (!isLoaded('ordenes')) {
-                console.warn('Las órdenes aún no se han cargado completamente.');
-                document.getElementById('ordenes-list').innerHTML = '<div class="loading">Cargando órdenes...</div>';
+            if (!isLoaded('ordenes') || !ordenesGlobal || ordenesGlobal.length === 0) {
+                if (totalOrdenes === 0) {
+                    document.getElementById('ordenes-list').innerHTML = `
+                        <div class="alert alert-info" style="text-align: center; padding: 30px;">
+                            <h4>📦 No hay órdenes registradas</h4>
+                            <p>Cuando los usuarios realicen compras, aparecerán aquí.</p>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('ordenes-list').innerHTML = '<div class="loading">Cargando órdenes...</div>';
+                }
                 return;
             }
 
             const startIndex = (currentPage - 1) * ordenesPerPage;
             const endIndex = startIndex + ordenesPerPage;
             const ordenes = ordenesGlobal.slice(startIndex, endIndex);
+
+            console.log(`📊 Mostrando ${ordenes.length} órdenes de ${totalOrdenes} total (página ${currentPage})`);
 
             // Actualizar controles de paginación
             updatePaginationControls();
@@ -1243,27 +1257,8 @@ html
 
                 if (response.ok) {
                     showAlert('Estado actualizado correctamente');
-                    // Recargar solo la página actual de forma segura
-                    try {
-                        const response = await fetch('/admin/ordenes');
-                        if (response.ok) {
-                            const data = await response.json();
-                            if (Array.isArray(data)) {
-                                allOrdenes = [...data];
-                                ordenesGlobal = [...data];
-                                totalOrdenes = data.length;
-
-                                const ordenesInfoElement = document.getElementById('ordenes-info');
-                                if (ordenesInfoElement) {
-                                    ordenesInfoElement.textContent = `${totalOrdenes}`;
-                                }
-                                displayOrdenesPage();
-                            }
-                        }
-                    } catch (reloadError) {
-                        console.error('Error al recargar órdenes:', reloadError);
-                        // No mostrar error adicional, ya se procesó la orden correctamente
-                    }
+                    // Recargar órdenes para mostrar cambios
+                    await loadOrdenes();
                 } else {
                     showAlert('Error al actualizar estado', 'error');
                 }
@@ -1309,12 +1304,8 @@ html
                     showAlert(nuevoEstado === 'procesado' ? 
                         'Gift Card procesada y código enviado por correo' : 
                         'Estado actualizado correctamente');
-                    // Recargar solo la página actual
-                    const response = await fetch('/admin/ordenes');
-                    allOrdenes = await response.json();
-                    totalOrdenes = allOrdenes.length;
-                    document.getElementById('ordenes-info').textContent = `${totalOrdenes}`;
-                    displayOrdenesPage();
+                    // Recargar órdenes para mostrar cambios
+                    await loadOrdenes();
                 } else {
                     const errorData = await response.json().catch(() => ({}));
                     showAlert(errorData.error || 'Error al actualizar estado', 'error');
