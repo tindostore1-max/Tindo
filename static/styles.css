@@ -54,19 +54,30 @@ header {
     right: 20px;
 }
 
-/* Iconos de redes sociales para móvil en header */
+/* Iconos de redes sociales para móvil colgando del header */
 .mobile-social-icons {
     display: none; /* Oculto por defecto en desktop */
+    position: fixed;
+    top: 70px; /* Justo debajo del header */
+    right: 20px;
+    flex-direction: column;
     gap: 8px;
-    align-items: center;
+    z-index: 999;
+    padding: 10px 8px;
+    background: rgba(30, 30, 30, 0.85);
+    border-radius: 15px;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
 .mobile-social-link {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
@@ -79,12 +90,12 @@ header {
 .mobile-social-link:hover {
     background: rgba(255, 255, 255, 0.2);
     transform: scale(1.1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
 .mobile-social-svg {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     transition: transform 0.3s ease;
 }
 
@@ -771,25 +782,14 @@ header {
         gap: 8px; /* Menor espacio entre hamburguesa y selector */
     }
 
-    /* Mostrar iconos de redes sociales en móvil */
+    /* Mostrar iconos de redes sociales colgando en móvil */
     .mobile-social-icons {
         display: flex !important;
-        order: -1; /* Mostrar antes del selector de moneda */
     }
 
-    /* Ajustar spacing del header en móvil */
-    .header-right {
-        gap: 6px; /* Espacio más pequeño para acomodar los iconos sociales */
-    }
-
-    .mobile-social-link {
-        width: 28px;
-        height: 28px;
-    }
-
-    .mobile-social-svg {
-        width: 16px;
-        height: 16px;
+    /* Ajustar contenido para evitar superposición con iconos colgantes */
+    .content {
+        margin-top: 10px; /* Espacio adicional para los iconos colgantes */
     }
 
     .header-left {
