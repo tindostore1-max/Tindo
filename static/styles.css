@@ -62,12 +62,12 @@ header {
     right: 20px;
     z-index: 999;
     padding: 8px 16px;
-    background: rgba(30, 30, 30, 0.85);
+    background: rgba(30, 30, 30, 0.3);
     border-radius: 20px;
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     cursor: pointer;
     transition: all 0.3s ease;
     color: #ffffff;
@@ -78,9 +78,9 @@ header {
 }
 
 .mobile-social-toggle:hover {
-    background: rgba(30, 30, 30, 0.95);
+    background: rgba(30, 30, 30, 0.5);
     transform: scale(1.05);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
 .mobile-social-toggle.active {
