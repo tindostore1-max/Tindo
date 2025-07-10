@@ -3608,6 +3608,14 @@ header {
     min-height: 200px;
 }
 
+/* En móvil, asegurar invisibilidad total del contenedor */
+@media (max-width: 768px) {
+    .carousel-container::before,
+    .carousel-container::after {
+        display: none; /* Eliminar cualquier pseudo-elemento */
+    }
+}
+
 /* Ocultar carrusel si no hay imágenes cargadas */
 .carousel-container:has(.carousel-slide img[style*="display: none"]:first-child) {
     display: none;
@@ -3648,22 +3656,37 @@ header {
 @media (max-width: 768px) {
     .carousel {
         height: 200px; /* Reducir altura en móvil */
-        border-radius: 15px;
+        border-radius: 0; /* Sin bordes redondeados */
+        background: transparent; /* Fondo completamente transparente */
+        border: none; /* Sin bordes */
+        box-shadow: none; /* Sin sombra */
+    }
+
+    .carousel-slide {
+        background: transparent; /* Slide transparente */
+        border: none; /* Sin bordes en slide */
+        box-shadow: none; /* Sin sombra en slide */
     }
 
     .carousel-slide img {
         width: 100%;
         height: 100%;
         object-fit: contain; /* Cambiar a contain para mostrar imagen completa */
-        border-radius: 15px;
+        border-radius: 15px; /* Solo las imágenes mantienen bordes redondeados */
         background: transparent; /* Fondo transparente en móvil */
+        border: none; /* Sin bordes en las imágenes */
+        box-shadow: none; /* Sin sombra en las imágenes */
     }
 
     .carousel-container {
-        border-radius: 15px;
+        border-radius: 0; /* Sin bordes redondeados en el contenedor */
         margin: 0 10px 20px 10px; /* Agregar márgenes laterales en móvil */
-        background: transparent; /* Fondo del contenedor transparente en móvil */
-        box-shadow: none; /* Eliminar sombra en móvil para mayor transparencia */
+        background: transparent !important; /* Fondo del contenedor completamente transparente */
+        box-shadow: none !important; /* Eliminar cualquier sombra */
+        border: none !important; /* Sin bordes */
+        padding: 0; /* Sin padding interno */
+        backdrop-filter: none; /* Sin efecto de desenfoque */
+        -webkit-backdrop-filter: none; /* Sin efecto de desenfoque en Safari */
     }
 }
 
@@ -3962,20 +3985,14 @@ header {
         height: 250px;
     }
 
-    /* Ocultar flechas de navegación en móvil */
-    .carousel-arrow {
-        display: none;
-    }
-
-    /* Mostrar indicador de desplazamiento en móvil */
-    .carousel-scroll-indicator {
-        display: block;
-    }
-
+    /* Mantener flechas de navegación visibles en móvil con mayor contraste */
     .carousel-arrow {
         width: 40px;
         height: 40px;
         font-size: 16px;
+        background: rgba(0, 0, 0, 0.8) !important; /* Fondo más opaco para contraste */
+        border: 2px solid rgba(255, 255, 255, 0.3) !important; /* Borde visible */
+        backdrop-filter: blur(10px); /* Mantener efecto de desenfoque */
     }
 
     .carousel-arrow.prev {
@@ -3990,6 +4007,8 @@ header {
         bottom: 12px;
         padding: 6px 12px;
         gap: 6px;
+        background: rgba(0, 0, 0, 0.7) !important; /* Fondo más opaco para contraste */
+        border: 1px solid rgba(255, 255, 255, 0.2) !important; /* Borde sutil */
     }
 
     .dot {
