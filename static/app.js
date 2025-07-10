@@ -3979,6 +3979,23 @@ async function cargarValoracionesProducto(juego_id) {
     }
 }
 
+// Función para generar estrellas con relleno gradual
+function generarEstrellas(promedio, tamaño = 'normal') {
+    let estrellas = '';
+    for (let i = 1; i <= 5; i++) {
+        let claseEstrella = 'star empty';
+        
+        if (i <= Math.floor(promedio)) {
+            claseEstrella = 'star full';
+        } else if (i - 0.5 <= promedio) {
+            claseEstrella = 'star half';
+        }
+        
+        estrellas += `<span class="${claseEstrella}">★</span>`;
+    }
+    return estrellas;
+}
+
 // Función para actualizar estadísticas de valoraciones
 function actualizarEstadisticasValoraciones(juego_id, estadisticas) {
     const statsContainer = document.getElementById(`reviews-stats-${juego_id}`);
@@ -3987,7 +4004,7 @@ function actualizarEstadisticasValoraciones(juego_id, estadisticas) {
     if (!estadisticas || !estadisticas.total || estadisticas.total === 0) {
         statsContainer.innerHTML = `
             <div class="overall-rating">
-                <div class="overall-stars">⭐⭐⭐⭐⭐</div>
+                <div class="overall-stars">${generarEstrellas(0)}</div>
                 <p class="overall-number">0.0</p>
                 <p class="total-reviews">Sin valoraciones</p>
             </div>
@@ -3998,21 +4015,9 @@ function actualizarEstadisticasValoraciones(juego_id, estadisticas) {
     const promedio = estadisticas.promedio || 0;
     const total = estadisticas.total || 0;
 
-    // Generar estrellas según el promedio
-    let estrellas = '';
-    for (let i = 1; i <= 5; i++) {
-        if (i <= Math.floor(promedio)) {
-            estrellas += '⭐';
-        } else if (i - 0.5 <= promedio) {
-            estrellas += '⭐';
-        } else {
-            estrellas += '☆';
-        }
-    }
-
     statsContainer.innerHTML = `
         <div class="overall-rating">
-            <div class="overall-stars">${estrellas}</div>
+            <div class="overall-stars">${generarEstrellas(promedio)}</div>
             <p class="overall-number">${promedio}</p>
             <p class="total-reviews">${total} valoración${total !== 1 ? 'es' : ''}</p>
         </div>
@@ -4066,7 +4071,7 @@ async function cargarFormularioValoracion(juego_id) {
                     ${[1, 2, 3, 4, 5].map(star => `
                         <span class="star-input ${star <= calificacionActual ? 'active' : ''}" 
                               data-rating="${star}" 
-                              onclick="seleccionarEstrella(${star}, ${juego_id})">⭐</span>
+                              onclick="seleccionarEstrella(${star}, ${juego_id})">★</span>
                     `).join('')}
                 </div>
                 
@@ -4190,12 +4195,6 @@ function mostrarListaValoraciones(juego_id, valoraciones) {
 
     let html = '';
     valoraciones.forEach(valoracion => {
-        // Generar estrellas
-        let estrellas = '';
-        for (let i = 1; i <= 5; i++) {
-            estrellas += i <= valoracion.calificacion ? '⭐' : '☆';
-        }
-
         // Formatear fecha
         const fecha = new Date(valoracion.fecha).toLocaleDateString('es-ES', {
             year: 'numeric',
@@ -4212,7 +4211,7 @@ function mostrarListaValoraciones(juego_id, valoraciones) {
                     <span class="review-user">${nombreUsuario}</span>
                     <span class="review-date">${fecha}</span>
                 </div>
-                <div class="review-stars">${estrellas}</div>
+                <div class="review-stars">${generarEstrellas(valoracion.calificacion)}</div>
                 ${valoracion.comentario ? `
                     <div class="review-comment">${valoracion.comentario}</div>
                 ` : ''}
@@ -4232,19 +4231,9 @@ function mostrarValoracionEnTarjeta(producto) {
     const promedio = parseFloat(producto.promedio_valoracion);
     const total = parseInt(producto.total_valoraciones);
 
-    // Generar estrellas para mostrar
-    let estrellas = '';
-    for (let i = 1; i <= 5; i++) {
-        if (i <= Math.floor(promedio)) {
-            estrellas += '<span class="star">⭐</span>';
-        } else {
-            estrellas += '<span class="star empty">☆</span>';
-        }
-    }
-
     return `
         <div class="product-rating">
-            <div class="stars-display">${estrellas}</div>
+            <div class="stars-display">${generarEstrellas(promedio)}</div>
             <span class="rating-text">${promedio} (${total})</span>
         </div>
     `;

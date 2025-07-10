@@ -1220,13 +1220,36 @@ header {
 }
 
 .star {
+    position: relative;
     font-size: 14px;
-    color: #ffd700;
+    color: #333;
     text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.star::before {
+    content: "★";
+    position: absolute;
+    left: 0;
+    color: #ffd700;
+    width: 0%;
+    overflow: hidden;
+    transition: width 0.3s ease;
+}
+
+.star.full::before {
+    width: 100%;
+}
+
+.star.half::before {
+    width: 50%;
 }
 
 .star.empty {
     color: #444;
+}
+
+.star.empty::before {
+    width: 0%;
 }
 
 .rating-text {
@@ -1273,6 +1296,13 @@ header {
 .overall-stars {
     font-size: 18px;
     margin-bottom: 5px;
+    display: flex;
+    gap: 2px;
+    justify-content: center;
+}
+
+.overall-stars .star {
+    font-size: 18px;
 }
 
 .overall-number {
@@ -1310,16 +1340,35 @@ header {
 }
 
 .star-input {
+    position: relative;
     font-size: 24px;
     color: #444;
     cursor: pointer;
-    transition: color 0.2s ease;
+    transition: all 0.2s ease;
     user-select: none;
 }
 
-.star-input:hover,
-.star-input.active {
+.star-input::before {
+    content: "★";
+    position: absolute;
+    left: 0;
     color: #ffd700;
+    width: 0%;
+    overflow: hidden;
+    transition: width 0.2s ease;
+}
+
+.star-input:hover::before,
+.star-input.active::before {
+    width: 100%;
+}
+
+.star-input:hover {
+    transform: scale(1.1);
+}
+
+.star-input.active {
+    color: #333;
 }
 
 .rating-textarea {
@@ -1404,6 +1453,12 @@ header {
 
 .review-stars {
     margin-bottom: 8px;
+    display: flex;
+    gap: 2px;
+}
+
+.review-stars .star {
+    font-size: 16px;
 }
 
 .review-comment {
