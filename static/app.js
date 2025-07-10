@@ -4015,6 +4015,18 @@ function actualizarEstadisticasValoraciones(juego_id, estadisticas) {
     const promedio = estadisticas.promedio || 0;
     const total = estadisticas.total || 0;
 
+    // Requerir mínimo 6 reseñas para mostrar promedio y estrellas llenas
+    if (total < 6) {
+        statsContainer.innerHTML = `
+            <div class="overall-rating">
+                <div class="overall-stars">${generarEstrellas(0)}</div>
+                <p class="overall-number">-</p>
+                <p class="total-reviews">${total} valoración${total !== 1 ? 'es' : ''} (mínimo 6 para promedio)</p>
+            </div>
+        `;
+        return;
+    }
+
     statsContainer.innerHTML = `
         <div class="overall-rating">
             <div class="overall-stars">${generarEstrellas(promedio)}</div>
@@ -4235,6 +4247,16 @@ function mostrarValoracionEnTarjeta(producto) {
 
     const promedio = parseFloat(producto.promedio_valoracion);
     const total = parseInt(producto.total_valoraciones);
+
+    // Requerir mínimo 6 reseñas para mostrar estrellas llenas
+    if (total < 6) {
+        return `
+            <div class="product-rating">
+                <div class="stars-display">${generarEstrellas(0)}</div>
+                <span class="rating-text">${total} valoración${total !== 1 ? 'es' : ''}</span>
+            </div>
+        `;
+    }
 
     return `
         <div class="product-rating">
