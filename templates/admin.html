@@ -1,3 +1,4 @@
+html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -728,7 +729,7 @@
                             Mostrando <span id="ordenes-info">0</span> órdenes
                         </span>
                     </div>
-                    
+
                     <!-- Controles de paginación -->
                     <div id="pagination-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
                         <div style="display: flex; gap: 10px; align-items: center;">
@@ -740,7 +741,7 @@
                                 <option value="100">100</option>
                             </select>
                         </div>
-                        
+
                         <div style="display: flex; gap: 5px; align-items: center;">
                             <button id="prev-page" class="btn btn-sm btn-warning" onclick="previousPage()" disabled>⬅️ Anterior</button>
                             <span id="page-info" style="margin: 0 15px; font-size: 14px; color: #495057;">Página 1 de 1</span>
@@ -923,7 +924,8 @@
 
         // Funciones para mostrar alertas
         function showAlert(message, type = 'success') {
-            const alertDiv = document.createElement('div');
+            const alertDiv = document.```javascript
+createElement('div');
             alertDiv.className = `alert alert-${type}`;
             alertDiv.textContent = message;
 
@@ -941,30 +943,90 @@
         let totalOrdenes = 0;
         let allOrdenes = [];
 
+        // Sistema de gestión de carga de datos robusto
+        let loadingState = {
+            ordenes: { loaded: false, loading: false, error: null },
+            productos: { loaded: false, loading: false, error: null },
+            imagenes: { loaded: false, loading: false, error: null },
+            configuracion: { loaded: false, loading: false, error: null },
+            userInfo: { loaded: false, loading: false, error: null }
+        };
+
+        // Variables globales para datos
+        let productosGlobal = [];
+        let ordenesGlobal = [];
+        let imagenesGlobal = [];
+        let configuracionGlobal = {};
+
+        // Sistema de control de estado de carga
+        function setLoadingState(type, state, error = null) {
+            if (loadingState[type]) {
+                loadingState[type] = { ...loadingState[type], ...state, error };
+                console.log(`🔄 Estado de carga ${type}:`, loadingState[type]);
+            }
+        }
+
+        function isLoading(type) {
+            return loadingState[type] && loadingState[type].loading;
+        }
+
+        function isLoaded(type) {
+            return loadingState[type] && loadingState[type].loaded && !loadingState[type].error;
+        }
+
+        // Función para resetear estados de error
+        function resetErrorState(type) {
+            if (loadingState[type]) {
+                loadingState[type].error = null;
+            }
+        }
+
         // FUNCIONES PARA ÓRDENES
         async function loadOrdenes() {
+            if (isLoading('ordenes')) {
+                console.warn('Ya se están cargando las órdenes...');
+                return;
+            }
+
+            setLoadingState('ordenes', { loading: true, loaded: false, error: null });
+            document.getElementById('ordenes-list').innerHTML = '<div class="loading">Cargando órdenes...</div>'; // Mostrar mensaje de carga
+
             try {
                 const response = await fetch('/admin/ordenes');
-                allOrdenes = await response.json();
-                totalOrdenes = allOrdenes.length;
-                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                ordenesGlobal = await response.json();
+                totalOrdenes = ordenesGlobal.length;
+
                 // Actualizar información
                 document.getElementById('ordenes-info').textContent = `${totalOrdenes}`;
-                
+
                 // Mostrar página actual
                 displayOrdenesPage();
 
+                setLoadingState('ordenes', { loading: false, loaded: true });
+
             } catch (error) {
                 console.error('Error al cargar órdenes:', error);
+                setLoadingState('ordenes', { loading: false, loaded: false, error: error.message });
                 document.getElementById('ordenes-list').innerHTML = '<p>Error al cargar órdenes</p>';
+                showAlert(`Error al cargar órdenes: ${error.message}`, 'error');
             }
         }
 
         function displayOrdenesPage() {
+            if (!isLoaded('ordenes')) {
+                console.warn('Las órdenes aún no se han cargado completamente.');
+                document.getElementById('ordenes-list').innerHTML = '<div class="loading">Cargando órdenes...</div>';
+                return;
+            }
+
             const startIndex = (currentPage - 1) * ordenesPerPage;
             const endIndex = startIndex + ordenesPerPage;
-            const ordenes = allOrdenes.slice(startIndex, endIndex);
-            
+            const ordenes = ordenesGlobal.slice(startIndex, endIndex);
+
             // Actualizar controles de paginación
             updatePaginationControls();
 
@@ -1082,14 +1144,14 @@
 
         function updatePaginationControls() {
             const totalPages = Math.ceil(totalOrdenes / ordenesPerPage);
-            
+
             // Actualizar información de página
             document.getElementById('page-info').textContent = `Página ${currentPage} de ${totalPages}`;
-            
+
             // Actualizar botones
             document.getElementById('prev-page').disabled = currentPage <= 1;
             document.getElementById('next-page').disabled = currentPage >= totalPages;
-            
+
             // Mostrar/ocultar controles si no hay órdenes
             const paginationControls = document.getElementById('pagination-controls');
             if (totalOrdenes === 0) {
@@ -1119,7 +1181,7 @@
             currentPage = 1; // Resetear a primera página
             displayOrdenesPage();
         }
-            
+
 
         async function updateEstado(ordenId, nuevoEstado) {
             try {
@@ -1201,8 +1263,19 @@
 
         // FUNCIONES PARA PRODUCTOS
         async function loadProductos() {
+             if (isLoading('productos')) {
+                console.warn('Ya se están cargando los productos...');
+                return;
+            }
+
+            setLoadingState('productos', { loading: true, loaded: false, error: null });
+            document.getElementById('productos-list').innerHTML = '<div class="loading">Cargando productos...</div>';
+
             try {
                 const response = await fetch('/admin/productos');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 const productos = await response.json();
 
                 // Ordenar productos por campo orden si existe, sino por id
@@ -1211,6 +1284,8 @@
                     const ordenB = b.orden || b.id || 0;
                     return ordenA - ordenB;
                 });
+
+                productosGlobal = productosOrdenados; // Guardar en variable global
 
                 let html = `<table class="table">
                         <thead>
@@ -1280,11 +1355,14 @@
 
                 document.getElementById('productos-list').innerHTML = html;
 
+                 setLoadingState('productos', { loading: false, loaded: true });
+
                 // Actualizar variable global de productos
                 window.productos = productosOrdenados;
 
             } catch (error) {
                 console.error('Error al cargar productos:', error);
+                 setLoadingState('productos', { loading: false, loaded: false, error: error.message });
                 document.getElementById('productos-list').innerHTML = '<p>Error al cargar productos</p>';
             }
         }
@@ -1323,7 +1401,7 @@
                         </div>
                     </div>
                 `;
-            
+
             // Agregar evento para vista previa al paquete inicial
             const initialImagenInput = container.querySelector('.paquete-imagen');
             const initialPreview = container.querySelector('.paquete-preview');
@@ -1356,7 +1434,7 @@
                 </div>
             `;
             container.appendChild(paqueteDiv);
-            
+
             // Agregar evento para vista previa de imagen
             const imagenInput = paqueteDiv.querySelector('.paquete-imagen');
             const preview = paqueteDiv.querySelector('.paquete-preview');
@@ -1477,7 +1555,7 @@
                         const previewContent = imagenUrl ? 
                             `<img src="${imagenUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;" onerror="this.parentElement.innerHTML='<span style=\\"font-size: 12px; color: #999;\\">❌</span>'">` :
                             '<span style="font-size: 12px; color: #999;">📦</span>';
-                        
+
                         paqueteDiv.innerHTML = `
                             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
                                 <input type="number" placeholder="Orden" class="form-control paquete-orden" min="1" value="${paquete.orden || 1}" style="width: 80px;">
@@ -1493,7 +1571,7 @@
                             </div>
                         `;
                         container.appendChild(paqueteDiv);
-                        
+
                         // Agregar evento para vista previa de imagen
                         const imagenInput = paqueteDiv.querySelector('.paquete-imagen');
                         const preview = paqueteDiv.querySelector('.paquete-preview');
@@ -1543,9 +1621,21 @@
 
         // FUNCIONES PARA IMÁGENES
         async function loadImagenes() {
+               if (isLoading('imagenes')) {
+                console.warn('Ya se están cargando las imágenes...');
+                return;
+            }
+
+            setLoadingState('imagenes', { loading: true, loaded: false, error: null });
+            document.getElementById('imagenes-list').innerHTML = '<div class="loading">Cargando imágenes...</div>';
+
             try {
                 const response = await fetch('/admin/imagenes');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 const imagenes = await response.json();
+                imagenesGlobal = imagenes;
 
                 let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">';
 
@@ -1566,7 +1656,12 @@
 
                 html += '</div>';
                 document.getElementById('imagenes-list').innerHTML = html || '<p>No hay imágenes disponibles</p>';
+
+                setLoadingState('imagenes', { loading: false, loaded: true });
+
             } catch (error) {
+                console.error('Error al cargar imágenes:', error);
+                setLoadingState('imagenes', { loading: false, loaded: false, error: error.message });
                 document.getElementById('imagenes-list').innerHTML = '<p>Error al cargar imágenes</p>';
             }
         }
@@ -1582,8 +1677,7 @@
             formData.append('tipo', tipo);
 
             try {
-                const response = await fetch('/admin/imagenes', {
-                    method: 'POST',
+                const response = await fetch('/admin/imagenes', {                    method: 'POST',
                     body: formData
                 });
 
@@ -1601,9 +1695,22 @@
 
         // FUNCIONES PARA CONFIGURACIÓN
         async function loadConfig() {
+              if (isLoading('configuracion')) {
+                console.warn('Ya se está cargando la configuración...');
+                return;
+            }
+
+            setLoadingState('configuracion', { loading: true, loaded: false, error: null });
+            // No mostrar mensaje de carga, se asume carga rápida
+
             try {
                 const response = await fetch('/admin/config');
+                 if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
                 const config = await response.json();
+                configuracionGlobal = config;
 
                 document.getElementById('config-logo').value = config.logo || '';
                 document.getElementById('config-tasa').value = config.tasa_usd_ves || '';
@@ -1614,7 +1721,12 @@
                 document.getElementById('config-carousel1').value = config.carousel1 || '';
                 document.getElementById('config-carousel2').value = config.carousel2 || '';
                 document.getElementById('config-carousel3').value = config.carousel3 || '';
+
+                setLoadingState('configuracion', { loading: false, loaded: true });
+
             } catch (error) {
+                console.error('Error al cargar configuración:', error);
+                setLoadingState('configuracion', { loading: false, loaded: false, error: error.message });
                 showAlert('Error al cargar configuración', 'error');
             }
         }
@@ -1800,6 +1912,13 @@
 
         // Función para cargar información del usuario administrador
         async function loadUserInfo() {
+            if (isLoading('userInfo')) {
+                console.warn('Ya se está cargando la información del usuario...');
+                return;
+            }
+
+            setLoadingState('userInfo', { loading: true, loaded: false, error: null });
+
             try {
                 const response = await fetch('/usuario');
                 if (response.ok) {
@@ -1812,9 +1931,14 @@
                             <small style="opacity: 0.8;">${data.usuario.email}</small>
                         `;
                     }
+                    setLoadingState('userInfo', { loading: false, loaded: true });
+                } else {
+                    setLoadingState('userInfo', { loading: false, loaded: false, error: 'Error al cargar información del usuario' });
+                    showAlert('Error al cargar información del usuario', 'error');
                 }
             } catch (error) {
                 console.error('Error al cargar información del usuario:', error);
+                 setLoadingState('userInfo', { loading: false, loaded: false, error: error.message });
             }
         }
 
@@ -1828,7 +1952,7 @@
         window.addEventListener('resize', function() {
             // Solo recargar si estamos en la pestaña de órdenes
             const ordenesTab = document.getElementById('ordenes');
-            if (ordenesTab && ordenesTab.classList.contains('active') && allOrdenes.length > 0) {
+            if (ordenesTab && ordenesTab.classList.contains('active') && ordenesGlobal.length > 0) {
                 displayOrdenesPage();
             }
         });
