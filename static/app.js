@@ -1409,6 +1409,41 @@ function mostrarDetalleProductoDesdeURL(producto) {
     cargarValoracionesProducto(producto.id);
 }
 
+// Función para mostrar valoraciones en tarjetas de productos
+function mostrarValoracionEnTarjeta(producto) {
+    if (!producto.promedio_valoracion || !producto.total_valoraciones) {
+        return '';
+    }
+
+    const promedio = parseFloat(producto.promedio_valoracion);
+    const total = parseInt(producto.total_valoraciones);
+    
+    if (promedio <= 0 || total <= 0) {
+        return '';
+    }
+
+    // Generar estrellas
+    let estrellasHtml = '';
+    for (let i = 1; i <= 5; i++) {
+        if (i <= promedio) {
+            estrellasHtml += '<span class="star full">★</span>';
+        } else if (i - promedio < 1) {
+            estrellasHtml += '<span class="star half">★</span>';
+        } else {
+            estrellasHtml += '<span class="star empty">★</span>';
+        }
+    }
+
+    return `
+        <div class="product-rating">
+            <div class="stars-display">
+                ${estrellasHtml}
+            </div>
+            <span class="rating-text">${promedio} (${total})</span>
+        </div>
+    `;
+}
+
 // Función para generar HTML de detalles de producto (reutilizable)
 function generarHTMLDetalleProducto(producto) {
     // Corregir ruta de imagen
@@ -1447,6 +1482,35 @@ function generarHTMLDetalleProducto(producto) {
         paquetesHtml = '<p style="color: #cccccc; text-align: center; grid-column: 1 / -1;">No hay paquetes disponibles para este producto</p>';
     }
 
+    // Generar valoraciones para mostrar debajo del título
+    let valoracionesDetalleHtml = '';
+    if (producto.promedio_valoracion && producto.total_valoraciones) {
+        const promedio = parseFloat(producto.promedio_valoracion);
+        const total = parseInt(producto.total_valoraciones);
+        
+        if (promedio > 0 && total > 0) {
+            let estrellasHtml = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= promedio) {
+                    estrellasHtml += '<span class="star full">★</span>';
+                } else if (i - promedio < 1) {
+                    estrellasHtml += '<span class="star half">★</span>';
+                } else {
+                    estrellasHtml += '<span class="star empty">★</span>';
+                }
+            }
+
+            valoracionesDetalleHtml = `
+                <div class="product-rating" onclick="mostrarTabReview('valoraciones', ${producto.id})" style="cursor: pointer; transition: all 0.3s ease; padding: 8px; border-radius: 8px; margin: 10px 0;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+                    <div class="stars-display">
+                        ${estrellasHtml}
+                    </div>
+                    <span class="rating-text">${promedio} (${total} reseñas) - Haz clic para ver</span>
+                </div>
+            `;
+        }
+    }
+
     return `
         <div style="margin-top: 15px;">
             <div class="details-container" style="display: flex; gap: 20px; margin-bottom: 20px; align-items: flex-start;">
@@ -1454,7 +1518,10 @@ function generarHTMLDetalleProducto(producto) {
                     <img src="${imagenUrl}" alt="${producto.nombre || 'Producto'}" class="selected-product-image" style="width: 100%; height: 300px; object-fit: cover; border-radius: 12px;" onerror="this.src='https://via.placeholder.com/400x300/007bff/ffffff?text=Producto'">
 
                     <!-- Título del juego debajo de la imagen -->
-                    <h1 style="color: #ffffff; font-size: 28px; margin: 15px 0 12px 0; font-weight: 700; text-align: center;">${producto.nombre || 'Producto'}</h1>
+                    <h1 style="color: #ffffff; font-size: 28px; margin: 15px 0 8px 0; font-weight: 700; text-align: center;">${producto.nombre || 'Producto'}</h1>
+
+                    <!-- Valoraciones debajo del título -->
+                    ${valoracionesDetalleHtml}
 
                     ${mostrarFormularioId ? `
                     <!-- Campo para ID de usuario debajo del título -->
