@@ -964,8 +964,40 @@ function closeMobileCategoryMenu() {
     }, 300);
 }
 
-// Cerrar menú si se hace clic fuera del contenido
+// Función para toggle del dropdown de redes sociales
+function toggleMobileSocial() {
+    const toggle = document.querySelector('.mobile-social-toggle');
+    const dropdown = document.getElementById('mobile-social-dropdown');
+    
+    if (!toggle || !dropdown) return;
+    
+    const isOpen = dropdown.classList.contains('show');
+    
+    if (isOpen) {
+        // Cerrar
+        toggle.classList.remove('active');
+        dropdown.classList.remove('show');
+    } else {
+        // Abrir
+        toggle.classList.add('active');
+        dropdown.classList.add('show');
+    }
+}
+
+// Cerrar dropdown de redes sociales al hacer clic fuera
+function closeMobileSocial() {
+    const toggle = document.querySelector('.mobile-social-toggle');
+    const dropdown = document.getElementById('mobile-social-dropdown');
+    
+    if (toggle && dropdown) {
+        toggle.classList.remove('active');
+        dropdown.classList.remove('show');
+    }
+}
+
+// Cerrar menús si se hace clic fuera del contenido
 document.addEventListener('click', function(e) {
+    // Menú de categorías
     const menu = document.getElementById('mobile-category-menu');
     const hamburger = document.querySelector('.mobile-category-hamburger');
     const menuContent = document.querySelector('.mobile-category-menu-content');
@@ -973,6 +1005,16 @@ document.addEventListener('click', function(e) {
     if (menu && menu.classList.contains('show')) {
         if (!menuContent.contains(e.target) && !hamburger.contains(e.target)) {
             closeMobileCategoryMenu();
+        }
+    }
+    
+    // Dropdown de redes sociales
+    const socialToggle = document.querySelector('.mobile-social-toggle');
+    const socialDropdown = document.getElementById('mobile-social-dropdown');
+    
+    if (socialDropdown && socialDropdown.classList.contains('show')) {
+        if (!socialToggle.contains(e.target) && !socialDropdown.contains(e.target)) {
+            closeMobileSocial();
         }
     }
 });

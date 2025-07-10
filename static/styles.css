@@ -54,22 +54,65 @@ header {
     right: 20px;
 }
 
-/* Iconos de redes sociales para móvil colgando del header */
-.mobile-social-icons {
+/* Botón de redes sociales para móvil colgando del header */
+.mobile-social-toggle {
     display: none; /* Oculto por defecto en desktop */
     position: fixed;
     top: 60px; /* Alineado exactamente con el borde inferior del header */
     right: 20px;
-    flex-direction: row;
-    gap: 8px;
     z-index: 999;
-    padding: 8px 12px;
+    padding: 8px 16px;
     background: rgba(30, 30, 30, 0.85);
-    border-radius: 25px;
+    border-radius: 20px;
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    user-select: none;
+}
+
+.mobile-social-toggle:hover {
+    background: rgba(30, 30, 30, 0.95);
+    transform: scale(1.05);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.mobile-social-toggle.active {
+    background: rgba(40, 167, 69, 0.9);
+    border-color: rgba(40, 167, 69, 0.5);
+}
+
+/* Contenedor de iconos desplegables */
+.mobile-social-dropdown {
+    position: fixed;
+    top: 100px; /* Debajo del botón */
+    right: 20px;
+    z-index: 998;
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    background: rgba(30, 30, 30, 0.85);
+    border-radius: 15px;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.mobile-social-dropdown.show {
+    display: flex;
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .mobile-social-link {
@@ -782,9 +825,9 @@ header {
         gap: 8px; /* Menor espacio entre hamburguesa y selector */
     }
 
-    /* Mostrar iconos de redes sociales colgando en móvil */
-    .mobile-social-icons {
-        display: flex !important;
+    /* Mostrar botón de redes sociales colgando en móvil */
+    .mobile-social-toggle {
+        display: block !important;
     }
 
     /* Ajustar contenido para evitar superposición con iconos colgantes */
