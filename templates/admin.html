@@ -944,6 +944,7 @@ html
         let ordenesPerPage = 10;
         let totalOrdenes = 0;
         let allOrdenes = [];
+        let ordenesGlobal = []; // Inicializar explícitamente
 
         // Sistema de gestión de carga de datos robusto
         let loadingState = {
@@ -1014,12 +1015,22 @@ html
                     throw new Error('Respuesta del servidor inválida: se esperaba un array de órdenes.');
                 }
 
-                // Asignar correctamente los datos
-                ordenesGlobal = [...data];
-                allOrdenes = [...data];
-                totalOrdenes = data.length;
-
-                console.log(`✅ Órdenes cargadas exitosamente: ${totalOrdenes} órdenes`);
+                // Limpiar y asignar correctamente los datos
+                ordenesGlobal = [];
+                allOrdenes = [];
+                
+                // Verificar que data es efectivamente un array
+                if (Array.isArray(data) && data.length >= 0) {
+                    ordenesGlobal = [...data];
+                    allOrdenes = [...data];
+                    totalOrdenes = data.length;
+                    
+                    console.log(`✅ Órdenes cargadas exitosamente: ${totalOrdenes} órdenes`);
+                    console.log('📋 Datos de órdenes:', data);
+                } else {
+                    console.warn('⚠️ Data no es un array válido:', data);
+                    totalOrdenes = 0;
+                }
 
                 // Actualizar información
                 const ordenesInfoElement = document.getElementById('ordenes-info');
@@ -1073,17 +1084,35 @@ html
         }
 
         function displayOrdenesPage() {
-            if (!isLoaded('ordenes') || !ordenesGlobal || ordenesGlobal.length === 0) {
-                if (totalOrdenes === 0) {
-                    document.getElementById('ordenes-list').innerHTML = `
-                        <div class="alert alert-info" style="text-align: center; padding: 30px;">
-                            <h4>📦 No hay órdenes registradas</h4>
-                            <p>Cuando los usuarios realicen compras, aparecerán aquí.</p>
-                        </div>
-                    `;
-                } else {
-                    document.getElementById('ordenes-list').innerHTML = '<div class="loading">Cargando órdenes...</div>';
-                }
+            console.log('🔄 displayOrdenesPage llamada - Estado:', {
+                isLoaded: isLoaded('ordenes'),
+                ordenesGlobal: ordenesGlobal ? ordenesGlobal.length : 'null',
+                totalOrdenes: totalOrdenes
+            });
+
+            if (!isLoaded('ordenes')) {
+                document.getElementById('ordenes-list').innerHTML = '<div class="loading">Cargando órdenes...</div>';
+                return;
+            }
+
+            if (!ordenesGlobal || !Array.isArray(ordenesGlobal)) {
+                console.warn('⚠️ ordenesGlobal no es un array válido:', ordenesGlobal);
+                document.getElementById('ordenes-list').innerHTML = `
+                    <div class="alert alert-info" style="text-align: center; padding: 30px;">
+                        <h4>📦 No hay órdenes registradas</h4>
+                        <p>Cuando los usuarios realicen compras, aparecerán aquí.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            if (ordenesGlobal.length === 0) {
+                document.getElementById('ordenes-list').innerHTML = `
+                    <div class="alert alert-info" style="text-align: center; padding: 30px;">
+                        <h4>📦 No hay órdenes registradas</h4>
+                        <p>Cuando los usuarios realicen compras, aparecerán aquí.</p>
+                    </div>
+                `;
                 return;
             }
 
@@ -2035,8 +2064,14 @@ html
 
         // Cargar datos iniciales
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 DOM cargado, iniciando funciones admin...');
             loadUserInfo();
-            loadOrdenes();
+            
+            // Dar un pequeño delay para que la UI se establezca
+            setTimeout(() => {
+                console.log('📋 Iniciando carga de órdenes...');
+                loadOrdenes();
+            }, 500);
         });
 
         // Recargar órdenes cuando cambie el tamaño de pantalla
