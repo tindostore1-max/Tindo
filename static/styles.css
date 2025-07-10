@@ -642,7 +642,7 @@ header {
     font-size: 16px;
     font-weight: 700;
     color: #ffffff;
-    margin-bottom: 15px;
+    margin-bottom: 8px;
     text-align: center;
 }
 
@@ -650,7 +650,7 @@ header {
     font-size: 14px;
     font-weight: 700;
     color: #28a745;
-    margin-top: 12px;
+    margin-top: 6px;
     text-align: center;
 }
 
@@ -753,7 +753,7 @@ header {
     font-size: 16px;
     font-weight: 700;
     color: #ffffff;
-    margin-bottom: 15px;
+    margin-bottom: 8px;
     text-align: center;
 }
 
@@ -761,7 +761,7 @@ header {
     font-size: 14px;
     font-weight: 700;
     color: #28a745;
-    margin-top: 12px;
+    margin-top: 6px;
     text-align: center;
 }
 
@@ -949,7 +949,7 @@ header {
 
     .games-carousel-card .product-name {
         font-size: 12px;
-        margin-bottom: 8px;
+        margin-bottom: 4px;
         line-height: 1.1;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -958,7 +958,7 @@ header {
 
     .games-carousel-card .price-desde {
         font-size: 11px;
-        margin-top: 8px;
+        margin-top: 4px;
         font-weight: 700;
     }
 
@@ -1002,7 +1002,7 @@ header {
 
     .todos-carousel-card .product-name {
         font-size: 12px;
-        margin-bottom: 8px;
+        margin-bottom: 4px;
         line-height: 1.1;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -1011,7 +1011,7 @@ header {
 
     .todos-carousel-card .price-desde {
         font-size: 11px;
-        margin-top: 8px;
+        margin-top: 4px;
         font-weight: 700;
     }
 
@@ -1762,7 +1762,7 @@ header {
     font-size: 20px;
     font-weight: 700;
     color: #ffffff;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     text-align: center;
 }
 
@@ -1855,7 +1855,7 @@ header {
     font-size: 18px;
     font-weight: 700;
     color: #28a745;
-    margin-top: 10px;
+    margin-top: 5px;
     text-align: center;
 }
 
