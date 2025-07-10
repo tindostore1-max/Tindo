@@ -3626,10 +3626,10 @@ header {
     margin: 0 auto;
     border-radius: 0;
     overflow: hidden;
-    box-shadow: none;
+    box-shadow: none !important;
     background: transparent !important;
     min-height: 200px;
-    border: none;
+    border: none !important;
     padding: 0;
 }
 
@@ -3669,8 +3669,8 @@ header {
     height: 100%;
     position: relative;
     background: transparent !important;
-    border: none;
-    box-shadow: none;
+    border: none !important;
+    box-shadow: none !important;
     padding: 0;
     margin: 0;
 }
@@ -3692,16 +3692,16 @@ header {
     .carousel {
         height: 250px; /* Altura optimizada para móvil */
         border-radius: 0; /* Sin bordes redondeados */
-        background: transparent; /* Fondo completamente transparente */
-        border: none; /* Sin bordes */
-        box-shadow: none; /* Sin sombra */
+        background: transparent !important; /* Fondo completamente transparente */
+        border: none !important; /* Sin bordes */
+        box-shadow: none !important; /* Sin sombra */
         overflow: hidden; /* Asegurar que no haya desbordamiento */
     }
 
     .carousel-slide {
-        background: transparent; /* Slide transparente */
-        border: none; /* Sin bordes en slide */
-        box-shadow: none; /* Sin sombra en slide */
+        background: transparent !important; /* Slide transparente */
+        border: none !important; /* Sin bordes en slide */
+        box-shadow: none !important; /* Sin sombra en slide */
         width: 100%;
         height: 100%;
     }
@@ -3711,9 +3711,9 @@ header {
         height: 100%;
         object-fit: contain; /* Mostrar imagen completa sin recortar */
         border-radius: 0; /* Sin bordes redondeados */
-        background: #1a1a1a; /* Fondo oscuro para espacios vacíos */
-        border: none; /* Sin bordes en las imágenes */
-        box-shadow: none; /* Sin sombra en las imágenes */
+        background: transparent !important; /* Fondo transparente para espacios vacíos */
+        border: none !important; /* Sin bordes en las imágenes */
+        box-shadow: none !important; /* Sin sombra en las imágenes */
         display: block; /* Asegurar que se muestren correctamente */
     }
 
@@ -3724,8 +3724,8 @@ header {
         box-shadow: none !important; /* Eliminar cualquier sombra */
         border: none !important; /* Sin bordes */
         padding: 0; /* Sin padding interno */
-        backdrop-filter: none; /* Sin efecto de desenfoque */
-        -webkit-backdrop-filter: none; /* Sin efecto de desenfoque en Safari */
+        backdrop-filter: none !important; /* Sin efecto de desenfoque */
+        -webkit-backdrop-filter: none !important; /* Sin efecto de desenfoque en Safari */
         width: 100vw; /* Ocupar todo el ancho de la ventana */
         position: relative;
         left: 50%;
