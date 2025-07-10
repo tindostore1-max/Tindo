@@ -446,6 +446,19 @@ def init_db():
             ADD COLUMN IF NOT EXISTS etiquetas VARCHAR(255);
         '''))
 
+        # Crear tabla de valoraciones
+        conn.execute(text('''
+            CREATE TABLE IF NOT EXISTS valoraciones (
+                id SERIAL PRIMARY KEY,
+                juego_id INTEGER REFERENCES juegos(id) ON DELETE CASCADE,
+                usuario_email VARCHAR(100) NOT NULL,
+                calificacion INTEGER CHECK (calificacion >= 1 AND calificacion <= 5),
+                comentario TEXT,
+                fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(juego_id, usuario_email)
+            );
+        '''))
+
         conn.execute(text('''
             CREATE TABLE IF NOT EXISTS imagenes (
                 id SERIAL PRIMARY KEY,
@@ -1010,13 +1023,22 @@ def delete_producto(producto_id):
 def get_productos_publico():
     conn = get_db_connection()
     try:
-        # Optimización: Una sola consulta con JOIN para obtener productos y paquetes
+        # Optimización: Una sola consulta con JOIN para obtener productos, paquetes y valoraciones
         result = conn.execute(text('''
             SELECT 
                 j.id, j.nombre, j.descripcion, j.imagen, j.categoria, j.orden, j.etiquetas,
-                p.id as paquete_id, p.nombre as paquete_nombre, p.precio, p.orden as paquete_orden
+                p.id as paquete_id, p.nombre as paquete_nombre, p.precio, p.orden as paquete_orden,
+                v.promedio_valoracion, v.total_valoraciones
             FROM juegos j
             LEFT JOIN paquetes p ON j.id = p.juego_id
+            LEFT JOIN (
+                SELECT 
+                    juego_id,
+                    ROUND(AVG(calificacion), 1) as promedio_valoracion,
+                    COUNT(*) as total_valoraciones
+                FROM valoraciones 
+                GROUP BY juego_id
+            ) v ON j.id = v.juego_id
             ORDER BY j.orden ASC, j.id ASC, p.orden ASC, p.precio ASC
         '''))
 
@@ -1040,6 +1062,8 @@ def get_productos_publico():
                     'categoria': categoria,
                     'orden': row_dict['orden'],
                     'etiquetas': row_dict['etiquetas'],
+                    'promedio_valoracion': row_dict['promedio_valoracion'],
+                    'total_valoraciones': row_dict['total_valoraciones'],
                     'paquetes': []
                 }
 
@@ -1084,6 +1108,155 @@ def get_config_publico():
             config_dict[config[0]] = config[1]  # campo, valor
 
         return jsonify(config_dict)
+    finally:
+        conn.close()
+
+# ENDPOINTS PARA VALORACIONES
+@app.route('/valoracion', methods=['POST'])
+def crear_valoracion():
+    # Verificar si el usuario está logueado
+    if 'user_id' not in session:
+        return jsonify({'error': 'Debes iniciar sesión para valorar'}), 401
+
+    data = request.get_json()
+    juego_id = data.get('juego_id')
+    calificacion = data.get('calificacion')
+    comentario = data.get('comentario', '').strip()
+
+    # Validaciones
+    if not juego_id or not calificacion:
+        return jsonify({'error': 'Juego y calificación son requeridos'}), 400
+
+    if calificacion < 1 or calificacion > 5:
+        return jsonify({'error': 'La calificación debe ser entre 1 y 5 estrellas'}), 400
+
+    usuario_email = session['user_email']
+
+    conn = get_db_connection()
+    try:
+        # Verificar que el usuario haya comprado este juego
+        result = conn.execute(text('''
+            SELECT COUNT(*) FROM ordenes 
+            WHERE juego_id = :juego_id AND usuario_email = :usuario_email AND estado = 'procesado'
+        '''), {'juego_id': juego_id, 'usuario_email': usuario_email})
+        
+        compras = result.fetchone()[0]
+        
+        if compras == 0:
+            return jsonify({'error': 'Solo puedes valorar productos que hayas comprado'}), 403
+
+        # Insertar o actualizar valoración
+        conn.execute(text('''
+            INSERT INTO valoraciones (juego_id, usuario_email, calificacion, comentario)
+            VALUES (:juego_id, :usuario_email, :calificacion, :comentario)
+            ON CONFLICT (juego_id, usuario_email) 
+            DO UPDATE SET calificacion = EXCLUDED.calificacion, comentario = EXCLUDED.comentario, fecha = CURRENT_TIMESTAMP
+        '''), {
+            'juego_id': juego_id,
+            'usuario_email': usuario_email,
+            'calificacion': calificacion,
+            'comentario': comentario
+        })
+
+        conn.commit()
+        return jsonify({'message': 'Valoración guardada correctamente'})
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': f'Error al guardar valoración: {str(e)}'}), 500
+    finally:
+        conn.close()
+
+@app.route('/valoraciones/<int:juego_id>', methods=['GET'])
+def get_valoraciones_producto(juego_id):
+    conn = get_db_connection()
+    try:
+        # Obtener valoraciones del producto
+        result = conn.execute(text('''
+            SELECT v.*, u.nombre as usuario_nombre
+            FROM valoraciones v
+            LEFT JOIN usuarios u ON v.usuario_email = u.email
+            WHERE v.juego_id = :juego_id
+            ORDER BY v.fecha DESC
+        '''), {'juego_id': juego_id})
+        
+        valoraciones = result.fetchall()
+
+        # Obtener estadísticas
+        stats_result = conn.execute(text('''
+            SELECT 
+                AVG(calificacion) as promedio,
+                COUNT(*) as total,
+                COUNT(CASE WHEN calificacion = 5 THEN 1 END) as estrellas_5,
+                COUNT(CASE WHEN calificacion = 4 THEN 1 END) as estrellas_4,
+                COUNT(CASE WHEN calificacion = 3 THEN 1 END) as estrellas_3,
+                COUNT(CASE WHEN calificacion = 2 THEN 1 END) as estrellas_2,
+                COUNT(CASE WHEN calificacion = 1 THEN 1 END) as estrellas_1
+            FROM valoraciones 
+            WHERE juego_id = :juego_id
+        '''), {'juego_id': juego_id})
+        
+        stats = stats_result.fetchone()
+
+        # Convertir a diccionarios
+        valoraciones_list = []
+        for val in valoraciones:
+            val_dict = dict(val._mapping)
+            # Ocultar email completo por privacidad
+            email = val_dict['usuario_email']
+            if email:
+                email_parts = email.split('@')
+                if len(email_parts) == 2:
+                    val_dict['usuario_email_oculto'] = email_parts[0][:2] + '***@' + email_parts[1]
+                else:
+                    val_dict['usuario_email_oculto'] = '***'
+            valoraciones_list.append(val_dict)
+
+        # Preparar estadísticas
+        stats_dict = dict(stats._mapping) if stats else {}
+        if stats_dict.get('promedio'):
+            stats_dict['promedio'] = round(float(stats_dict['promedio']), 1)
+
+        return jsonify({
+            'valoraciones': valoraciones_list,
+            'estadisticas': stats_dict
+        })
+
+    finally:
+        conn.close()
+
+@app.route('/valoracion/usuario/<int:juego_id>', methods=['GET'])
+def get_valoracion_usuario(juego_id):
+    # Verificar si el usuario está logueado
+    if 'user_id' not in session:
+        return jsonify({'error': 'Debes iniciar sesión'}), 401
+
+    usuario_email = session['user_email']
+    
+    conn = get_db_connection()
+    try:
+        # Verificar si el usuario puede valorar (ha comprado el producto)
+        result = conn.execute(text('''
+            SELECT COUNT(*) FROM ordenes 
+            WHERE juego_id = :juego_id AND usuario_email = :usuario_email AND estado = 'procesado'
+        '''), {'juego_id': juego_id, 'usuario_email': usuario_email})
+        
+        puede_valorar = result.fetchone()[0] > 0
+
+        # Obtener valoración existente del usuario
+        result = conn.execute(text('''
+            SELECT * FROM valoraciones 
+            WHERE juego_id = :juego_id AND usuario_email = :usuario_email
+        '''), {'juego_id': juego_id, 'usuario_email': usuario_email})
+        
+        valoracion = result.fetchone()
+        valoracion_dict = dict(valoracion._mapping) if valoracion else None
+
+        return jsonify({
+            'puede_valorar': puede_valorar,
+            'valoracion': valoracion_dict
+        })
+
     finally:
         conn.close()
 
