@@ -924,9 +924,8 @@ html
 
         // Funciones para mostrar alertas
         function showAlert(message, type = 'success') {
-            const alertDiv = document.```javascript
-createElement('div');
-            alertDiv.className = `alert alert-${type}`;
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-' + type;
             alertDiv.textContent = message;
 
             const container = document.querySelector('.tab-pane.active .card');
@@ -1044,40 +1043,38 @@ createElement('div');
                             minute: '2-digit'
                         });
 
-                        html += `
-                            <div class="orden-cajita">
-                                <div class="orden-cajita-header">
-                                    <span class="orden-numero">#${orden.id}</span>
-                                    <span class="status-mini status-${orden.estado}"></span>
-                                </div>
-                                <div class="orden-cajita-content">
-                                    <div class="orden-game-info">
-                                        <span class="game-emoji">🎮</span>
-                                        <span class="game-name">${orden.juego_nombre || 'N/A'}</span>
-                                    </div>
-                                    <div class="orden-package">📦 ${orden.paquete}</div>
-                                    <div class="orden-precio-grande">$${orden.monto}</div>
-                                    <div class="orden-cliente">👤 ${orden.usuario_email}</div>
-                                    ${orden.usuario_telefono ? `<div class="orden-telefono">📱 ${orden.usuario_telefono}</div>` : ''}
-                                    ${orden.usuario_id && orden.usuario_id !== 'gift-card' ? `<div class="orden-userid">🎮 ID: ${orden.usuario_id}</div>` : ''}
-                                    <div class="orden-fecha">📅 ${fechaCorta}</div>
-                                    <div class="orden-pago">💳 ${orden.metodo_pago}</div>
-                                    ${orden.referencia_pago ? `<div class="orden-referencia">🔗 Ref: ${orden.referencia_pago}</div>` : ''}
-                                    ${orden.tiempo_pago ? `<div class="orden-tiempo">🕐 ${new Date(orden.tiempo_pago).toLocaleString('es')}</div>` : ''}
-                                </div>
-                                <div class="orden-cajita-actions">
-                                    ${esGiftCard(orden) ? 
-                                        `<input type="text" placeholder="Código" id="codigo-${orden.id}" class="codigo-input-cajita" value="${orden.codigo_producto || ''}">
-                                         <button class="btn-cajita ${orden.estado === 'procesando' ? 'btn-success' : 'btn-warning'}" onclick="updateEstadoConCodigo(${orden.id}, '${orden.estado === 'procesando' ? 'procesado' : 'procesando'}')">
-                                            ${orden.estado === 'procesando' ? '✓' : '✗'}
-                                         </button>` :
-                                        `<button class="btn-cajita ${orden.estado === 'procesando' ? 'btn-success' : 'btn-warning'}" onclick="updateEstado(${orden.id}, '${orden.estado === 'procesando' ? 'procesado' : 'procesando'}')">
-                                            ${orden.estado === 'procesando' ? '✓' : '✗'}
-                                         </button>`
-                                    }
-                                </div>
-                            </div>
-                        `;
+                        html += '<div class="orden-cajita">' +
+                            '<div class="orden-cajita-header">' +
+                                '<span class="orden-numero">#' + orden.id + '</span>' +
+                                '<span class="status-mini status-' + orden.estado + '"></span>' +
+                            '</div>' +
+                            '<div class="orden-cajita-content">' +
+                                '<div class="orden-game-info">' +
+                                    '<span class="game-emoji">🎮</span>' +
+                                    '<span class="game-name">' + (orden.juego_nombre || 'N/A') + '</span>' +
+                                '</div>' +
+                                '<div class="orden-package">📦 ' + orden.paquete + '</div>' +
+                                '<div class="orden-precio-grande">$' + orden.monto + '</div>' +
+                                '<div class="orden-cliente">👤 ' + orden.usuario_email + '</div>' +
+                                (orden.usuario_telefono ? '<div class="orden-telefono">📱 ' + orden.usuario_telefono + '</div>' : '') +
+                                (orden.usuario_id && orden.usuario_id !== 'gift-card' ? '<div class="orden-userid">🎮 ID: ' + orden.usuario_id + '</div>' : '') +
+                                '<div class="orden-fecha">📅 ' + fechaCorta + '</div>' +
+                                '<div class="orden-pago">💳 ' + orden.metodo_pago + '</div>' +
+                                (orden.referencia_pago ? '<div class="orden-referencia">🔗 Ref: ' + orden.referencia_pago + '</div>' : '') +
+                                (orden.tiempo_pago ? '<div class="orden-tiempo">🕐 ' + new Date(orden.tiempo_pago).toLocaleString('es') + '</div>' : '') +
+                            '</div>' +
+                            '<div class="orden-cajita-actions">' +
+                                (esGiftCard(orden) ? 
+                                    '<input type="text" placeholder="Código" id="codigo-' + orden.id + '" class="codigo-input-cajita" value="' + (orden.codigo_producto || '') + '">' +
+                                    '<button class="btn-cajita ' + (orden.estado === 'procesando' ? 'btn-success' : 'btn-warning') + '" onclick="updateEstadoConCodigo(' + orden.id + ', \'' + (orden.estado === 'procesando' ? 'procesado' : 'procesando') + '\')">' +
+                                        (orden.estado === 'procesando' ? '✓' : '✗') +
+                                    '</button>' :
+                                    '<button class="btn-cajita ' + (orden.estado === 'procesando' ? 'btn-success' : 'btn-warning') + '" onclick="updateEstado(' + orden.id + ', \'' + (orden.estado === 'procesando' ? 'procesado' : 'procesando') + '\')">' +
+                                        (orden.estado === 'procesando' ? '✓' : '✗') +
+                                    '</button>'
+                                ) +
+                            '</div>' +
+                        '</div>';
                     });
 
                     html += '</div>';
@@ -1094,47 +1091,45 @@ createElement('div');
                             minute: '2-digit'
                         });
 
-                        html += `
-                            <tr class="orden-row-compact">
-                                <td><strong>#${orden.id}</strong></td>
-                                <td>
-                                    <div class="producto-info">
-                                        <strong>${orden.juego_nombre || 'N/A'}</strong>
-                                        <small>${orden.paquete}</small>
-                                        <span class="precio">$${orden.monto}</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="cliente-info">
-                                        <div>${orden.usuario_email}</div>
-                                        ${orden.usuario_telefono ? `<small>📱 ${orden.usuario_telefono}</small>` : ''}
-                                        ${orden.usuario_id && orden.usuario_id !== 'gift-card' ? `<small>🎮 ID: ${orden.usuario_id}</small>` : ''}
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="pago-info">
-                                        <div>${orden.metodo_pago}</div>
-                                        ${orden.referencia_pago ? `<small>🔗 ${orden.referencia_pago}</small>` : ''}
-                                        ${orden.tiempo_pago ? `<small>🕐 ${new Date(orden.tiempo_pago).toLocaleString('es')}</small>` : ''}
-                                    </div>
-                                </td>
-                                <td><span class="status-badge status-${orden.estado}">${orden.estado}</span></td>
-                                <td><small>${fechaCorta}</small></td>
-                                <td class="actions-compact">
-                                    ${esGiftCard(orden) ? 
-                                        `<div class="gift-card-actions">
-                                            <input type="text" placeholder="Código" id="codigo-${orden.id}" class="codigo-input-compact" value="${orden.codigo_producto || ''}">
-                                            <button class="btn btn-sm ${orden.estado === 'procesando' ? 'btn-success' : 'btn-warning'}" onclick="updateEstadoConCodigo(${orden.id}, '${orden.estado === 'procesando' ? 'procesado' : 'procesando'}')">
-                                                ${orden.estado === 'procesando' ? '✓' : '✗'}
-                                            </button>
-                                        </div>` :
-                                        `<button class="btn btn-sm ${orden.estado === 'procesando' ? 'btn-success' : 'btn-warning'}" onclick="updateEstado(${orden.id}, '${orden.estado === 'procesando' ? 'procesado' : 'procesando'}')">
-                                            ${orden.estado === 'procesando' ? '✓' : '✗'}
-                                        </button>`
-                                    }
-                                </td>
-                            </tr>
-                        `;
+                        html += '<tr class="orden-row-compact">' +
+                            '<td><strong>#' + orden.id + '</strong></td>' +
+                            '<td>' +
+                                '<div class="producto-info">' +
+                                    '<strong>' + (orden.juego_nombre || 'N/A') + '</strong>' +
+                                    '<small>' + orden.paquete + '</small>' +
+                                    '<span class="precio">$' + orden.monto + '</span>' +
+                                '</div>' +
+                            '</td>' +
+                            '<td>' +
+                                '<div class="cliente-info">' +
+                                    '<div>' + orden.usuario_email + '</div>' +
+                                    (orden.usuario_telefono ? '<small>📱 ' + orden.usuario_telefono + '</small>' : '') +
+                                    (orden.usuario_id && orden.usuario_id !== 'gift-card' ? '<small>🎮 ID: ' + orden.usuario_id + '</small>' : '') +
+                                '</div>' +
+                            '</td>' +
+                            '<td>' +
+                                '<div class="pago-info">' +
+                                    '<div>' + orden.metodo_pago + '</div>' +
+                                    (orden.referencia_pago ? '<small>🔗 ' + orden.referencia_pago + '</small>' : '') +
+                                    (orden.tiempo_pago ? '<small>🕐 ' + new Date(orden.tiempo_pago).toLocaleString('es') + '</small>' : '') +
+                                '</div>' +
+                            '</td>' +
+                            '<td><span class="status-badge status-' + orden.estado + '">' + orden.estado + '</span></td>' +
+                            '<td><small>' + fechaCorta + '</small></td>' +
+                            '<td class="actions-compact">' +
+                                (esGiftCard(orden) ? 
+                                    '<div class="gift-card-actions">' +
+                                        '<input type="text" placeholder="Código" id="codigo-' + orden.id + '" class="codigo-input-compact" value="' + (orden.codigo_producto || '') + '">' +
+                                        '<button class="btn btn-sm ' + (orden.estado === 'procesando' ? 'btn-success' : 'btn-warning') + '" onclick="updateEstadoConCodigo(' + orden.id + ', \'' + (orden.estado === 'procesando' ? 'procesado' : 'procesando') + '\')">' +
+                                            (orden.estado === 'procesando' ? '✓' : '✗') +
+                                        '</button>' +
+                                    '</div>' :
+                                    '<button class="btn btn-sm ' + (orden.estado === 'procesando' ? 'btn-success' : 'btn-warning') + '" onclick="updateEstado(' + orden.id + ', \'' + (orden.estado === 'procesando' ? 'procesado' : 'procesando') + '\')">' +
+                                        (orden.estado === 'procesando' ? '✓' : '✗') +
+                                    '</button>'
+                                ) +
+                            '</td>' +
+                        '</tr>';
                     });
 
                     html += '</tbody></table>';
@@ -1315,38 +1310,36 @@ createElement('div');
                         imagenUrl = 'https://via.placeholder.com/50x50/007bff/ffffff?text=IMG';
                     }
 
-                    html += `
-                        <tr data-producto-id="${producto.id}">
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <span class="product-order-number">${index + 1}</span>
-                                    <small style="color: #999;">ID: ${producto.id}</small>
-                                </div>
-                            </td>
-                            <td>
-                                <img src="${imagenUrl}" 
-                                     alt="${producto.nombre}" 
-                                     style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;"
-                                     onerror="this.src='https://via.placeholder.com/50x50/007bff/ffffff?text=IMG'">
-                            </td>
-                            <td>
-                                <strong>${producto.nombre}</strong><br>
-                                <small style="color: #999;">${producto.descripcion || 'Sin descripción'}</small>
-                            </td>
-                            <td>
-                                <span class="badge badge-${producto.categoria === 'juegos' ? 'primary' : 'secondary'}">${producto.categoria}</span>
-                            </td>
-                            <td style="font-size: 12px;">${paquetesText}</td>
-                            <td>
-                                <div class="product-order-controls">
-                                    <button class="order-btn" onclick="moverProducto(${producto.id}, 'up')" ${index === 0 ? 'disabled' : ''} title="Mover arriba">↑</button>
-                                    <button class="order-btn" onclick="moverProducto(${producto.id}, 'down')" ${index === productosOrdenados.length - 1 ? 'disabled' : ''} title="Mover abajo">↓</button>
-                                </div>
-                                <button class="btn btn-sm btn-warning" onclick="editProduct(${producto.id})" style="margin-right: 5px;">✏️</button>
-                                <button class="btn btn-sm btn-danger" onclick="deleteProduct(${producto.id})">🗑️</button>
-                            </td>
-                        </tr>
-                    `;
+                    html += '<tr data-producto-id="' + producto.id + '">' +
+                        '<td>' +
+                            '<div style="display: flex; align-items: center; gap: 10px;">' +
+                                '<span class="product-order-number">' + (index + 1) + '</span>' +
+                                '<small style="color: #999;">ID: ' + producto.id + '</small>' +
+                            '</div>' +
+                        '</td>' +
+                        '<td>' +
+                            '<img src="' + imagenUrl + '" ' +
+                                 'alt="' + producto.nombre + '" ' +
+                                 'style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;" ' +
+                                 'onerror="this.src=\'https://via.placeholder.com/50x50/007bff/ffffff?text=IMG\'">' +
+                        '</td>' +
+                        '<td>' +
+                            '<strong>' + producto.nombre + '</strong><br>' +
+                            '<small style="color: #999;">' + (producto.descripcion || 'Sin descripción') + '</small>' +
+                        '</td>' +
+                        '<td>' +
+                            '<span class="badge badge-' + (producto.categoria === 'juegos' ? 'primary' : 'secondary') + '">' + producto.categoria + '</span>' +
+                        '</td>' +
+                        '<td style="font-size: 12px;">' + paquetesText + '</td>' +
+                        '<td>' +
+                            '<div class="product-order-controls">' +
+                                '<button class="order-btn" onclick="moverProducto(' + producto.id + ', \'up\')" ' + (index === 0 ? 'disabled' : '') + ' title="Mover arriba">↑</button>' +
+                                '<button class="order-btn" onclick="moverProducto(' + producto.id + ', \'down\')" ' + (index === productosOrdenados.length - 1 ? 'disabled' : '') + ' title="Mover abajo">↓</button>' +
+                            '</div>' +
+                            '<button class="btn btn-sm btn-warning" onclick="editProduct(' + producto.id + ')" style="margin-right: 5px;">✏️</button>' +
+                            '<button class="btn btn-sm btn-danger" onclick="deleteProduct(' + producto.id + ')">🗑️</button>' +
+                        '</td>' +
+                    '</tr>';
                 });
 
                 html += `
@@ -1640,18 +1633,16 @@ createElement('div');
                 let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">';
 
                 imagenes.forEach(imagen => {
-                    html += `
-                        <div class="card" style="text-align: center;">
-                            <img src="/static/${imagen.ruta}" alt="${imagen.tipo}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px;">
-                            <p><strong>Tipo:</strong> ${imagen.tipo}</p>
-                            <p><small>${imagen.ruta}</small></p>
-                            ${imagen.tipo === 'carrusel' ? 
-                                `<button class="btn btn-primary" onclick="copiarRutaCarrusel('${imagen.ruta}')" style="margin: 5px;">📋 Copiar para Carrusel</button>` : ''}
-                            ${imagen.tipo === 'logo' ? 
-                                `<button class="btn btn-primary" onclick="copiarRutaLogo('${imagen.ruta}')" style="margin: 5px;">📋 Copiar para Logo</button>` : ''}
-                            <button class="btn btn-danger" onclick="deleteImagen(${imagen.id})" style="margin-top: 10px;">🗑️ Eliminar</button>
-                        </div>
-                    `;
+                    html += '<div class="card" style="text-align: center;">' +
+                        '<img src="/static/' + imagen.ruta + '" alt="' + imagen.tipo + '" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px;">' +
+                        '<p><strong>Tipo:</strong> ' + imagen.tipo + '</p>' +
+                        '<p><small>' + imagen.ruta + '</small></p>' +
+                        (imagen.tipo === 'carrusel' ? 
+                            '<button class="btn btn-primary" onclick="copiarRutaCarrusel(\'' + imagen.ruta + '\')" style="margin: 5px;">📋 Copiar para Carrusel</button>' : '') +
+                        (imagen.tipo === 'logo' ? 
+                            '<button class="btn btn-primary" onclick="copiarRutaLogo(\'' + imagen.ruta + '\')" style="margin: 5px;">📋 Copiar para Logo</button>' : '') +
+                        '<button class="btn btn-danger" onclick="deleteImagen(' + imagen.id + ')" style="margin-top: 10px;">🗑️ Eliminar</button>' +
+                    '</div>';
                 });
 
                 html += '</div>';
