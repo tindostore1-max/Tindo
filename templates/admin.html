@@ -797,15 +797,9 @@
                                         <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre" style="flex: 1;">
                                         <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio" style="width: 120px;">
                                     </div>
-                                    <div style="display: flex; align-items: center; gap: 10px;">
-                                        <input type="text" placeholder="URL del icono (opcional)" class="form-control paquete-imagen" style="flex: 1;" title="Pega aquí la URL de la imagen del paquete">
-                                        <div class="paquete-preview" style="width: 40px; height: 40px; border: 1px dashed #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
-                                            <span style="font-size: 12px; color: #999;">📦</span>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-warning" onclick="addPaqueteConEventos()">➕ Agregar Paquete</button>
+                            <button type="button" class="btn btn-warning" onclick="addPaquete()">➕ Agregar Paquete</button>
                         </div>
                         <button type="submit" class="btn btn-success">💾 Guardar Producto</button>
                         <button type="button" class="btn btn-danger" onclick="hideCreateProductForm()">❌ Cancelar</button>
@@ -1349,23 +1343,8 @@
                             <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre" style="flex: 1;">
                             <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio" style="width: 120px;">
                         </div>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <input type="text" placeholder="URL del icono (opcional)" class="form-control paquete-imagen" style="flex: 1;" title="Pega aquí la URL de la imagen del paquete">
-                            <div class="paquete-preview" style="width: 40px; height: 40px; border: 1px dashed #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
-                                <span style="font-size: 12px; color: #999;">📦</span>
-                            </div>
-                        </div>
                     </div>
                 `;
-
-            // Agregar evento para vista previa al paquete inicial
-            const initialImagenInput = container.querySelector('.paquete-imagen');
-            const initialPreview = container.querySelector('.paquete-preview');
-            if (initialImagenInput && initialPreview) {
-                initialImagenInput.addEventListener('input', function() {
-                    updatePaquetePreview(this, initialPreview);
-                });
-            }
 
                 // Limpiar campo de etiquetas
                 document.getElementById('product-etiquetas').value = '';
@@ -1380,23 +1359,10 @@
                     <input type="number" placeholder="Orden" class="form-control paquete-orden" min="1" style="width: 80px;">
                     <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre" style="flex: 1;">
                     <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio" style="width: 120px;">
-                </div>
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                    <input type="text" placeholder="URL del icono (opcional)" class="form-control paquete-imagen" style="flex: 1;" title="Pega aquí la URL de la imagen del paquete">
-                    <div class="paquete-preview" style="width: 40px; height: 40px; border: 1px dashed #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
-                        <span style="font-size: 12px; color: #999;">📦</span>
-                    </div>
                     <button type="button" class="btn btn-danger" onclick="this.parentElement.parentElement.remove()" style="margin-left: 10px;">❌ Quitar</button>
                 </div>
             `;
             container.appendChild(paqueteDiv);
-
-            // Agregar evento para vista previa de imagen
-            const imagenInput = paqueteDiv.querySelector('.paquete-imagen');
-            const preview = paqueteDiv.querySelector('.paquete-preview');
-            imagenInput.addEventListener('input', function() {
-                updatePaquetePreview(this, preview);
-            });
         }
 
         document.getElementById('product-form').addEventListener('submit', async (e) => {
@@ -1413,13 +1379,11 @@
                 const orden = item.querySelector('.paquete-orden').value;
                 const nombrePaquete = item.querySelector('.paquete-nombre').value;
                 const precio = item.querySelector('.paquete-precio').value;
-                const imagen = item.querySelector('.paquete-imagen').value;
                 if (nombrePaquete && precio) {
                     paquetes.push({ 
                         nombre: nombrePaquete, 
                         precio: parseFloat(precio),
-                        orden: orden ? parseInt(orden) : 1,
-                        imagen: imagen || null
+                        orden: orden ? parseInt(orden) : 1
                     });
                 }
             });
@@ -1507,33 +1471,15 @@
                     producto.paquetes.forEach(paquete => {
                         const paqueteDiv = document.createElement('div');
                         paqueteDiv.className = 'paquete-item';
-                        const imagenUrl = paquete.imagen || '';
-                        const previewContent = imagenUrl ? 
-                            `<img src="${imagenUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;" onerror="this.parentElement.innerHTML='<span style=\\"font-size: 12px; color: #999;\\">❌</span>'">` :
-                            '<span style="font-size: 12px; color: #999;">📦</span>';
-
                         paqueteDiv.innerHTML = `
                             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
                                 <input type="number" placeholder="Orden" class="form-control paquete-orden" min="1" value="${paquete.orden || 1}" style="width: 80px;">
                                 <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre" value="${paquete.nombre}" style="flex: 1;">
                                 <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio" value="${paquete.precio}" style="width: 120px;">
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                                <input type="text" placeholder="URL del icono (opcional)" class="form-control paquete-imagen" value="${imagenUrl}" style="flex: 1;" title="Pega aquí la URL de la imagen del paquete">
-                                <div class="paquete-preview" style="width: 40px; height: 40px; border: 1px dashed #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
-                                    ${previewContent}
-                                </div>
                                 <button type="button" class="btn btn-danger" onclick="this.parentElement.parentElement.remove()" style="margin-left: 10px;">❌ Quitar</button>
                             </div>
                         `;
                         container.appendChild(paqueteDiv);
-
-                        // Agregar evento para vista previa de imagen
-                        const imagenInput = paqueteDiv.querySelector('.paquete-imagen');
-                        const preview = paqueteDiv.querySelector('.paquete-preview');
-                        imagenInput.addEventListener('input', function() {
-                            updatePaquetePreview(this, preview);
-                        });
                     });
                 } else {
                     // Agregar un paquete vacío si no hay ninguno
@@ -1939,50 +1885,7 @@
             }
         }
 
-        // Función para actualizar vista previa de imagen de paquete
-        function updatePaquetePreview(input, preview) {
-            try {
-                if (!input || !preview) {
-                    console.warn('Input o preview no definidos para updatePaquetePreview');
-                    return;
-                }
-                
-                const url = input.value ? input.value.trim() : '';
-                
-                if (url) {
-                    // Limpiar el contenido actual de forma segura
-                    if (preview) {
-                        preview.innerHTML = '';
-                        
-                        // Crear nueva imagen
-                        const img = document.createElement('img');
-                        img.src = url;
-                        img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; border-radius: 6px;';
-                        
-                        img.onload = function() {
-                            if (preview && preview.parentNode) {
-                                preview.appendChild(img);
-                            }
-                        };
-                        
-                        img.onerror = function() {
-                            if (preview && preview.parentNode) {
-                                preview.innerHTML = '<span style="font-size: 12px; color: #dc3545; font-weight: bold;">❌</span>';
-                            }
-                        };
-                    }
-                } else {
-                    if (preview) {
-                        preview.innerHTML = '<span style="font-size: 12px; color: #999;">📦</span>';
-                    }
-                }
-            } catch (error) {
-                console.error('Error en updatePaquetePreview:', error);
-                if (preview) {
-                    preview.innerHTML = '<span style="font-size: 12px; color: #dc3545;">❌</span>';
-                }
-            }
-        }
+        
 
         // Función para verificar autenticación de administrador
         async function verificarAuthAdmin() {
@@ -2048,37 +1951,4 @@
             }, 3000);
         }
 
-        // Función para configurar eventos de vista previa de imágenes
-        function configurarEventosVistaPrevia() {
-            try {
-                // Configurar eventos para todos los inputs de imagen de paquetes
-                const imagenInputs = document.querySelectorAll('.paquete-imagen');
-                imagenInputs.forEach((input, index) => {
-                    const preview = input.closest('.paquete-item')?.querySelector('.paquete-preview');
-                    if (preview) {
-                        // Remover evento anterior si existe
-                        input.removeEventListener('input', input.previewHandler);
-                        
-                        // Crear nuevo handler
-                        input.previewHandler = function() {
-                            updatePaquetePreview(this, preview);
-                        };
-                        
-                        // Agregar evento
-                        input.addEventListener('input', input.previewHandler);
-                        console.log(`✅ Evento configurado para input ${index + 1}`);
-                    }
-                });
-            } catch (error) {
-                console.error('Error configurando eventos de vista previa:', error);
-            }
-        }
-
-        // Mejorar la función addPaquete para incluir configuración de eventos
-        function addPaqueteConEventos() {
-            addPaquete();
-            // Reconfigurar eventos después de agregar paquete
-            setTimeout(() => {
-                configurarEventosVistaPrevia();
-            }, 100);
-        }
+        
