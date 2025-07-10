@@ -25,59 +25,6 @@
             border-radius: 15px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             overflow: hidden;
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1;
-            transition: opacity 0.3s ease;
-        }
-
-        /* Estilos para estados de carga */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #007bff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Mejorar visibilidad de alertas */
-        .alert {
-            padding: 15px 20px;
-            margin: 15px 0;
-            border-radius: 8px;
-            font-weight: 500;
-            border-left: 4px solid;
-        }
-
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border-left-color: #28a745;
-        }
-
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-            border-left-color: #dc3545;
         }
 
         .header {
@@ -781,7 +728,7 @@
                             Mostrando <span id="ordenes-info">0</span> órdenes
                         </span>
                     </div>
-
+                    
                     <!-- Controles de paginación -->
                     <div id="pagination-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
                         <div style="display: flex; gap: 10px; align-items: center;">
@@ -793,7 +740,7 @@
                                 <option value="100">100</option>
                             </select>
                         </div>
-
+                        
                         <div style="display: flex; gap: 5px; align-items: center;">
                             <button id="prev-page" class="btn btn-sm btn-warning" onclick="previousPage()" disabled>⬅️ Anterior</button>
                             <span id="page-info" style="margin: 0 15px; font-size: 14px; color: #495057;">Página 1 de 1</span>
@@ -849,6 +796,12 @@
                                         <input type="number" placeholder="Orden" class="form-control paquete-orden" min="1" style="width: 80px;">
                                         <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre" style="flex: 1;">
                                         <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio" style="width: 120px;">
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <input type="text" placeholder="URL del icono (opcional)" class="form-control paquete-imagen" style="flex: 1;" title="Pega aquí la URL de la imagen del paquete">
+                                        <div class="paquete-preview" style="width: 40px; height: 40px; border: 1px dashed #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
+                                            <span style="font-size: 12px; color: #999;">📦</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -944,14 +897,6 @@
         </div>
     </div>
 
-    <!-- Overlay de carga -->
-    <div class="loading-overlay" id="loading-overlay">
-        <div style="text-align: center; color: white;">
-            <div class="loading-spinner"></div>
-            <p style="margin-top: 20px;">Cargando panel de administración...</p>
-        </div>
-    </div>
-
     <script>
         // Funciones para cambiar pestañas
         function showTab(tabName) {
@@ -976,42 +921,18 @@
             if (tabName === 'configuracion') loadConfig();
         }
 
-        // Funciones para mostrar alertas mejorada
+        // Funciones para mostrar alertas
         function showAlert(message, type = 'success') {
-            // Remover alertas anteriores
-            const existingAlerts = document.querySelectorAll('.alert');
-            existingAlerts.forEach(alert => alert.remove());
-
             const alertDiv = document.createElement('div');
             alertDiv.className = `alert alert-${type}`;
-            alertDiv.innerHTML = `
-                <span>${message}</span>
-                <button onclick="this.parentElement.remove()" style="float: right; background: none; border: none; color: inherit; cursor: pointer; font-size: 18px;">&times;</button>
-            `;
+            alertDiv.textContent = message;
 
-            // Buscar contenedor activo
-            const activeContainer = document.querySelector('.tab-pane.active .card') || 
-                                  document.querySelector('.tab-pane.active') || 
-                                  document.querySelector('.tab-content');
+            const container = document.querySelector('.tab-pane.active .card');
+            container.insertBefore(alertDiv, container.firstChild);
 
-            if (activeContainer) {
-                activeContainer.insertBefore(alertDiv, activeContainer.firstChild);
-            } else {
-                // Fallback: agregar al body
-                document.body.appendChild(alertDiv);
-                alertDiv.style.position = 'fixed';
-                alertDiv.style.top = '20px';
-                alertDiv.style.right = '20px';
-                alertDiv.style.zIndex = '10000';
-                alertDiv.style.maxWidth = '400px';
-            }
-
-            // Auto-remover después de 5 segundos
             setTimeout(() => {
-                if (alertDiv.parentNode) {
-                    alertDiv.remove();
-                }
-            }, 5000);
+                alertDiv.remove();
+            }, 3000);
         }
 
         // Variables para paginación
@@ -1022,81 +943,20 @@
 
         // FUNCIONES PARA ÓRDENES
         async function loadOrdenes() {
-            const ordenesList = document.getElementById('ordenes-list');
-            
-            // Mostrar mensaje de carga
-            if (ordenesList) {
-                ordenesList.innerHTML = '<div class="loading">⏳ Cargando órdenes...</div>';
-            }
-            
             try {
-                console.log('🔄 Cargando órdenes...');
-                
-                // Timeout para evitar cuelgues
-                const timeoutPromise = new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('Timeout - La carga de órdenes tomó demasiado tiempo')), 10000)
-                );
-                
-                const fetchPromise = fetch('/admin/ordenes', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    credentials: 'same-origin'
-                });
-                
-                const response = await Promise.race([fetchPromise, timeoutPromise]);
-                
-                if (!response.ok) {
-                    if (response.status === 401) {
-                        throw new Error('Sin autorización - Verifica tu sesión de administrador');
-                    } else if (response.status === 403) {
-                        throw new Error('Acceso denegado - No tienes permisos de administrador');
-                    } else {
-                        throw new Error(`Error del servidor: ${response.status} - ${response.statusText}`);
-                    }
-                }
-                
-                const data = await response.json();
-                allOrdenes = Array.isArray(data) ? data : [];
+                const response = await fetch('/admin/ordenes');
+                allOrdenes = await response.json();
                 totalOrdenes = allOrdenes.length;
                 
-                console.log(`✅ Órdenes cargadas: ${totalOrdenes}`);
-
                 // Actualizar información
-                const ordenesInfo = document.getElementById('ordenes-info');
-                if (ordenesInfo) {
-                    ordenesInfo.textContent = `${totalOrdenes}`;
-                }
-
+                document.getElementById('ordenes-info').textContent = `${totalOrdenes}`;
+                
                 // Mostrar página actual
                 displayOrdenesPage();
 
             } catch (error) {
-                console.error('❌ Error al cargar órdenes:', error);
-                
-                // Resetear variables
-                allOrdenes = [];
-                totalOrdenes = 0;
-                
-                if (ordenesList) {
-                    ordenesList.innerHTML = `
-                        <div class="alert alert-error" style="text-align: center; padding: 30px; margin: 20px 0;">
-                            <h4 style="color: #dc3545; margin-bottom: 15px;">❌ Error al cargar órdenes</h4>
-                            <p style="margin-bottom: 15px;"><strong>Detalles:</strong> ${error.message}</p>
-                            <div style="margin-top: 20px;">
-                                <button class="btn btn-primary" onclick="loadOrdenes()" style="margin-right: 10px;">🔄 Reintentar</button>
-                                <button class="btn btn-secondary" onclick="location.reload()">🔄 Recargar Página</button>
-                            </div>
-                        </div>
-                    `;
-                }
-                
-                // Actualizar info
-                const ordenesInfo = document.getElementById('ordenes-info');
-                if (ordenesInfo) {
-                    ordenesInfo.textContent = '0';
-                }
+                console.error('Error al cargar órdenes:', error);
+                document.getElementById('ordenes-list').innerHTML = '<p>Error al cargar órdenes</p>';
             }
         }
 
@@ -1104,7 +964,7 @@
             const startIndex = (currentPage - 1) * ordenesPerPage;
             const endIndex = startIndex + ordenesPerPage;
             const ordenes = allOrdenes.slice(startIndex, endIndex);
-
+            
             // Actualizar controles de paginación
             updatePaginationControls();
 
@@ -1222,14 +1082,14 @@
 
         function updatePaginationControls() {
             const totalPages = Math.ceil(totalOrdenes / ordenesPerPage);
-
+            
             // Actualizar información de página
             document.getElementById('page-info').textContent = `Página ${currentPage} de ${totalPages}`;
-
+            
             // Actualizar botones
             document.getElementById('prev-page').disabled = currentPage <= 1;
             document.getElementById('next-page').disabled = currentPage >= totalPages;
-
+            
             // Mostrar/ocultar controles si no hay órdenes
             const paginationControls = document.getElementById('pagination-controls');
             if (totalOrdenes === 0) {
@@ -1259,7 +1119,7 @@
             currentPage = 1; // Resetear a primera página
             displayOrdenesPage();
         }
-
+            
 
         async function updateEstado(ordenId, nuevoEstado) {
             try {
@@ -1342,15 +1202,8 @@
         // FUNCIONES PARA PRODUCTOS
         async function loadProductos() {
             try {
-                console.log('🔄 Cargando productos...');
                 const response = await fetch('/admin/productos');
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
                 const productos = await response.json();
-                console.log(`✅ Productos cargados: ${productos.length}`);
 
                 // Ordenar productos por campo orden si existe, sino por id
                 const productosOrdenados = productos.sort((a, b) => {
@@ -1428,19 +1281,11 @@
                 document.getElementById('productos-list').innerHTML = html;
 
                 // Actualizar variable global de productos
-                productosGlobal = productosOrdenados;
+                window.productos = productosOrdenados;
 
             } catch (error) {
-                console.error('❌ Error al cargar productos:', error);
-                const productosList = document.getElementById('productos-list');
-                if (productosList) {
-                    productosList.innerHTML = `
-                        <div class="alert alert-error">
-                            <p><strong>Error al cargar productos:</strong> ${error.message}</p>
-                            <button class="btn btn-primary" onclick="loadProductos()">🔄 Reintentar</button>
-                        </div>
-                    `;
-                }
+                console.error('Error al cargar productos:', error);
+                document.getElementById('productos-list').innerHTML = '<p>Error al cargar productos</p>';
             }
         }
 
@@ -1470,8 +1315,23 @@
                             <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre" style="flex: 1;">
                             <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio" style="width: 120px;">
                         </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="text" placeholder="URL del icono (opcional)" class="form-control paquete-imagen" style="flex: 1;" title="Pega aquí la URL de la imagen del paquete">
+                            <div class="paquete-preview" style="width: 40px; height: 40px; border: 1px dashed #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
+                                <span style="font-size: 12px; color: #999;">📦</span>
+                            </div>
+                        </div>
                     </div>
                 `;
+            
+            // Agregar evento para vista previa al paquete inicial
+            const initialImagenInput = container.querySelector('.paquete-imagen');
+            const initialPreview = container.querySelector('.paquete-preview');
+            if (initialImagenInput && initialPreview) {
+                initialImagenInput.addEventListener('input', function() {
+                    updatePaquetePreview(this, initialPreview);
+                });
+            }
 
                 // Limpiar campo de etiquetas
                 document.getElementById('product-etiquetas').value = '';
@@ -1486,10 +1346,23 @@
                     <input type="number" placeholder="Orden" class="form-control paquete-orden" min="1" style="width: 80px;">
                     <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre" style="flex: 1;">
                     <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio" style="width: 120px;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <input type="text" placeholder="URL del icono (opcional)" class="form-control paquete-imagen" style="flex: 1;" title="Pega aquí la URL de la imagen del paquete">
+                    <div class="paquete-preview" style="width: 40px; height: 40px; border: 1px dashed #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
+                        <span style="font-size: 12px; color: #999;">📦</span>
+                    </div>
                     <button type="button" class="btn btn-danger" onclick="this.parentElement.parentElement.remove()" style="margin-left: 10px;">❌ Quitar</button>
                 </div>
             `;
             container.appendChild(paqueteDiv);
+            
+            // Agregar evento para vista previa de imagen
+            const imagenInput = paqueteDiv.querySelector('.paquete-imagen');
+            const preview = paqueteDiv.querySelector('.paquete-preview');
+            imagenInput.addEventListener('input', function() {
+                updatePaquetePreview(this, preview);
+            });
         }
 
         document.getElementById('product-form').addEventListener('submit', async (e) => {
@@ -1506,11 +1379,13 @@
                 const orden = item.querySelector('.paquete-orden').value;
                 const nombrePaquete = item.querySelector('.paquete-nombre').value;
                 const precio = item.querySelector('.paquete-precio').value;
+                const imagen = item.querySelector('.paquete-imagen').value;
                 if (nombrePaquete && precio) {
                     paquetes.push({ 
                         nombre: nombrePaquete, 
                         precio: parseFloat(precio),
-                        orden: orden ? parseInt(orden) : 1
+                        orden: orden ? parseInt(orden) : 1,
+                        imagen: imagen || null
                     });
                 }
             });
@@ -1598,15 +1473,33 @@
                     producto.paquetes.forEach(paquete => {
                         const paqueteDiv = document.createElement('div');
                         paqueteDiv.className = 'paquete-item';
+                        const imagenUrl = paquete.imagen || '';
+                        const previewContent = imagenUrl ? 
+                            `<img src="${imagenUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;" onerror="this.parentElement.innerHTML='<span style=\\"font-size: 12px; color: #999;\\">❌</span>'">` :
+                            '<span style="font-size: 12px; color: #999;">📦</span>';
+                        
                         paqueteDiv.innerHTML = `
                             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
                                 <input type="number" placeholder="Orden" class="form-control paquete-orden" min="1" value="${paquete.orden || 1}" style="width: 80px;">
                                 <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre" value="${paquete.nombre}" style="flex: 1;">
                                 <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio" value="${paquete.precio}" style="width: 120px;">
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                <input type="text" placeholder="URL del icono (opcional)" class="form-control paquete-imagen" value="${imagenUrl}" style="flex: 1;" title="Pega aquí la URL de la imagen del paquete">
+                                <div class="paquete-preview" style="width: 40px; height: 40px; border: 1px dashed #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
+                                    ${previewContent}
+                                </div>
                                 <button type="button" class="btn btn-danger" onclick="this.parentElement.parentElement.remove()" style="margin-left: 10px;">❌ Quitar</button>
                             </div>
                         `;
                         container.appendChild(paqueteDiv);
+                        
+                        // Agregar evento para vista previa de imagen
+                        const imagenInput = paqueteDiv.querySelector('.paquete-imagen');
+                        const preview = paqueteDiv.querySelector('.paquete-preview');
+                        imagenInput.addEventListener('input', function() {
+                            updatePaquetePreview(this, preview);
+                        });
                     });
                 } else {
                     // Agregar un paquete vacío si no hay ninguno
@@ -1782,6 +1675,16 @@
             }
         }
 
+        // Función para actualizar vista previa de paquete
+        function updatePaquetePreview(input, preview) {
+            const url = input.value.trim();
+            if (url) {
+                preview.innerHTML = `<img src="${url}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;" onerror="this.parentElement.innerHTML='<span style=\\"font-size: 12px; color: #999;\\">❌</span>'">`;
+            } else {
+                preview.innerHTML = '<span style="font-size: 12px; color: #999;">📦</span>';
+            }
+        }
+
         // Función para eliminar imagen
         async function deleteImagen(imagenId) {
             if (confirm('¿Estás seguro de que quieres eliminar esta imagen?')) {
@@ -1841,7 +1744,39 @@
             });
         }
 
-        
+        // Función para mostrar pestañas
+        function showTab(tabName) {
+            // Ocultar todas las pestañas
+            const tabs = document.querySelectorAll('.tab-pane');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            // Mostrar la pestaña seleccionada
+            const targetTab = document.getElementById(tabName);
+            if (targetTab) {
+                targetTab.classList.add('active');
+            }
+
+            // Actualizar botones de navegación
+            const navBtns = document.querySelectorAll('.nav-btn');
+            navBtns.forEach(btn => btn.classList.remove('active'));
+
+            // Buscar y activar el botón correspondiente
+            const activeBtn = document.querySelector(`[onclick="showTab('${tabName}')"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
+
+            // Cargar datos específicos según la pestaña
+            if (tabName === 'ordenes') {
+                loadOrdenes();
+            } else if (tabName === 'productos') {
+                loadProductos();
+            } else if (tabName === 'imagenes') {
+                loadImagenes();
+            } else if (tabName === 'configuracion') {
+                loadConfig();
+            }
+        }
 
         // Función para cerrar sesión del admin
         async function cerrarSesionAdmin() {
@@ -1851,145 +1786,42 @@
                         method: 'POST'
                     });
 
-                    if (response.ok || response.status === 401) {
+                    if (response.ok) {
                         showAlert('Sesión cerrada correctamente', 'success');
                         setTimeout(() => {
                             window.location.href = '/';
                         }, 1500);
-                    } else {
-                        // Redirigir de cualquier manera
-                        window.location.href = '/';
                     }
                 } catch (error) {
-                    console.error('Error al cerrar sesión:', error);
-                    // Redirigir de cualquier manera
-                    window.location.href = '/';
+                    showAlert('Error al cerrar sesión', 'error');
                 }
             }
         }
 
         // Función para cargar información del usuario administrador
         async function loadUserInfo() {
-            const userInfoElement = document.getElementById('admin-user-info');
-            
             try {
-                console.log('🔍 Verificando información del usuario...');
-                
-                const response = await fetch('/usuario', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    credentials: 'same-origin'
-                });
-                
+                const response = await fetch('/usuario');
                 if (response.ok) {
                     const data = await response.json();
-                    console.log('✅ Usuario encontrado:', data.usuario?.email);
-                    
+                    const userInfoElement = document.getElementById('admin-user-info');
                     if (userInfoElement && data.usuario) {
                         userInfoElement.innerHTML = `
-                            👤 ${data.usuario.nombre || 'Admin'}
+                            👤 ${data.usuario.nombre}
                             <br>
-                            <small style="opacity: 0.8;">${data.usuario.email || 'admin@inefablestore.com'}</small>
-                            ${data.usuario.es_admin ? '<br><span style="color: #28a745; font-size: 10px;">🛡️ ADMIN</span>' : ''}
-                        `;
-                    }
-                } else if (response.status === 401) {
-                    console.log('⚠️ Usuario no autenticado');
-                    // Usuario no autenticado, mostrar info genérica
-                    if (userInfoElement) {
-                        userInfoElement.innerHTML = `
-                            👤 Administrador
-                            <br>
-                            <small style="opacity: 0.8;">Panel de Administración</small>
-                        `;
-                    }
-                } else {
-                    console.warn('⚠️ Error en respuesta del usuario:', response.status);
-                    if (userInfoElement) {
-                        userInfoElement.innerHTML = `
-                            👤 Admin
-                            <br>
-                            <small style="opacity: 0.8;">Estado desconocido</small>
+                            <small style="opacity: 0.8;">${data.usuario.email}</small>
                         `;
                     }
                 }
             } catch (error) {
-                console.error('❌ Error al cargar información del usuario:', error);
-                // Mostrar info por defecto
-                if (userInfoElement) {
-                    userInfoElement.innerHTML = `
-                        👤 Administrador
-                        <br>
-                        <small style="opacity: 0.8;">Error de conexión</small>
-                    `;
-                }
+                console.error('Error al cargar información del usuario:', error);
             }
         }
 
-        // Función para inicializar el panel paso a paso
-        async function inicializarPanelAdmin() {
-            console.log('🚀 Iniciando panel de administración...');
-            
-            // Mostrar el panel inmediatamente
-            const container = document.querySelector('.container');
-            if (container) {
-                container.style.display = 'block';
-                container.style.visibility = 'visible';
-                container.style.opacity = '1';
-            }
-            
-            try {
-                // Paso 1: Información de usuario
-                console.log('👤 Paso 1: Cargando información de usuario...');
-                await loadUserInfo();
-                console.log('✅ Información de usuario cargada');
-                
-                // Pequeña pausa para evitar sobrecarga
-                await new Promise(resolve => setTimeout(resolve, 100));
-                
-                // Paso 2: Órdenes
-                console.log('📦 Paso 2: Cargando órdenes...');
-                await loadOrdenes();
-                console.log('✅ Órdenes cargadas');
-                
-                // Paso 3: Verificar que todo esté funcionando
-                console.log('🔍 Paso 3: Verificando estado...');
-                const ordenesTab = document.getElementById('ordenes');
-                if (ordenesTab && ordenesTab.classList.contains('active')) {
-                    console.log('✅ Tab de órdenes activo correctamente');
-                }
-                
-                console.log('✅ Panel de administración inicializado completamente');
-                
-                // Mostrar mensaje de éxito
-                showAlert('Panel de administración cargado correctamente', 'success');
-                
-            } catch (error) {
-                console.error('❌ Error en la inicialización:', error);
-                console.error('Detalles del error:', error.stack);
-                
-                // Intentar mostrar contenido básico
-                const ordenesList = document.getElementById('ordenes-list');
-                if (ordenesList) {
-                    ordenesList.innerHTML = `
-                        <div class="alert alert-error">
-                            <h4>Error de carga</h4>
-                            <p>Hubo un problema al cargar el panel. Intentando recargar...</p>
-                            <button class="btn btn-primary" onclick="location.reload()">🔄 Recargar Página</button>
-                        </div>
-                    `;
-                }
-                
-                showAlert('Error al cargar algunos componentes. Prueba recargar la página.', 'error');
-            }
-        }
-
-        // Cargar datos iniciales con mejor manejo de errores
+        // Cargar datos iniciales
         document.addEventListener('DOMContentLoaded', function() {
-            // Esperar un momento para que todo el DOM esté listo
-            setTimeout(inicializarPanelAdmin, 100);
+            loadUserInfo();
+            loadOrdenes();
         });
 
         // Recargar órdenes cuando cambie el tamaño de pantalla
@@ -2004,132 +1836,76 @@
         // Variables para gestión de productos
         let productos = [];
 
-        // Variable global para productos
-        let productosGlobal = [];
-
         // Función para mover producto arriba/abajo
         async function moverProducto(productoId, direccion) {
-            if (!productosGlobal || productosGlobal.length === 0) {
-                console.warn('No hay productos cargados');
-                showAlert('Error: No hay productos cargados', 'error');
-                return;
-            }
+            if (!window.productos) return;
 
-            const index = productosGlobal.findIndex(p => p.id === productoId);
-            if (index === -1) {
-                console.warn('Producto no encontrado:', productoId);
-                showAlert('Error: Producto no encontrado', 'error');
-                return;
-            }
+            const index = window.productos.findIndex(p => p.id === productoId);
+            if (index === -1) return;
 
-            let newIndex;
-            if (direccion === 'up' && index > 0) {
-                newIndex = index - 1;
-            } else if (direccion === 'down' && index < productosGlobal.length - 1) {
-                newIndex = index + 1;
-            } else {
-                console.log('No se puede mover en esa dirección');
-                return; // No se puede mover
-            }
+            const newIndex = direccion === 'up' ? index - 1 : index + 1;
 
-            // Intercambiar elementos
-            [productosGlobal[index], productosGlobal[newIndex]] = [productosGlobal[newIndex], productosGlobal[index]];
+            if (newIndex >= 0 && newIndex < window.productos.length) {
+                try {
+                    // Intercambiar posiciones en el array local
+                    [window.productos[index], window.productos[newIndex]] = [window.productos[newIndex], window.productos[index]];
 
-            // Actualizar órdenes en el servidor
-            try {
-                const updates = [];
-                productosGlobal.forEach((producto, idx) => {
-                    updates.push({
-                        id: producto.id,
-                        orden: idx + 1
-                    });
-                });
+                    // Actualizar los órdenes en la base de datos
+                    const producto1 = window.productos[index];
+                    const producto2 = window.productos[newIndex];
 
-                const response = await fetch('/admin/productos/orden', {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ productos: updates })
-                });
+                    // Asignar nuevos órdenes basados en la nueva posición
+                    producto1.orden = index + 1;
+                    producto2.orden = newIndex + 1;
 
-                if (response.ok) {
-                    showAlert('Orden actualizado correctamente');
-                    loadProductos(); // Recargar la lista
-                } else {
-                    const errorData = await response.json().catch(() => ({}));
-                    showAlert(errorData.error || 'Error al actualizar orden', 'error');
+                    // Enviar actualizaciones a la base de datos
+                    await Promise.all([
+                        fetch(`/admin/producto/${producto1.id}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                nombre: producto1.nombre,
+                                descripcion: producto1.descripcion,
+                                imagen: producto1.imagen,
+                                categoria: producto1.categoria,
+                                orden: producto1.orden,
+                                paquetes: producto1.paquetes,
+                                etiquetas: producto1.etiquetas
+                            })
+                        }),
+                        fetch(`/admin/producto/${producto2.id}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                nombre: producto2.nombre,
+                                descripcion: producto2.descripcion,
+                                imagen: producto2.imagen,
+                                categoria: producto2.categoria,
+                                orden: producto2.orden,
+                                paquetes: producto2.paquetes,
+                                etiquetas: producto2.etiquetas
+                            })
+                        })
+                    ]);
+
+                    // Recargar la tabla para reflejar los cambios
+                    await loadProductos();
+                    showAlert(`Producto movido ${direccion === 'up' ? 'arriba' : 'abajo'}`);
+
+                } catch (error) {
+                    console.error('Error al mover producto:', error);
+                    showAlert('Error al cambiar el orden del producto', 'error');
+                    // Recargar productos para restaurar el estado original
+                    await loadProductos();
                 }
-            } catch (error) {
-                console.error('Error al actualizar orden:', error);
-                showAlert('Error de conexión al actualizar orden', 'error');
             }
         }
 
-        
 
-        // Función para verificar autenticación de administrador
-        async function verificarAuthAdmin() {
-            try {
-                const response = await fetch('/usuario');
-                if (response.status === 401) {
-                    console.warn('No hay sesión activa, redirigiendo al login...');
-                    mostrarMensajeError('Debes iniciar sesión como administrador');
-                    setTimeout(() => {
-                        window.location.href = '/';
-                    }, 2000);
-                    return false;
-                } else if (response.ok) {
-                    const data = await response.json();
-                    if (!data.usuario || !data.usuario.es_admin) {
-                        console.warn('Usuario no es administrador, redirigiendo...');
-                        mostrarMensajeError('No tienes permisos de administrador');
-                        setTimeout(() => {
-                            window.location.href = '/';
-                        }, 2000);
-                        return false;
-                    }
-                    console.log('✅ Usuario administrador verificado:', data.usuario.email);
-                    return true;
-                } else {
-                    console.error('Error en respuesta de verificación:', response.status);
-                    mostrarMensajeError('Error de verificación');
-                    setTimeout(() => {
-                        window.location.href = '/';
-                    }, 2000);
-                    return false;
-                }
-            } catch (error) {
-                console.error('Error verificando autenticación:', error);
-                mostrarMensajeError('Error de conexión - Continuando carga del panel...');
-                // En caso de error de red, permitir cargar el panel para debug
-                return true;
-            }
-        }
-
-        // Función para mostrar mensajes de error
-        function mostrarMensajeError(mensaje) {
-            const errorDiv = document.createElement('div');
-            errorDiv.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: #dc3545;
-                color: white;
-                padding: 15px 20px;
-                border-radius: 8px;
-                z-index: 10000;
-                font-weight: 600;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            `;
-            errorDiv.textContent = mensaje;
-            document.body.appendChild(errorDiv);
-            
-            setTimeout(() => {
-                if (errorDiv.parentNode) {
-                    errorDiv.remove();
-                }
-            }, 3000);
-        }
-
-        
+    </script>
+</body>
+</html>

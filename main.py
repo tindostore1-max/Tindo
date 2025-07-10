@@ -789,7 +789,6 @@ def admin_required(f):
 def get_ordenes():
     conn = get_db_connection()
     try:
-        print("🔍 Consultando órdenes desde base de datos...")
         result = conn.execute(text('''
             SELECT o.*, j.nombre as juego_nombre, j.categoria 
             FROM ordenes o 
@@ -797,7 +796,6 @@ def get_ordenes():
             ORDER BY o.fecha DESC
         '''))
         ordenes = result.fetchall()
-        print(f"✅ Órdenes encontradas: {len(ordenes)}")
 
         # Convertir a lista de diccionarios
         ordenes_dict = []
@@ -806,9 +804,6 @@ def get_ordenes():
             ordenes_dict.append(orden_dict)
 
         return jsonify(ordenes_dict)
-    except Exception as e:
-        print(f"❌ Error al obtener órdenes: {e}")
-        return jsonify({'error': 'Error al cargar órdenes'}), 500
     finally:
         conn.close()
 
@@ -877,10 +872,8 @@ def update_orden(orden_id):
 def get_productos():
     conn = get_db_connection()
     try:
-        print("🔍 Consultando productos desde base de datos...")
         result = conn.execute(text('SELECT * FROM juegos ORDER BY orden ASC, id ASC'))
         productos = result.fetchall()
-        print(f"✅ Productos encontrados: {len(productos)}")
 
         # Convertir a lista de diccionarios y obtener paquetes para cada producto
         productos_list = []
@@ -896,9 +889,6 @@ def get_productos():
             productos_list.append(producto_dict)
 
         return jsonify(productos_list)
-    except Exception as e:
-        print(f"❌ Error al obtener productos: {e}")
-        return jsonify({'error': 'Error al cargar productos'}), 500
     finally:
         conn.close()
 
@@ -1015,46 +1005,24 @@ def update_producto(producto_id):
 @app.route('/admin/producto/<int:producto_id>', methods=['DELETE'])
 @admin_required
 def delete_producto(producto_id):
-    """Eliminar un producto y todos sus paquetes"""
     conn = get_db_connection()
     try:
-        # Primero eliminar los paquetes asociados
+        # Eliminar órdenes relacionadas primero
+        conn.execute(text('DELETE FROM ordenes WHERE juego_id = :producto_id'), 
+                    {'producto_id': producto_id})
+        # Eliminar paquetes
         conn.execute(text('DELETE FROM paquetes WHERE juego_id = :producto_id'), 
                     {'producto_id': producto_id})
-
-        # Luego eliminar el producto
+        # Eliminar producto
         conn.execute(text('DELETE FROM juegos WHERE id = :producto_id'), 
                     {'producto_id': producto_id})
 
         conn.commit()
-        return jsonify({'success': True, 'message': 'Producto eliminado correctamente'})
+        return jsonify({'message': 'Producto eliminado correctamente'})
+
     except Exception as e:
-        print(f"Error al eliminar producto: {e}")
         conn.rollback()
-        return jsonify({'error': 'Error interno del servidor'}), 500
-    finally:
-        conn.close()
-
-@app.route('/admin/productos/orden', methods=['PUT'])
-@admin_required
-def update_productos_orden():
-    """Actualizar el orden de los productos"""
-    data = request.get_json()
-    productos = data.get('productos', [])
-
-    conn = get_db_connection()
-    try:
-        # Actualizar el orden de cada producto
-        for producto in productos:
-            conn.execute(text('UPDATE juegos SET orden = :orden WHERE id = :id'), 
-                        {'orden': producto['orden'], 'id': producto['id']})
-
-        conn.commit()
-        return jsonify({'success': True, 'message': 'Orden actualizado correctamente'})
-    except Exception as e:
-        print(f"Error al actualizar orden de productos: {e}")
-        conn.rollback()
-        return jsonify({'error': 'Error interno del servidor'}), 500
+        return jsonify({'error': f'Error al eliminar producto: {str(e)}'}), 500
     finally:
         conn.close()
 
@@ -1179,9 +1147,9 @@ def crear_valoracion():
             SELECT COUNT(*) FROM ordenes 
             WHERE juego_id = :juego_id AND usuario_email = :usuario_email AND estado = 'procesado'
         '''), {'juego_id': juego_id, 'usuario_email': usuario_email})
-
+        
         compras = result.fetchone()[0]
-
+        
         if compras == 0:
             return jsonify({'error': 'Solo puedes valorar productos que hayas comprado'}), 403
 
@@ -1219,7 +1187,7 @@ def get_valoraciones_producto(juego_id):
             WHERE v.juego_id = :juego_id
             ORDER BY v.fecha DESC
         '''), {'juego_id': juego_id})
-
+        
         valoraciones = result.fetchall()
 
         # Obtener estadísticas
@@ -1235,7 +1203,7 @@ def get_valoraciones_producto(juego_id):
             FROM valoraciones 
             WHERE juego_id = :juego_id
         '''), {'juego_id': juego_id})
-
+        
         stats = stats_result.fetchone()
 
         # Convertir a diccionarios
@@ -1272,7 +1240,7 @@ def get_valoracion_usuario(juego_id):
         return jsonify({'error': 'Debes iniciar sesión'}), 401
 
     usuario_email = session['user_email']
-
+    
     conn = get_db_connection()
     try:
         # Verificar si el usuario puede valorar (ha comprado el producto)
@@ -1280,7 +1248,7 @@ def get_valoracion_usuario(juego_id):
             SELECT COUNT(*) FROM ordenes 
             WHERE juego_id = :juego_id AND usuario_email = :usuario_email AND estado = 'procesado'
         '''), {'juego_id': juego_id, 'usuario_email': usuario_email})
-
+        
         puede_valorar = result.fetchone()[0] > 0
 
         # Obtener valoración existente del usuario
@@ -1288,7 +1256,7 @@ def get_valoracion_usuario(juego_id):
             SELECT * FROM valoraciones 
             WHERE juego_id = :juego_id AND usuario_email = :usuario_email
         '''), {'juego_id': juego_id, 'usuario_email': usuario_email})
-
+        
         valoracion = result.fetchone()
         valoracion_dict = dict(valoracion._mapping) if valoracion else None
 
@@ -1388,38 +1356,6 @@ def delete_imagen(imagen_id):
         conn.commit()
 
         return jsonify({'message': 'Imagen eliminada correctamente'})
-    finally:
-        conn.close()
-
-@app.route('/admin/imagen/buscar/<nombre>', methods=['DELETE'])
-@admin_required
-def delete_imagen_por_nombre(nombre):
-    conn = get_db_connection()
-    try:
-        # Buscar imagen por nombre en la ruta
-        result = conn.execute(text('SELECT * FROM imagenes WHERE ruta LIKE :nombre'), 
-                             {'nombre': f'%{nombre}%'})
-        imagen = result.fetchone()
-
-        if not imagen:
-            return jsonify({'error': 'Imagen no encontrada'}), 404
-
-        # Eliminar archivo físico
-        imagen_dict = dict(imagen._mapping)
-        file_path = os.path.join('static', imagen_dict['ruta'])
-        if os.path.exists(file_path):
-            try:
-                os.remove(file_path)
-                print(f"✅ Archivo eliminado: {file_path}")
-            except Exception as e:
-                print(f"Error al eliminar archivo: {e}")
-
-        # Eliminar de la base de datos
-        conn.execute(text('DELETE FROM imagenes WHERE id = :imagen_id'), 
-                    {'imagen_id': imagen_dict['id']})
-        conn.commit()
-
-        return jsonify({'message': f'Imagen {nombre} eliminada correctamente'})
     finally:
         conn.close()
 
