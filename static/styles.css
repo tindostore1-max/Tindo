@@ -578,7 +578,7 @@ header {
     width: 100%;
     clear: both;
     min-height: 300px; /* Altura ajustada al tamaño de las tarjetas */
-    padding: 20px 0 5px 0; /* Padding inferior mínimo de 5px */
+    padding: 20px 0 0 0; /* Sin padding inferior */
 }
 
     /* En móvil, eliminar todos los bordes y fondos del carrusel */
@@ -591,7 +591,7 @@ header {
             border-radius: 0 !important;
             box-shadow: none !important;
             margin: 0 !important;
-            padding: 10px 20px 5px 0 !important; /* Padding inferior mínimo de 5px */
+            padding: 10px 20px 0 0 !important; /* Sin padding inferior */
             min-height: 300px; /* Altura ajustada en móvil */
         }
 
@@ -603,7 +603,7 @@ header {
             border-radius: 0 !important;
             box-shadow: none !important;
             margin: 0 !important;
-            padding: 10px 20px 5px 0 !important; /* Padding inferior mínimo de 5px */
+            padding: 10px 20px 0 0 !important; /* Sin padding inferior */
             min-height: 300px; /* Altura ajustada para wrapper */
         }
     }
@@ -717,7 +717,7 @@ header {
     display: block;
     width: 100%;
     min-height: 300px; /* Altura ajustada al tamaño de las tarjetas */
-    padding: 20px 0 5px 0; /* Padding inferior mínimo de 5px */
+    padding: 20px 0 0 0; /* Sin padding inferior */
 }
 
 .todos-carousel-track {
