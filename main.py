@@ -1391,6 +1391,38 @@ def delete_imagen(imagen_id):
     finally:
         conn.close()
 
+@app.route('/admin/imagen/buscar/<nombre>', methods=['DELETE'])
+@admin_required
+def delete_imagen_por_nombre(nombre):
+    conn = get_db_connection()
+    try:
+        # Buscar imagen por nombre en la ruta
+        result = conn.execute(text('SELECT * FROM imagenes WHERE ruta LIKE :nombre'), 
+                             {'nombre': f'%{nombre}%'})
+        imagen = result.fetchone()
+
+        if not imagen:
+            return jsonify({'error': 'Imagen no encontrada'}), 404
+
+        # Eliminar archivo físico
+        imagen_dict = dict(imagen._mapping)
+        file_path = os.path.join('static', imagen_dict['ruta'])
+        if os.path.exists(file_path):
+            try:
+                os.remove(file_path)
+                print(f"✅ Archivo eliminado: {file_path}")
+            except Exception as e:
+                print(f"Error al eliminar archivo: {e}")
+
+        # Eliminar de la base de datos
+        conn.execute(text('DELETE FROM imagenes WHERE id = :imagen_id'), 
+                    {'imagen_id': imagen_dict['id']})
+        conn.commit()
+
+        return jsonify({'message': f'Imagen {nombre} eliminada correctamente'})
+    finally:
+        conn.close()
+
 # ENDPOINTS PARA CONFIGURACIÓN
 @app.route('/admin/config', methods=['GET'])
 @admin_required
