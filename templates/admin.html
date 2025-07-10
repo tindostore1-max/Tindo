@@ -728,7 +728,7 @@
                             Mostrando <span id="ordenes-info">0</span> órdenes
                         </span>
                     </div>
-                    
+
                     <!-- Controles de paginación -->
                     <div id="pagination-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
                         <div style="display: flex; gap: 10px; align-items: center;">
@@ -740,7 +740,7 @@
                                 <option value="100">100</option>
                             </select>
                         </div>
-                        
+
                         <div style="display: flex; gap: 5px; align-items: center;">
                             <button id="prev-page" class="btn btn-sm btn-warning" onclick="previousPage()" disabled>⬅️ Anterior</button>
                             <span id="page-info" style="margin: 0 15px; font-size: 14px; color: #495057;">Página 1 de 1</span>
@@ -947,10 +947,10 @@
                 const response = await fetch('/admin/ordenes');
                 allOrdenes = await response.json();
                 totalOrdenes = allOrdenes.length;
-                
+
                 // Actualizar información
                 document.getElementById('ordenes-info').textContent = `${totalOrdenes}`;
-                
+
                 // Mostrar página actual
                 displayOrdenesPage();
 
@@ -964,7 +964,7 @@
             const startIndex = (currentPage - 1) * ordenesPerPage;
             const endIndex = startIndex + ordenesPerPage;
             const ordenes = allOrdenes.slice(startIndex, endIndex);
-            
+
             // Actualizar controles de paginación
             updatePaginationControls();
 
@@ -1082,14 +1082,14 @@
 
         function updatePaginationControls() {
             const totalPages = Math.ceil(totalOrdenes / ordenesPerPage);
-            
+
             // Actualizar información de página
             document.getElementById('page-info').textContent = `Página ${currentPage} de ${totalPages}`;
-            
+
             // Actualizar botones
             document.getElementById('prev-page').disabled = currentPage <= 1;
             document.getElementById('next-page').disabled = currentPage >= totalPages;
-            
+
             // Mostrar/ocultar controles si no hay órdenes
             const paginationControls = document.getElementById('pagination-controls');
             if (totalOrdenes === 0) {
@@ -1119,7 +1119,7 @@
             currentPage = 1; // Resetear a primera página
             displayOrdenesPage();
         }
-            
+
 
         async function updateEstado(ordenId, nuevoEstado) {
             try {
@@ -1323,7 +1323,7 @@
                         </div>
                     </div>
                 `;
-            
+
             // Agregar evento para vista previa al paquete inicial
             const initialImagenInput = container.querySelector('.paquete-imagen');
             const initialPreview = container.querySelector('.paquete-preview');
@@ -1356,7 +1356,7 @@
                 </div>
             `;
             container.appendChild(paqueteDiv);
-            
+
             // Agregar evento para vista previa de imagen
             const imagenInput = paqueteDiv.querySelector('.paquete-imagen');
             const preview = paqueteDiv.querySelector('.paquete-preview');
@@ -1477,7 +1477,7 @@
                         const previewContent = imagenUrl ? 
                             `<img src="${imagenUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;" onerror="this.parentElement.innerHTML='<span style=\\"font-size: 12px; color: #999;\\">❌</span>'">` :
                             '<span style="font-size: 12px; color: #999;">📦</span>';
-                        
+
                         paqueteDiv.innerHTML = `
                             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
                                 <input type="number" placeholder="Orden" class="form-control paquete-orden" min="1" value="${paquete.orden || 1}" style="width: 80px;">
@@ -1493,7 +1493,7 @@
                             </div>
                         `;
                         container.appendChild(paqueteDiv);
-                        
+
                         // Agregar evento para vista previa de imagen
                         const imagenInput = paqueteDiv.querySelector('.paquete-imagen');
                         const preview = paqueteDiv.querySelector('.paquete-preview');
@@ -1678,10 +1678,18 @@
         // Función para actualizar vista previa de paquete
         function updatePaquetePreview(input, preview) {
             const url = input.value.trim();
+
             if (url) {
-                preview.innerHTML = `<img src="${url}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;" onerror="this.parentElement.innerHTML='<span style=\\"font-size: 12px; color: #999;\\">❌</span>'">`;
+                const img = preview.querySelector('img');
+                img.src = url;
+                img.onerror = function() {
+                    preview.style.display = 'none';
+                };
+                img.onload = function() {
+                    preview.style.display = 'block';
+                };
             } else {
-                preview.innerHTML = '<span style="font-size: 12px; color: #999;">📦</span>';
+                preview.style.display = 'none';
             }
         }
 
@@ -1841,71 +1849,3 @@
             if (!window.productos) return;
 
             const index = window.productos.findIndex(p => p.id === productoId);
-            if (index === -1) return;
-
-            const newIndex = direccion === 'up' ? index - 1 : index + 1;
-
-            if (newIndex >= 0 && newIndex < window.productos.length) {
-                try {
-                    // Intercambiar posiciones en el array local
-                    [window.productos[index], window.productos[newIndex]] = [window.productos[newIndex], window.productos[index]];
-
-                    // Actualizar los órdenes en la base de datos
-                    const producto1 = window.productos[index];
-                    const producto2 = window.productos[newIndex];
-
-                    // Asignar nuevos órdenes basados en la nueva posición
-                    producto1.orden = index + 1;
-                    producto2.orden = newIndex + 1;
-
-                    // Enviar actualizaciones a la base de datos
-                    await Promise.all([
-                        fetch(`/admin/producto/${producto1.id}`, {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                nombre: producto1.nombre,
-                                descripcion: producto1.descripcion,
-                                imagen: producto1.imagen,
-                                categoria: producto1.categoria,
-                                orden: producto1.orden,
-                                paquetes: producto1.paquetes,
-                                etiquetas: producto1.etiquetas
-                            })
-                        }),
-                        fetch(`/admin/producto/${producto2.id}`, {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                nombre: producto2.nombre,
-                                descripcion: producto2.descripcion,
-                                imagen: producto2.imagen,
-                                categoria: producto2.categoria,
-                                orden: producto2.orden,
-                                paquetes: producto2.paquetes,
-                                etiquetas: producto2.etiquetas
-                            })
-                        })
-                    ]);
-
-                    // Recargar la tabla para reflejar los cambios
-                    await loadProductos();
-                    showAlert(`Producto movido ${direccion === 'up' ? 'arriba' : 'abajo'}`);
-
-                } catch (error) {
-                    console.error('Error al mover producto:', error);
-                    showAlert('Error al cambiar el orden del producto', 'error');
-                    // Recargar productos para restaurar el estado original
-                    await loadProductos();
-                }
-            }
-        }
-
-
-    </script>
-</body>
-</html>
