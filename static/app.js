@@ -4015,13 +4015,24 @@ function actualizarEstadisticasValoraciones(juego_id, estadisticas) {
     const promedio = estadisticas.promedio || 0;
     const total = estadisticas.total || 0;
 
-    // Requerir mínimo 6 reseñas para mostrar promedio y estrellas llenas
-    if (total < 6) {
+    // Mostrar estrellas progresivamente desde la primera reseña
+    let promedioMostrar = promedio;
+    let numeroMostrar = promedio.toFixed(1);
+    
+    // Si hay pocas reseñas, mostrar con indicador de confiabilidad
+    let textoConfiabilidad = '';
+    if (total > 0 && total < 6) {
+        textoConfiabilidad = ` (${total} valoración${total !== 1 ? 'es' : ''})`;
+    } else if (total >= 6) {
+        textoConfiabilidad = ` (${total} valoraciones)`;
+    }
+
+    if (total === 0) {
         statsContainer.innerHTML = `
             <div class="overall-rating">
                 <div class="overall-stars">${generarEstrellas(0)}</div>
                 <p class="overall-number">-</p>
-                <p class="total-reviews">${total} valoración${total !== 1 ? 'es' : ''} (mínimo 6 para promedio)</p>
+                <p class="total-reviews">Sin valoraciones</p>
             </div>
         `;
         return;
@@ -4029,9 +4040,9 @@ function actualizarEstadisticasValoraciones(juego_id, estadisticas) {
 
     statsContainer.innerHTML = `
         <div class="overall-rating">
-            <div class="overall-stars">${generarEstrellas(promedio)}</div>
-            <p class="overall-number">${promedio}</p>
-            <p class="total-reviews">${total} valoración${total !== 1 ? 'es' : ''}</p>
+            <div class="overall-stars">${generarEstrellas(promedioMostrar)}</div>
+            <p class="overall-number">${numeroMostrar}</p>
+            <p class="total-reviews">${total} valoración${total !== 1 ? 'es' : ''}${textoConfiabilidad}</p>
         </div>
     `;
 }
@@ -4248,15 +4259,7 @@ function mostrarValoracionEnTarjeta(producto) {
     const promedio = parseFloat(producto.promedio_valoracion);
     const total = parseInt(producto.total_valoraciones);
 
-    // Requerir mínimo 6 reseñas para mostrar estrellas llenas
-    if (total < 6) {
-        return `
-            <div class="product-rating">
-                <div class="stars-display">${generarEstrellas(0)}</div>
-            </div>
-        `;
-    }
-
+    // Mostrar estrellas desde la primera reseña
     return `
         <div class="product-rating">
             <div class="stars-display">${generarEstrellas(promedio)}</div>
