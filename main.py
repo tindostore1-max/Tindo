@@ -434,6 +434,12 @@ def init_db():
             ADD COLUMN IF NOT EXISTS orden INTEGER DEFAULT 0;
         '''))
 
+        # Agregar columna imagen si no existe (migración)
+        conn.execute(text('''
+            ALTER TABLE paquetes 
+            ADD COLUMN IF NOT EXISTS imagen VARCHAR(255);
+        '''))
+
         # Agregar columna orden a juegos si no existe (migración)
         conn.execute(text('''
             ALTER TABLE juegos 
@@ -924,13 +930,14 @@ def create_producto():
         # Insertar paquetes
         for index, paquete in enumerate(paquetes):
             conn.execute(text('''
-                INSERT INTO paquetes (juego_id, nombre, precio, orden) 
-                VALUES (:juego_id, :nombre, :precio, :orden)
+                INSERT INTO paquetes (juego_id, nombre, precio, orden, imagen) 
+                VALUES (:juego_id, :nombre, :precio, :orden, :imagen)
             '''), {
                 'juego_id': producto_id, 
                 'nombre': paquete['nombre'], 
                 'precio': paquete['precio'],
-                'orden': paquete.get('orden', 1)
+                'orden': paquete.get('orden', 1),
+                'imagen': paquete.get('imagen')
             })
 
         conn.commit()
@@ -977,13 +984,14 @@ def update_producto(producto_id):
         # Insertar nuevos paquetes
         for paquete in paquetes:
             conn.execute(text('''
-                INSERT INTO paquetes (juego_id, nombre, precio, orden) 
-                VALUES (:juego_id, :nombre, :precio, :orden)
+                INSERT INTO paquetes (juego_id, nombre, precio, orden, imagen) 
+                VALUES (:juego_id, :nombre, :precio, :orden, :imagen)
             '''), {
                 'juego_id': producto_id,
                 'nombre': paquete['nombre'],
                 'precio': paquete['precio'],
-                'orden': paquete.get('orden', 1)
+                'orden': paquete.get('orden', 1),
+                'imagen': paquete.get('imagen')
             })
 
         conn.commit()

@@ -792,9 +792,17 @@
                             <label>Paquetes</label>
                             <div id="paquetes-container">
                                 <div class="paquete-item">
-                                    <input type="number" placeholder="Orden" class="form-control paquete-orden" min="1" style="width: 80px; display: inline-block; margin-right: 10px;">
-                                    <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre" style="width: calc(50% - 50px); display: inline-block; margin-right: 10px;">
-                                    <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio" style="width: calc(30% - 50px); display: inline-block;">
+                                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                        <input type="number" placeholder="Orden" class="form-control paquete-orden" min="1" style="width: 80px;">
+                                        <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre" style="flex: 1;">
+                                        <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio" style="width: 120px;">
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <input type="text" placeholder="URL del icono (opcional)" class="form-control paquete-imagen" style="flex: 1;" title="Pega aquí la URL de la imagen del paquete">
+                                        <div class="paquete-preview" style="width: 40px; height: 40px; border: 1px dashed #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
+                                            <span style="font-size: 12px; color: #999;">📦</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <button type="button" class="btn btn-warning" onclick="addPaquete()">➕ Agregar Paquete</button>
@@ -1302,11 +1310,28 @@
             const container = document.getElementById('paquetes-container');
             container.innerHTML = `
                     <div class="paquete-item">
-                        <input type="number" placeholder="Orden" class="form-control paquete-orden" min="1" style="width: 80px; display: inline-block; margin-right: 10px;">
-                        <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre" style="width: calc(50% - 50px); display: inline-block; margin-right: 10px;">
-                        <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio" style="width: calc(30% - 50px); display: inline-block;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <input type="number" placeholder="Orden" class="form-control paquete-orden" min="1" style="width: 80px;">
+                            <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre" style="flex: 1;">
+                            <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio" style="width: 120px;">
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="text" placeholder="URL del icono (opcional)" class="form-control paquete-imagen" style="flex: 1;" title="Pega aquí la URL de la imagen del paquete">
+                            <div class="paquete-preview" style="width: 40px; height: 40px; border: 1px dashed #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
+                                <span style="font-size: 12px; color: #999;">📦</span>
+                            </div>
+                        </div>
                     </div>
                 `;
+            
+            // Agregar evento para vista previa al paquete inicial
+            const initialImagenInput = container.querySelector('.paquete-imagen');
+            const initialPreview = container.querySelector('.paquete-preview');
+            if (initialImagenInput && initialPreview) {
+                initialImagenInput.addEventListener('input', function() {
+                    updatePaquetePreview(this, initialPreview);
+                });
+            }
 
                 // Limpiar campo de etiquetas
                 document.getElementById('product-etiquetas').value = '';
@@ -1317,12 +1342,27 @@
             const paqueteDiv = document.createElement('div');
             paqueteDiv.className = 'paquete-item';
             paqueteDiv.innerHTML = `
-                <input type="number" placeholder="Orden" class="form-control paquete-orden" min="1" style="width: 80px; display: inline-block; margin-right: 10px;">
-                <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre" style="width: calc(50% - 50px); display: inline-block; margin-right: 10px;">
-                <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio" style="width: calc(30% - 50px); display: inline-block;">
-                <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()" style="margin-left: 10px;">❌ Quitar</button>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <input type="number" placeholder="Orden" class="form-control paquete-orden" min="1" style="width: 80px;">
+                    <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre" style="flex: 1;">
+                    <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio" style="width: 120px;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <input type="text" placeholder="URL del icono (opcional)" class="form-control paquete-imagen" style="flex: 1;" title="Pega aquí la URL de la imagen del paquete">
+                    <div class="paquete-preview" style="width: 40px; height: 40px; border: 1px dashed #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
+                        <span style="font-size: 12px; color: #999;">📦</span>
+                    </div>
+                    <button type="button" class="btn btn-danger" onclick="this.parentElement.parentElement.remove()" style="margin-left: 10px;">❌ Quitar</button>
+                </div>
             `;
             container.appendChild(paqueteDiv);
+            
+            // Agregar evento para vista previa de imagen
+            const imagenInput = paqueteDiv.querySelector('.paquete-imagen');
+            const preview = paqueteDiv.querySelector('.paquete-preview');
+            imagenInput.addEventListener('input', function() {
+                updatePaquetePreview(this, preview);
+            });
         }
 
         document.getElementById('product-form').addEventListener('submit', async (e) => {
@@ -1339,11 +1379,13 @@
                 const orden = item.querySelector('.paquete-orden').value;
                 const nombrePaquete = item.querySelector('.paquete-nombre').value;
                 const precio = item.querySelector('.paquete-precio').value;
+                const imagen = item.querySelector('.paquete-imagen').value;
                 if (nombrePaquete && precio) {
                     paquetes.push({ 
                         nombre: nombrePaquete, 
                         precio: parseFloat(precio),
-                        orden: orden ? parseInt(orden) : 1
+                        orden: orden ? parseInt(orden) : 1,
+                        imagen: imagen || null
                     });
                 }
             });
@@ -1431,13 +1473,33 @@
                     producto.paquetes.forEach(paquete => {
                         const paqueteDiv = document.createElement('div');
                         paqueteDiv.className = 'paquete-item';
+                        const imagenUrl = paquete.imagen || '';
+                        const previewContent = imagenUrl ? 
+                            `<img src="${imagenUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;" onerror="this.parentElement.innerHTML='<span style=\\"font-size: 12px; color: #999;\\">❌</span>'">` :
+                            '<span style="font-size: 12px; color: #999;">📦</span>';
+                        
                         paqueteDiv.innerHTML = `
-                            <input type="number" placeholder="Orden" class="form-control paquete-orden" min="1" value="${paquete.orden || 1}" style="width: 80px; display: inline-block; margin-right: 10px;">
-                            <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre" value="${paquete.nombre}" style="width: calc(50% - 50px); display: inline-block; margin-right: 10px;">
-                            <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio" value="${paquete.precio}" style="width: calc(30% - 50px); display: inline-block;">
-                            <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()" style="margin-left: 10px;">❌ Quitar</button>
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                <input type="number" placeholder="Orden" class="form-control paquete-orden" min="1" value="${paquete.orden || 1}" style="width: 80px;">
+                                <input type="text" placeholder="Nombre del paquete" class="form-control paquete-nombre" value="${paquete.nombre}" style="flex: 1;">
+                                <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio" value="${paquete.precio}" style="width: 120px;">
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                <input type="text" placeholder="URL del icono (opcional)" class="form-control paquete-imagen" value="${imagenUrl}" style="flex: 1;" title="Pega aquí la URL de la imagen del paquete">
+                                <div class="paquete-preview" style="width: 40px; height: 40px; border: 1px dashed #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
+                                    ${previewContent}
+                                </div>
+                                <button type="button" class="btn btn-danger" onclick="this.parentElement.parentElement.remove()" style="margin-left: 10px;">❌ Quitar</button>
+                            </div>
                         `;
                         container.appendChild(paqueteDiv);
+                        
+                        // Agregar evento para vista previa de imagen
+                        const imagenInput = paqueteDiv.querySelector('.paquete-imagen');
+                        const preview = paqueteDiv.querySelector('.paquete-preview');
+                        imagenInput.addEventListener('input', function() {
+                            updatePaquetePreview(this, preview);
+                        });
                     });
                 } else {
                     // Agregar un paquete vacío si no hay ninguno
@@ -1610,6 +1672,16 @@
                 }
             } catch (error) {
                 showAlert('Error al guardar imágenes del carrusel', 'error');
+            }
+        }
+
+        // Función para actualizar vista previa de paquete
+        function updatePaquetePreview(input, preview) {
+            const url = input.value.trim();
+            if (url) {
+                preview.innerHTML = `<img src="${url}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;" onerror="this.parentElement.innerHTML='<span style=\\"font-size: 12px; color: #999;\\">❌</span>'">`;
+            } else {
+                preview.innerHTML = '<span style="font-size: 12px; color: #999;">📦</span>';
             }
         }
 
