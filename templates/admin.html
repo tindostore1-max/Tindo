@@ -805,7 +805,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-warning" onclick="addPaquete()">➕ Agregar Paquete</button>
+                            <button type="button" class="btn btn-warning" onclick="addPaqueteConEventos()">➕ Agregar Paquete</button>
                         </div>
                         <button type="submit" class="btn btn-success">💾 Guardar Producto</button>
                         <button type="button" class="btn btn-danger" onclick="hideCreateProductForm()">❌ Cancelar</button>
@@ -1307,7 +1307,7 @@
                 document.getElementById('productos-list').innerHTML = html;
 
                 // Actualizar variable global de productos
-                window.productos = productosOrdenados;
+                productosGlobal = productosOrdenados;
 
             } catch (error) {
                 console.error('❌ Error al cargar productos:', error);
@@ -1814,29 +1814,37 @@
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('🚀 Iniciando panel de administración...');
             
-            // Verificar autenticación primero
-            const isAuthenticated = await verificarAuthAdmin();
-            if (!isAuthenticated) {
-                return; // Si no está autenticado, se redirige automáticamente
-            }
-            
-            // Cargar información del usuario
             try {
-                await loadUserInfo();
-                console.log('✅ Información de usuario cargada');
+                // Verificar autenticación primero
+                const isAuthenticated = await verificarAuthAdmin();
+                if (!isAuthenticated) {
+                    return; // Si no está autenticado, se redirige automáticamente
+                }
+                
+                // Cargar información del usuario
+                try {
+                    await loadUserInfo();
+                    console.log('✅ Información de usuario cargada');
+                } catch (error) {
+                    console.error('❌ Error cargando info de usuario:', error);
+                    showAlert('Error al cargar información del usuario', 'error');
+                }
+                
+                // Cargar órdenes inicial
+                try {
+                    await loadOrdenes();
+                    console.log('✅ Órdenes iniciales cargadas');
+                } catch (error) {
+                    console.error('❌ Error cargando órdenes iniciales:', error);
+                    showAlert('Error al cargar órdenes', 'error');
+                }
+                
+                console.log('✅ Panel de administración inicializado completamente');
+                
             } catch (error) {
-                console.error('❌ Error cargando info de usuario:', error);
+                console.error('❌ Error crítico en la inicialización:', error);
+                mostrarMensajeError('Error crítico al inicializar el panel');
             }
-            
-            // Cargar órdenes inicial
-            try {
-                await loadOrdenes();
-                console.log('✅ Órdenes iniciales cargadas');
-            } catch (error) {
-                console.error('❌ Error cargando órdenes iniciales:', error);
-            }
-            
-            console.log('✅ Panel de administración inicializado completamente');
         });
 
         // Recargar órdenes cuando cambie el tamaño de pantalla
@@ -1851,29 +1859,41 @@
         // Variables para gestión de productos
         let productos = [];
 
+        // Variable global para productos
+        let productosGlobal = [];
+
         // Función para mover producto arriba/abajo
         async function moverProducto(productoId, direccion) {
-            if (!window.productos) return;
+            if (!productosGlobal || productosGlobal.length === 0) {
+                console.warn('No hay productos cargados');
+                showAlert('Error: No hay productos cargados', 'error');
+                return;
+            }
 
-            const index = window.productos.findIndex(p => p.id === productoId);
-            if (index === -1) return;
+            const index = productosGlobal.findIndex(p => p.id === productoId);
+            if (index === -1) {
+                console.warn('Producto no encontrado:', productoId);
+                showAlert('Error: Producto no encontrado', 'error');
+                return;
+            }
 
             let newIndex;
             if (direccion === 'up' && index > 0) {
                 newIndex = index - 1;
-            } else if (direccion === 'down' && index < window.productos.length - 1) {
+            } else if (direccion === 'down' && index < productosGlobal.length - 1) {
                 newIndex = index + 1;
             } else {
+                console.log('No se puede mover en esa dirección');
                 return; // No se puede mover
             }
 
             // Intercambiar elementos
-            [window.productos[index], window.productos[newIndex]] = [window.productos[newIndex], window.productos[index]];
+            [productosGlobal[index], productosGlobal[newIndex]] = [productosGlobal[newIndex], productosGlobal[index]];
 
             // Actualizar órdenes en el servidor
             try {
                 const updates = [];
-                window.productos.forEach((producto, idx) => {
+                productosGlobal.forEach((producto, idx) => {
                     updates.push({
                         id: producto.id,
                         orden: idx + 1
@@ -1892,47 +1912,57 @@
                     showAlert('Orden actualizado correctamente');
                     loadProductos(); // Recargar la lista
                 } else {
-                    showAlert('Error al actualizar orden', 'error');
+                    const errorData = await response.json().catch(() => ({}));
+                    showAlert(errorData.error || 'Error al actualizar orden', 'error');
                 }
             } catch (error) {
-                showAlert('Error al actualizar orden', 'error');
+                console.error('Error al actualizar orden:', error);
+                showAlert('Error de conexión al actualizar orden', 'error');
             }
         }
 
         // Función para actualizar vista previa de imagen de paquete
         function updatePaquetePreview(input, preview) {
-            if (!input || !preview) {
-                console.warn('Input o preview no definidos para updatePaquetePreview');
-                return;
-            }
-            
-            const url = input.value.trim();
-            
-            if (url) {
-                // Limpiar el contenido actual
-                preview.innerHTML = '';
+            try {
+                if (!input || !preview) {
+                    console.warn('Input o preview no definidos para updatePaquetePreview');
+                    return;
+                }
                 
-                // Crear nueva imagen
-                const img = document.createElement('img');
-                img.src = url;
-                img.style.width = '100%';
-                img.style.height = '100%';
-                img.style.objectFit = 'cover';
-                img.style.borderRadius = '6px';
+                const url = input.value ? input.value.trim() : '';
                 
-                img.onload = function() {
+                if (url) {
+                    // Limpiar el contenido actual de forma segura
                     if (preview) {
-                        preview.appendChild(img);
+                        preview.innerHTML = '';
+                        
+                        // Crear nueva imagen
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; border-radius: 6px;';
+                        
+                        img.onload = function() {
+                            if (preview && preview.parentNode) {
+                                preview.appendChild(img);
+                            }
+                        };
+                        
+                        img.onerror = function() {
+                            if (preview && preview.parentNode) {
+                                preview.innerHTML = '<span style="font-size: 12px; color: #dc3545; font-weight: bold;">❌</span>';
+                            }
+                        };
                     }
-                };
-                
-                img.onerror = function() {
+                } else {
                     if (preview) {
-                        preview.innerHTML = '<span style="font-size: 12px; color: #999;">❌</span>';
+                        preview.innerHTML = '<span style="font-size: 12px; color: #999;">📦</span>';
                     }
-                };
-            } else {
-                preview.innerHTML = '<span style="font-size: 12px; color: #999;">📦</span>';
+                }
+            } catch (error) {
+                console.error('Error en updatePaquetePreview:', error);
+                if (preview) {
+                    preview.innerHTML = '<span style="font-size: 12px; color: #dc3545;">❌</span>';
+                }
             }
         }
 
@@ -1942,41 +1972,97 @@
                 const response = await fetch('/usuario');
                 if (response.status === 401) {
                     console.warn('No hay sesión activa, redirigiendo al login...');
-                    window.location.href = '/';
+                    mostrarMensajeError('Debes iniciar sesión como administrador');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 2000);
                     return false;
                 } else if (response.ok) {
                     const data = await response.json();
                     if (!data.usuario || !data.usuario.es_admin) {
                         console.warn('Usuario no es administrador, redirigiendo...');
-                        window.location.href = '/';
+                        mostrarMensajeError('No tienes permisos de administrador');
+                        setTimeout(() => {
+                            window.location.href = '/';
+                        }, 2000);
                         return false;
                     }
                     console.log('✅ Usuario administrador verificado:', data.usuario.email);
                     return true;
                 } else {
                     console.error('Error en respuesta de verificación:', response.status);
-                    window.location.href = '/';
+                    mostrarMensajeError('Error de verificación');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 2000);
                     return false;
                 }
             } catch (error) {
                 console.error('Error verificando autenticación:', error);
-                window.location.href = '/';
+                mostrarMensajeError('Error de conexión');
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 2000);
                 return false;
             }
         }
 
-        // Agregar eventos para vistas previas de imágenes en paquetes existentes
-        document.addEventListener('DOMContentLoaded', function() {
-            // Verificar autenticación al cargar
-            verificarAuthAdmin();
+        // Función para mostrar mensajes de error
+        function mostrarMensajeError(mensaje) {
+            const errorDiv = document.createElement('div');
+            errorDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #dc3545;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                z-index: 10000;
+                font-weight: 600;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            `;
+            errorDiv.textContent = mensaje;
+            document.body.appendChild(errorDiv);
             
-            // Agregar evento al paquete inicial
-            const initialImagenInput = document.querySelector('.paquete-imagen');
-            const initialPreview = document.querySelector('.paquete-preview');
-            
-            if (initialImagenInput && initialPreview) {
-                initialImagenInput.addEventListener('input', function() {
-                    updatePaquetePreview(this, initialPreview);
+            setTimeout(() => {
+                if (errorDiv.parentNode) {
+                    errorDiv.remove();
+                }
+            }, 3000);
+        }
+
+        // Función para configurar eventos de vista previa de imágenes
+        function configurarEventosVistaPrevia() {
+            try {
+                // Configurar eventos para todos los inputs de imagen de paquetes
+                const imagenInputs = document.querySelectorAll('.paquete-imagen');
+                imagenInputs.forEach((input, index) => {
+                    const preview = input.closest('.paquete-item')?.querySelector('.paquete-preview');
+                    if (preview) {
+                        // Remover evento anterior si existe
+                        input.removeEventListener('input', input.previewHandler);
+                        
+                        // Crear nuevo handler
+                        input.previewHandler = function() {
+                            updatePaquetePreview(this, preview);
+                        };
+                        
+                        // Agregar evento
+                        input.addEventListener('input', input.previewHandler);
+                        console.log(`✅ Evento configurado para input ${index + 1}`);
+                    }
                 });
+            } catch (error) {
+                console.error('Error configurando eventos de vista previa:', error);
             }
-        });
+        }
+
+        // Mejorar la función addPaquete para incluir configuración de eventos
+        function addPaqueteConEventos() {
+            addPaquete();
+            // Reconfigurar eventos después de agregar paquete
+            setTimeout(() => {
+                configurarEventosVistaPrevia();
+            }, 100);
+        }
