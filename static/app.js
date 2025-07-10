@@ -4253,7 +4253,6 @@ function mostrarValoracionEnTarjeta(producto) {
         return `
             <div class="product-rating">
                 <div class="stars-display">${generarEstrellas(0)}</div>
-                <span class="rating-text">${total} valoración${total !== 1 ? 'es' : ''}</span>
             </div>
         `;
     }
@@ -4261,7 +4260,6 @@ function mostrarValoracionEnTarjeta(producto) {
     return `
         <div class="product-rating">
             <div class="stars-display">${generarEstrellas(promedio)}</div>
-            <span class="rating-text">${promedio} (${total})</span>
         </div>
     `;
 }
