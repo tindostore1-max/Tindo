@@ -12,6 +12,8 @@ body {
     /* Mejorar scroll táctil en móviles */
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
+    margin: 0 !important; /* Eliminar márgenes del body */
+    padding: 0 !important; /* Eliminar padding del body */
 }
 
 .container {
@@ -3720,24 +3722,24 @@ header {
 
     .carousel-container {
         border-radius: 0; /* Sin bordes redondeados en el contenedor */
-        margin: 0; /* Sin márgenes - ocupar toda la pantalla */
+        margin: 0 !important; /* Sin márgenes - ocupar toda la pantalla */
         background: transparent !important; /* Fondo del contenedor completamente transparente */
         box-shadow: none !important; /* Eliminar cualquier sombra */
         border: none !important; /* Sin bordes */
-        padding: 0; /* Sin padding interno */
+        padding: 0 !important; /* Sin padding interno */
         backdrop-filter: none !important; /* Sin efecto de desenfoque */
         -webkit-backdrop-filter: none !important; /* Sin efecto de desenfoque en Safari */
         width: 100vw; /* Ocupar todo el ancho de la ventana */
         position: relative;
         left: 50%;
         right: 50%;
-        margin-left: -50vw;
-        margin-right: -50vw;
+        margin-left: -50vw !important;
+        margin-right: -50vw !important;
         overflow: hidden; /* Evitar cualquier desbordamiento */
     }
     
     .container {
-        padding: 40px 0px 8px 1px; /* Eliminar padding derecho para que el carrusel llegue al borde */
+        padding: 40px 0px 8px 0px !important; /* Eliminar completamente padding lateral */
     }
 
     /* Optimizar controles de navegación para móvil */
