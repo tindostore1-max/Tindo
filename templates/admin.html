@@ -944,19 +944,38 @@
         // FUNCIONES PARA ÓRDENES
         async function loadOrdenes() {
             try {
+                console.log('🔄 Cargando órdenes...');
                 const response = await fetch('/admin/ordenes');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
                 allOrdenes = await response.json();
                 totalOrdenes = allOrdenes.length;
+                
+                console.log(`✅ Órdenes cargadas: ${totalOrdenes}`);
 
                 // Actualizar información
-                document.getElementById('ordenes-info').textContent = `${totalOrdenes}`;
+                const ordenesInfo = document.getElementById('ordenes-info');
+                if (ordenesInfo) {
+                    ordenesInfo.textContent = `${totalOrdenes}`;
+                }
 
                 // Mostrar página actual
                 displayOrdenesPage();
 
             } catch (error) {
-                console.error('Error al cargar órdenes:', error);
-                document.getElementById('ordenes-list').innerHTML = '<p>Error al cargar órdenes</p>';
+                console.error('❌ Error al cargar órdenes:', error);
+                const ordenesList = document.getElementById('ordenes-list');
+                if (ordenesList) {
+                    ordenesList.innerHTML = `
+                        <div class="alert alert-error">
+                            <p><strong>Error al cargar órdenes:</strong> ${error.message}</p>
+                            <button class="btn btn-primary" onclick="loadOrdenes()">🔄 Reintentar</button>
+                        </div>
+                    `;
+                }
             }
         }
 
@@ -1202,8 +1221,15 @@
         // FUNCIONES PARA PRODUCTOS
         async function loadProductos() {
             try {
+                console.log('🔄 Cargando productos...');
                 const response = await fetch('/admin/productos');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
                 const productos = await response.json();
+                console.log(`✅ Productos cargados: ${productos.length}`);
 
                 // Ordenar productos por campo orden si existe, sino por id
                 const productosOrdenados = productos.sort((a, b) => {
@@ -1284,8 +1310,16 @@
                 window.productos = productosOrdenados;
 
             } catch (error) {
-                console.error('Error al cargar productos:', error);
-                document.getElementById('productos-list').innerHTML = '<p>Error al cargar productos</p>';
+                console.error('❌ Error al cargar productos:', error);
+                const productosList = document.getElementById('productos-list');
+                if (productosList) {
+                    productosList.innerHTML = `
+                        <div class="alert alert-error">
+                            <p><strong>Error al cargar productos:</strong> ${error.message}</p>
+                            <button class="btn btn-primary" onclick="loadProductos()">🔄 Reintentar</button>
+                        </div>
+                    `;
+                }
             }
         }
 
@@ -1777,9 +1811,32 @@
         }
 
         // Cargar datos iniciales
-        document.addEventListener('DOMContentLoaded', function() {
-            loadUserInfo();
-            loadOrdenes();
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🚀 Iniciando panel de administración...');
+            
+            // Verificar autenticación primero
+            const isAuthenticated = await verificarAuthAdmin();
+            if (!isAuthenticated) {
+                return; // Si no está autenticado, se redirige automáticamente
+            }
+            
+            // Cargar información del usuario
+            try {
+                await loadUserInfo();
+                console.log('✅ Información de usuario cargada');
+            } catch (error) {
+                console.error('❌ Error cargando info de usuario:', error);
+            }
+            
+            // Cargar órdenes inicial
+            try {
+                await loadOrdenes();
+                console.log('✅ Órdenes iniciales cargadas');
+            } catch (error) {
+                console.error('❌ Error cargando órdenes iniciales:', error);
+            }
+            
+            console.log('✅ Panel de administración inicializado completamente');
         });
 
         // Recargar órdenes cuando cambie el tamaño de pantalla
@@ -1844,6 +1901,11 @@
 
         // Función para actualizar vista previa de imagen de paquete
         function updatePaquetePreview(input, preview) {
+            if (!input || !preview) {
+                console.warn('Input o preview no definidos para updatePaquetePreview');
+                return;
+            }
+            
             const url = input.value.trim();
             
             if (url) {
@@ -1859,11 +1921,15 @@
                 img.style.borderRadius = '6px';
                 
                 img.onload = function() {
-                    preview.appendChild(img);
+                    if (preview) {
+                        preview.appendChild(img);
+                    }
                 };
                 
                 img.onerror = function() {
-                    preview.innerHTML = '<span style="font-size: 12px; color: #999;">❌</span>';
+                    if (preview) {
+                        preview.innerHTML = '<span style="font-size: 12px; color: #999;">❌</span>';
+                    }
                 };
             } else {
                 preview.innerHTML = '<span style="font-size: 12px; color: #999;">📦</span>';
@@ -1875,24 +1941,26 @@
             try {
                 const response = await fetch('/usuario');
                 if (response.status === 401) {
-                    showAlert('Sesión expirada. Redirigiendo al login...', 'error');
-                    setTimeout(() => {
-                        window.location.href = '/';
-                    }, 2000);
+                    console.warn('No hay sesión activa, redirigiendo al login...');
+                    window.location.href = '/';
                     return false;
                 } else if (response.ok) {
                     const data = await response.json();
-                    if (!data.usuario.es_admin) {
-                        showAlert('Acceso denegado. No tienes permisos de administrador.', 'error');
-                        setTimeout(() => {
-                            window.location.href = '/';
-                        }, 2000);
+                    if (!data.usuario || !data.usuario.es_admin) {
+                        console.warn('Usuario no es administrador, redirigiendo...');
+                        window.location.href = '/';
                         return false;
                     }
+                    console.log('✅ Usuario administrador verificado:', data.usuario.email);
                     return true;
+                } else {
+                    console.error('Error en respuesta de verificación:', response.status);
+                    window.location.href = '/';
+                    return false;
                 }
             } catch (error) {
                 console.error('Error verificando autenticación:', error);
+                window.location.href = '/';
                 return false;
             }
         }

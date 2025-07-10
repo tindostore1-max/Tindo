@@ -789,6 +789,7 @@ def admin_required(f):
 def get_ordenes():
     conn = get_db_connection()
     try:
+        print("🔍 Consultando órdenes desde base de datos...")
         result = conn.execute(text('''
             SELECT o.*, j.nombre as juego_nombre, j.categoria 
             FROM ordenes o 
@@ -796,6 +797,7 @@ def get_ordenes():
             ORDER BY o.fecha DESC
         '''))
         ordenes = result.fetchall()
+        print(f"✅ Órdenes encontradas: {len(ordenes)}")
 
         # Convertir a lista de diccionarios
         ordenes_dict = []
@@ -804,6 +806,9 @@ def get_ordenes():
             ordenes_dict.append(orden_dict)
 
         return jsonify(ordenes_dict)
+    except Exception as e:
+        print(f"❌ Error al obtener órdenes: {e}")
+        return jsonify({'error': 'Error al cargar órdenes'}), 500
     finally:
         conn.close()
 
@@ -872,8 +877,10 @@ def update_orden(orden_id):
 def get_productos():
     conn = get_db_connection()
     try:
+        print("🔍 Consultando productos desde base de datos...")
         result = conn.execute(text('SELECT * FROM juegos ORDER BY orden ASC, id ASC'))
         productos = result.fetchall()
+        print(f"✅ Productos encontrados: {len(productos)}")
 
         # Convertir a lista de diccionarios y obtener paquetes para cada producto
         productos_list = []
@@ -889,6 +896,9 @@ def get_productos():
             productos_list.append(producto_dict)
 
         return jsonify(productos_list)
+    except Exception as e:
+        print(f"❌ Error al obtener productos: {e}")
+        return jsonify({'error': 'Error al cargar productos'}), 500
     finally:
         conn.close()
 
