@@ -923,7 +923,7 @@ html
         }
 
         // Funciones para mostrar alertas
-        function showAlert(message, type = 'success') {
+        function showAlert(message, type = 'success'){
             const alertDiv = document.createElement('div');
             alertDiv.className = 'alert alert-' + type;
             alertDiv.textContent = message;
@@ -1190,12 +1190,27 @@ html
 
                 if (response.ok) {
                     showAlert('Estado actualizado correctamente');
-                    // Recargar solo la página actual
-                    const response = await fetch('/admin/ordenes');
-                    allOrdenes = await response.json();
-                    totalOrdenes = allOrdenes.length;
-                    document.getElementById('ordenes-info').textContent = `${totalOrdenes}`;
-                    displayOrdenesPage();
+                    // Recargar solo la página actual de forma segura
+                    try {
+                        const response = await fetch('/admin/ordenes');
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (Array.isArray(data)) {
+                                allOrdenes = [...data];
+                                ordenesGlobal = [...data];
+                                totalOrdenes = data.length;
+
+                                const ordenesInfoElement = document.getElementById('ordenes-info');
+                                if (ordenesInfoElement) {
+                                    ordenesInfoElement.textContent = `${totalOrdenes}`;
+                                }
+                                displayOrdenesPage();
+                            }
+                        }
+                    } catch (reloadError) {
+                        console.error('Error al recargar órdenes:', reloadError);
+                        // No mostrar error adicional, ya se procesó la orden correctamente
+                    }
                 } else {
                     showAlert('Error al actualizar estado', 'error');
                 }
@@ -1636,7 +1651,7 @@ html
                     html += '<div class="card" style="text-align: center;">' +
                         '<img src="/static/' + imagen.ruta + '" alt="' + imagen.tipo + '" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px;">' +
                         '<p><strong>Tipo:</strong> ' + imagen.tipo + '</p>' +
-                        '<p><small>' + imagen.ruta + '</small></p>' +
+                        '<p><p><small>' + imagen.ruta + '</small></p>' +
                         (imagen.tipo === 'carrusel' ? 
                             '<button class="btn btn-primary" onclick="copiarRutaCarrusel(\'' + imagen.ruta + '\')" style="margin: 5px;">📋 Copiar para Carrusel</button>' : '') +
                         (imagen.tipo === 'logo' ? 
