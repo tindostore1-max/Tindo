@@ -4015,18 +4015,6 @@ function actualizarEstadisticasValoraciones(juego_id, estadisticas) {
     const promedio = estadisticas.promedio || 0;
     const total = estadisticas.total || 0;
 
-    // Mostrar estrellas progresivamente desde la primera reseña
-    let promedioMostrar = promedio;
-    let numeroMostrar = promedio.toFixed(1);
-    
-    // Si hay pocas reseñas, mostrar con indicador de confiabilidad
-    let textoConfiabilidad = '';
-    if (total > 0 && total < 6) {
-        textoConfiabilidad = ` (${total} valoración${total !== 1 ? 'es' : ''})`;
-    } else if (total >= 6) {
-        textoConfiabilidad = ` (${total} valoraciones)`;
-    }
-
     if (total === 0) {
         statsContainer.innerHTML = `
             <div class="overall-rating">
@@ -4038,9 +4026,34 @@ function actualizarEstadisticasValoraciones(juego_id, estadisticas) {
         return;
     }
 
+    // Lógica para mostrar estrellas progresivamente según número de reseñas
+    let estrellasAMostrar = 0;
+    let numeroMostrar = promedio.toFixed(1);
+    let textoConfiabilidad = '';
+
+    if (total === 1) {
+        estrellasAMostrar = Math.min(1, promedio); // Máximo 1 estrella
+        textoConfiabilidad = ' (1 valoración)';
+    } else if (total === 2) {
+        estrellasAMostrar = Math.min(2, promedio); // Máximo 2 estrellas
+        textoConfiabilidad = ' (2 valoraciones)';
+    } else if (total === 3) {
+        estrellasAMostrar = Math.min(3, promedio); // Máximo 3 estrellas
+        textoConfiabilidad = ' (3 valoraciones)';
+    } else if (total === 4) {
+        estrellasAMostrar = Math.min(4, promedio); // Máximo 4 estrellas
+        textoConfiabilidad = ' (4 valoraciones)';
+    } else if (total === 5) {
+        estrellasAMostrar = Math.min(4.5, promedio); // Máximo 4.5 estrellas
+        textoConfiabilidad = ' (5 valoraciones)';
+    } else if (total >= 6) {
+        estrellasAMostrar = promedio; // Estrellas completas sin restricción
+        textoConfiabilidad = ` (${total} valoraciones)`;
+    }
+
     statsContainer.innerHTML = `
         <div class="overall-rating">
-            <div class="overall-stars">${generarEstrellas(promedioMostrar)}</div>
+            <div class="overall-stars">${generarEstrellas(estrellasAMostrar)}</div>
             <p class="overall-number">${numeroMostrar}</p>
             <p class="total-reviews">${total} valoración${total !== 1 ? 'es' : ''}${textoConfiabilidad}</p>
         </div>
@@ -4259,10 +4272,28 @@ function mostrarValoracionEnTarjeta(producto) {
     const promedio = parseFloat(producto.promedio_valoracion);
     const total = parseInt(producto.total_valoraciones);
 
-    // Mostrar estrellas desde la primera reseña
+    // Aplicar lógica progresiva para tarjetas también
+    let estrellasAMostrar = 0;
+
+    if (total === 0) {
+        estrellasAMostrar = 0;
+    } else if (total === 1) {
+        estrellasAMostrar = Math.min(1, promedio);
+    } else if (total === 2) {
+        estrellasAMostrar = Math.min(2, promedio);
+    } else if (total === 3) {
+        estrellasAMostrar = Math.min(3, promedio);
+    } else if (total === 4) {
+        estrellasAMostrar = Math.min(4, promedio);
+    } else if (total === 5) {
+        estrellasAMostrar = Math.min(4.5, promedio);
+    } else if (total >= 6) {
+        estrellasAMostrar = promedio;
+    }
+
     return `
         <div class="product-rating">
-            <div class="stars-display">${generarEstrellas(promedio)}</div>
+            <div class="stars-display">${generarEstrellas(estrellasAMostrar)}</div>
         </div>
     `;
 }
