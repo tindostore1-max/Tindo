@@ -424,7 +424,7 @@ header {
     margin: 20px 0 30px 0;
     background: transparent !important;
     border-radius: 0;
-    padding: 0;
+    padding: 25px;
     border: none;
     box-shadow: none;
     display: block;
@@ -436,10 +436,9 @@ header {
     justify-content: space-between;
     align-items: center;
     margin: 0 0 20px 0;
-    padding: 0;
+    padding: 0 25px;
     width: 100%;
     clear: both;
-    background: transparent !important;
 }
 
 .section-title {
@@ -470,14 +469,11 @@ header {
 .games-carousel-container {
     position: relative;
     overflow: hidden;
-    border-radius: 0;
+    border-radius: 15px;
     margin-top: 0;
     display: block;
     width: 100%;
     clear: both;
-    background: transparent !important;
-    border: none;
-    box-shadow: none;
 }
 
     /* En móvil, eliminar todos los bordes y fondos del carrusel */
@@ -513,18 +509,18 @@ header {
 
 .games-carousel-card {
     flex: 0 0 220px;
-    background: transparent !important;
-    border-radius: 0;
+    background: #4a4a4a;
+    border-radius: 15px;
     padding: 15px;
-    box-shadow: none;
-    border: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    border: 1px solid #666;
     transition: transform 0.3s ease;
     cursor: pointer;
 }
 
 .games-carousel-card:hover {
     transform: translateY(-5px);
-    box-shadow: none;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
 }
 
 .games-carousel-card .product-image {
@@ -609,13 +605,10 @@ header {
 .todos-carousel-wrapper {
     position: relative;
     overflow: hidden;
-    border-radius: 0;
+    border-radius: 15px;
     margin-top: 0;
     display: block;
     width: 100%;
-    background: transparent !important;
-    border: none;
-    box-shadow: none;
 }
 
 .todos-carousel-track {
@@ -626,18 +619,18 @@ header {
 
 .todos-carousel-card {
     flex: 0 0 220px;
-    background: transparent !important;
-    border-radius: 0;
+    background: #4a4a4a;
+    border-radius: 15px;
     padding: 15px;
-    box-shadow: none;
-    border: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    border: 1px solid #666;
     transition: transform 0.3s ease;
     cursor: pointer;
 }
 
 .todos-carousel-card:hover {
     transform: translateY(-5px);
-    box-shadow: none;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
 }
 
 .todos-carousel-card .product-image {
@@ -998,18 +991,18 @@ header {
 }
 
 .product-card {
-    background: transparent !important;
-    border-radius: 0;
+    background: #4a4a4a;
+    border-radius: 15px;
     padding: 20px;
-    box-shadow: none;
-    border: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    border: 1px solid #666;
     transition: transform 0.3s ease;
     cursor: pointer;
 }
 
 .product-card:hover {
     transform: translateY(-5px);
-    box-shadow: none;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
 }
 
 .product-image {
