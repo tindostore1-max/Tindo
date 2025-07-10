@@ -3630,6 +3630,7 @@ header {
     background: transparent !important;
     min-height: 200px;
     border: none;
+    padding: 0;
 }
 
 /* En móvil, asegurar invisibilidad total del contenedor */
@@ -3658,6 +3659,8 @@ header {
     background: transparent !important;
     border: none;
     box-shadow: none;
+    padding: 0;
+    margin: 0;
 }
 
 .carousel-slide {
@@ -3668,6 +3671,8 @@ header {
     background: transparent !important;
     border: none;
     box-shadow: none;
+    padding: 0;
+    margin: 0;
 }
 
 .carousel-slide.active {
@@ -3735,9 +3740,9 @@ header {
         width: 45px;
         height: 45px;
         font-size: 18px;
-        background: rgba(0, 0, 0, 0.7) !important;
-        border: 2px solid rgba(255, 255, 255, 0.3) !important;
-        backdrop-filter: blur(10px);
+        background: rgba(0, 0, 0, 0.4) !important;
+        border: 2px solid rgba(255, 255, 255, 0.2) !important;
+        backdrop-filter: blur(8px);
         z-index: 20; /* Asegurar que estén por encima */
     }
 
@@ -3750,20 +3755,20 @@ header {
     }
 
     .carousel-arrow:hover {
-        background: rgba(0, 0, 0, 0.9) !important;
+        background: rgba(0, 0, 0, 0.6) !important;
         transform: translateY(-50%) scale(1.05);
-        border-color: rgba(255, 255, 255, 0.5) !important;
+        border-color: rgba(255, 255, 255, 0.3) !important;
     }
 
     /* Mejorar puntos de navegación */
     .carousel-dots {
         bottom: 15px;
-        padding: 8px 15px;
+        padding: 6px 12px;
         gap: 8px;
-        background: rgba(0, 0, 0, 0.6) !important;
-        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        background: rgba(0, 0, 0, 0.3) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
         border-radius: 20px;
-        backdrop-filter: blur(10px);
+        backdrop-filter: blur(8px);
     }
 
     .dot {
@@ -3865,7 +3870,7 @@ header {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.4);
     color: white;
     border: none;
     border-radius: 50%;
@@ -3878,16 +3883,16 @@ header {
     display: flex;
     align-items: center;
     justify-content: center;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 2px solid rgba(255, 255, 255, 0.15);
 }
 
 .carousel-arrow:hover {
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.6);
     transform: translateY(-50%) scale(1.1);
-    border-color: rgba(255, 255, 255, 0.4);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .carousel-arrow.prev {
@@ -3905,11 +3910,11 @@ header {
     transform: translateX(-50%);
     display: flex;
     gap: 12px;
-    padding: 10px 20px;
-    background: rgba(0, 0, 0, 0.5);
+    padding: 8px 15px;
+    background: rgba(0, 0, 0, 0.3);
     border-radius: 25px;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
