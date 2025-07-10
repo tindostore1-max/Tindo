@@ -3647,39 +3647,42 @@ header {
 /* Ajustes responsivos para el carrusel en móviles */
 @media (max-width: 768px) {
     .carousel {
-        height: 200px; /* Reducir altura en móvil */
+        height: 220px; /* Altura optimizada para móvil */
         border-radius: 15px;
     }
 
     .carousel-slide img {
         width: 100%;
         height: 100%;
-        object-fit: contain; /* Cambiar a contain para mostrar imagen completa */
+        object-fit: cover; /* Usar cover para llenar todo el espacio */
+        object-position: center; /* Centrar la imagen */
         border-radius: 15px;
-        background: transparent; /* Fondo transparente en móvil */
+        background: transparent;
     }
 
     .carousel-container {
         border-radius: 15px;
-        margin: 0 10px 20px 10px; /* Agregar márgenes laterales en móvil */
-        background: transparent; /* Fondo del contenedor transparente en móvil */
-        box-shadow: none; /* Eliminar sombra en móvil para mayor transparencia */
+        margin: 0 10px 20px 10px;
+        background: transparent;
+        box-shadow: none;
+        overflow: hidden; /* Asegurar que no se salga del contenedor */
     }
 }
 
 /* Ajustes para pantallas muy pequeñas */
 @media (max-width: 480px) {
     .carousel {
-        height: 180px; /* Altura aún más pequeña para pantallas muy pequeñas */
+        height: 200px; /* Mantener altura adecuada */
     }
 
     .carousel-slide img {
-        object-fit: contain; /* Asegurar que se mantenga contain en pantallas pequeñas */
-        background: #000;
+        object-fit: cover; /* Mantener cover para llenar espacio */
+        object-position: center;
+        background: transparent;
     }
 
     .carousel-container {
-        margin: 0 5px 15px 5px; /* Márgenes más pequeños */
+        margin: 0 5px 15px 5px;
     }
 }
 
