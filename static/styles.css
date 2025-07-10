@@ -3647,52 +3647,39 @@ header {
 /* Ajustes responsivos para el carrusel en móviles */
 @media (max-width: 768px) {
     .carousel {
-        height: auto; /* Altura automática para adaptarse a la imagen */
-        min-height: 160px; /* Altura mínima para evitar colapso */
-        max-height: 250px; /* Altura máxima para no ocupar demasiado espacio */
+        height: 200px; /* Reducir altura en móvil */
         border-radius: 15px;
-    }
-
-    .carousel-slide {
-        height: auto; /* Permitir altura automática */
-        display: flex;
-        align-items: center;
-        justify-content: center;
     }
 
     .carousel-slide img {
         width: 100%;
-        height: auto; /* Altura automática para mantener proporción */
-        max-height: 250px; /* Altura máxima */
-        object-fit: contain; /* Mantener imagen completa sin recortar */
+        height: 100%;
+        object-fit: contain; /* Cambiar a contain para mostrar imagen completa */
         border-radius: 15px;
-        background: transparent;
+        background: transparent; /* Fondo transparente en móvil */
     }
 
     .carousel-container {
         border-radius: 15px;
-        margin: 0 10px 20px 10px;
-        background: transparent;
-        box-shadow: none;
-        overflow: hidden;
+        margin: 0 10px 20px 10px; /* Agregar márgenes laterales en móvil */
+        background: transparent; /* Fondo del contenedor transparente en móvil */
+        box-shadow: none; /* Eliminar sombra en móvil para mayor transparencia */
     }
 }
 
 /* Ajustes para pantallas muy pequeñas */
 @media (max-width: 480px) {
     .carousel {
-        min-height: 140px;
-        max-height: 220px;
+        height: 180px; /* Altura aún más pequeña para pantallas muy pequeñas */
     }
 
     .carousel-slide img {
-        max-height: 220px;
-        object-fit: contain;
-        background: transparent;
+        object-fit: contain; /* Asegurar que se mantenga contain en pantallas pequeñas */
+        background: #000;
     }
 
     .carousel-container {
-        margin: 0 5px 15px 5px;
+        margin: 0 5px 15px 5px; /* Márgenes más pequeños */
     }
 }
 
