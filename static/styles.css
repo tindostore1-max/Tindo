@@ -3690,8 +3690,8 @@ header {
     .carousel-slide img {
         width: 100%;
         height: 100%;
-        object-fit: contain; /* Cambiar a contain para mostrar imagen completa */
-        border-radius: 15px; /* Solo las imágenes mantienen bordes redondeados */
+        object-fit: cover; /* Cambiar a cover para llenar toda la pantalla */
+        border-radius: 0; /* Sin bordes redondeados para ocupar toda la pantalla */
         background: transparent; /* Fondo transparente en móvil */
         border: none; /* Sin bordes en las imágenes */
         box-shadow: none; /* Sin sombra en las imágenes */
@@ -3699,13 +3699,19 @@ header {
 
     .carousel-container {
         border-radius: 0; /* Sin bordes redondeados en el contenedor */
-        margin: 0 10px 20px 10px; /* Agregar márgenes laterales en móvil */
+        margin: 0; /* Sin márgenes - ocupar toda la pantalla */
         background: transparent !important; /* Fondo del contenedor completamente transparente */
         box-shadow: none !important; /* Eliminar cualquier sombra */
         border: none !important; /* Sin bordes */
         padding: 0; /* Sin padding interno */
         backdrop-filter: none; /* Sin efecto de desenfoque */
         -webkit-backdrop-filter: none; /* Sin efecto de desenfoque en Safari */
+        width: 100vw; /* Ocupar todo el ancho de la ventana */
+        position: relative;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
     }
 }
 
@@ -3716,12 +3722,19 @@ header {
     }
 
     .carousel-slide img {
-        object-fit: contain; /* Asegurar que se mantenga contain en pantallas pequeñas */
+        object-fit: cover; /* Mantener cover para llenar pantalla completa */
         background: transparent; /* Cambiar fondo negro a transparente */
+        border-radius: 0; /* Sin bordes redondeados */
     }
 
     .carousel-container {
-        margin: 0 5px 15px 5px; /* Márgenes más pequeños */
+        margin: 0; /* Sin márgenes - pantalla completa */
+        width: 100vw; /* Ocupar todo el ancho de la ventana */
+        position: relative;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
     }
 }
 
