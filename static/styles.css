@@ -577,7 +577,6 @@ header {
     display: block;
     width: 100%;
     clear: both;
-    min-height: 300px; /* Altura ajustada al tamaño de las tarjetas */
     padding: 20px 0 0 0; /* Sin padding inferior */
 }
 
@@ -592,7 +591,6 @@ header {
             box-shadow: none !important;
             margin: 0 !important;
             padding: 10px 20px 0 0 !important; /* Sin padding inferior */
-            min-height: 300px; /* Altura ajustada en móvil */
         }
 
         .todos-carousel-wrapper {
@@ -604,7 +602,6 @@ header {
             box-shadow: none !important;
             margin: 0 !important;
             padding: 10px 20px 0 0 !important; /* Sin padding inferior */
-            min-height: 300px; /* Altura ajustada para wrapper */
         }
     }
 
@@ -716,7 +713,6 @@ header {
     margin-top: 0;
     display: block;
     width: 100%;
-    min-height: 300px; /* Altura ajustada al tamaño de las tarjetas */
     padding: 20px 0 0 0; /* Sin padding inferior */
 }
 
