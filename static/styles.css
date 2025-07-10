@@ -472,16 +472,28 @@ header {
     clear: both;
 }
 
-    /* En móvil, permitir que se vea un pedacito del siguiente elemento */
+    /* En móvil, eliminar todos los bordes y fondos del carrusel */
     @media (max-width: 768px) {
         .games-carousel-container {
             overflow: visible;
             padding-right: 20px; /* Espacio para mostrar pedacito */
+            background: transparent !important;
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            margin: 0 !important;
+            padding: 0 20px 0 0 !important;
         }
 
         .todos-carousel-wrapper {
             overflow: visible;
             padding-right: 20px; /* Espacio para mostrar pedacito */
+            background: transparent !important;
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            margin: 0 !important;
+            padding: 0 20px 0 0 !important;
         }
     }
 
@@ -780,9 +792,12 @@ header {
     }
 
     .games-section, .giftcards-section {
-        margin: 0 0 20px 10px;
-        padding: 20px;
-        border-radius: 15px;
+        margin: 0;
+        padding: 0;
+        background: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
     }
 
     .section-title {
@@ -845,8 +860,12 @@ header {
 
     /* Estilos móviles para carrusel de Todos */
     .todos-carousel-container {
-        margin: 0 0 20px 0;
-        padding: 15px 10px;
+        margin: 0;
+        padding: 0;
+        background: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
     }
 
     .todos-carousel-card {
