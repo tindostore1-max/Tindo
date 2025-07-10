@@ -3693,9 +3693,9 @@ header {
     .carousel-slide img {
         width: 100%;
         height: 100%;
-        object-fit: cover; /* Llenar toda la pantalla */
+        object-fit: contain; /* Mostrar imagen completa sin recortar */
         border-radius: 0; /* Sin bordes redondeados */
-        background: transparent; /* Fondo transparente en móvil */
+        background: #1a1a1a; /* Fondo oscuro para espacios vacíos */
         border: none; /* Sin bordes en las imágenes */
         box-shadow: none; /* Sin sombra en las imágenes */
         display: block; /* Asegurar que se muestren correctamente */
@@ -3776,8 +3776,8 @@ header {
     }
 
     .carousel-slide img {
-        object-fit: cover; /* Mantener cover para llenar pantalla completa */
-        background: transparent;
+        object-fit: contain; /* Mostrar imagen completa sin recortar */
+        background: #1a1a1a; /* Fondo oscuro para espacios vacíos */
         border-radius: 0;
     }
 
