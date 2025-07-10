@@ -853,36 +853,38 @@ header {
     }
 
     .product-card {
-        padding: 12px;
+        padding: 10px;
     }
 
     .product-image {
         aspect-ratio: 1 / 1;
-        margin-bottom: 10px;
-    }
-
-    .product-name {
-        font-size: 16px;
         margin-bottom: 8px;
     }
 
+    .product-name {
+        font-size: 14px;
+        margin-bottom: 4px;
+        line-height: 1.2;
+    }
+
     .product-description {
-        font-size: 13px;
-        margin-bottom: 10px;
+        font-size: 12px;
+        margin-bottom: 6px;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
+        line-height: 1.3;
     }
 
     .price-desde {
-        font-size: 14px;
-        margin-top: 8px;
+        font-size: 13px;
+        margin-top: 4px;
     }
 
     .package-list {
         grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
+        gap: 8px;
     }
 
     .footer-nav {
