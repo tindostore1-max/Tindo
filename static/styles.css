@@ -59,14 +59,15 @@ header {
     display: none; /* Oculto por defecto en desktop */
     position: fixed;
     top: 50px; /* Más cerca del header */
-    right: 20px;
+    right: 0px; /* Conectado al borde derecho */
     z-index: 999;
     padding: 8px 16px;
     background: rgba(30, 30, 30, 0.3);
-    border-radius: 20px;
+    border-radius: 20px 0 0 20px; /* Solo bordes redondeados del lado izquierdo */
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
     border: 1px solid rgba(255, 255, 255, 0.05);
+    border-right: none; /* Sin borde en el lado derecho */
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     cursor: pointer;
     transition: all 0.3s ease;
@@ -92,17 +93,18 @@ header {
 .mobile-social-dropdown {
     position: fixed;
     top: 90px; /* Debajo del botón ajustado */
-    right: 20px;
+    right: 0px; /* Alineado con el botón pegado al borde */
     z-index: 998;
     display: none;
     flex-direction: column;
     gap: 8px;
     padding: 12px;
     background: rgba(30, 30, 30, 0.85);
-    border-radius: 15px;
+    border-radius: 15px 0 0 15px; /* Solo bordes redondeados del lado izquierdo */
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: none; /* Sin borde en el lado derecho */
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
     opacity: 0;
     transform: translateY(-10px);
