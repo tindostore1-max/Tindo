@@ -1203,6 +1203,7 @@ function mostrarProductos() {
                     ${etiquetasHtml ? `<div class="product-tags">${etiquetasHtml}</div>` : ''}
                     <img src="${imagenUrl}" alt="${juego.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
                     <div class="product-name">${juego.nombre || 'Producto sin nombre'}</div>
+                    ${mostrarValoracionEnTarjeta(juego)}
                     <div class="price-desde">${rangoPrecio}</div>
                 </div>
             `;
@@ -1255,6 +1256,7 @@ function mostrarProductos() {
                         ${etiquetasHtml ? `<div class="product-tags">${etiquetasHtml}</div>` : ''}
                         <img src="${imagenUrl}" alt="${giftCard.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
                         <div class="product-name">${giftCard.nombre || 'Producto sin nombre'}</div>
+                        ${mostrarValoracionEnTarjeta(giftCard)}
                         <div class="price-desde">${rangoPrecio}</div>
                     </div>
                 `;
@@ -1385,6 +1387,7 @@ function mostrarProductos() {
                 <img src="${imagenUrl}" alt="${producto.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
                 <div class="product-name">${producto.nombre || 'Producto sin nombre'}</div>
                 <div class="product-description">${producto.descripcion || 'Sin descripción'}</div>
+                ${mostrarValoracionEnTarjeta(producto)}
                 <div class="price-desde">${rangoPrecio}</div>
             </div>
         `;
@@ -1401,6 +1404,9 @@ function mostrarDetalleProductoDesdeURL(producto) {
 
     // Mostrar la pestaña de detalles
     mostrarTab('detalles');
+
+    // Cargar valoraciones después de mostrar el producto
+    cargarValoracionesProducto(producto.id);
 }
 
 // Función para generar HTML de detalles de producto (reutilizable)
@@ -1486,6 +1492,29 @@ function generarHTMLDetalleProducto(producto) {
                     </div>
                 </div>
             </div>
+
+            <!-- Sistema de Valoraciones -->
+            <div class="reviews-section" style="margin-top: 25px;">
+                <div class="reviews-header">
+                    <h3 class="reviews-title">⭐ Valoraciones y Reseñas</h3>
+                    <div class="reviews-stats" id="reviews-stats-${producto.id}">
+                        <!-- Las estadísticas se cargarán dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Formulario de valoración o mensaje de login -->
+                <div id="rating-form-container-${producto.id}">
+                    <!-- Se cargará dinámicamente según el estado de sesión -->
+                </div>
+
+                <!-- Lista de valoraciones -->
+                <div class="reviews-list" id="reviews-list-${producto.id}">
+                    <div style="text-align: center; padding: 20px; color: #999;">
+                        <div style="font-size: 18px; margin-bottom: 10px;">⏳</div>
+                        <p>Cargando valoraciones...</p>
+                    </div>
+                </div>
+            </div>
         </div>
     `;
 }
@@ -1501,6 +1530,9 @@ function verDetalleProducto(productoId) {
     const html = generarHTMLDetalleProducto(producto);
     document.getElementById('producto-detalle').innerHTML = html;
     mostrarTab('detalles');
+
+    // Cargar valoraciones después de mostrar el producto
+    cargarValoracionesProducto(producto.id);
 
     // Actualizar botón activo manualmente
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
@@ -3909,3 +3941,312 @@ async function ordenarProductosAdmin() {
         return [];
     }
 }
+
+
+// ============================================================
+// SISTEMA DE VALORACIONES
+// ============================================================
+
+// Variables globales para valoraciones
+let valoracionSeleccionada = 0;
+
+// Función para cargar valoraciones de un producto
+async function cargarValoracionesProducto(juego_id) {
+    try {
+        // Cargar valoraciones del producto
+        const response = await fetch(`/valoraciones/${juego_id}`);
+        const data = await response.json();
+
+        // Actualizar estadísticas
+        actualizarEstadisticasValoraciones(juego_id, data.estadisticas);
+
+        // Cargar formulario o mensaje de login
+        await cargarFormularioValoracion(juego_id);
+
+        // Mostrar lista de valoraciones
+        mostrarListaValoraciones(juego_id, data.valoraciones);
+
+    } catch (error) {
+        console.error('Error al cargar valoraciones:', error);
+        const reviewsList = document.getElementById(`reviews-list-${juego_id}`);
+        if (reviewsList) {
+            reviewsList.innerHTML = `
+                <div style="text-align: center; padding: 20px; color: #dc3545;">
+                    <p>Error al cargar las valoraciones</p>
+                </div>
+            `;
+        }
+    }
+}
+
+// Función para actualizar estadísticas de valoraciones
+function actualizarEstadisticasValoraciones(juego_id, estadisticas) {
+    const statsContainer = document.getElementById(`reviews-stats-${juego_id}`);
+    if (!statsContainer) return;
+
+    if (!estadisticas || !estadisticas.total || estadisticas.total === 0) {
+        statsContainer.innerHTML = `
+            <div class="overall-rating">
+                <div class="overall-stars">⭐⭐⭐⭐⭐</div>
+                <p class="overall-number">0.0</p>
+                <p class="total-reviews">Sin valoraciones</p>
+            </div>
+        `;
+        return;
+    }
+
+    const promedio = estadisticas.promedio || 0;
+    const total = estadisticas.total || 0;
+
+    // Generar estrellas según el promedio
+    let estrellas = '';
+    for (let i = 1; i <= 5; i++) {
+        if (i <= Math.floor(promedio)) {
+            estrellas += '⭐';
+        } else if (i - 0.5 <= promedio) {
+            estrellas += '⭐';
+        } else {
+            estrellas += '☆';
+        }
+    }
+
+    statsContainer.innerHTML = `
+        <div class="overall-rating">
+            <div class="overall-stars">${estrellas}</div>
+            <p class="overall-number">${promedio}</p>
+            <p class="total-reviews">${total} valoración${total !== 1 ? 'es' : ''}</p>
+        </div>
+    `;
+}
+
+// Función para cargar el formulario de valoración
+async function cargarFormularioValoracion(juego_id) {
+    const formContainer = document.getElementById(`rating-form-container-${juego_id}`);
+    if (!formContainer) return;
+
+    try {
+        // Verificar si el usuario puede valorar
+        const response = await fetch(`/valoracion/usuario/${juego_id}`);
+        
+        if (response.status === 401) {
+            // Usuario no logueado
+            formContainer.innerHTML = `
+                <div class="login-to-review">
+                    <p class="login-to-review-text">Inicia sesión para valorar este producto</p>
+                    <button class="login-to-review-btn" onclick="mostrarTab('login')">
+                        🔑 Iniciar Sesión
+                    </button>
+                </div>
+            `;
+            return;
+        }
+
+        const data = await response.json();
+
+        if (!data.puede_valorar) {
+            // Usuario no ha comprado el producto
+            formContainer.innerHTML = `
+                <div class="login-to-review">
+                    <p class="login-to-review-text">Solo puedes valorar productos que hayas comprado</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Usuario puede valorar - mostrar formulario
+        const valoracionExistente = data.valoracion;
+        const calificacionActual = valoracionExistente ? valoracionExistente.calificacion : 0;
+        const comentarioActual = valoracionExistente ? valoracionExistente.comentario : '';
+
+        formContainer.innerHTML = `
+            <div class="rating-form">
+                <h4>${valoracionExistente ? '✏️ Editar tu valoración' : '⭐ Valorar este producto'}</h4>
+                
+                <div class="star-rating" data-juego-id="${juego_id}">
+                    ${[1, 2, 3, 4, 5].map(star => `
+                        <span class="star-input ${star <= calificacionActual ? 'active' : ''}" 
+                              data-rating="${star}" 
+                              onclick="seleccionarEstrella(${star}, ${juego_id})">⭐</span>
+                    `).join('')}
+                </div>
+                
+                <textarea 
+                    class="rating-textarea" 
+                    id="rating-comment-${juego_id}"
+                    placeholder="Comparte tu experiencia con este producto..."
+                    maxlength="500">${comentarioActual}</textarea>
+                
+                <button 
+                    class="submit-rating-btn" 
+                    id="submit-rating-${juego_id}"
+                    onclick="enviarValoracion(${juego_id})"
+                    ${calificacionActual === 0 ? 'disabled' : ''}>
+                    ${valoracionExistente ? '💾 Actualizar Valoración' : '📝 Enviar Valoración'}
+                </button>
+            </div>
+        `;
+
+        // Establecer valoración seleccionada
+        valoracionSeleccionada = calificacionActual;
+
+    } catch (error) {
+        console.error('Error al cargar formulario de valoración:', error);
+        formContainer.innerHTML = `
+            <div style="text-align: center; padding: 20px; color: #dc3545;">
+                <p>Error al cargar el formulario de valoración</p>
+            </div>
+        `;
+    }
+}
+
+// Función para seleccionar estrella
+function seleccionarEstrella(rating, juego_id) {
+    valoracionSeleccionada = rating;
+    
+    // Actualizar visualización de estrellas
+    const starContainer = document.querySelector(`.star-rating[data-juego-id="${juego_id}"]`);
+    if (starContainer) {
+        const stars = starContainer.querySelectorAll('.star-input');
+        stars.forEach((star, index) => {
+            if (index < rating) {
+                star.classList.add('active');
+            } else {
+                star.classList.remove('active');
+            }
+        });
+    }
+
+    // Habilitar botón de envío
+    const submitBtn = document.getElementById(`submit-rating-${juego_id}`);
+    if (submitBtn) {
+        submitBtn.disabled = false;
+    }
+}
+
+// Función para enviar valoración
+async function enviarValoracion(juego_id) {
+    const comentario = document.getElementById(`rating-comment-${juego_id}`)?.value.trim() || '';
+    
+    if (valoracionSeleccionada === 0) {
+        mostrarAlerta('Por favor selecciona una calificación', 'error');
+        return;
+    }
+
+    const submitBtn = document.getElementById(`submit-rating-${juego_id}`);
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Enviando...';
+    }
+
+    try {
+        const response = await fetch('/valoracion', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                juego_id: juego_id,
+                calificacion: valoracionSeleccionada,
+                comentario: comentario
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            mostrarAlerta('✅ Valoración guardada correctamente', 'success');
+            // Recargar las valoraciones
+            cargarValoracionesProducto(juego_id);
+        } else {
+            mostrarAlerta(data.error || 'Error al guardar valoración', 'error');
+        }
+
+    } catch (error) {
+        console.error('Error al enviar valoración:', error);
+        mostrarAlerta('Error de conexión', 'error');
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '📝 Enviar Valoración';
+        }
+    }
+}
+
+// Función para mostrar lista de valoraciones
+function mostrarListaValoraciones(juego_id, valoraciones) {
+    const reviewsList = document.getElementById(`reviews-list-${juego_id}`);
+    if (!reviewsList) return;
+
+    if (!valoraciones || valoraciones.length === 0) {
+        reviewsList.innerHTML = `
+            <div class="no-reviews">
+                <div style="font-size: 48px; margin-bottom: 15px;">💭</div>
+                <h3>Sin valoraciones aún</h3>
+                <p>Sé el primero en valorar este producto</p>
+            </div>
+        `;
+        return;
+    }
+
+    let html = '';
+    valoraciones.forEach(valoracion => {
+        // Generar estrellas
+        let estrellas = '';
+        for (let i = 1; i <= 5; i++) {
+            estrellas += i <= valoracion.calificacion ? '⭐' : '☆';
+        }
+
+        // Formatear fecha
+        const fecha = new Date(valoracion.fecha).toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        // Nombre del usuario (usar nombre completo si está disponible, sino email oculto)
+        const nombreUsuario = valoracion.usuario_nombre || valoracion.usuario_email_oculto || 'Usuario';
+
+        html += `
+            <div class="review-item">
+                <div class="review-header">
+                    <span class="review-user">${nombreUsuario}</span>
+                    <span class="review-date">${fecha}</span>
+                </div>
+                <div class="review-stars">${estrellas}</div>
+                ${valoracion.comentario ? `
+                    <div class="review-comment">${valoracion.comentario}</div>
+                ` : ''}
+            </div>
+        `;
+    });
+
+    reviewsList.innerHTML = html;
+}
+
+// Función para mostrar promedio de valoraciones en las tarjetas de producto
+function mostrarValoracionEnTarjeta(producto) {
+    if (!producto.promedio_valoracion || producto.total_valoraciones === 0) {
+        return '';
+    }
+
+    const promedio = parseFloat(producto.promedio_valoracion);
+    const total = parseInt(producto.total_valoraciones);
+
+    // Generar estrellas para mostrar
+    let estrellas = '';
+    for (let i = 1; i <= 5; i++) {
+        if (i <= Math.floor(promedio)) {
+            estrellas += '<span class="star">⭐</span>';
+        } else {
+            estrellas += '<span class="star empty">☆</span>';
+        }
+    }
+
+    return `
+        <div class="product-rating">
+            <div class="stars-display">${estrellas}</div>
+            <span class="rating-text">${promedio} (${total})</span>
+        </div>
+    `;
+}
+
