@@ -6,7 +6,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #383838 0%, #4a4a4a 50%, #525252 100%);
+    background: linear-gradient(135deg, #2c2c2c 0%, #404040 100%);
     min-height: 100vh;
     color: #333;
     /* Mejorar scroll táctil en móviles */
