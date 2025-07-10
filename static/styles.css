@@ -1504,6 +1504,80 @@ header {
     box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
 }
 
+/* Estilos para las pestañas de descripción y valoraciones */
+.review-tabs {
+    display: flex;
+    border-bottom: 2px solid #444;
+    margin-bottom: 20px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 12px 12px 0 0;
+    overflow: hidden;
+}
+
+.review-tab {
+    flex: 1;
+    padding: 15px 20px;
+    background: transparent;
+    border: none;
+    color: #cccccc;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.review-tab::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.review-tab:hover::before {
+    left: 100%;
+}
+
+.review-tab:hover {
+    color: #ffffff;
+    background: rgba(255,255,255,0.05);
+    transform: translateY(-2px);
+}
+
+.review-tab.active {
+    color: #ffffff;
+    background: rgba(40, 167, 69, 0.1);
+    border-bottom-color: #28a745;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+}
+
+.review-tab-content {
+    display: none;
+    animation: fadeInTab 0.4s ease-in-out;
+}
+
+.review-tab-content.active {
+    display: block;
+}
+
+@keyframes fadeInTab {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* Responsive para valoraciones */
 @media (max-width: 768px) {
     .reviews-section {
@@ -1547,6 +1621,16 @@ header {
     .product-rating {
         justify-content: center;
         margin-top: 10px;
+    }
+
+    /* Responsivo para pestañas */
+    .review-tab {
+        padding: 12px 15px;
+        font-size: 14px;
+    }
+
+    .review-tabs {
+        margin-bottom: 15px;
     }
 }d: linear-gradient(135deg, #007bff, #0056b3);
 }

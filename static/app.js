@@ -4297,4 +4297,3 @@ function mostrarValoracionEnTarjeta(producto) {
         </div>
     `;
 }
-
