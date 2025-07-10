@@ -1486,32 +1486,52 @@ function generarHTMLDetalleProducto(producto) {
                         </button>
                     </div>
 
-                    <!-- Descripción del producto después del botón agregar al carrito - solo visible en móvil -->
-                    <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); display: block;">
-                        <p style="color: #cccccc; font-size: 16px; line-height: 1.5; margin: 0; white-space: pre-wrap; word-wrap: break-word;">${producto.descripcion || 'Descripción del producto'}</p>
-                    </div>
+                    
                 </div>
             </div>
 
-            <!-- Sistema de Valoraciones -->
+            <!-- Sistema de Pestañas para Descripción y Valoraciones -->
             <div class="reviews-section" style="margin-top: 25px;">
-                <div class="reviews-header">
-                    <h3 class="reviews-title">⭐ Valoraciones y Reseñas</h3>
-                    <div class="reviews-stats" id="reviews-stats-${producto.id}">
-                        <!-- Las estadísticas se cargarán dinámicamente -->
+                <!-- Pestañas de navegación -->
+                <div class="review-tabs">
+                    <button class="review-tab active" onclick="mostrarTabReview('descripcion', ${producto.id})">
+                        📋 Descripción
+                    </button>
+                    <button class="review-tab" onclick="mostrarTabReview('valoraciones', ${producto.id})">
+                        ⭐ Valoraciones
+                    </button>
+                </div>
+
+                <!-- Contenido de la pestaña Descripción -->
+                <div id="descripcion-tab-${producto.id}" class="review-tab-content active">
+                    <div style="padding: 20px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                        <h4 style="color: #ffffff; margin-bottom: 15px; font-size: 18px;">📝 Descripción del Producto</h4>
+                        <p style="color: #cccccc; font-size: 16px; line-height: 1.6; margin: 0; white-space: pre-wrap; word-wrap: break-word;">
+                            ${producto.descripcion || 'Este producto no tiene descripción disponible.'}
+                        </p>
                     </div>
                 </div>
 
-                <!-- Formulario de valoración o mensaje de login -->
-                <div id="rating-form-container-${producto.id}">
-                    <!-- Se cargará dinámicamente según el estado de sesión -->
-                </div>
+                <!-- Contenido de la pestaña Valoraciones -->
+                <div id="valoraciones-tab-${producto.id}" class="review-tab-content">
+                    <div class="reviews-header">
+                        <h3 class="reviews-title">⭐ Valoraciones y Reseñas</h3>
+                        <div class="reviews-stats" id="reviews-stats-${producto.id}">
+                            <!-- Las estadísticas se cargarán dinámicamente -->
+                        </div>
+                    </div>
 
-                <!-- Lista de valoraciones -->
-                <div class="reviews-list" id="reviews-list-${producto.id}">
-                    <div style="text-align: center; padding: 20px; color: #999;">
-                        <div style="font-size: 18px; margin-bottom: 10px;">⏳</div>
-                        <p>Cargando valoraciones...</p>
+                    <!-- Formulario de valoración o mensaje de login -->
+                    <div id="rating-form-container-${producto.id}">
+                        <!-- Se cargará dinámicamente según el estado de sesión -->
+                    </div>
+
+                    <!-- Lista de valoraciones -->
+                    <div class="reviews-list" id="reviews-list-${producto.id}">
+                        <div style="text-align: center; padding: 20px; color: #999;">
+                            <div style="font-size: 18px; margin-bottom: 10px;">⏳</div>
+                            <p>Cargando valoraciones...</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2667,6 +2687,41 @@ function copiarCodigo(codigo) {
         document.body.removeChild(textArea);
         mostrarAlerta('Código copiado al portapapeles', 'success');
     });
+}
+
+// Función para cambiar entre pestañas de descripción y valoraciones
+function mostrarTabReview(tab, productoId) {
+    // Remover clase active de todas las pestañas
+    const tabs = document.querySelectorAll('.review-tab');
+    tabs.forEach(t => t.classList.remove('active'));
+    
+    // Ocultar todo el contenido de pestañas
+    const contents = document.querySelectorAll(`#descripcion-tab-${productoId}, #valoraciones-tab-${productoId}`);
+    contents.forEach(c => {
+        c.classList.remove('active');
+        c.style.display = 'none';
+    });
+    
+    // Activar pestaña seleccionada
+    const selectedTab = document.querySelector(`.review-tab[onclick*="${tab}"][onclick*="${productoId}"]`);
+    if (selectedTab) {
+        selectedTab.classList.add('active');
+    }
+    
+    // Mostrar contenido correspondiente
+    const selectedContent = document.getElementById(`${tab}-tab-${productoId}`);
+    if (selectedContent) {
+        selectedContent.classList.add('active');
+        selectedContent.style.display = 'block';
+    }
+    
+    // Si es la pestaña de valoraciones y aún no se han cargado, cargarlas
+    if (tab === 'valoraciones') {
+        const reviewsList = document.getElementById(`reviews-list-${productoId}`);
+        if (reviewsList && reviewsList.innerHTML.includes('Cargando valoraciones...')) {
+            cargarValoracionesProducto(productoId);
+        }
+    }
 }
 
 // Funciones del carrusel de juegos
