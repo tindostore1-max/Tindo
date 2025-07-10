@@ -16,6 +16,12 @@ body {
     padding: 0 !important; /* Eliminar padding del body */
 }
 
+html {
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden;
+}
+
 .container {
     max-width: 1400px;
     margin: 0 auto;
@@ -3736,10 +3742,13 @@ header {
         margin-left: -50vw !important;
         margin-right: -50vw !important;
         overflow: hidden; /* Evitar cualquier desbordamiento */
+        max-width: none !important; /* Eliminar cualquier limitación de ancho máximo */
     }
     
     .container {
         padding: 40px 0px 8px 0px !important; /* Eliminar completamente padding lateral */
+        overflow-x: visible !important; /* Permitir que el carrusel se extienda */
+        max-width: none !important; /* Sin limitación de ancho máximo en móvil */
     }
 
     /* Optimizar controles de navegación para móvil */
