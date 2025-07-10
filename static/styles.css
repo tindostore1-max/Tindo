@@ -577,8 +577,8 @@ header {
     display: block;
     width: 100%;
     clear: both;
-    min-height: 320px; /* Altura mínima mayor que las tarjetas (280px) */
-    padding: 20px 0 10px 0; /* Padding superior 20px, inferior reducido a 10px */
+    min-height: 300px; /* Altura ajustada al tamaño de las tarjetas */
+    padding: 20px 0 0 0; /* Solo padding superior, sin padding inferior */
 }
 
     /* En móvil, eliminar todos los bordes y fondos del carrusel */
@@ -591,8 +591,8 @@ header {
             border-radius: 0 !important;
             box-shadow: none !important;
             margin: 0 !important;
-            padding: 20px 20px 10px 0 !important; /* Padding superior 20px, inferior reducido a 10px */
-            min-height: 320px; /* Altura mínima en móvil también */
+            padding: 20px 20px 0 0 !important; /* Solo padding superior, sin padding inferior */
+            min-height: 300px; /* Altura ajustada en móvil */
         }
 
         .todos-carousel-wrapper {
@@ -603,8 +603,8 @@ header {
             border-radius: 0 !important;
             box-shadow: none !important;
             margin: 0 !important;
-            padding: 20px 20px 10px 0 !important; /* Padding superior 20px, inferior reducido a 10px */
-            min-height: 320px; /* Altura mínima para wrapper también */
+            padding: 20px 20px 0 0 !important; /* Solo padding superior, sin padding inferior */
+            min-height: 300px; /* Altura ajustada para wrapper */
         }
     }
 
@@ -716,8 +716,8 @@ header {
     margin-top: 0;
     display: block;
     width: 100%;
-    min-height: 320px; /* Altura mínima mayor que las tarjetas */
-    padding: 20px 0 10px 0; /* Padding superior 20px, inferior reducido a 10px */
+    min-height: 300px; /* Altura ajustada al tamaño de las tarjetas */
+    padding: 20px 0 0 0; /* Solo padding superior, sin padding inferior */
 }
 
 .todos-carousel-track {
