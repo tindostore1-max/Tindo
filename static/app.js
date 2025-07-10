@@ -164,13 +164,27 @@ document.addEventListener('DOMContentLoaded', function() {
             configuracionCargada = true;
             productosCargados = true;
             mostrarProductos();
+            
+            // Verificar imágenes del cache
+            setTimeout(() => {
+                verificarImagenesRotas();
+            }, 500);
         }
         
         // Cargar datos frescos del servidor en paralelo (especialmente para tasa de cambio)
         Promise.all([
-            cargarConfiguracionOptimizada(),
-            cargarProductosOptimizado(),
-            verificarSesionOptimizada()
+            cargarConfiguracionOptimizada().catch(err => {
+                console.warn('Error cargando configuración:', err);
+                return Promise.resolve();
+            }),
+            cargarProductosOptimizado().catch(err => {
+                console.warn('Error cargando productos:', err);
+                return Promise.resolve();
+            }),
+            verificarSesionOptimizada().catch(err => {
+                console.warn('Error verificando sesión:', err);
+                return Promise.resolve();
+            })
         ]).then(() => {
             console.log('✅ Carga de datos completada');
             interfazLista = true;
@@ -182,10 +196,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 actualizarLogo();
                 actualizarImagenesCarrusel();
             }
+            
+            // Verificar imágenes después de cargar todo
+            setTimeout(() => {
+                verificarImagenesRotas();
+            }, 1000);
+            
         }).catch(error => {
             console.error('❌ Error en carga:', error);
             interfazLista = true;
             cargandoDatos = false;
+            
+            // Asegurar que al menos se muestre contenido básico
+            if (!productos || productos.length === 0) {
+                console.log('📦 Mostrando contenido de emergencia');
+                mostrarContenidoDeEmergencia();
+            }
         });
     }
 
@@ -759,6 +785,36 @@ function aplicarConfiguracionPorDefecto() {
     actualizarImagenesCarrusel();
 }
 
+// Función para mostrar contenido de emergencia si hay problemas de carga
+function mostrarContenidoDeEmergencia() {
+    const grid = document.getElementById('productos-grid');
+    if (grid) {
+        grid.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #cccccc;">
+                <h3>🔄 Cargando contenido...</h3>
+                <p>Si el problema persiste, recarga la página</p>
+                <button onclick="location.reload()" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; margin-top: 15px;">
+                    🔄 Recargar Página
+                </button>
+            </div>
+        `;
+    }
+}
+
+// Función para verificar y corregir imágenes rotas
+function verificarImagenesRotas() {
+    const imagenes = document.querySelectorAll('img');
+    imagenes.forEach(img => {
+        if (!img.complete || img.naturalHeight === 0) {
+            console.warn('Imagen rota detectada:', img.src);
+            img.onerror = function() {
+                this.src = 'https://via.placeholder.com/300x200/007bff/ffffff?text=Imagen+No+Disponible';
+                console.log('Imagen reemplazada por placeholder:', this.src);
+            };
+        }
+    });
+}
+
 // Función para actualizar las imágenes del carrusel
 function actualizarImagenesCarrusel() {
     const slides = document.querySelectorAll('.carousel-slide img');
@@ -873,6 +929,12 @@ async function cargarProductosOptimizado() {
 
         // Mostrar productos de forma optimizada
         mostrarProductos();
+        
+        // Verificar imágenes rotas después de un breve delay
+        setTimeout(() => {
+            verificarImagenesRotas();
+        }, 1000);
+        
         productosCargados = true;
 
     } catch (error) {
@@ -1153,7 +1215,7 @@ function mostrarProductos() {
         // Generar carrusel horizontal de juegos
         let cardsHtml = '';
         juegos.forEach(juego => {
-            // Corregir ruta de imagen
+            // Corregir ruta de imagen con mejor manejo de errores
             let imagenUrl = juego.imagen || '';
             if (imagenUrl && !imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
                 imagenUrl = `/static/${imagenUrl}`;
@@ -1161,6 +1223,10 @@ function mostrarProductos() {
             if (!imagenUrl) {
                 imagenUrl = 'https://via.placeholder.com/300x200/007bff/ffffff?text=Producto';
             }
+            
+            // Verificar que la imagen existe antes de mostrarla
+            const imgCheck = new Image();
+            imgCheck.src = imagenUrl;
 
             // Calcular precio mínimo y máximo
             let precioMinimo = 0;
@@ -1201,7 +1267,9 @@ function mostrarProductos() {
             cardsHtml += `
                 <div class="todos-carousel-card" onclick="verDetalleProducto(${juego.id})">
                     ${etiquetasHtml ? `<div class="product-tags">${etiquetasHtml}</div>` : ''}
-                    <img src="${imagenUrl}" alt="${juego.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
+                    <img src="${imagenUrl}" alt="${juego.nombre || 'Producto'}" class="product-image" 
+                         onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'; console.log('Error cargando imagen:', this.src);"
+                         onload="console.log('Imagen cargada correctamente:', this.src);">
                     <div class="product-name">${juego.nombre || 'Producto sin nombre'}</div>
                     ${mostrarValoracionEnTarjeta(juego)}
                     <div class="price-desde">${rangoPrecio}</div>
