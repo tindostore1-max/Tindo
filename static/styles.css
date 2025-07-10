@@ -54,6 +54,44 @@ header {
     right: 20px;
 }
 
+/* Iconos de redes sociales para móvil en header */
+.mobile-social-icons {
+    display: none; /* Oculto por defecto en desktop */
+    gap: 8px;
+    align-items: center;
+}
+
+.mobile-social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.mobile-social-link:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.mobile-social-svg {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.3s ease;
+}
+
+.mobile-social-link:hover .mobile-social-svg {
+    transform: scale(1.1);
+}
+
 .header-left {
     display: flex;
     align-items: center;
@@ -731,6 +769,27 @@ header {
 
     .header-right {
         gap: 8px; /* Menor espacio entre hamburguesa y selector */
+    }
+
+    /* Mostrar iconos de redes sociales en móvil */
+    .mobile-social-icons {
+        display: flex !important;
+        order: -1; /* Mostrar antes del selector de moneda */
+    }
+
+    /* Ajustar spacing del header en móvil */
+    .header-right {
+        gap: 6px; /* Espacio más pequeño para acomodar los iconos sociales */
+    }
+
+    .mobile-social-link {
+        width: 28px;
+        height: 28px;
+    }
+
+    .mobile-social-svg {
+        width: 16px;
+        height: 16px;
     }
 
     .header-left {
