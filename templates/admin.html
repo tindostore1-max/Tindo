@@ -701,6 +701,9 @@ html
         <div class="header">
             <h1>🛡️ Panel Administrador</h1>
             <p>Inefablestore Management System</p>
+            <div id="admin-welcome-message" style="margin-top: 15px; padding: 10px 20px; background: rgba(255, 255, 255, 0.1); border-radius: 8px; font-size: 14px; color: #ffffff;">
+                💡 <strong>Nota:</strong> Para acceder a las funciones administrativas, debes iniciar sesión en la página principal como administrador.
+            </div>
             <div style="position: absolute; top: 20px; right: 20px;">
                 <span id="admin-user-info" style="color: #ffffff; font-size: 14px; margin-right: 15px;">
                     <!-- Info del usuario se cargará aquí -->
@@ -988,19 +991,37 @@ html
             }
 
             setLoadingState('ordenes', { loading: true, loaded: false, error: null });
-            document.getElementById('ordenes-list').innerHTML = '<div class="loading">Cargando órdenes...</div>'; // Mostrar mensaje de carga
+            document.getElementById('ordenes-list').innerHTML = '<div class="loading">Cargando órdenes...</div>';
 
             try {
                 const response = await fetch('/admin/ordenes');
+                
+                if (response.status === 401) {
+                    throw new Error('No estás autenticado. Por favor inicia sesión como administrador.');
+                }
+                
+                if (response.status === 403) {
+                    throw new Error('No tienes permisos de administrador para acceder a esta función.');
+                }
+                
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    throw new Error(`Error del servidor: ${response.status} - ${response.statusText}`);
                 }
 
-                ordenesGlobal = await response.json();
-                totalOrdenes = ordenesGlobal.length;
+                const data = await response.json();
+                
+                if (!Array.isArray(data)) {
+                    throw new Error('Respuesta del servidor inválida: se esperaba un array de órdenes.');
+                }
+
+                ordenesGlobal = data;
+                totalOrdenes = data.length;
 
                 // Actualizar información
-                document.getElementById('ordenes-info').textContent = `${totalOrdenes}`;
+                const ordenesInfoElement = document.getElementById('ordenes-info');
+                if (ordenesInfoElement) {
+                    ordenesInfoElement.textContent = `${totalOrdenes}`;
+                }
 
                 // Mostrar página actual
                 displayOrdenesPage();
@@ -1010,8 +1031,40 @@ html
             } catch (error) {
                 console.error('Error al cargar órdenes:', error);
                 setLoadingState('ordenes', { loading: false, loaded: false, error: error.message });
-                document.getElementById('ordenes-list').innerHTML = '<p>Error al cargar órdenes</p>';
-                showAlert(`Error al cargar órdenes: ${error.message}`, 'error');
+                
+                let errorMessage = 'Error desconocido al cargar órdenes';
+                
+                if (error.message.includes('autenticado')) {
+                    errorMessage = '🔒 Debes iniciar sesión como administrador para acceder al panel.';
+                    document.getElementById('ordenes-list').innerHTML = `
+                        <div class="error-container" style="text-align: center; padding: 40px; background: rgba(220, 53, 69, 0.1); border-radius: 12px; border: 1px solid rgba(220, 53, 69, 0.3);">
+                            <h3 style="color: #dc3545; margin-bottom: 15px;">🔒 Acceso Restringido</h3>
+                            <p style="color: #721c24; margin-bottom: 20px;">Debes iniciar sesión como administrador para acceder al panel.</p>
+                            <button onclick="window.location.reload()" class="btn btn-primary">🔄 Recargar Página</button>
+                        </div>
+                    `;
+                } else if (error.message.includes('permisos')) {
+                    errorMessage = '⚠️ No tienes permisos de administrador suficientes.';
+                    document.getElementById('ordenes-list').innerHTML = `
+                        <div class="error-container" style="text-align: center; padding: 40px; background: rgba(255, 193, 7, 0.1); border-radius: 12px; border: 1px solid rgba(255, 193, 7, 0.3);">
+                            <h3 style="color: #856404; margin-bottom: 15px;">⚠️ Permisos Insuficientes</h3>
+                            <p style="color: #856404; margin-bottom: 20px;">No tienes permisos de administrador para acceder a esta función.</p>
+                            <button onclick="window.location.reload()" class="btn btn-primary">🔄 Recargar Página</button>
+                        </div>
+                    `;
+                } else {
+                    errorMessage = `❌ ${error.message}`;
+                    document.getElementById('ordenes-list').innerHTML = `
+                        <div class="error-container" style="text-align: center; padding: 40px; background: rgba(220, 53, 69, 0.1); border-radius: 12px; border: 1px solid rgba(220, 53, 69, 0.3);">
+                            <h3 style="color: #dc3545; margin-bottom: 15px;">❌ Error de Conexión</h3>
+                            <p style="color: #721c24; margin-bottom: 15px;">${error.message}</p>
+                            <button onclick="loadOrdenes()" class="btn btn-primary" style="margin-right: 10px;">🔄 Reintentar</button>
+                            <button onclick="window.location.reload()" class="btn btn-secondary">🔄 Recargar Página</button>
+                        </div>
+                    `;
+                }
+                
+                showAlert(errorMessage, 'error');
             }
         }
 
@@ -1283,10 +1336,24 @@ html
 
             try {
                 const response = await fetch('/admin/productos');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                
+                if (response.status === 401) {
+                    throw new Error('No estás autenticado. Por favor inicia sesión como administrador.');
                 }
+                
+                if (response.status === 403) {
+                    throw new Error('No tienes permisos de administrador.');
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`Error del servidor: ${response.status} - ${response.statusText}`);
+                }
+                
                 const productos = await response.json();
+                
+                if (!Array.isArray(productos)) {
+                    throw new Error('Respuesta del servidor inválida: se esperaba un array de productos.');
+                }
 
                 // Ordenar productos por campo orden si existe, sino por id
                 const productosOrdenados = productos.sort((a, b) => {
@@ -1639,10 +1706,24 @@ html
 
             try {
                 const response = await fetch('/admin/imagenes');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                
+                if (response.status === 401) {
+                    throw new Error('No estás autenticado. Por favor inicia sesión como administrador.');
                 }
+                
+                if (response.status === 403) {
+                    throw new Error('No tienes permisos de administrador.');
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`Error del servidor: ${response.status} - ${response.statusText}`);
+                }
+                
                 const imagenes = await response.json();
+                
+                if (!Array.isArray(imagenes)) {
+                    throw new Error('Respuesta del servidor inválida: se esperaba un array de imágenes.');
+                }
                 imagenesGlobal = imagenes;
 
                 let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">';
@@ -1930,21 +2011,34 @@ html
                 if (response.ok) {
                     const data = await response.json();
                     const userInfoElement = document.getElementById('admin-user-info');
+                    const welcomeMessage = document.getElementById('admin-welcome-message');
+                    
                     if (userInfoElement && data.usuario) {
                         userInfoElement.innerHTML = `
                             👤 ${data.usuario.nombre}
                             <br>
                             <small style="opacity: 0.8;">${data.usuario.email}</small>
                         `;
+                        
+                        // Ocultar mensaje de bienvenida cuando el usuario esté autenticado
+                        if (welcomeMessage) {
+                            welcomeMessage.style.display = 'none';
+                        }
                     }
                     setLoadingState('userInfo', { loading: false, loaded: true });
                 } else {
-                    setLoadingState('userInfo', { loading: false, loaded: false, error: 'Error al cargar información del usuario' });
-                    showAlert('Error al cargar información del usuario', 'error');
+                    setLoadingState('userInfo', { loading: false, loaded: false, error: 'Usuario no autenticado' });
+                    
+                    // Mostrar mensaje de bienvenida si no está autenticado
+                    const welcomeMessage = document.getElementById('admin-welcome-message');
+                    if (welcomeMessage) {
+                        welcomeMessage.style.display = 'block';
+                        welcomeMessage.innerHTML = '🔒 <strong>Acceso Requerido:</strong> Debes iniciar sesión en la página principal como administrador para usar este panel. <a href="/" style="color: #ffffff; text-decoration: underline;">Ir a la página principal</a>';
+                    }
                 }
             } catch (error) {
                 console.error('Error al cargar información del usuario:', error);
-                 setLoadingState('userInfo', { loading: false, loaded: false, error: error.message });
+                setLoadingState('userInfo', { loading: false, loaded: false, error: error.message });
             }
         }
 
