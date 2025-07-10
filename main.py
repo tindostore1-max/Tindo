@@ -1003,28 +1003,50 @@ def update_producto(producto_id):
         conn.close()
 
 @app.route('/admin/producto/<int:producto_id>', methods=['DELETE'])
-@admin_required
 def delete_producto(producto_id):
-    conn = get_db_connection()
+    """Eliminar un producto y todos sus paquetes"""
     try:
-        # Eliminar órdenes relacionadas primero
-        conn.execute(text('DELETE FROM ordenes WHERE juego_id = :producto_id'), 
-                    {'producto_id': producto_id})
-        # Eliminar paquetes
-        conn.execute(text('DELETE FROM paquetes WHERE juego_id = :producto_id'), 
-                    {'producto_id': producto_id})
-        # Eliminar producto
-        conn.execute(text('DELETE FROM juegos WHERE id = :producto_id'), 
-                    {'producto_id': producto_id})
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Primero eliminar los paquetes asociados
+        cursor.execute('DELETE FROM paquetes WHERE juego_id = %s', (producto_id,))
+
+        # Luego eliminar el producto
+        cursor.execute('DELETE FROM juegos WHERE id = %s', (producto_id,))
 
         conn.commit()
-        return jsonify({'message': 'Producto eliminado correctamente'})
-
-    except Exception as e:
-        conn.rollback()
-        return jsonify({'error': f'Error al eliminar producto: {str(e)}'}), 500
-    finally:
         conn.close()
+
+        return jsonify({'success': True, 'message': 'Producto eliminado correctamente'})
+    except Exception as e:
+        print(f"Error al eliminar producto: {e}")
+        return jsonify({'error': 'Error interno del servidor'}), 500
+
+@app.route('/admin/productos/orden', methods=['PUT'])
+def update_productos_orden():
+    """Actualizar el orden de los productos"""
+    try:
+        data = request.get_json()
+        productos = data.get('productos', [])
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Actualizar el orden de cada producto
+        for producto in productos:
+            cursor.execute(
+                'UPDATE juegos SET orden = %s WHERE id = %s',
+                (producto['orden'], producto['id'])
+            )
+
+        conn.commit()
+        conn.close()
+
+        return jsonify({'success': True, 'message': 'Orden actualizado correctamente'})
+    except Exception as e:
+        print(f"Error al actualizar orden de productos: {e}")
+        return jsonify({'error': 'Error interno del servidor'}), 500
 
 # ENDPOINT PÚBLICO PARA PRODUCTOS (FRONTEND DE USUARIOS)
 @app.route('/productos', methods=['GET'])
@@ -1147,9 +1169,9 @@ def crear_valoracion():
             SELECT COUNT(*) FROM ordenes 
             WHERE juego_id = :juego_id AND usuario_email = :usuario_email AND estado = 'procesado'
         '''), {'juego_id': juego_id, 'usuario_email': usuario_email})
-        
+
         compras = result.fetchone()[0]
-        
+
         if compras == 0:
             return jsonify({'error': 'Solo puedes valorar productos que hayas comprado'}), 403
 
@@ -1187,7 +1209,7 @@ def get_valoraciones_producto(juego_id):
             WHERE v.juego_id = :juego_id
             ORDER BY v.fecha DESC
         '''), {'juego_id': juego_id})
-        
+
         valoraciones = result.fetchall()
 
         # Obtener estadísticas
@@ -1203,7 +1225,7 @@ def get_valoraciones_producto(juego_id):
             FROM valoraciones 
             WHERE juego_id = :juego_id
         '''), {'juego_id': juego_id})
-        
+
         stats = stats_result.fetchone()
 
         # Convertir a diccionarios
@@ -1240,7 +1262,7 @@ def get_valoracion_usuario(juego_id):
         return jsonify({'error': 'Debes iniciar sesión'}), 401
 
     usuario_email = session['user_email']
-    
+
     conn = get_db_connection()
     try:
         # Verificar si el usuario puede valorar (ha comprado el producto)
@@ -1248,7 +1270,7 @@ def get_valoracion_usuario(juego_id):
             SELECT COUNT(*) FROM ordenes 
             WHERE juego_id = :juego_id AND usuario_email = :usuario_email AND estado = 'procesado'
         '''), {'juego_id': juego_id, 'usuario_email': usuario_email})
-        
+
         puede_valorar = result.fetchone()[0] > 0
 
         # Obtener valoración existente del usuario
@@ -1256,7 +1278,7 @@ def get_valoracion_usuario(juego_id):
             SELECT * FROM valoraciones 
             WHERE juego_id = :juego_id AND usuario_email = :usuario_email
         '''), {'juego_id': juego_id, 'usuario_email': usuario_email})
-        
+
         valoracion = result.fetchone()
         valoracion_dict = dict(valoracion._mapping) if valoracion else None
 

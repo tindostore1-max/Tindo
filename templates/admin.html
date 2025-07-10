@@ -1849,3 +1849,86 @@
             if (!window.productos) return;
 
             const index = window.productos.findIndex(p => p.id === productoId);
+            if (index === -1) return;
+
+            let newIndex;
+            if (direccion === 'up' && index > 0) {
+                newIndex = index - 1;
+            } else if (direccion === 'down' && index < window.productos.length - 1) {
+                newIndex = index + 1;
+            } else {
+                return; // No se puede mover
+            }
+
+            // Intercambiar elementos
+            [window.productos[index], window.productos[newIndex]] = [window.productos[newIndex], window.productos[index]];
+
+            // Actualizar órdenes en el servidor
+            try {
+                const updates = [];
+                window.productos.forEach((producto, idx) => {
+                    updates.push({
+                        id: producto.id,
+                        orden: idx + 1
+                    });
+                });
+
+                const response = await fetch('/admin/productos/orden', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ productos: updates })
+                });
+
+                if (response.ok) {
+                    showAlert('Orden actualizado correctamente');
+                    loadProductos(); // Recargar la lista
+                } else {
+                    showAlert('Error al actualizar orden', 'error');
+                }
+            } catch (error) {
+                showAlert('Error al actualizar orden', 'error');
+            }
+        }
+
+        // Función para actualizar vista previa de imagen de paquete
+        function updatePaquetePreview(input, preview) {
+            const url = input.value.trim();
+            
+            if (url) {
+                // Limpiar el contenido actual
+                preview.innerHTML = '';
+                
+                // Crear nueva imagen
+                const img = document.createElement('img');
+                img.src = url;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
+                img.style.borderRadius = '6px';
+                
+                img.onload = function() {
+                    preview.appendChild(img);
+                };
+                
+                img.onerror = function() {
+                    preview.innerHTML = '<span style="font-size: 12px; color: #999;">❌</span>';
+                };
+            } else {
+                preview.innerHTML = '<span style="font-size: 12px; color: #999;">📦</span>';
+            }
+        }
+
+        // Agregar eventos para vistas previas de imágenes en paquetes existentes
+        document.addEventListener('DOMContentLoaded', function() {
+            // Agregar evento al paquete inicial
+            const initialImagenInput = document.querySelector('.paquete-imagen');
+            const initialPreview = document.querySelector('.paquete-preview');
+            
+            if (initialImagenInput && initialPreview) {
+                initialImagenInput.addEventListener('input', function() {
+                    updatePaquetePreview(this, initialPreview);
+                });
+            }
+        });
