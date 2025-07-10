@@ -60,12 +60,12 @@ header {
     position: fixed;
     top: 70px; /* Justo debajo del header */
     right: 20px;
-    flex-direction: column;
+    flex-direction: row;
     gap: 8px;
     z-index: 999;
-    padding: 10px 8px;
+    padding: 8px 12px;
     background: rgba(30, 30, 30, 0.85);
-    border-radius: 15px;
+    border-radius: 25px;
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
     border: 1px solid rgba(255, 255, 255, 0.1);
