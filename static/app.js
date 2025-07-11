@@ -230,6 +230,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Inicializar eventos táctiles
         inicializarSwipeCarruseles();
 
+        // Inicializar notificaciones de ayuda
+        inicializarNotificacionesAyuda();
+
         // Manejar la ruta actual
         manejarRutaActual();
 
@@ -1003,6 +1006,10 @@ function closeMobileCategoryMenu() {
     }, 300);
 }
 
+// Variables para la notificación de ayuda
+let ayudaNotificationInterval = null;
+let ayudaNotificationVisible = false;
+
 // Función para toggle del dropdown de redes sociales
 function toggleMobileSocial() {
     const toggle = document.querySelector('.mobile-social-toggle');
@@ -1021,6 +1028,77 @@ function toggleMobileSocial() {
         toggle.classList.add('active');
         dropdown.classList.add('show');
     }
+}
+
+// Función para mostrar notificación de ayuda
+function mostrarNotificacionAyuda() {
+    // No mostrar si ya hay una visible o si el dropdown está abierto
+    const dropdown = document.getElementById('mobile-social-dropdown');
+    if (ayudaNotificationVisible || (dropdown && dropdown.classList.contains('show'))) {
+        return;
+    }
+
+    const toggle = document.querySelector('.mobile-social-toggle');
+    if (!toggle) return;
+
+    // Crear notificación
+    const notification = document.createElement('div');
+    notification.className = 'ayuda-notification';
+    notification.innerHTML = `
+        <div class="ayuda-notification-content">
+            <span class="ayuda-icon">💬</span>
+            <span class="ayuda-text">¿Necesitas ayuda para realizar una recarga? Escríbenos</span>
+            <button class="ayuda-close" onclick="cerrarNotificacionAyuda()">✕</button>
+        </div>
+    `;
+
+    // Insertar después del botón de redes
+    toggle.parentNode.insertBefore(notification, toggle.nextSibling);
+
+    ayudaNotificationVisible = true;
+
+    // Mostrar con animación
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 100);
+
+    // Auto-ocultar después de 8 segundos
+    setTimeout(() => {
+        cerrarNotificacionAyuda();
+    }, 8000);
+}
+
+// Función para cerrar notificación de ayuda
+function cerrarNotificacionAyuda() {
+    const notification = document.querySelector('.ayuda-notification');
+    if (notification) {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+            ayudaNotificationVisible = false;
+        }, 300);
+    }
+}
+
+// Función para inicializar notificaciones periódicas de ayuda
+function inicializarNotificacionesAyuda() {
+    // Solo en móviles
+    if (window.innerWidth > 768) return;
+
+    // Mostrar primera notificación después de 30 segundos
+    setTimeout(() => {
+        mostrarNotificacionAyuda();
+    }, 30000);
+
+    // Luego cada 2-3 minutos aleatoriamente
+    ayudaNotificationInterval = setInterval(() => {
+        // Probabilidad del 60% de mostrar la notificación
+        if (Math.random() < 0.6) {
+            mostrarNotificacionAyuda();
+        }
+    }, 120000 + Math.random() * 60000); // Entre 2 y 3 minutos
 }
 
 // Cerrar dropdown de redes sociales al hacer clic fuera
