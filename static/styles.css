@@ -803,7 +803,7 @@ header {
 /* Responsive para móviles */
 @media (max-width: 768px) {
     .container {
-        padding: 40px 1px 8px 1px; /* Acercar aún más al header */
+        padding: 40px 8px 8px 8px; /* Más padding lateral para mejor espaciado */
     }
 
     header {
@@ -882,9 +882,26 @@ header {
         margin-top: 4px;
     }
 
+    /* Optimización de paquetes para móvil - Una columna para mejor aprovechamiento */
     .package-list {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
+        grid-template-columns: 1fr; /* Una sola columna en móvil */
+        gap: 15px; /* Mayor espacio entre paquetes */
+    }
+
+    .package-item {
+        min-height: 160px; /* Altura mínima más grande */
+        padding: 20px 15px; /* Padding más generoso */
+    }
+
+    .package-image-container .package-name img {
+        width: 200px; /* Imágenes más anchas */
+        height: 140px; /* Imágenes más altas */
+        object-fit: cover;
+    }
+
+    .package-price {
+        font-size: 20px; /* Precio más grande y visible */
+        padding: 8px 16px; /* Padding más generoso */
     }
 
     .footer-nav {
@@ -1717,23 +1734,30 @@ header {
         line-height: 1.4 !important;
     }
 
+    /* Optimización para vista de detalles - Una columna */
     .details-info-container .package-list {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 10px !important;
+        grid-template-columns: 1fr !important; /* Una sola columna */
+        gap: 15px !important; /* Mayor espacio entre paquetes */
     }
 
     .details-info-container .package-item {
-        padding: 15px 10px !important;
-        min-height: 90px !important;
+        padding: 20px 15px !important; /* Padding más generoso */
+        min-height: 140px !important; /* Altura mínima más grande */
+    }
+
+    .details-info-container .package-image-container .package-name img {
+        width: 200px !important; /* Imágenes más anchas */
+        height: 140px !important; /* Imágenes más altas */
     }
 
     .details-info-container .package-name {
-        font-size: 14px !important;
-        margin-bottom: 3px !important;
+        font-size: 16px !important; /* Nombre más grande */
+        margin-bottom: 5px !important;
     }
 
     .details-info-container .package-price {
-        font-size: 16px !important;
+        font-size: 18px !important; /* Precio más grande */
+        padding: 8px 16px !important; /* Padding más generoso */
     }
 
     .selected-product-image {
