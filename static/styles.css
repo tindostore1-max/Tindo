@@ -884,19 +884,25 @@ header {
 
     /* Optimización de paquetes para móvil - 2 columnas centradas */
     .package-list {
-        grid-template-columns: repeat(2, 1fr) !important; /* 2 columnas en móvil con !important */
-        gap: 8px !important; /* Espacio mínimo entre paquetes */
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important; /* 2 columnas iguales */
+        gap: 12px !important; /* Espacio entre paquetes */
         width: 100% !important; /* Ocupar todo el ancho disponible */
-        margin: 0 auto !important; /* Centrado automático */
-        padding: 0 !important; /* Sin padding interno */
-        justify-content: center !important; /* Centrar contenido del grid */
-        place-items: center !important; /* Centrar items tanto horizontal como verticalmente */
+        max-width: 100% !important; /* Sin limitación de ancho */
+        margin: 0 !important; /* Sin márgenes */
+        padding: 0 8px !important; /* Padding lateral para centrar mejor */
+        justify-items: center !important; /* Centrar cada item en su columna */
+        align-items: stretch !important; /* Estirar items verticalmente */
+        box-sizing: border-box !important;
     }
 
     .package-item {
         min-height: 180px !important; /* Altura mayor para aprovechar espacio */
         padding: 12px 8px !important; /* Padding compacto pero funcional */
         width: 100% !important; /* Ocupar todo el ancho de la columna */
+        max-width: 180px !important; /* Ancho máximo para mantener proporción */
+        margin: 0 auto !important; /* Centrar cada paquete en su columna */
+        box-sizing: border-box !important;
     }
 
     .package-image-container .package-name img {
@@ -1744,19 +1750,25 @@ header {
 
     /* Optimización para vista de detalles - 2 columnas centradas */
     .details-info-container .package-list {
-        grid-template-columns: repeat(2, 1fr) !important; /* 2 columnas */
-        gap: 8px !important; /* Espacio mínimo entre paquetes */
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important; /* 2 columnas iguales */
+        gap: 12px !important; /* Espacio entre paquetes */
         width: 100% !important; /* Ocupar todo el ancho disponible */
-        margin: 0 auto !important; /* Centrado automático */
-        padding: 0 !important; /* Sin padding interno */
-        justify-content: center !important; /* Centrar contenido del grid */
-        place-items: center !important; /* Centrar items tanto horizontal como verticalmente */
+        max-width: 100% !important; /* Sin limitación de ancho */
+        margin: 0 !important; /* Sin márgenes */
+        padding: 0 8px !important; /* Padding lateral para centrar mejor */
+        justify-items: center !important; /* Centrar cada item en su columna */
+        align-items: stretch !important; /* Estirar items verticalmente */
+        box-sizing: border-box !important;
     }
 
     .details-info-container .package-item {
         padding: 12px 8px !important; /* Padding compacto */
         min-height: 140px !important; /* Altura mayor para aprovechar espacio */
         width: 100% !important; /* Ocupar todo el ancho de la columna */
+        max-width: 180px !important; /* Ancho máximo para mantener proporción */
+        margin: 0 auto !important; /* Centrar cada paquete en su columna */
+        box-sizing: border-box !important;
     }
 
     .details-info-container .package-image-container .package-name img {
