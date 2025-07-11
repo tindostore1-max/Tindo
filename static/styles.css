@@ -882,13 +882,15 @@ header {
         margin-top: 4px;
     }
 
-    /* Optimización de paquetes para móvil - 2 columnas que llenen toda la pantalla */
+    /* Optimización de paquetes para móvil - 2 columnas centradas */
     .package-list {
         grid-template-columns: repeat(2, 1fr) !important; /* 2 columnas en móvil con !important */
         gap: 8px !important; /* Espacio mínimo entre paquetes */
         width: 100% !important; /* Ocupar todo el ancho disponible */
-        margin: 0 !important; /* Sin márgenes */
+        margin: 0 auto !important; /* Centrado automático */
         padding: 0 !important; /* Sin padding interno */
+        justify-content: center !important; /* Centrar contenido del grid */
+        place-items: center !important; /* Centrar items tanto horizontal como verticalmente */
     }
 
     .package-item {
@@ -1740,13 +1742,15 @@ header {
         line-height: 1.4 !important;
     }
 
-    /* Optimización para vista de detalles - 2 columnas que llenen toda la pantalla */
+    /* Optimización para vista de detalles - 2 columnas centradas */
     .details-info-container .package-list {
         grid-template-columns: repeat(2, 1fr) !important; /* 2 columnas */
         gap: 8px !important; /* Espacio mínimo entre paquetes */
         width: 100% !important; /* Ocupar todo el ancho disponible */
-        margin: 0 !important; /* Sin márgenes */
+        margin: 0 auto !important; /* Centrado automático */
         padding: 0 !important; /* Sin padding interno */
+        justify-content: center !important; /* Centrar contenido del grid */
+        place-items: center !important; /* Centrar items tanto horizontal como verticalmente */
     }
 
     .details-info-container .package-item {
