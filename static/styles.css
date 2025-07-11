@@ -1795,7 +1795,7 @@ header {
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    min-height: 140px;
+    min-height: 160px;
 }
 
 .package-item:hover {
