@@ -1570,14 +1570,18 @@ function generarHTMLDetalleProducto(producto) {
                      data-package-name="${paquete.nombre}" 
                      data-package-price="${precio}">
                     <div class="package-info">
-                        <div class="package-name">
-                            ${iconoHtml}
+                        <div class="package-image-container">
+                            <div class="package-selection">
+                                <span class="package-radio">⚪</span>
+                            </div>
+                            <div class="package-name">
+                                ${iconoHtml}
+                            </div>
                         </div>
-                        <div style="text-align: center;">
-                            <span class="package-radio">⚪</span>
-                            <span style="margin-left: 8px;">${paquete.nombre}</span>
+                        <div class="package-title">${paquete.nombre}</div>
+                        <div class="package-footer">
+                            <div class="package-price">${convertirPrecio(precio)}</div>
                         </div>
-                        <div class="package-price">${convertirPrecio(precio)}</div>
                     </div>
                 </div>
             `;

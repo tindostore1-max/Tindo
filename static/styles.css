@@ -1872,12 +1872,14 @@ header {
     align-items: center;
     margin-bottom: 12px;
     min-height: 70px;
+    position: relative;
 }
 
 .package-image-container .package-name {
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 100%;
 }
 
 .package-image-container .package-name img {
@@ -1885,6 +1887,8 @@ header {
     transition: all 0.3s ease;
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     border-radius: 8px;
+    margin: 0 auto;
+    display: block;
 }
 
 .package-item:hover .package-image-container .package-name img {
@@ -1899,31 +1903,41 @@ header {
 }
 
 .package-selection {
+    position: absolute;
+    top: -8px;
+    left: -8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 8px 0;
-    padding: 8px 12px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 32px;
+    height: 32px;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.2);
     transition: all 0.3s ease;
+    z-index: 3;
+    backdrop-filter: blur(5px);
 }
 
 .package-item:hover .package-selection {
-    background: rgba(40, 167, 69, 0.1);
-    border-color: rgba(40, 167, 69, 0.3);
+    background: rgba(40, 167, 69, 0.8);
+    border-color: rgba(40, 167, 69, 0.5);
+    transform: scale(1.1);
 }
 
 .package-item.selected .package-selection {
-    background: rgba(40, 167, 69, 0.2);
+    background: rgba(40, 167, 69, 0.9);
     border-color: #28a745;
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(40, 167, 69, 0.5);
 }
 
 .package-radio {
-    font-size: 16px;
-    margin-right: 8px;
+    font-size: 14px;
+    margin: 0;
     transition: all 0.3s ease;
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
 
 .package-title {
@@ -1932,6 +1946,7 @@ header {
     font-size: 14px;
     text-align: center;
     line-height: 1.2;
+    margin-top: 8px;
 }
 
 .package-footer {
