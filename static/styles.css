@@ -1889,6 +1889,9 @@ header {
     border-radius: 8px;
     margin: 0 auto;
     display: block;
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
 }
 
 .package-item:hover .package-image-container .package-name img {
@@ -1941,12 +1944,7 @@ header {
 }
 
 .package-title {
-    color: #ffffff;
-    font-weight: 600;
-    font-size: 14px;
-    text-align: center;
-    line-height: 1.2;
-    margin-top: 8px;
+    display: none;
 }
 
 .package-footer {
