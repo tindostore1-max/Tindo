@@ -1871,7 +1871,7 @@ header {
     justify-content: center;
     align-items: center;
     margin-bottom: 12px;
-    min-height: 150px;
+    min-height: 200px;
     position: relative;
 }
 
@@ -1889,8 +1889,8 @@ header {
     border-radius: 8px;
     margin: 0 auto;
     display: block;
-    width: 160px;
-    height: 140px;
+    width: 200px;
+    height: 180px;
     object-fit: cover;
 }
 
