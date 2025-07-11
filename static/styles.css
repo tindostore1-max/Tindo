@@ -3972,11 +3972,11 @@ header {
 }
 
 .ayuda-notification-content {
-    background: linear-gradient(135deg, #28a745, #20c997);
+    background: rgba(30, 30, 30, 0.95);
     color: #ffffff;
     padding: 15px 18px;
     border-radius: 15px 15px 15px 0; /* Borde inferior derecho recto para conectar horizontalmente */
-    box-shadow: 0 10px 30px rgba(40, 167, 69, 0.4);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     border: 1px solid rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
@@ -3997,7 +3997,7 @@ header {
     height: 0;
     border-left: 8px solid transparent;
     border-right: 8px solid transparent;
-    border-bottom: 8px solid #28a745; /* Flecha apuntando hacia arriba */
+    border-bottom: 8px solid rgba(30, 30, 30, 0.95); /* Flecha apuntando hacia arriba */
     z-index: 10;
 }
 
@@ -4009,7 +4009,7 @@ header {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
     animation: shimmer-ayuda 3s infinite;
     z-index: 1;
 }
