@@ -1990,6 +1990,9 @@ function prepararPago() {
     // Actualizar métodos de pago según la moneda
     actualizarMetodosPagoSegunMoneda();
 
+    // Mostrar automáticamente la información de ambos métodos de pago
+    mostrarInformacionMetodosPago();
+
     // Auto-rellenar email del usuario logueado
     if (window.session && window.session.user_email) {
         const emailInput = document.getElementById('pago-email');
@@ -2036,7 +2039,96 @@ function actualizarMetodosPagoSegunMoneda() {
     }
 }
 
-// Función para seleccionar método de pago
+// Función para mostrar información de métodos de pago automáticamente
+function mostrarInformacionMetodosPago() {
+    const infoPago = document.getElementById('info-pago');
+    
+    if (!configuracion) {
+        infoPago.innerHTML = `
+            <div style="text-align: center; padding: 20px; color: #dc3545;">
+                <p>Error al cargar información de métodos de pago</p>
+            </div>
+        `;
+        infoPago.style.display = 'block';
+        return;
+    }
+
+    // Procesar datos de pago móvil
+    const pagoMovilData = configuracion.pago_movil || 'Información no disponible';
+    const lineasPagoMovil = pagoMovilData.split('\n');
+
+    let banco = 'No especificado';
+    let telefono = 'No especificado';
+    let cedula = 'No especificado';
+    let nombre = 'No especificado';
+
+    // Extraer información de cada línea de pago móvil
+    lineasPagoMovil.forEach(linea => {
+        if (linea.includes('Banco:')) {
+            banco = linea.replace('Banco:', '').trim();
+        } else if (linea.includes('Telefono:')) {
+            telefono = linea.replace('Telefono:', '').trim();
+        } else if (linea.includes('Cédula:')) {
+            cedula = linea.replace('Cédula:', '').trim();
+        } else if (linea.includes('Nombre:')) {
+            nombre = linea.replace('Nombre:', '').trim();
+        }
+    });
+
+    // Procesar datos de Binance
+    const binanceData = configuracion.binance || 'Información no disponible';
+    const lineasBinance = binanceData.split('\n');
+
+    let email = 'No especificado';
+    let idBinance = 'No especificado';
+
+    // Extraer información de cada línea de Binance
+    lineasBinance.forEach(linea => {
+        if (linea.includes('Email:')) {
+            email = linea.replace('Email:', '').trim();
+        } else if (linea.includes('ID Binance:')) {
+            idBinance = linea.replace('ID Binance:', '').trim();
+        }
+    });
+
+    // Mostrar ambos métodos de pago organizados en secciones
+    infoPago.innerHTML = `
+        <div style="display: grid; grid-template-columns: 1fr; gap: 25px; margin: 25px 0;">
+            <div style="background: rgba(40, 167, 69, 0.1); border: 1px solid rgba(40, 167, 69, 0.3); border-radius: 15px; padding: 20px;">
+                <h4 style="color: #28a745; margin-bottom: 15px; font-size: 18px; text-align: center;">📱 Pago Móvil (VES)</h4>
+                <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px;">
+                    <p style="margin-bottom: 8px;"><strong>🏦 Banco:</strong> ${banco}</p>
+                    <p style="margin-bottom: 8px;"><strong>📞 Teléfono:</strong> ${telefono}</p>
+                    <p style="margin-bottom: 8px;"><strong>🆔 Cédula:</strong> ${cedula}</p>
+                    <p style="margin-bottom: 8px;"><strong>👤 Nombre:</strong> ${nombre}</p>
+                </div>
+                <p style="margin-top: 15px; color: #20c997; font-weight: 600; text-align: center; font-size: 14px;">
+                    💡 Realiza el pago y coloca la referencia en el campo de abajo
+                </p>
+            </div>
+
+            <div style="background: rgba(255, 193, 7, 0.1); border: 1px solid rgba(255, 193, 7, 0.3); border-radius: 15px; padding: 20px;">
+                <h4 style="color: #ffc107; margin-bottom: 15px; font-size: 18px; text-align: center;">🟡 Binance (USD)</h4>
+                <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px;">
+                    <p style="margin-bottom: 8px;"><strong>📧 Email:</strong> ${email}</p>
+                    <p style="margin-bottom: 8px;"><strong>🆔 ID Binance:</strong> ${idBinance}</p>
+                </div>
+                <p style="margin-top: 15px; color: #20c997; font-weight: 600; text-align: center; font-size: 14px;">
+                    💡 Realiza la transferencia y coloca el ID de transacción en el campo de abajo
+                </p>
+            </div>
+        </div>
+
+        <div style="background: rgba(0, 123, 255, 0.1); border: 1px solid rgba(0, 123, 255, 0.3); border-radius: 15px; padding: 15px; margin-top: 20px;">
+            <p style="color: #007bff; font-weight: 600; text-align: center; margin: 0; font-size: 14px;">
+                ℹ️ Selecciona el método de pago correspondiente a la moneda que elegiste arriba
+            </p>
+        </div>
+    `;
+    infoPago.style.display = 'block';
+}
+
+// Función para seleccionar método de pago (simplificada)
 function seleccionarMetodoPago(metodo) {
     // Remover selección anterior
     document.querySelectorAll('.payment-method-btn').forEach(btn => {
@@ -2045,74 +2137,40 @@ function seleccionarMetodoPago(metodo) {
 
     // Seleccionar botón actual
     const btnId = metodo === 'Pago Móvil' ? 'btn-pago-movil' : 'btn-binance';
-    document.getElementById(btnId).classList.add('selected');
+    const btnElement = document.getElementById(btnId);
+    if (btnElement) {
+        btnElement.classList.add('selected');
+    }
 
     // Actualizar campo oculto
-    document.getElementById('metodo-pago').value = metodo;
+    const metodoPagoInput = document.getElementById('metodo-pago');
+    if (metodoPagoInput) {
+        metodoPagoInput.value = metodo;
+    }
 
-    // Mostrar información del método de pago
+    // Mostrar un mensaje de confirmación visual
     const infoPago = document.getElementById('info-pago');
+    if (infoPago) {
+        // Agregar indicador visual de método seleccionado
+        const indicador = infoPago.querySelector('.metodo-seleccionado');
+        if (indicador) {
+            indicador.remove();
+        }
 
-    if (metodo === 'Pago Móvil') {
-        // Procesar datos de pago móvil
-        const pagoMovilData = configuracion.pago_movil || 'Información no disponible';
-        const lineasPagoMovil = pagoMovilData.split('\n');
-
-        let banco = 'No especificado';
-        let telefono = 'No especificado';
-        let cedula = 'No especificado';
-        let nombre = 'No especificado';
-
-        // Extraer información de cada línea
-        lineasPagoMovil.forEach(linea => {
-            if (linea.includes('Banco:')) {
-                banco = linea.replace('Banco:', '').trim();
-            } else if (linea.includes('Telefono:')) {
-                telefono = linea.replace('Telefono:', '').trim();
-            } else if (linea.includes('Cédula:')) {
-                cedula = linea.replace('Cédula:', '').trim();
-            } else if (linea.includes('Nombre:')) {
-                nombre = linea.replace('Nombre:', '').trim();
-            }
-        });
-
-        infoPago.innerHTML = `
-            <h4>📱 Datos para Pago Móvil:</h4>
-            <p><strong>🏦 Banco:</strong> ${banco}</p>
-            <p><strong>📞 Teléfono:</strong> ${telefono}</p>
-            <p><strong>🆔 Cédula:</strong> ${cedula}</p>
-            <p><strong>👤 Nombre:</strong> ${nombre}</p>
-            <p style="margin-top: 15px; color: #20c997; font-weight: 600;">
-                💡 Realiza el pago y coloca la referencia en el campo de abajo
-            </p>
+        const nuevoIndicador = document.createElement('div');
+        nuevoIndicador.className = 'metodo-seleccionado';
+        nuevoIndicador.style.cssText = `
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 15px;
+            font-weight: 600;
+            font-size: 14px;
         `;
-        infoPago.style.display = 'block';
-    } else if (metodo === 'Binance') {
-        // Procesar datos de Binance```javascript
-        const binanceData = configuracion.binance || 'Información no disponible';
-        const lineasBinance = binanceData.split('\n');
-
-        let email = 'No especificado';
-        let idBinance = 'No especificado';
-
-        // Extraer información de cada línea
-        lineasBinance.forEach(linea => {
-            if (linea.includes('Email:')) {
-                email = linea.replace('Email:', '').trim();
-            } else if (linea.includes('ID Binance:')) {
-                idBinance = linea.replace('ID Binance:', '').trim();
-            }
-        });
-
-        infoPago.innerHTML = `
-            <h4>🟡 Datos para Binance:</h4>
-            <p><strong>📧 Email:</strong> ${email}</p>
-            <p><strong>🆔 ID Binance:</strong> ${idBinance}</p>
-            <p style="margin-top: 15px; color: #20c997; font-weight: 600;">
-                💡 Realiza la transferencia y coloca el ID de transacción en el campo de abajo
-            </p>
-        `;
-        infoPago.style.display = 'block';
+        nuevoIndicador.innerHTML = `✅ Método seleccionado: ${metodo}`;
+        infoPago.appendChild(nuevoIndicador);
     }
 }
 
