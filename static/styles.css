@@ -3954,8 +3954,8 @@ header {
 /* Notificación de ayuda flotante */
 .ayuda-notification {
     position: fixed;
-    top: 130px; /* Más cerca del botón de redes que está en top: 50px */
-    right: 5px; /* Más pegado al borde para conectar con el botón */
+    top: 90px; /* Más cerca horizontalmente del botón de redes */
+    right: 2px; /* Aún más pegado al borde */
     z-index: 9998;
     max-width: 300px;
     min-width: 280px;
@@ -3975,7 +3975,7 @@ header {
     background: linear-gradient(135deg, #28a745, #20c997);
     color: #ffffff;
     padding: 15px 18px;
-    border-radius: 15px 0 15px 15px; /* Borde superior derecho recto para conectar */
+    border-radius: 15px 15px 15px 0; /* Borde inferior derecho recto para conectar horizontalmente */
     box-shadow: 0 10px 30px rgba(40, 167, 69, 0.4);
     border: 1px solid rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(10px);
@@ -3991,13 +3991,13 @@ header {
 .ayuda-notification-content::before {
     content: '';
     position: absolute;
-    top: -8px; /* Posicionar en la parte superior */
-    right: 15px; /* Alineado con donde estaría el botón */
+    top: 10px; /* Más centrada verticalmente */
+    right: -8px; /* Posicionada en el borde derecho */
     width: 0;
     height: 0;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-bottom: 8px solid #28a745; /* Flecha apuntando hacia arriba */
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 8px solid #28a745; /* Flecha apuntando hacia la derecha */
     z-index: 10;
 }
 
@@ -4086,14 +4086,14 @@ header {
     }
 
     .ayuda-notification {
-        top: 120px; /* Ajustar posición en móvil para que esté cerca del botón */
-        right: 2px; /* Más pegado al borde */
+        top: 80px; /* Más cerca horizontalmente del botón en móvil */
+        right: 0px; /* Totalmente pegado al borde */
         max-width: 280px;
         min-width: 260px;
     }
 
     .ayuda-notification-content {
-        border-radius: 15px 0 15px 15px; /* Mantener conexión visual */
+        border-radius: 15px 15px 15px 0; /* Mantener conexión visual horizontal */
     }
 
     .ayuda-text {
