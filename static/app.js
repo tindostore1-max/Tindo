@@ -1276,11 +1276,31 @@ function mostrarProductos() {
                 }).join('');
             }
 
+            // Mostrar preview de paquetes con imágenes
+            let paquetesPreviewHtml = '';
+            if (juego.paquetes && juego.paquetes.length > 0 && juego.paquetes.some(p => p.imagen)) {
+                const paquetesConImagen = juego.paquetes.filter(p => p.imagen && p.imagen.trim() !== '').slice(0, 3);
+                if (paquetesConImagen.length > 0) {
+                    paquetesPreviewHtml = `
+                        <div class="paquetes-preview" style="display: flex; gap: 3px; justify-content: center; margin: 6px 0; flex-wrap: wrap;">
+                            ${paquetesConImagen.map(paquete => {
+                                let paqueteImagenUrl = paquete.imagen;
+                                if (!paqueteImagenUrl.startsWith('http') && !paqueteImagenUrl.startsWith('/static/')) {
+                                    paqueteImagenUrl = `/static/${paqueteImagenUrl}`;
+                                }
+                                return `<img src="${paqueteImagenUrl}" style="width: 20px; height: 20px; object-fit: cover; border-radius: 3px; border: 1px solid rgba(255,255,255,0.2);" onerror="this.style.display='none'" alt="${paquete.nombre}" title="${paquete.nombre}">`;
+                            }).join('')}
+                        </div>
+                    `;
+                }
+            }
+
             cardsHtml += `
                 <div class="todos-carousel-card" onclick="verDetalleProducto(${juego.id})">
                     ${etiquetasHtml ? `<div class="product-tags">${etiquetasHtml}</div>` : ''}
                     <img src="${imagenUrl}" alt="${juego.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
                     <div class="product-name">${juego.nombre || 'Producto sin nombre'}</div>
+                    ${paquetesPreviewHtml}
                     ${mostrarValoracionEnTarjeta(juego)}
                     <div class="price-desde">${rangoPrecio}</div>
                 </div>
@@ -1329,11 +1349,31 @@ function mostrarProductos() {
                     }).join('');
                 }
 
+                // Mostrar preview de paquetes con imágenes para gift cards
+                let paquetesPreviewHtml = '';
+                if (giftCard.paquetes && giftCard.paquetes.length > 0 && giftCard.paquetes.some(p => p.imagen)) {
+                    const paquetesConImagen = giftCard.paquetes.filter(p => p.imagen && p.imagen.trim() !== '').slice(0, 3);
+                    if (paquetesConImagen.length > 0) {
+                        paquetesPreviewHtml = `
+                            <div class="paquetes-preview" style="display: flex; gap: 3px; justify-content: center; margin: 6px 0; flex-wrap: wrap;">
+                                ${paquetesConImagen.map(paquete => {
+                                    let paqueteImagenUrl = paquete.imagen;
+                                    if (!paqueteImagenUrl.startsWith('http') && !paqueteImagenUrl.startsWith('/static/')) {
+                                        paqueteImagenUrl = `/static/${paqueteImagenUrl}`;
+                                    }
+                                    return `<img src="${paqueteImagenUrl}" style="width: 20px; height: 20px; object-fit: cover; border-radius: 3px; border: 1px solid rgba(255,255,255,0.2);" onerror="this.style.display='none'" alt="${paquete.nombre}" title="${paquete.nombre}">`;
+                                }).join('')}
+                            </div>
+                        `;
+                    }
+                }
+
                 giftCardsHtml += `
                     <div class="todos-carousel-card" onclick="verDetalleProducto(${giftCard.id})">
                         ${etiquetasHtml ? `<div class="product-tags">${etiquetasHtml}</div>` : ''}
                         <img src="${imagenUrl}" alt="${giftCard.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
                         <div class="product-name">${giftCard.nombre || 'Producto sin nombre'}</div>
+                        ${paquetesPreviewHtml}
                         ${mostrarValoracionEnTarjeta(giftCard)}
                         <div class="price-desde">${rangoPrecio}</div>
                     </div>
@@ -1459,12 +1499,32 @@ function mostrarProductos() {
             }).join('');
         }
 
+        // Mostrar paquetes con imágenes si están disponibles
+        let paquetesPreviewHtml = '';
+        if (producto.paquetes && producto.paquetes.length > 0 && producto.paquetes.some(p => p.imagen)) {
+            const paquetesConImagen = producto.paquetes.filter(p => p.imagen && p.imagen.trim() !== '').slice(0, 3);
+            if (paquetesConImagen.length > 0) {
+                paquetesPreviewHtml = `
+                    <div class="paquetes-preview" style="display: flex; gap: 4px; justify-content: center; margin: 8px 0; flex-wrap: wrap;">
+                        ${paquetesConImagen.map(paquete => {
+                            let paqueteImagenUrl = paquete.imagen;
+                            if (!paqueteImagenUrl.startsWith('http') && !paqueteImagenUrl.startsWith('/static/')) {
+                                paqueteImagenUrl = `/static/${paqueteImagenUrl}`;
+                            }
+                            return `<img src="${paqueteImagenUrl}" style="width: 24px; height: 24px; object-fit: cover; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2);" onerror="this.style.display='none'" alt="${paquete.nombre}" title="${paquete.nombre}">`;
+                        }).join('')}
+                    </div>
+                `;
+            }
+        }
+
         html += `
             <div class="product-card" onclick="verDetalleProducto(${producto.id})">
                 ${etiquetasHtml ? `<div class="product-tags">${etiquetasHtml}</div>` : ''}
                 <img src="${imagenUrl}" alt="${producto.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
                 <div class="product-name">${producto.nombre || 'Producto sin nombre'}</div>
                 <div class="product-description">${producto.descripcion || 'Sin descripción'}</div>
+                ${paquetesPreviewHtml}
                 ${mostrarValoracionEnTarjeta(producto)}
                 <div class="price-desde">${rangoPrecio}</div>
             </div>
@@ -1549,7 +1609,7 @@ function generarHTMLDetalleProducto(producto) {
                 if (!imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
                     imagenUrl = `/static/${imagenUrl}`;
                 }
-                iconoHtml = `<img src="${imagenUrl}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; border: 2px solid rgba(255,255,255,0.2);" onerror="this.style.display='none'" alt="Imagen del paquete">`;
+                iconoHtml = `<img src="${imagenUrl}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; border: 2px solid rgba(255,255,255,0.2); display: block;" onerror="this.style.display='none'" alt="Imagen del paquete">`;
             }
             
             return `
