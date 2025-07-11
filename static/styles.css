@@ -882,26 +882,26 @@ header {
         margin-top: 4px;
     }
 
-    /* Optimización de paquetes para móvil - Una columna para mejor aprovechamiento */
+    /* Optimización de paquetes para móvil - 2 columnas */
     .package-list {
-        grid-template-columns: 1fr; /* Una sola columna en móvil */
-        gap: 15px; /* Mayor espacio entre paquetes */
+        grid-template-columns: repeat(2, 1fr); /* 2 columnas en móvil */
+        gap: 8px; /* Espacio optimizado entre paquetes */
     }
 
     .package-item {
-        min-height: 160px; /* Altura mínima más grande */
-        padding: 20px 15px; /* Padding más generoso */
+        min-height: 140px; /* Altura optimizada */
+        padding: 15px 10px; /* Padding equilibrado */
     }
 
     .package-image-container .package-name img {
-        width: 200px; /* Imágenes más anchas */
-        height: 140px; /* Imágenes más altas */
+        width: 140px; /* Imágenes ajustadas a 2 columnas */
+        height: 120px; /* Imágenes proporcionadas */
         object-fit: cover;
     }
 
     .package-price {
-        font-size: 20px; /* Precio más grande y visible */
-        padding: 8px 16px; /* Padding más generoso */
+        font-size: 16px; /* Precio legible pero proporcional */
+        padding: 6px 12px; /* Padding ajustado */
     }
 
     .footer-nav {
@@ -1734,30 +1734,30 @@ header {
         line-height: 1.4 !important;
     }
 
-    /* Optimización para vista de detalles - Una columna */
+    /* Optimización para vista de detalles - 2 columnas */
     .details-info-container .package-list {
-        grid-template-columns: 1fr !important; /* Una sola columna */
-        gap: 15px !important; /* Mayor espacio entre paquetes */
+        grid-template-columns: repeat(2, 1fr) !important; /* 2 columnas */
+        gap: 10px !important; /* Espacio optimizado entre paquetes */
     }
 
     .details-info-container .package-item {
-        padding: 20px 15px !important; /* Padding más generoso */
-        min-height: 140px !important; /* Altura mínima más grande */
+        padding: 15px 10px !important; /* Padding equilibrado */
+        min-height: 90px !important; /* Altura compacta */
     }
 
     .details-info-container .package-image-container .package-name img {
-        width: 200px !important; /* Imágenes más anchas */
-        height: 140px !important; /* Imágenes más altas */
+        width: 140px !important; /* Imágenes ajustadas */
+        height: 120px !important; /* Imágenes proporcionadas */
     }
 
     .details-info-container .package-name {
-        font-size: 16px !important; /* Nombre más grande */
-        margin-bottom: 5px !important;
+        font-size: 14px !important; /* Nombre legible */
+        margin-bottom: 3px !important;
     }
 
     .details-info-container .package-price {
-        font-size: 18px !important; /* Precio más grande */
-        padding: 8px 16px !important; /* Padding más generoso */
+        font-size: 16px !important; /* Precio proporcional */
+        padding: 6px 12px !important; /* Padding ajustado */
     }
 
     .selected-product-image {
