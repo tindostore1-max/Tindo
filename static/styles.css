@@ -884,24 +884,25 @@ header {
 
     /* Optimización de paquetes para móvil - 2 columnas */
     .package-list {
-        grid-template-columns: repeat(2, 1fr); /* 2 columnas en móvil */
-        gap: 8px; /* Espacio optimizado entre paquetes */
+        grid-template-columns: repeat(2, 1fr) !important; /* 2 columnas en móvil con !important */
+        gap: 10px !important; /* Espacio optimizado entre paquetes */
     }
 
     .package-item {
-        min-height: 140px; /* Altura optimizada */
-        padding: 15px 10px; /* Padding equilibrado */
+        min-height: 160px !important; /* Altura optimizada */
+        padding: 15px 12px !important; /* Padding equilibrado */
     }
 
     .package-image-container .package-name img {
-        width: 140px; /* Imágenes ajustadas a 2 columnas */
-        height: 120px; /* Imágenes proporcionadas */
+        width: 100% !important; /* Ancho completo del contenedor */
+        max-width: 150px !important; /* Máximo ancho para 2 columnas */
+        height: 130px !important; /* Altura proporcionada */
         object-fit: cover;
     }
 
     .package-price {
-        font-size: 16px; /* Precio legible pero proporcional */
-        padding: 6px 12px; /* Padding ajustado */
+        font-size: 16px !important; /* Precio legible pero proporcional */
+        padding: 8px 12px !important; /* Padding ajustado */
     }
 
     .footer-nav {
@@ -1737,27 +1738,28 @@ header {
     /* Optimización para vista de detalles - 2 columnas */
     .details-info-container .package-list {
         grid-template-columns: repeat(2, 1fr) !important; /* 2 columnas */
-        gap: 10px !important; /* Espacio optimizado entre paquetes */
+        gap: 12px !important; /* Espacio optimizado entre paquetes */
     }
 
     .details-info-container .package-item {
-        padding: 15px 10px !important; /* Padding equilibrado */
-        min-height: 90px !important; /* Altura compacta */
+        padding: 15px 12px !important; /* Padding equilibrado */
+        min-height: 120px !important; /* Altura compacta pero funcional */
     }
 
     .details-info-container .package-image-container .package-name img {
-        width: 140px !important; /* Imágenes ajustadas */
+        width: 100% !important; /* Ancho completo del contenedor */
+        max-width: 150px !important; /* Máximo ancho para 2 columnas */
         height: 120px !important; /* Imágenes proporcionadas */
     }
 
     .details-info-container .package-name {
         font-size: 14px !important; /* Nombre legible */
-        margin-bottom: 3px !important;
+        margin-bottom: 4px !important;
     }
 
     .details-info-container .package-price {
         font-size: 16px !important; /* Precio proporcional */
-        padding: 6px 12px !important; /* Padding ajustado */
+        padding: 8px 12px !important; /* Padding ajustado */
     }
 
     .selected-product-image {
