@@ -3954,8 +3954,8 @@ header {
 /* Notificación de ayuda flotante */
 .ayuda-notification {
     position: fixed;
-    top: 100px;
-    right: 10px;
+    top: 130px; /* Más cerca del botón de redes que está en top: 50px */
+    right: 5px; /* Más pegado al borde para conectar con el botón */
     z-index: 9998;
     max-width: 300px;
     min-width: 280px;
@@ -3975,7 +3975,7 @@ header {
     background: linear-gradient(135deg, #28a745, #20c997);
     color: #ffffff;
     padding: 15px 18px;
-    border-radius: 15px;
+    border-radius: 15px 0 15px 15px; /* Borde superior derecho recto para conectar */
     box-shadow: 0 10px 30px rgba(40, 167, 69, 0.4);
     border: 1px solid rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(10px);
@@ -3987,7 +3987,22 @@ header {
     overflow: hidden;
 }
 
+/* Flecha que conecta con el botón de redes */
 .ayuda-notification-content::before {
+    content: '';
+    position: absolute;
+    top: -8px; /* Posicionar en la parte superior */
+    right: 15px; /* Alineado con donde estaría el botón */
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid #28a745; /* Flecha apuntando hacia arriba */
+    z-index: 10;
+}
+
+/* Segundo pseudo-elemento para el shimmer */
+.ayuda-notification-content::after {
     content: '';
     position: absolute;
     top: 0;
@@ -3996,6 +4011,7 @@ header {
     height: 100%;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
     animation: shimmer-ayuda 3s infinite;
+    z-index: 1;
 }
 
 @keyframes shimmer-ayuda {
@@ -4007,6 +4023,7 @@ header {
     font-size: 20px;
     flex-shrink: 0;
     animation: bounce-ayuda 2s infinite;
+    z-index: 2; /* Por encima del shimmer */
 }
 
 @keyframes bounce-ayuda {
@@ -4069,14 +4086,23 @@ header {
     }
 
     .ayuda-notification {
-        top: 90px;
-        right: 5px;
+        top: 120px; /* Ajustar posición en móvil para que esté cerca del botón */
+        right: 2px; /* Más pegado al borde */
         max-width: 280px;
         min-width: 260px;
     }
 
+    .ayuda-notification-content {
+        border-radius: 15px 0 15px 15px; /* Mantener conexión visual */
+    }
+
     .ayuda-text {
         font-size: 12px;
+        z-index: 2; /* Por encima del shimmer */
+    }
+
+    .ayuda-close {
+        z-index: 2; /* Por encima del shimmer */
     }
 }
 
