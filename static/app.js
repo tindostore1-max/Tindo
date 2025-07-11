@@ -2057,7 +2057,7 @@ function actualizarMetodosPagoSegunMoneda() {
 
 // Variables globales para el temporizador
 let timerInterval = null;
-let tiempoRestante = 15 * 60; // 15 minutos en segundos
+let tiempoRestante = 50 * 60; // 50 minutos en segundos
 
 // Función para seleccionar método de pago
 function seleccionarMetodoPago(metodo) {
@@ -3341,7 +3341,7 @@ function iniciarTemporizadorPago() {
     }
 
     // Resetear tiempo
-    tiempoRestante = 15 * 60; // 15 minutos
+    tiempoRestante = 50 * 60; // 50 minutos
 
     // Crear elemento del temporizador si no existe
     let timerElement = document.getElementById('payment-timer');
@@ -3464,7 +3464,7 @@ function reiniciarTemporizador() {
     // Reiniciar temporizador
     iniciarTemporizadorPago();
     
-    mostrarAlerta('🔄 Temporizador reiniciado. Tienes 15 minutos para completar el pago.', 'success');
+    mostrarAlerta('🔄 Temporizador reiniciado. Tienes 50 minutos para completar el pago.', 'success');
 }
 
 // Función para detener el temporizador (cuando el pago es exitoso)
