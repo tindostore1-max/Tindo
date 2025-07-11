@@ -1471,7 +1471,7 @@ function generarHTMLDetalleProducto(producto) {
                 if (!imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
                     imagenUrl = `/static/${imagenUrl}`;
                 }
-                iconoHtml = `<img src="${imagenUrl}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 10px; margin-right: 15px; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.1);" onerror="this.style.display='none'" alt="Imagen del paquete">`;
+                iconoHtml = `<img src="${imagenUrl}" style="width: 120px; height: 120px; object-fit: cover; border-radius: 12px; margin-right: 18px; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.1);" onerror="this.style.display='none'" alt="Imagen del paquete">`;
             }
             
             return `
