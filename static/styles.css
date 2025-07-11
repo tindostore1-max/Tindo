@@ -1833,14 +1833,7 @@ header {
 }
 
 .package-name {
-    font-weight: 700;
-    font-size: 18px;
-    color: #ffffff;
-    margin-bottom: 5px;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 5px;
+    display: none;
 }
 
 .package-name img {
