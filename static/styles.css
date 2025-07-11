@@ -2972,6 +2972,149 @@ header {
     }
 }
 
+/* Estilos para el temporizador de pago */
+.payment-timer {
+    margin-top: 20px;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.05));
+    border: 2px solid rgba(255, 193, 7, 0.3);
+    border-radius: 15px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.payment-timer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 193, 7, 0.1), transparent);
+    animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+.timer-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 15px;
+    position: relative;
+    z-index: 2;
+}
+
+.timer-icon {
+    font-size: 20px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.timer-title {
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.timer-display {
+    font-size: 48px;
+    font-weight: 700;
+    color: #ffc107;
+    margin: 15px 0;
+    font-family: 'Courier New', monospace;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 2;
+}
+
+.timer-display.timer-warning-active {
+    color: #ff9800;
+    animation: warning-blink 1s infinite alternate;
+}
+
+.timer-display.timer-critical {
+    color: #f44336;
+    animation: critical-blink 0.5s infinite alternate;
+}
+
+@keyframes warning-blink {
+    0% { opacity: 1; }
+    100% { opacity: 0.7; }
+}
+
+@keyframes critical-blink {
+    0% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0.5; transform: scale(1.05); }
+}
+
+.timer-minutes,
+.timer-seconds {
+    display: inline-block;
+    min-width: 60px;
+}
+
+.timer-warning {
+    color: #cccccc;
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 10px;
+    position: relative;
+    z-index: 2;
+}
+
+.timer-expired {
+    color: #f44336;
+    font-size: 24px;
+    font-weight: 700;
+    animation: expired-flash 1s infinite;
+}
+
+.timer-expired-state {
+    background: linear-gradient(135deg, rgba(244, 67, 54, 0.2), rgba(244, 67, 54, 0.1));
+    border-color: #f44336;
+}
+
+@keyframes expired-flash {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+    .payment-timer {
+        padding: 15px;
+        margin-top: 15px;
+    }
+
+    .timer-display {
+        font-size: 36px;
+        margin: 10px 0;
+    }
+
+    .timer-title {
+        font-size: 13px;
+    }
+
+    .timer-warning {
+        font-size: 11px;
+    }
+
+    .timer-expired {
+        font-size: 20px;
+    }
+}
+
 /* Estilos para el mensaje de pago */
 .payment-message {
     margin-top: 20px;
