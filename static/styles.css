@@ -1784,11 +1784,11 @@ header {
 .package-item {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     text-align: center;
-    padding: 25px 15px;
-    background: #2a2a2a;
+    padding: 20px 15px;
+    background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%);
     border-radius: 15px;
     border: 1px solid #444;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
@@ -1796,6 +1796,21 @@ header {
     position: relative;
     overflow: hidden;
     min-height: 180px;
+}
+
+.package-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(40, 167, 69, 0.1), transparent);
+    transition: left 0.6s ease;
+}
+
+.package-item:hover::before {
+    left: 100%;
 }
 
 .package-item:hover {
@@ -1810,57 +1825,142 @@ header {
 }
 
 .package-selectable:hover {
-    transform: translateY(-2px);    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.15);
     border-color: #28a745;
 }
 
 .package-selectable.selected {
-    background: #2a2a2a;
+    background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%);
     border-color: #28a745;
     transform: translateY(-3px);
     box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
 }
 
-.package-radio {
-    font-size: 16px;
-    margin-right: 10px;
-    transition: all 0.3s ease;
+.package-selectable.selected::after {
+    content: '✓';
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 24px;
+    height: 24px;
+    background: #28a745;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.4);
+    z-index: 3;
 }
 
 .package-info {
     position: relative;
     z-index: 2;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
-.package-name {
+.package-image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 12px;
+    min-height: 70px;
+}
+
+.package-image-container .package-name {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 10px;
 }
 
-.package-name img {
+.package-image-container .package-name img {
     border: 2px solid rgba(255,255,255,0.2);
     transition: all 0.3s ease;
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    border-radius: 8px;
 }
 
-.package-item:hover .package-name img {
+.package-item:hover .package-image-container .package-name img {
     border-color: #28a745;
     transform: scale(1.08);
     box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
 }
 
-.package-item.selected .package-name img {
+.package-item.selected .package-image-container .package-name img {
     border-color: #28a745;
     box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
 }
 
+.package-selection {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 8px 0;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.package-item:hover .package-selection {
+    background: rgba(40, 167, 69, 0.1);
+    border-color: rgba(40, 167, 69, 0.3);
+}
+
+.package-item.selected .package-selection {
+    background: rgba(40, 167, 69, 0.2);
+    border-color: #28a745;
+}
+
+.package-radio {
+    font-size: 16px;
+    margin-right: 8px;
+    transition: all 0.3s ease;
+}
+
+.package-title {
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 14px;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.package-footer {
+    margin-top: auto;
+    padding-top: 8px;
+}
+
 .package-price {
     font-weight: 800;
-    font-size: 20px;
+    font-size: 18px;
     color: #28a745;
     text-shadow: 0 1px 3px rgba(40, 167, 69, 0.3);
+    background: rgba(40, 167, 69, 0.1);
+    padding: 6px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(40, 167, 69, 0.2);
+    transition: all 0.3s ease;
+}
+
+.package-item:hover .package-price {
+    background: rgba(40, 167, 69, 0.15);
+    border-color: rgba(40, 167, 69, 0.4);
+    transform: scale(1.05);
+}
+
+.package-item.selected .package-price {
+    background: rgba(40, 167, 69, 0.2);
+    border-color: #28a745;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
 }
 
 .package-price {
