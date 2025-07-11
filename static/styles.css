@@ -3991,13 +3991,13 @@ header {
 .ayuda-notification-content::before {
     content: '';
     position: absolute;
-    top: 10px; /* Más centrada verticalmente */
-    right: -8px; /* Posicionada en el borde derecho */
+    top: -8px; /* Posicionada en la parte superior */
+    right: 15px; /* Esquina superior derecha */
     width: 0;
     height: 0;
-    border-top: 8px solid transparent;
-    border-bottom: 8px solid transparent;
-    border-left: 8px solid #28a745; /* Flecha apuntando hacia la derecha */
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid #28a745; /* Flecha apuntando hacia arriba */
     z-index: 10;
 }
 
