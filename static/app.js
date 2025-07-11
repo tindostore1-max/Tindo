@@ -1463,27 +1463,15 @@ function generarHTMLDetalleProducto(producto) {
     if (producto.paquetes && Array.isArray(producto.paquetes) && producto.paquetes.length > 0) {
         paquetesHtml = producto.paquetes.map(paquete => {
             const precio = parseFloat(paquete.precio) || 0;
-            
-            // Procesar icono del paquete
-            let iconoHtml = '';
-            if (paquete.imagen && paquete.imagen.trim() !== '') {
-                let imagenUrl = paquete.imagen;
-                if (!imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
-                    imagenUrl = `/static/${imagenUrl}`;
-                }
-                iconoHtml = `<img src="${imagenUrl}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px; margin-right: 10px; flex-shrink: 0;" onerror="this.style.display='none'">`;
-            }
-            
             return `
                 <div class="package-item package-selectable" onclick="seleccionarPaquete(this)" 
                      data-package-id="${paquete.id}" 
                      data-package-name="${paquete.nombre}" 
                      data-package-price="${precio}">
                     <div class="package-info">
-                        <div class="package-name" style="display: flex; align-items: center;">
+                        <div class="package-name">
                             <span class="package-radio">⚪</span>
-                            ${iconoHtml}
-                            <span>${paquete.nombre}</span>
+                            ${paquete.nombre}
                         </div>
                         <div class="package-price">${convertirPrecio(precio)}</div>
                     </div>
