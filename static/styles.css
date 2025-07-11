@@ -1839,6 +1839,18 @@ header {
     margin-bottom: 5px;
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.package-name img {
+    border: 1px solid rgba(255,255,255,0.2);
+    transition: all 0.3s ease;
+}
+
+.package-item:hover .package-name img {
+    border-color: #28a745;
+    transform: scale(1.05);
 }
 
 .package-price {
