@@ -1301,6 +1301,19 @@ def upload_imagen():
         return jsonify({'error': 'No se seleccionó archivo'}), 400
 
     if file:
+        # Validar que sea una imagen
+        if not file.content_type.startswith('image/'):
+            return jsonify({'error': 'El archivo debe ser una imagen'}), 400
+        
+        # Validar tamaño (máximo 10MB)
+        file.seek(0, 2)  # Ir al final del archivo
+        file_size = file.tell()
+        file.seek(0)  # Volver al inicio
+        
+        max_size = 10 * 1024 * 1024  # 10MB
+        if file_size > max_size:
+            return jsonify({'error': 'La imagen es muy grande (máximo 10MB)'}), 400
+
         filename = secure_filename(file.filename)
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_')
         filename = timestamp + filename
@@ -1309,7 +1322,11 @@ def upload_imagen():
         os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(file_path)
+        
+        try:
+            file.save(file_path)
+        except Exception as e:
+            return jsonify({'error': f'Error al guardar el archivo: {str(e)}'}), 500
 
         # Guardar en base de datos
         conn = get_db_connection()
@@ -1320,14 +1337,106 @@ def upload_imagen():
             '''), {'tipo': tipo, 'ruta': f'images/{filename}'})
             imagen_id = result.fetchone()[0]
             conn.commit()
+            
+            return jsonify({
+                'message': 'Imagen subida correctamente',
+                'id': imagen_id,
+                'ruta': f'images/{filename}'
+            })
+        except Exception as e:
+            # Si hay error en BD, eliminar archivo
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            return jsonify({'error': f'Error al guardar en base de datos: {str(e)}'}), 500
         finally:
             conn.close()
 
+@app.route('/admin/imagenes/bulk', methods=['POST'])
+@admin_required
+def upload_imagenes_bulk():
+    """Endpoint para subida masiva de imágenes"""
+    if 'imagenes' not in request.files:
+        return jsonify({'error': 'No se seleccionaron archivos'}), 400
+
+    files = request.files.getlist('imagenes')
+    tipo = request.form.get('tipo', 'producto')
+    
+    if not files:
+        return jsonify({'error': 'No se seleccionaron archivos'}), 400
+
+    resultados = []
+    errores = []
+    
+    # Crear directorio si no existe
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    
+    conn = get_db_connection()
+    
+    try:
+        for file in files:
+            if file.filename == '':
+                continue
+                
+            # Validar que sea una imagen
+            if not file.content_type.startswith('image/'):
+                errores.append(f'{file.filename}: No es una imagen válida')
+                continue
+            
+            # Validar tamaño (máximo 10MB)
+            file.seek(0, 2)
+            file_size = file.tell()
+            file.seek(0)
+            
+            max_size = 10 * 1024 * 1024  # 10MB
+            if file_size > max_size:
+                errores.append(f'{file.filename}: Archivo muy grande (máximo 10MB)')
+                continue
+
+            filename = secure_filename(file.filename)
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_')
+            # Agregar un contador para evitar nombres duplicados
+            filename = f"{timestamp}{len(resultados):03d}_{filename}"
+
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            
+            try:
+                file.save(file_path)
+                
+                # Guardar en base de datos
+                result = conn.execute(text('''
+                    INSERT INTO imagenes (tipo, ruta) 
+                    VALUES (:tipo, :ruta) RETURNING id
+                '''), {'tipo': tipo, 'ruta': f'images/{filename}'})
+                imagen_id = result.fetchone()[0]
+                
+                resultados.append({
+                    'id': imagen_id,
+                    'nombre_original': file.filename,
+                    'ruta': f'images/{filename}',
+                    'exito': True
+                })
+                
+            except Exception as e:
+                # Si hay error, eliminar archivo si se creó
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                errores.append(f'{file.filename}: Error al procesar - {str(e)}')
+
+        conn.commit()
+        
         return jsonify({
-            'message': 'Imagen subida correctamente',
-            'id': imagen_id,
-            'ruta': f'images/{filename}'
+            'message': f'Proceso completado. {len(resultados)} imágenes subidas, {len(errores)} errores.',
+            'subidas': len(resultados),
+            'errores': len(errores),
+            'detalles_errores': errores,
+            'resultados': resultados
         })
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': f'Error general: {str(e)}'}), 500
+    finally:
+        conn.close()
 
 @app.route('/admin/imagen/<int:imagen_id>', methods=['DELETE'])
 @admin_required

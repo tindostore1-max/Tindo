@@ -694,6 +694,120 @@ html
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(111, 66, 193, 0.3);
         }
+
+        /* Estilos para subida de carpetas */
+        .upload-tabs {
+            border-bottom: 2px solid #e9ecef;
+            margin-bottom: 20px;
+        }
+
+        .upload-tab {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .upload-tab:hover {
+            background: #f8f9fa;
+        }
+
+        .upload-tab.active {
+            color: #007bff;
+            border-bottom-color: #007bff;
+            background: #ffffff;
+        }
+
+        .upload-content {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #folder-files-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            background: #fafafa;
+        }
+
+        #upload-progress {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid #e9ecef;
+        }
+
+        #progress-bar {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            transition: background 0.2s ease;
+        }
+
+        .file-item:hover {
+            background: #f0f0f0;
+        }
+
+        .file-status {
+            color: #28a745;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .upload-summary {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e3f2fd;
+            border-radius: 5px;
+            color: #1976d2;
+            font-weight: 600;
+            text-align: center;
+            border: 1px solid #bbdefb;
+        }
     </style>
 </head>
 <body>
@@ -823,21 +937,70 @@ html
             <div id="imagenes" class="tab-pane">
                 <div class="card">
                     <h3>🖼️ Gestión de Imágenes</h3>
-                    <form id="upload-form" enctype="multipart/form-data">
-                        <div class="form-group">
-                            <label>Tipo de Imagen</label>
-                            <select id="image-type" class="form-control">
-                                <option value="logo">Logo</option>
-                                <option value="carrusel">Carrusel</option>
-                                <option value="producto">Producto</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Seleccionar Imagen</label>
-                            <input type="file" id="image-file" class="form-control" accept="image/*" required>
-                        </div>
-                        <button type="submit" class="btn btn-success">📤 Subir Imagen</button>
-                    </form>
+                    
+                    <!-- Pestañas para elegir entre imagen individual o carpeta -->
+                    <div class="upload-tabs" style="display: flex; margin-bottom: 20px; border-bottom: 2px solid #e9ecef;">
+                        <button type="button" class="upload-tab active" onclick="mostrarTabSubida('individual')" style="flex: 1; padding: 12px; border: none; background: none; cursor: pointer; font-weight: 600; color: #495057; border-bottom: 3px solid transparent; transition: all 0.3s ease;">
+                            📷 Imagen Individual
+                        </button>
+                        <button type="button" class="upload-tab" onclick="mostrarTabSubida('carpeta')" style="flex: 1; padding: 12px; border: none; background: none; cursor: pointer; font-weight: 600; color: #495057; border-bottom: 3px solid transparent; transition: all 0.3s ease;">
+                            📁 Carpeta de Imágenes
+                        </button>
+                    </div>
+
+                    <!-- Formulario para imagen individual -->
+                    <div id="upload-individual" class="upload-content">
+                        <form id="upload-form" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label>Tipo de Imagen</label>
+                                <select id="image-type" class="form-control">
+                                    <option value="logo">Logo</option>
+                                    <option value="carrusel">Carrusel</option>
+                                    <option value="producto">Producto</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Seleccionar Imagen</label>
+                                <input type="file" id="image-file" class="form-control" accept="image/*" required>
+                            </div>
+                            <button type="submit" class="btn btn-success">📤 Subir Imagen</button>
+                        </form>
+                    </div>
+
+                    <!-- Formulario para carpeta de imágenes -->
+                    <div id="upload-carpeta" class="upload-content" style="display: none;">
+                        <form id="upload-folder-form" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label>Tipo de Imagen para todas las imágenes de la carpeta</label>
+                                <select id="folder-image-type" class="form-control">
+                                    <option value="logo">Logo</option>
+                                    <option value="carrusel">Carrusel</option>
+                                    <option value="producto">Producto</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Seleccionar Carpeta de Imágenes</label>
+                                <input type="file" id="folder-files" class="form-control" accept="image/*" multiple webkitdirectory directory>
+                                <small style="color: #6c757d; margin-top: 5px; display: block;">Selecciona una carpeta completa con imágenes. Se subirán todas las imágenes de la carpeta.</small>
+                            </div>
+                            <div id="folder-preview" style="margin-top: 15px; display: none;">
+                                <h5>Imágenes a subir:</h5>
+                                <div id="folder-files-list" style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
+                                    <!-- Lista de archivos se generará aquí -->
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-success" id="upload-folder-btn" disabled>📤 Subir Carpeta</button>
+                            <div id="upload-progress" style="margin-top: 15px; display: none;">
+                                <div style="background: #f8f9fa; border-radius: 10px; padding: 10px;">
+                                    <div style="font-size: 14px; margin-bottom: 5px;">Subiendo imágenes...</div>
+                                    <div style="background: #e9ecef; border-radius: 10px; height: 20px; overflow: hidden;">
+                                        <div id="progress-bar" style="background: linear-gradient(135deg, #28a745, #20c997); height: 100%; width: 0%; transition: width 0.3s ease; border-radius: 10px;"></div>
+                                    </div>
+                                    <div id="progress-text" style="font-size: 12px; margin-top: 5px; color: #6c757d;">0 de 0 imágenes subidas</div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
 
                 <div class="card">
@@ -2193,6 +2356,33 @@ html
             showAlert('Imagen seleccionada correctamente');
         }
 
+        // Función para mostrar pestañas de subida
+        function mostrarTabSubida(tipo) {
+            // Remover clase active de todas las pestañas
+            document.querySelectorAll('.upload-tab').forEach(tab => {
+                tab.classList.remove('active');
+                tab.style.borderBottomColor = 'transparent';
+                tab.style.color = '#495057';
+            });
+            
+            // Ocultar todo el contenido
+            document.querySelectorAll('.upload-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // Activar pestaña seleccionada
+            event.target.classList.add('active');
+            event.target.style.borderBottomColor = '#007bff';
+            event.target.style.color = '#007bff';
+            
+            // Mostrar contenido correspondiente
+            if (tipo === 'individual') {
+                document.getElementById('upload-individual').style.display = 'block';
+            } else if (tipo === 'carpeta') {
+                document.getElementById('upload-carpeta').style.display = 'block';
+            }
+        }
+
         // Configurar formulario de subida en el modal
         document.addEventListener('DOMContentLoaded', function() {
             const uploadFormModal = document.getElementById('upload-form-modal');
@@ -2243,7 +2433,140 @@ html
                     }
                 });
             }
+
+            // Configurar vista previa de carpeta
+            const folderInput = document.getElementById('folder-files');
+            if (folderInput) {
+                folderInput.addEventListener('change', function(e) {
+                    const files = Array.from(e.target.files).filter(file => file.type.startsWith('image/'));
+                    const preview = document.getElementById('folder-preview');
+                    const filesList = document.getElementById('folder-files-list');
+                    const uploadBtn = document.getElementById('upload-folder-btn');
+                    
+                    if (files.length > 0) {
+                        preview.style.display = 'block';
+                        uploadBtn.disabled = false;
+                        
+                        // Generar lista de archivos
+                        let html = '';
+                        files.forEach((file, index) => {
+                            const sizeKB = Math.round(file.size / 1024);
+                            html += `
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee;">
+                                    <div>
+                                        <strong>${file.name}</strong>
+                                        <small style="color: #6c757d; margin-left: 10px;">${sizeKB} KB</small>
+                                    </div>
+                                    <span style="color: #28a745; font-size: 12px;">✓ Válida</span>
+                                </div>
+                            `;
+                        });
+                        
+                        filesList.innerHTML = html;
+                        
+                        // Mostrar resumen
+                        const summary = document.createElement('div');
+                        summary.style.cssText = 'margin-top: 10px; padding: 10px; background: #e3f2fd; border-radius: 5px; color: #1976d2; font-weight: 600; text-align: center;';
+                        summary.textContent = `${files.length} imágenes seleccionadas para subir`;
+                        filesList.appendChild(summary);
+                        
+                    } else {
+                        preview.style.display = 'none';
+                        uploadBtn.disabled = true;
+                    }
+                });
+            }
+
+            // Configurar formulario de subida de carpeta
+            const uploadFolderForm = document.getElementById('upload-folder-form');
+            if (uploadFolderForm) {
+                uploadFolderForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    await subirCarpetaImagenes();
+                });
+            }
         });
+
+        // Función para subir carpeta de imágenes
+        async function subirCarpetaImagenes() {
+            const folderInput = document.getElementById('folder-files');
+            const tipoSelect = document.getElementById('folder-image-type');
+            const progressDiv = document.getElementById('upload-progress');
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            const uploadBtn = document.getElementById('upload-folder-btn');
+            
+            const files = Array.from(folderInput.files).filter(file => file.type.startsWith('image/'));
+            const tipo = tipoSelect.value;
+            
+            if (files.length === 0) {
+                showAlert('No se seleccionaron imágenes válidas', 'error');
+                return;
+            }
+            
+            // Mostrar barra de progreso
+            progressDiv.style.display = 'block';
+            uploadBtn.disabled = true;
+            uploadBtn.textContent = '⏳ Subiendo...';
+            
+            let subidas = 0;
+            let errores = 0;
+            
+            try {
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const formData = new FormData();
+                    formData.append('imagen', file);
+                    formData.append('tipo', tipo);
+                    
+                    try {
+                        const response = await fetch('/admin/imagenes', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        
+                        if (response.ok) {
+                            subidas++;
+                        } else {
+                            errores++;
+                            console.error(`Error al subir ${file.name}:`, await response.text());
+                        }
+                    } catch (error) {
+                        errores++;
+                        console.error(`Error al subir ${file.name}:`, error);
+                    }
+                    
+                    // Actualizar progreso
+                    const progress = ((i + 1) / files.length) * 100;
+                    progressBar.style.width = progress + '%';
+                    progressText.textContent = `${i + 1} de ${files.length} imágenes procesadas`;
+                }
+                
+                // Mostrar resultado final
+                if (errores === 0) {
+                    showAlert(`✅ ¡Éxito! Se subieron todas las ${subidas} imágenes correctamente`, 'success');
+                } else if (subidas > 0) {
+                    showAlert(`⚠️ Se subieron ${subidas} imágenes. ${errores} imágenes tuvieron errores.`, 'success');
+                } else {
+                    showAlert(`❌ No se pudo subir ninguna imagen. ${errores} errores.`, 'error');
+                }
+                
+                // Limpiar formulario y recargar imágenes
+                uploadFolderForm.reset();
+                document.getElementById('folder-preview').style.display = 'none';
+                loadImagenes();
+                
+            } finally {
+                // Ocultar progreso y restaurar botón
+                setTimeout(() => {
+                    progressDiv.style.display = 'none';
+                    uploadBtn.disabled = false;
+                    uploadBtn.textContent = '📤 Subir Carpeta';
+                    progressBar.style.width = '0%';
+                    progressText.textContent = '0 de 0 imágenes subidas';
+                }, 2000);
+            }
+        }
 
         // Función para mostrar pestañas
         function showTab(tabName) {
