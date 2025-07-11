@@ -1276,24 +1276,8 @@ function mostrarProductos() {
                 }).join('');
             }
 
-            // Mostrar preview de paquetes con imágenes
+            // No mostrar preview de paquetes en las tarjetas del carrusel
             let paquetesPreviewHtml = '';
-            if (juego.paquetes && juego.paquetes.length > 0 && juego.paquetes.some(p => p.imagen)) {
-                const paquetesConImagen = juego.paquetes.filter(p => p.imagen && p.imagen.trim() !== '').slice(0, 3);
-                if (paquetesConImagen.length > 0) {
-                    paquetesPreviewHtml = `
-                        <div class="paquetes-preview" style="display: flex; gap: 3px; justify-content: center; margin: 6px 0; flex-wrap: wrap;">
-                            ${paquetesConImagen.map(paquete => {
-                                let paqueteImagenUrl = paquete.imagen;
-                                if (!paqueteImagenUrl.startsWith('http') && !paqueteImagenUrl.startsWith('/static/')) {
-                                    paqueteImagenUrl = `/static/${paqueteImagenUrl}`;
-                                }
-                                return `<img src="${paqueteImagenUrl}" style="width: 20px; height: 20px; object-fit: cover; border-radius: 3px; border: 1px solid rgba(255,255,255,0.2);" onerror="this.style.display='none'" alt="${paquete.nombre}" title="${paquete.nombre}">`;
-                            }).join('')}
-                        </div>
-                    `;
-                }
-            }
 
             cardsHtml += `
                 <div class="todos-carousel-card" onclick="verDetalleProducto(${juego.id})">
@@ -1349,24 +1333,8 @@ function mostrarProductos() {
                     }).join('');
                 }
 
-                // Mostrar preview de paquetes con imágenes para gift cards
+                // No mostrar preview de paquetes en las tarjetas de gift cards del carrusel
                 let paquetesPreviewHtml = '';
-                if (giftCard.paquetes && giftCard.paquetes.length > 0 && giftCard.paquetes.some(p => p.imagen)) {
-                    const paquetesConImagen = giftCard.paquetes.filter(p => p.imagen && p.imagen.trim() !== '').slice(0, 3);
-                    if (paquetesConImagen.length > 0) {
-                        paquetesPreviewHtml = `
-                            <div class="paquetes-preview" style="display: flex; gap: 3px; justify-content: center; margin: 6px 0; flex-wrap: wrap;">
-                                ${paquetesConImagen.map(paquete => {
-                                    let paqueteImagenUrl = paquete.imagen;
-                                    if (!paqueteImagenUrl.startsWith('http') && !paqueteImagenUrl.startsWith('/static/')) {
-                                        paqueteImagenUrl = `/static/${paqueteImagenUrl}`;
-                                    }
-                                    return `<img src="${paqueteImagenUrl}" style="width: 20px; height: 20px; object-fit: cover; border-radius: 3px; border: 1px solid rgba(255,255,255,0.2);" onerror="this.style.display='none'" alt="${paquete.nombre}" title="${paquete.nombre}">`;
-                                }).join('')}
-                            </div>
-                        `;
-                    }
-                }
 
                 giftCardsHtml += `
                     <div class="todos-carousel-card" onclick="verDetalleProducto(${giftCard.id})">
@@ -1499,24 +1467,8 @@ function mostrarProductos() {
             }).join('');
         }
 
-        // Mostrar paquetes con imágenes si están disponibles
+        // No mostrar preview de paquetes en el grid de productos
         let paquetesPreviewHtml = '';
-        if (producto.paquetes && producto.paquetes.length > 0 && producto.paquetes.some(p => p.imagen)) {
-            const paquetesConImagen = producto.paquetes.filter(p => p.imagen && p.imagen.trim() !== '').slice(0, 3);
-            if (paquetesConImagen.length > 0) {
-                paquetesPreviewHtml = `
-                    <div class="paquetes-preview" style="display: flex; gap: 4px; justify-content: center; margin: 8px 0; flex-wrap: wrap;">
-                        ${paquetesConImagen.map(paquete => {
-                            let paqueteImagenUrl = paquete.imagen;
-                            if (!paqueteImagenUrl.startsWith('http') && !paqueteImagenUrl.startsWith('/static/')) {
-                                paqueteImagenUrl = `/static/${paqueteImagenUrl}`;
-                            }
-                            return `<img src="${paqueteImagenUrl}" style="width: 24px; height: 24px; object-fit: cover; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2);" onerror="this.style.display='none'" alt="${paquete.nombre}" title="${paquete.nombre}">`;
-                        }).join('')}
-                    </div>
-                `;
-            }
-        }
 
         html += `
             <div class="product-card" onclick="verDetalleProducto(${producto.id})">
