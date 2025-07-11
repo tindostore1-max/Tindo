@@ -1997,6 +1997,28 @@ header {
 
 .package-title {
     display: none;
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    text-align: center;
+    margin-bottom: 8px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+}
+
+/* Mostrar título solo cuando no hay imagen */
+.package-item:not([data-has-image="true"]) .package-title {
+    display: block;
+}
+
+/* Ocultar contenedor de imagen cuando no hay imagen */
+.package-item:not([data-has-image="true"]) .package-image-container {
+    display: none;
+}
+
+/* Ajustar espacing cuando no hay imagen */
+.package-item:not([data-has-image="true"]) .package-info {
+    justify-content: center;
+    text-align: center;
 }
 
 .package-footer {
