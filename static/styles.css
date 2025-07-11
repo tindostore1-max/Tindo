@@ -1833,7 +1833,10 @@ header {
 }
 
 .package-name {
-    display: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
 }
 
 .package-name img {

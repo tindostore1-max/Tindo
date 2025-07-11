@@ -1549,7 +1549,7 @@ function generarHTMLDetalleProducto(producto) {
                 if (!imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
                     imagenUrl = `/static/${imagenUrl}`;
                 }
-                iconoHtml = `<img src="${imagenUrl}" style="width: 120px; height: 120px; object-fit: cover; border-radius: 12px; margin-right: 18px; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.1);" onerror="this.style.display='none'" alt="Imagen del paquete">`;
+                iconoHtml = `<img src="${imagenUrl}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; border: 2px solid rgba(255,255,255,0.2);" onerror="this.style.display='none'" alt="Imagen del paquete">`;
             }
             
             return `
@@ -1558,10 +1558,12 @@ function generarHTMLDetalleProducto(producto) {
                      data-package-name="${paquete.nombre}" 
                      data-package-price="${precio}">
                     <div class="package-info">
-                        <div class="package-name" style="display: flex; align-items: center;">
-                            <span class="package-radio">⚪</span>
+                        <div class="package-name">
                             ${iconoHtml}
-                            <span>${paquete.nombre}</span>
+                        </div>
+                        <div style="text-align: center;">
+                            <span class="package-radio">⚪</span>
+                            <span style="margin-left: 8px;">${paquete.nombre}</span>
                         </div>
                         <div class="package-price">${convertirPrecio(precio)}</div>
                     </div>
