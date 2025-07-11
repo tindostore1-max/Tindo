@@ -2796,7 +2796,7 @@ header {
     padding: 20px;
     background: transparent;
     border-radius: 15px;
-    border: 1px solid rgba(0, 123, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     display: none;
     position: relative;
     overflow: hidden;
