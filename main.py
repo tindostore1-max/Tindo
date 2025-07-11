@@ -1035,7 +1035,7 @@ def get_productos_publico():
         result = conn.execute(text('''
             SELECT 
                 j.id, j.nombre, j.descripcion, j.imagen, j.categoria, j.orden, j.etiquetas,
-                p.id as paquete_id, p.nombre as paquete_nombre, p.precio, p.orden as paquete_orden,
+                p.id as paquete_id, p.nombre as paquete_nombre, p.precio, p.orden as paquete_orden, p.imagen as paquete_imagen,
                 v.promedio_valoracion, v.total_valoraciones
             FROM juegos j
             LEFT JOIN paquetes p ON j.id = p.juego_id
@@ -1084,7 +1084,8 @@ def get_productos_publico():
                     'id': row_dict['paquete_id'],
                     'nombre': row_dict['paquete_nombre'],
                     'precio': row_dict['precio'],
-                    'orden': row_dict['paquete_orden']
+                    'orden': row_dict['paquete_orden'],
+                    'imagen': row_dict['paquete_imagen']
                 })
 
         # Convertir a lista

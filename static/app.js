@@ -1471,7 +1471,7 @@ function generarHTMLDetalleProducto(producto) {
                 if (!imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
                     imagenUrl = `/static/${imagenUrl}`;
                 }
-                iconoHtml = `<img src="${imagenUrl}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px; margin-right: 10px; flex-shrink: 0;" onerror="this.style.display='none'">`;
+                iconoHtml = `<img src="${imagenUrl}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px; margin-right: 10px; flex-shrink: 0;" onerror="this.style.display='none'" alt="Icono del paquete">`;
             }
             
             return `
