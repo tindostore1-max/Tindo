@@ -3398,7 +3398,7 @@ function actualizarTemporizador() {
     timerElement.innerHTML = `
         <div class="timer-header">
             <span class="timer-icon">⏰</span>
-            <span class="timer-title">Tiempo límite para el pago</span>
+            <span class="timer-title">Tiempo restante para completar el pago</span>
         </div>
         <div class="timer-display ${estadoClase}">
             <span class="timer-minutes">${minutos.toString().padStart(2, '0')}</span>
