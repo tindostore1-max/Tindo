@@ -1552,6 +1552,16 @@ function generarHTMLDetalleProducto(producto) {
                 iconoHtml = `<img src="${imagenUrl}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; border: 2px solid rgba(255,255,255,0.2);" onerror="this.style.display='none'" alt="Imagen del paquete">`;
             }
             
+            // Procesar icono del paquete
+            let iconoHtml = '';
+            if (paquete.imagen && paquete.imagen.trim() !== '') {
+                let imagenUrl = paquete.imagen;
+                if (!imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
+                    imagenUrl = `/static/${imagenUrl}`;
+                }
+                iconoHtml = `<img src="${imagenUrl}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; border: 2px solid rgba(255,255,255,0.2);" onerror="this.style.display='none'" alt="Imagen del paquete">`;
+            }
+            
             return `
                 <div class="package-item package-selectable" onclick="seleccionarPaquete(this)" 
                      data-package-id="${paquete.id}" 
