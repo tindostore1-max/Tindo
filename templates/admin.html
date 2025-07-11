@@ -1014,21 +1014,14 @@ html
                     throw new Error('Respuesta del servidor inválida: se esperaba un array de órdenes.');
                 }
 
-                // Limpiar y asignar correctamente los datos
-                ordenesGlobal = [];
-                allOrdenes = [];
+                // Asignar datos de órdenes
+                allOrdenes = Array.isArray(data) ? [...data] : [];
+                ordenesGlobal = [...allOrdenes];
+                totalOrdenes = allOrdenes.length;
                 
-                // Verificar que data es efectivamente un array
-                if (Array.isArray(data) && data.length >= 0) {
-                    ordenesGlobal = [...data];
-                    allOrdenes = [...data];
-                    totalOrdenes = data.length;
-                    
-                    console.log(`✅ Órdenes cargadas exitosamente: ${totalOrdenes} órdenes`);
-                    console.log('📋 Datos de órdenes:', data);
-                } else {
-                    console.warn('⚠️ Data no es un array válido:', data);
-                    totalOrdenes = 0;
+                console.log(`✅ Órdenes cargadas exitosamente: ${totalOrdenes} órdenes`);
+                if (totalOrdenes > 0) {
+                    console.log('📋 Primera orden de ejemplo:', allOrdenes[0]);
                 }
 
                 // Actualizar información
@@ -1037,10 +1030,12 @@ html
                     ordenesInfoElement.textContent = `${totalOrdenes}`;
                 }
 
-                // Mostrar página actual
-                displayOrdenesPage();
-
                 setLoadingState('ordenes', { loading: false, loaded: true });
+
+                // Forzar actualización de display
+                setTimeout(() => {
+                    displayOrdenesPage();
+                }, 100);
 
             } catch (error) {
                 console.error('Error al cargar órdenes:', error);
@@ -1089,13 +1084,11 @@ html
                 totalOrdenes: totalOrdenes
             });
 
-            if (!isLoaded('ordenes')) {
-                document.getElementById('ordenes-list').innerHTML = '<div class="loading">Cargando órdenes...</div>';
-                return;
-            }
+            // Usar allOrdenes como fuente principal de datos
+            const ordenesParaMostrar = allOrdenes || ordenesGlobal || [];
 
-            if (!ordenesGlobal || !Array.isArray(ordenesGlobal)) {
-                console.warn('⚠️ ordenesGlobal no es un array válido:', ordenesGlobal);
+            if (!Array.isArray(ordenesParaMostrar)) {
+                console.warn('⚠️ No hay órdenes válidas para mostrar:', ordenesParaMostrar);
                 document.getElementById('ordenes-list').innerHTML = `
                     <div class="alert alert-info" style="text-align: center; padding: 30px;">
                         <h4>📦 No hay órdenes registradas</h4>
@@ -1105,7 +1098,7 @@ html
                 return;
             }
 
-            if (ordenesGlobal.length === 0) {
+            if (ordenesParaMostrar.length === 0) {
                 document.getElementById('ordenes-list').innerHTML = `
                     <div class="alert alert-info" style="text-align: center; padding: 30px;">
                         <h4>📦 No hay órdenes registradas</h4>
@@ -1117,9 +1110,9 @@ html
 
             const startIndex = (currentPage - 1) * ordenesPerPage;
             const endIndex = startIndex + ordenesPerPage;
-            const ordenes = ordenesGlobal.slice(startIndex, endIndex);
+            const ordenes = ordenesParaMostrar.slice(startIndex, endIndex);
 
-            console.log(`📊 Mostrando ${ordenes.length} órdenes de ${totalOrdenes} total (página ${currentPage})`);
+            console.log(`📊 Mostrando ${ordenes.length} órdenes de ${ordenesParaMostrar.length} total (página ${currentPage})`);
 
             // Actualizar controles de paginación
             updatePaginationControls();
