@@ -901,6 +901,157 @@ html
         </div>
     </div>
 
+    <!-- Modal de Galería de Imágenes -->
+    <div id="galeria-modal" class="galeria-modal" style="display: none;">
+        <div class="galeria-modal-content">
+            <div class="galeria-modal-header">
+                <h3>🖼️ Seleccionar Imagen</h3>
+                <button onclick="cerrarGaleriaImagenes()" class="close-galeria">✕</button>
+            </div>
+            <div class="galeria-modal-body">
+                <div class="galeria-tabs">
+                    <button class="galeria-tab active" onclick="mostrarTabGaleria('subidas')">Imágenes Subidas</button>
+                    <button class="galeria-tab" onclick="mostrarTabGaleria('subir')">Subir Nueva</button>
+                </div>
+                
+                <div id="galeria-subidas" class="galeria-tab-content active">
+                    <div class="galeria-grid" id="galeria-imagenes-grid">
+                        <div style="text-align: center; padding: 20px; color: #999;">
+                            Cargando imágenes...
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="galeria-subir" class="galeria-tab-content">
+                    <form id="upload-form-modal" enctype="multipart/form-data" style="padding: 20px;">
+                        <div class="form-group">
+                            <label>Seleccionar Imagen</label>
+                            <input type="file" id="image-file-modal" class="form-control" accept="image/*" required>
+                        </div>
+                        <button type="submit" class="btn btn-success">📤 Subir Imagen</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .galeria-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(5px);
+        }
+        
+        .galeria-modal-content {
+            background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+            border-radius: 20px;
+            max-width: 90%;
+            max-height: 90%;
+            width: 800px;
+            border: 1px solid #444;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        
+        .galeria-modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #444;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .galeria-modal-header h3 {
+            color: #ffffff;
+            margin: 0;
+        }
+        
+        .close-galeria {
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .galeria-modal-body {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .galeria-tabs {
+            display: flex;
+            background: #333;
+            border-bottom: 1px solid #444;
+        }
+        
+        .galeria-tab {
+            padding: 15px 25px;
+            background: none;
+            border: none;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .galeria-tab.active {
+            background: #444;
+            color: #ffffff;
+        }
+        
+        .galeria-tab-content {
+            display: none;
+            padding: 20px;
+        }
+        
+        .galeria-tab-content.active {
+            display: block;
+        }
+        
+        .galeria-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+        }
+        
+        .galeria-item {
+            background: #333;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .galeria-item:hover {
+            border-color: #007bff;
+            transform: scale(1.05);
+        }
+        
+        .galeria-item img {
+            width: 100%;
+            height: 80px;
+            object-fit: cover;
+        }
+        
+        .galeria-item-info {
+            padding: 8px;
+            font-size: 10px;
+            color: #ccc;
+            text-align: center;
+        }
+    </style>
+
     <script>
         // Funciones para cambiar pestañas
         function showTab(tabName) {
@@ -1481,7 +1632,10 @@ html
                             <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio" style="width: 120px;">
                         </div>
                         <div style="display: flex; align-items: center; gap: 10px;">
-                            <input type="text" placeholder="URL del icono (opcional)" class="form-control paquete-imagen" style="flex: 1;" title="Pega aquí la URL de la imagen del paquete">
+                            <input type="text" placeholder="URL del icono (opcional)" class="form-control paquete-imagen" style="flex: 1;" title="URL de la imagen del paquete" readonly>
+                            <button type="button" class="btn btn-primary" onclick="abrirGaleriaImagenes(this)" style="padding: 8px 12px; font-size: 12px;">
+                                🖼️ Seleccionar
+                            </button>
                             <div class="paquete-preview" style="width: 40px; height: 40px; border: 1px dashed #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
                                 <span style="font-size: 12px; color: #999;">📦</span>
                             </div>
@@ -1489,14 +1643,7 @@ html
                     </div>
                 `;
 
-            // Agregar evento para vista previa al paquete inicial
-            const initialImagenInput = container.querySelector('.paquete-imagen');
-            const initialPreview = container.querySelector('.paquete-preview');
-            if (initialImagenInput && initialPreview) {
-                initialImagenInput.addEventListener('input', function() {
-                    updatePaquetePreview(this, initialPreview);
-                });
-            }
+            
 
                 // Limpiar campo de etiquetas
                 document.getElementById('product-etiquetas').value = '';
@@ -1513,7 +1660,10 @@ html
                     <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio" style="width: 120px;">
                 </div>
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                    <input type="text" placeholder="URL del icono (opcional)" class="form-control paquete-imagen" style="flex: 1;" title="Pega aquí la URL de la imagen del paquete">
+                    <input type="text" placeholder="URL del icono (opcional)" class="form-control paquete-imagen" style="flex: 1;" title="URL de la imagen del paquete" readonly>
+                    <button type="button" class="btn btn-primary" onclick="abrirGaleriaImagenes(this)" style="padding: 8px 12px; font-size: 12px;">
+                        🖼️ Seleccionar
+                    </button>
                     <div class="paquete-preview" style="width: 40px; height: 40px; border: 1px dashed #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
                         <span style="font-size: 12px; color: #999;">📦</span>
                     </div>
@@ -1522,12 +1672,7 @@ html
             `;
             container.appendChild(paqueteDiv);
 
-            // Agregar evento para vista previa de imagen
-            const imagenInput = paqueteDiv.querySelector('.paquete-imagen');
-            const preview = paqueteDiv.querySelector('.paquete-preview');
-            imagenInput.addEventListener('input', function() {
-                updatePaquetePreview(this, preview);
-            });
+            
         }
 
         document.getElementById('product-form').addEventListener('submit', async (e) => {
@@ -1650,7 +1795,10 @@ html
                                 <input type="number" step="0.01" placeholder="Precio" class="form-control paquete-precio" value="${paquete.precio}" style="width: 120px;">
                             </div>
                             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                                <input type="text" placeholder="URL del icono (opcional)" class="form-control paquete-imagen" value="${imagenUrl}" style="flex: 1;" title="Pega aquí la URL de la imagen del paquete">
+                                <input type="text" placeholder="URL del icono (opcional)" class="form-control paquete-imagen" value="${imagenUrl}" style="flex: 1;" title="URL de la imagen del paquete" readonly>
+                                <button type="button" class="btn btn-primary" onclick="abrirGaleriaImagenes(this)" style="padding: 8px 12px; font-size: 12px;">
+                                    🖼️ Seleccionar
+                                </button>
                                 <div class="paquete-preview" style="width: 40px; height: 40px; border: 1px dashed #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
                                     ${previewContent}
                                 </div>
@@ -1659,12 +1807,7 @@ html
                         `;
                         container.appendChild(paqueteDiv);
 
-                        // Agregar evento para vista previa de imagen
-                        const imagenInput = paqueteDiv.querySelector('.paquete-imagen');
-                        const preview = paqueteDiv.querySelector('.paquete-preview');
-                        imagenInput.addEventListener('input', function() {
-                            updatePaquetePreview(this, preview);
-                        });
+                        
                     });
                 } else {
                     // Agregar un paquete vacío si no hay ninguno
@@ -1954,6 +2097,153 @@ html
                 document.getElementById('config-logo').value = rutaCompleta;
             });
         }
+
+        // Variables globales para el modal de galería
+        let currentImageInput = null;
+        let galeriaImagenes = [];
+
+        // Función para abrir la galería de imágenes
+        function abrirGaleriaImagenes(boton) {
+            // Encontrar el input de imagen correspondiente
+            const container = boton.parentElement;
+            currentImageInput = container.querySelector('.paquete-imagen');
+            
+            // Mostrar modal
+            document.getElementById('galeria-modal').style.display = 'flex';
+            
+            // Cargar imágenes
+            cargarImagenesGaleria();
+        }
+
+        // Función para cerrar la galería
+        function cerrarGaleriaImagenes() {
+            document.getElementById('galeria-modal').style.display = 'none';
+            currentImageInput = null;
+        }
+
+        // Función para mostrar pestañas de la galería
+        function mostrarTabGaleria(tabName) {
+            // Remover clase active de todas las pestañas
+            document.querySelectorAll('.galeria-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Ocultar todo el contenido
+            document.querySelectorAll('.galeria-tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Activar pestaña seleccionada
+            event.target.classList.add('active');
+            document.getElementById('galeria-' + tabName).classList.add('active');
+        }
+
+        // Función para cargar imágenes en la galería
+        async function cargarImagenesGaleria() {
+            const grid = document.getElementById('galeria-imagenes-grid');
+            grid.innerHTML = '<div style="text-align: center; padding: 20px; color: #999;">Cargando imágenes...</div>';
+            
+            try {
+                const response = await fetch('/admin/imagenes');
+                if (!response.ok) throw new Error('Error al cargar imágenes');
+                
+                galeriaImagenes = await response.json();
+                
+                if (galeriaImagenes.length === 0) {
+                    grid.innerHTML = '<div style="text-align: center; padding: 20px; color: #999;">No hay imágenes disponibles</div>';
+                    return;
+                }
+                
+                let html = '';
+                galeriaImagenes.forEach(imagen => {
+                    html += `
+                        <div class="galeria-item" onclick="seleccionarImagenGaleria('${imagen.ruta}')">
+                            <img src="/static/${imagen.ruta}" alt="${imagen.tipo}" onerror="this.src='https://via.placeholder.com/100x80/ccc/999?text=Error'">
+                            <div class="galeria-item-info">${imagen.tipo}</div>
+                        </div>
+                    `;
+                });
+                
+                grid.innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error al cargar imágenes:', error);
+                grid.innerHTML = '<div style="text-align: center; padding: 20px; color: #dc3545;">Error al cargar imágenes</div>';
+            }
+        }
+
+        // Función para seleccionar una imagen de la galería
+        function seleccionarImagenGaleria(rutaImagen) {
+            if (!currentImageInput) return;
+            
+            // Establecer la ruta en el input
+            currentImageInput.value = rutaImagen;
+            
+            // Actualizar vista previa
+            const container = currentImageInput.parentElement;
+            const preview = container.querySelector('.paquete-preview');
+            
+            if (preview) {
+                preview.innerHTML = `<img src="/static/${rutaImagen}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;" onerror="this.parentElement.innerHTML='<span style=\\"font-size: 12px; color: #999;\\">❌</span>'">`;
+            }
+            
+            // Cerrar modal
+            cerrarGaleriaImagenes();
+            
+            showAlert('Imagen seleccionada correctamente');
+        }
+
+        // Configurar formulario de subida en el modal
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadFormModal = document.getElementById('upload-form-modal');
+            if (uploadFormModal) {
+                uploadFormModal.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData();
+                    const file = document.getElementById('image-file-modal').files[0];
+                    
+                    if (!file) {
+                        showAlert('Por favor selecciona una imagen', 'error');
+                        return;
+                    }
+                    
+                    formData.append('imagen', file);
+                    formData.append('tipo', 'producto');
+                    
+                    try {
+                        const response = await fetch('/admin/imagenes', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        
+                        if (response.ok) {
+                            const result = await response.json();
+                            showAlert('Imagen subida correctamente');
+                            
+                            // Limpiar formulario
+                            uploadFormModal.reset();
+                            
+                            // Recargar galería
+                            cargarImagenesGaleria();
+                            
+                            // Cambiar a pestaña de imágenes subidas
+                            mostrarTabGaleria('subidas');
+                            
+                            // Auto-seleccionar la imagen recién subida
+                            setTimeout(() => {
+                                seleccionarImagenGaleria(result.ruta);
+                            }, 500);
+                            
+                        } else {
+                            showAlert('Error al subir imagen', 'error');
+                        }
+                    } catch (error) {
+                        showAlert('Error al subir imagen', 'error');
+                    }
+                });
+            }
+        });
 
         // Función para mostrar pestañas
         function showTab(tabName) {
