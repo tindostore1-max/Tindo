@@ -2096,13 +2096,25 @@ function seleccionarMetodoPago(metodo) {
         });
 
         infoPago.innerHTML = `
-            <h4>📱 Datos para Pago Móvil:</h4>
-            <p><strong>🏦 Banco:</strong> ${banco}</p>
-            <p><strong>📞 Teléfono:</strong> ${telefono}</p>
-            <p><strong>🆔 Cédula:</strong> ${cedula}</p>
-            <p><strong>👤 Nombre:</strong> ${nombre}</p>
+            <h4>Datos para Pago Móvil:</h4>
+            <div class="payment-data-item">
+                <p><strong>Banco:</strong> ${banco}</p>
+                <button onclick="copiarTexto('${banco}')" class="copy-btn">Copiar</button>
+            </div>
+            <div class="payment-data-item">
+                <p><strong>Teléfono:</strong> ${telefono}</p>
+                <button onclick="copiarTexto('${telefono}')" class="copy-btn">Copiar</button>
+            </div>
+            <div class="payment-data-item">
+                <p><strong>Cédula:</strong> ${cedula}</p>
+                <button onclick="copiarTexto('${cedula}')" class="copy-btn">Copiar</button>
+            </div>
+            <div class="payment-data-item">
+                <p><strong>Nombre:</strong> ${nombre}</p>
+                <button onclick="copiarTexto('${nombre}')" class="copy-btn">Copiar</button>
+            </div>
             <p style="margin-top: 15px; color: #20c997; font-weight: 600;">
-                💡 Realiza el pago y coloca la referencia en el campo de abajo
+                Realiza el pago y coloca la referencia en el campo de abajo
             </p>
         `;
         infoPago.style.display = 'block';
@@ -2124,11 +2136,17 @@ function seleccionarMetodoPago(metodo) {
         });
 
         infoPago.innerHTML = `
-            <h4>🟡 Datos para Binance:</h4>
-            <p><strong>📧 Email:</strong> ${email}</p>
-            <p><strong>🆔 ID Binance:</strong> ${idBinance}</p>
+            <h4>Datos para Binance:</h4>
+            <div class="payment-data-item">
+                <p><strong>Email:</strong> ${email}</p>
+                <button onclick="copiarTexto('${email}')" class="copy-btn">Copiar</button>
+            </div>
+            <div class="payment-data-item">
+                <p><strong>ID Binance:</strong> ${idBinance}</p>
+                <button onclick="copiarTexto('${idBinance}')" class="copy-btn">Copiar</button>
+            </div>
             <p style="margin-top: 15px; color: #20c997; font-weight: 600;">
-                💡 Realiza la transferencia y coloca el ID de transacción en el campo de abajo
+                Realiza la transferencia y coloca el ID de transacción en el campo de abajo
             </p>
         `;
         infoPago.style.display = 'block';
@@ -2784,6 +2802,22 @@ function copiarCodigo(codigo) {
         document.execCommand('copy');
         document.body.removeChild(textArea);
         mostrarAlerta('Código copiado al portapapeles', 'success');
+    });
+}
+
+// Función para copiar texto genérico
+function copiarTexto(texto) {
+    navigator.clipboard.writeText(texto).then(() => {
+        mostrarAlerta('Texto copiado al portapapeles', 'success');
+    }).catch(() => {
+        // Fallback para navegadores que no soportan clipboard API
+        const textArea = document.createElement('textarea');
+        textArea.value = texto;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        mostrarAlerta('Texto copiado al portapapeles', 'success');
     });
 }
 
