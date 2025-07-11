@@ -803,7 +803,7 @@ header {
 /* Responsive para móviles */
 @media (max-width: 768px) {
     .container {
-        padding: 40px 8px 8px 8px; /* Más padding lateral para mejor espaciado */
+        padding: 40px 4px 8px 4px; /* Padding lateral mínimo para que los paquetes llenen la pantalla */
     }
 
     header {
@@ -882,27 +882,32 @@ header {
         margin-top: 4px;
     }
 
-    /* Optimización de paquetes para móvil - 2 columnas */
+    /* Optimización de paquetes para móvil - 2 columnas que llenen toda la pantalla */
     .package-list {
         grid-template-columns: repeat(2, 1fr) !important; /* 2 columnas en móvil con !important */
-        gap: 10px !important; /* Espacio optimizado entre paquetes */
+        gap: 8px !important; /* Espacio mínimo entre paquetes */
+        width: 100% !important; /* Ocupar todo el ancho disponible */
+        margin: 0 !important; /* Sin márgenes */
+        padding: 0 !important; /* Sin padding interno */
     }
 
     .package-item {
-        min-height: 160px !important; /* Altura optimizada */
-        padding: 15px 12px !important; /* Padding equilibrado */
+        min-height: 180px !important; /* Altura mayor para aprovechar espacio */
+        padding: 12px 8px !important; /* Padding compacto pero funcional */
+        width: 100% !important; /* Ocupar todo el ancho de la columna */
     }
 
     .package-image-container .package-name img {
         width: 100% !important; /* Ancho completo del contenedor */
-        max-width: 150px !important; /* Máximo ancho para 2 columnas */
-        height: 130px !important; /* Altura proporcionada */
+        max-width: none !important; /* Sin limitación de ancho máximo */
+        height: 140px !important; /* Altura mayor para aprovechar espacio */
         object-fit: cover;
     }
 
     .package-price {
-        font-size: 16px !important; /* Precio legible pero proporcional */
+        font-size: 16px !important; /* Precio legible */
         padding: 8px 12px !important; /* Padding ajustado */
+        width: 100% !important; /* Ocupar todo el ancho disponible */
     }
 
     .footer-nav {
@@ -1735,20 +1740,24 @@ header {
         line-height: 1.4 !important;
     }
 
-    /* Optimización para vista de detalles - 2 columnas */
+    /* Optimización para vista de detalles - 2 columnas que llenen toda la pantalla */
     .details-info-container .package-list {
         grid-template-columns: repeat(2, 1fr) !important; /* 2 columnas */
-        gap: 12px !important; /* Espacio optimizado entre paquetes */
+        gap: 8px !important; /* Espacio mínimo entre paquetes */
+        width: 100% !important; /* Ocupar todo el ancho disponible */
+        margin: 0 !important; /* Sin márgenes */
+        padding: 0 !important; /* Sin padding interno */
     }
 
     .details-info-container .package-item {
-        padding: 15px 12px !important; /* Padding equilibrado */
-        min-height: 120px !important; /* Altura compacta pero funcional */
+        padding: 12px 8px !important; /* Padding compacto */
+        min-height: 140px !important; /* Altura mayor para aprovechar espacio */
+        width: 100% !important; /* Ocupar todo el ancho de la columna */
     }
 
     .details-info-container .package-image-container .package-name img {
         width: 100% !important; /* Ancho completo del contenedor */
-        max-width: 150px !important; /* Máximo ancho para 2 columnas */
+        max-width: none !important; /* Sin limitación de ancho máximo */
         height: 120px !important; /* Imágenes proporcionadas */
     }
 
@@ -1760,6 +1769,7 @@ header {
     .details-info-container .package-price {
         font-size: 16px !important; /* Precio proporcional */
         padding: 8px 12px !important; /* Padding ajustado */
+        width: 100% !important; /* Ocupar todo el ancho disponible */
     }
 
     .selected-product-image {
