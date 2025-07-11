@@ -1795,7 +1795,7 @@ header {
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    min-height: 120px;
+    min-height: 140px;
 }
 
 .package-item:hover {
@@ -1844,13 +1844,20 @@ header {
 }
 
 .package-name img {
-    border: 1px solid rgba(255,255,255,0.2);
+    border: 2px solid rgba(255,255,255,0.2);
     transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 .package-item:hover .package-name img {
     border-color: #28a745;
-    transform: scale(1.05);
+    transform: scale(1.08);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.package-item.selected .package-name img {
+    border-color: #28a745;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
 }
 
 .package-price {
