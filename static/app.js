@@ -2055,6 +2055,10 @@ function actualizarMetodosPagoSegunMoneda() {
     }
 }
 
+// Variables globales para el temporizador
+let timerInterval = null;
+let tiempoRestante = 15 * 60; // 15 minutos en segundos
+
 // Función para seleccionar método de pago
 function seleccionarMetodoPago(metodo) {
     // Remover selección anterior
@@ -2106,6 +2110,9 @@ function seleccionarMetodoPago(metodo) {
             </p>
         `;
         infoPago.style.display = 'block';
+        
+        // Iniciar temporizador
+        iniciarTemporizadorPago();
     } else if (metodo === 'Binance') {
         // Procesar datos de Binance```javascript
         const binanceData = configuracion.binance || 'Información no disponible';
@@ -2132,6 +2139,9 @@ function seleccionarMetodoPago(metodo) {
             </p>
         `;
         infoPago.style.display = 'block';
+        
+        // Iniciar temporizador
+        iniciarTemporizadorPago();
     }
 }
 
@@ -2334,6 +2344,9 @@ async function procesarPago() {
                 throw new Error(errorMessage);
             }
         }
+
+        // Detener temporizador
+        detenerTemporizador();
 
         // Limpiar carrito y mostrar éxito
         carrito = [];
@@ -3318,6 +3331,153 @@ function handleSwipe() {
     touchStartX = 0;
     touchEndX = 0;
     currentCarousel = null;
+}
+
+// Función para iniciar el temporizador de pago
+function iniciarTemporizadorPago() {
+    // Limpiar temporizador existente si hay uno
+    if (timerInterval) {
+        clearInterval(timerInterval);
+    }
+
+    // Resetear tiempo
+    tiempoRestante = 15 * 60; // 15 minutos
+
+    // Crear elemento del temporizador si no existe
+    let timerElement = document.getElementById('payment-timer');
+    if (!timerElement) {
+        timerElement = document.createElement('div');
+        timerElement.id = 'payment-timer';
+        timerElement.className = 'payment-timer';
+        
+        // Insertar después de la información de pago
+        const infoPago = document.getElementById('info-pago');
+        if (infoPago && infoPago.parentNode) {
+            infoPago.parentNode.insertBefore(timerElement, infoPago.nextSibling);
+        }
+    }
+
+    // Actualizar contenido inicial
+    actualizarTemporizador();
+
+    // Iniciar intervalo
+    timerInterval = setInterval(() => {
+        tiempoRestante--;
+        
+        if (tiempoRestante <= 0) {
+            clearInterval(timerInterval);
+            tiempoAgotado();
+        } else {
+            actualizarTemporizador();
+        }
+    }, 1000);
+}
+
+// Función para actualizar la visualización del temporizador
+function actualizarTemporizador() {
+    const timerElement = document.getElementById('payment-timer');
+    if (!timerElement) return;
+
+    const minutos = Math.floor(tiempoRestante / 60);
+    const segundos = tiempoRestante % 60;
+
+    // Determinar clases de estado
+    let estadoClase = '';
+    let warningText = '';
+
+    if (tiempoRestante <= 120) { // 2 minutos
+        estadoClase = 'timer-critical';
+        warningText = '⚠️ ¡Tiempo crítico! Completa tu pago ahora';
+    } else if (tiempoRestante <= 300) { // 5 minutos
+        estadoClase = 'timer-warning-active';
+        warningText = '⏰ Tiempo limitado - No olvides completar tu pago';
+    } else {
+        warningText = '💡 Tienes tiempo suficiente para completar tu pago';
+    }
+
+    timerElement.innerHTML = `
+        <div class="timer-header">
+            <span class="timer-icon">⏰</span>
+            <span class="timer-title">Tiempo límite para el pago</span>
+        </div>
+        <div class="timer-display ${estadoClase}">
+            <span class="timer-minutes">${minutos.toString().padStart(2, '0')}</span>
+            :
+            <span class="timer-seconds">${segundos.toString().padStart(2, '0')}</span>
+        </div>
+        <div class="timer-warning">${warningText}</div>
+    `;
+
+    // Aplicar clase de estado al contenedor
+    timerElement.className = `payment-timer ${tiempoRestante <= 0 ? 'timer-expired-state' : ''}`;
+}
+
+// Función cuando se agota el tiempo
+function tiempoAgotado() {
+    const timerElement = document.getElementById('payment-timer');
+    const submitBtn = document.getElementById('submit-payment-btn');
+    
+    if (timerElement) {
+        timerElement.className = 'payment-timer timer-expired-state';
+        timerElement.innerHTML = `
+            <div class="timer-header">
+                <span class="timer-icon">⏰</span>
+                <span class="timer-title">Tiempo agotado</span>
+            </div>
+            <div class="timer-expired">
+                ⏰ TIEMPO AGOTADO
+            </div>
+            <div class="timer-warning">
+                El tiempo para completar el pago ha expirado. 
+                <button onclick="reiniciarTemporizador()" style="background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 8px; margin-left: 10px; cursor: pointer;">
+                    🔄 Reiniciar
+                </button>
+                <button onclick="mostrarTab('carrito')" style="background: #007bff; color: white; border: none; padding: 8px 15px; border-radius: 8px; margin-left: 5px; cursor: pointer;">
+                    🛒 Volver al Carrito
+                </button>
+            </div>
+        `;
+    }
+
+    // Deshabilitar botón de pago
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.5';
+        submitBtn.textContent = '⏰ Tiempo Agotado';
+    }
+
+    // Mostrar alerta
+    mostrarAlerta('⏰ El tiempo para completar el pago ha expirado. Puedes reiniciar el temporizador si aún deseas continuar.', 'error');
+}
+
+// Función para reiniciar el temporizador
+function reiniciarTemporizador() {
+    const submitBtn = document.getElementById('submit-payment-btn');
+    
+    // Reactivar botón de pago
+    if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+        submitBtn.textContent = '✅ Confirmar Pago';
+    }
+
+    // Reiniciar temporizador
+    iniciarTemporizadorPago();
+    
+    mostrarAlerta('🔄 Temporizador reiniciado. Tienes 15 minutos para completar el pago.', 'success');
+}
+
+// Función para detener el temporizador (cuando el pago es exitoso)
+function detenerTemporizador() {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+
+    const timerElement = document.getElementById('payment-timer');
+    if (timerElement) {
+        timerElement.remove();
+    }
 }
 
 // Función para mostrar términos y condiciones
