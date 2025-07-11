@@ -1554,21 +1554,25 @@ function generarHTMLDetalleProducto(producto) {
         paquetesHtml = producto.paquetes.map(paquete => {
             const precio = parseFloat(paquete.precio) || 0;
             
+            // Verificar si el paquete tiene imagen
+            const tieneImagen = paquete.imagen && paquete.imagen.trim() !== '';
+            
             // Procesar icono del paquete
             let iconoHtml = '';
-            if (paquete.imagen && paquete.imagen.trim() !== '') {
+            if (tieneImagen) {
                 let imagenUrl = paquete.imagen;
                 if (!imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
                     imagenUrl = `/static/${imagenUrl}`;
                 }
-                iconoHtml = `<img src="${imagenUrl}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; border: 2px solid rgba(255,255,255,0.2); display: block;" onerror="this.style.display='none'" alt="Imagen del paquete">`;
+                iconoHtml = `<img src="${imagenUrl}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; border: 2px solid rgba(255,255,255,0.2); display: block;" onerror="this.parentElement.parentElement.parentElement.parentElement.setAttribute('data-has-image', 'false'); this.style.display='none'" alt="Imagen del paquete">`;
             }
             
             return `
                 <div class="package-item package-selectable" onclick="seleccionarPaquete(this)" 
                      data-package-id="${paquete.id}" 
                      data-package-name="${paquete.nombre}" 
-                     data-package-price="${precio}">
+                     data-package-price="${precio}"
+                     data-has-image="${tieneImagen}">
                     <div class="package-info">
                         <div class="package-image-container">
                             <div class="package-selection">
