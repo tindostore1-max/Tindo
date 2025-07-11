@@ -1990,6 +1990,15 @@ function prepararPago() {
     // Actualizar métodos de pago según la moneda
     actualizarMetodosPagoSegunMoneda();
 
+    // Auto-seleccionar método de pago según la moneda después de un pequeño delay
+    setTimeout(() => {
+        if (monedaActual === 'VES') {
+            seleccionarMetodoPago('Pago Móvil');
+        } else if (monedaActual === 'USD') {
+            seleccionarMetodoPago('Binance');
+        }
+    }, 100);
+
     // Auto-rellenar email del usuario logueado
     if (window.session && window.session.user_email) {
         const emailInput = document.getElementById('pago-email');
@@ -2024,6 +2033,11 @@ function actualizarMetodosPagoSegunMoneda() {
         if (btnBinance) {
             btnBinance.style.display = 'none';
         }
+        // Auto-seleccionar Pago Móvil si estamos en la página de pago
+        const pagoSection = document.getElementById('pago');
+        if (pagoSection && pagoSection.classList.contains('active')) {
+            setTimeout(() => seleccionarMetodoPago('Pago Móvil'), 50);
+        }
     } else if (monedaActual === 'USD') {
         // Mostrar solo Binance para USD
         if (btnBinance) {
@@ -2032,6 +2046,11 @@ function actualizarMetodosPagoSegunMoneda() {
         }
         if (btnPagoMovil) {
             btnPagoMovil.style.display = 'none';
+        }
+        // Auto-seleccionar Binance si estamos en la página de pago
+        const pagoSection = document.getElementById('pago');
+        if (pagoSection && pagoSection.classList.contains('active')) {
+            setTimeout(() => seleccionarMetodoPago('Binance'), 50);
         }
     }
 }
