@@ -33,7 +33,7 @@ google = oauth.register(
     name='google',
     client_id=os.environ.get('GOOGLE_CLIENT_ID'),
     client_secret=os.environ.get('GOOGLE_CLIENT_SECRET'),
-    server_metadata_url='https://accounts.google.com/.well-known/openid_configuration',
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
     client_kwargs={
         'scope': 'openid email profile'
     }
@@ -677,11 +677,18 @@ def init_db():
 @app.route('/auth/google')
 def google_login():
     """Iniciar login con Google"""
-    if not google.client_id or not google.client_secret:
-        return jsonify({'error': 'Google OAuth no está configurado'}), 500
-
-    redirect_uri = url_for('google_callback', _external=True)
-    return google.authorize_redirect(redirect_uri)
+    try:
+        client_id = os.environ.get('GOOGLE_CLIENT_ID')
+        client_secret = os.environ.get('GOOGLE_CLIENT_SECRET')
+        
+        if not client_id or not client_secret:
+            return redirect('/?google_login=config_error')
+        
+        redirect_uri = url_for('google_callback', _external=True)
+        return google.authorize_redirect(redirect_uri)
+    except Exception as e:
+        print(f"Error en Google OAuth: {e}")
+        return redirect('/?google_login=error')
 
 @app.route('/auth/google/callback')
 def google_callback():
