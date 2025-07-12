@@ -146,6 +146,24 @@ function cargarElementosCriticos() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Iniciando carga optimizada...');
 
+    // Verificar si hay mensaje de Google OAuth
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('google_login') === 'success') {
+        setTimeout(() => {
+            mostrarAlerta('✅ Sesión iniciada con Google correctamente', 'success');
+            // Limpiar URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+            // Recargar datos del usuario
+            verificarSesion();
+        }, 1000);
+    } else if (urlParams.get('google_login') === 'error') {
+        setTimeout(() => {
+            mostrarAlerta('❌ Error al iniciar sesión con Google', 'error');
+            // Limpiar URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }, 1000);
+    }
+
     // 1. Cargar elementos críticos inmediatamente (incluye precarga de logo y carrusel)
     cargarElementosCriticos();
 
@@ -2494,6 +2512,11 @@ function mostrarMensajePago(mensaje, tipo) {
             mensajePago.style.display = 'none';
         }, 5000);
     }
+}
+
+// Procesar login con Google
+function loginConGoogle() {
+    window.location.href = '/auth/google';
 }
 
 // Procesar login

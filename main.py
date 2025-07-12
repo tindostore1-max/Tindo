@@ -17,11 +17,27 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import threading
 from dotenv import load_dotenv
+from authlib.integrations.flask_client import OAuth
+import json
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'tu_clave_secreta_aqui'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'tu_clave_secreta_aqui')
 app.config['UPLOAD_FOLDER'] = 'static/images'
+
+# Configuración OAuth
+oauth = OAuth(app)
+
+# Configurar Google OAuth
+google = oauth.register(
+    name='google',
+    client_id=os.environ.get('GOOGLE_CLIENT_ID'),
+    client_secret=os.environ.get('GOOGLE_CLIENT_SECRET'),
+    server_metadata_url='https://accounts.google.com/.well-known/openid_configuration',
+    client_kwargs={
+        'scope': 'openid email profile'
+    }
+)
 
 # Configuración de sesión
 from datetime import timedelta
@@ -656,6 +672,87 @@ def init_db():
         conn.rollback()
     finally:
         conn.close()
+
+# RUTAS DE GOOGLE OAUTH
+@app.route('/auth/google')
+def google_login():
+    """Iniciar login con Google"""
+    if not google.client_id or not google.client_secret:
+        return jsonify({'error': 'Google OAuth no está configurado'}), 500
+
+    redirect_uri = url_for('google_callback', _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+@app.route('/auth/google/callback')
+def google_callback():
+    """Callback de Google OAuth"""
+    try:
+        # Obtener token y información del usuario
+        token = google.authorize_access_token()
+        user_info = google.parse_id_token(token)
+        
+        if not user_info:
+            return jsonify({'error': 'No se pudo obtener información del usuario'}), 400
+        
+        # Extraer datos del usuario
+        google_id = user_info.get('sub')
+        email = user_info.get('email')
+        name = user_info.get('name')
+        
+        if not email:
+            return jsonify({'error': 'No se pudo obtener el email del usuario'}), 400
+        
+        conn = get_db_connection()
+        try:
+            # Verificar si el usuario ya existe
+            result = conn.execute(text('SELECT * FROM usuarios WHERE email = :email'), 
+                                 {'email': email})
+            usuario = result.fetchone()
+            
+            if usuario:
+                # Usuario existente - actualizar google_id si no lo tiene
+                if not usuario[7]:  # google_id column
+                    conn.execute(text('UPDATE usuarios SET google_id = :google_id WHERE email = :email'), 
+                               {'google_id': google_id, 'email': email})
+                    conn.commit()
+                
+                # Iniciar sesión
+                session.permanent = True
+                session['user_id'] = usuario[0]      # id
+                session['user_email'] = usuario[2]   # email
+                session['user_name'] = usuario[1]    # nombre
+                session['es_admin'] = usuario[6] if usuario[6] is not None else False  # es_admin
+                
+            else:
+                # Nuevo usuario - crear cuenta
+                result = conn.execute(text('''
+                    INSERT INTO usuarios (nombre, email, telefono, password_hash, es_admin, google_id)
+                    VALUES (:nombre, :email, '', '', FALSE, :google_id) RETURNING id
+                '''), {
+                    'nombre': name,
+                    'email': email,
+                    'google_id': google_id
+                })
+                
+                user_id = result.fetchone()[0]
+                conn.commit()
+                
+                # Iniciar sesión
+                session.permanent = True
+                session['user_id'] = user_id
+                session['user_email'] = email
+                session['user_name'] = name
+                session['es_admin'] = False
+            
+            # Redirigir a la página principal con mensaje de éxito
+            return redirect('/?google_login=success')
+            
+        finally:
+            conn.close()
+            
+    except Exception as e:
+        print(f"Error en Google OAuth: {e}")
+        return redirect('/?google_login=error')
 
 @app.route('/')
 def index():
