@@ -1622,12 +1622,19 @@ def google_login():
         return jsonify({'error': 'Google OAuth no está configurado'}), 500
 
     redirect_uri = url_for('google_callback', _external=True)
+    print(f"🔍 Redirect URI generada: {redirect_uri}")
+    print(f"🔍 Google Client ID: {os.getenv('GOOGLE_CLIENT_ID')[:10]}...")
+    
     return google.authorize_redirect(redirect_uri)
 
 @app.route('/oauth2callback')
 def google_callback():
     """Callback de Google OAuth usando Authlib"""
     try:
+        print(f"🔍 Callback URL recibida: {request.url}")
+        print(f"🔍 Host header: {request.headers.get('Host')}")
+        print(f"🔍 Request args: {request.args}")
+        
         # Obtener token y información del usuario
         token = google.authorize_access_token()
         user_info = google.parse_id_token(token)
