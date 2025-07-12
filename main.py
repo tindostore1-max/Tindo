@@ -804,7 +804,6 @@ def get_ordenes():
         # Convertir a lista de diccionarios
         ordenes_dict = []
         for orden in ordenes:
-```text
             orden_dict = dict(orden._mapping)
             ordenes_dict.append(orden_dict)
 
