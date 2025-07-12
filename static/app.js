@@ -3141,11 +3141,11 @@ function moverCarruselJuegos(direccion) {
     const containerWidth = track.parentElement.offsetWidth;
     const visibleCards = Math.floor(containerWidth / cardWidth);
     
-    // Limitar a máximo 5 tarjetas en móvil
-    const maxCardsToShow = window.innerWidth <= 768 ? Math.min(5, gamesCarouselItems.length) : gamesCarouselItems.length;
+    // En móvil, usar todas las tarjetas pero limitar el movimiento
+    const totalCards = gamesCarouselItems.length;
     
     // Si hay menos tarjetas que las visibles, no permitir movimiento
-    if (maxCardsToShow <= visibleCards) {
+    if (totalCards <= visibleCards) {
         gamesCarouselIndex = 0;
         track.style.transform = `translateX(0px)`;
         return;
@@ -3153,8 +3153,8 @@ function moverCarruselJuegos(direccion) {
 
     gamesCarouselIndex += direccion;
 
-    // Calcular el máximo índice basado en el número real de tarjetas disponibles
-    const maxIndex = Math.max(0, maxCardsToShow - visibleCards);
+    // Calcular el máximo índice sin limitación artificial
+    const maxIndex = Math.max(0, totalCards - visibleCards);
 
     if (gamesCarouselIndex < 0) {
         gamesCarouselIndex = 0;
@@ -3163,16 +3163,8 @@ function moverCarruselJuegos(direccion) {
         gamesCarouselIndex = maxIndex;
     }
 
-    // Ajustar la translación para evitar espacios vacíos al final
-    let translateX = -gamesCarouselIndex * cardWidth;
-    
-    // Si estamos en el último conjunto de tarjetas, ajustar para mostrar exactamente las últimas tarjetas
-    if (gamesCarouselIndex === maxIndex && maxCardsToShow > visibleCards) {
-        const totalWidth = maxCardsToShow * cardWidth - (cardWidth - 220); // Restar el último gap
-        const maxTranslate = totalWidth - containerWidth;
-        translateX = Math.min(-gamesCarouselIndex * cardWidth, -maxTranslate);
-    }
-
+    // Calcular translación normal
+    const translateX = -gamesCarouselIndex * cardWidth;
     track.style.transform = `translateX(${translateX}px)`;
 }
 
@@ -3214,11 +3206,11 @@ function moverCarruselTodos(direccion) {
     const containerWidth = track.parentElement.offsetWidth;
     const visibleCards = Math.floor(containerWidth / cardWidth);
     
-    // Limitar a máximo 5 tarjetas en móvil
-    const maxCardsToShow = window.innerWidth <= 768 ? Math.min(5, window.todosCarouselItems.length) : window.todosCarouselItems.length;
+    // En móvil, usar todas las tarjetas pero limitar el movimiento
+    const totalCards = window.todosCarouselItems.length;
     
     // Si hay menos tarjetas que las visibles, no permitir movimiento
-    if (maxCardsToShow <= visibleCards) {
+    if (totalCards <= visibleCards) {
         window.todosCarouselIndex = 0;
         track.style.transform = `translateX(0px)`;
         return;
@@ -3226,8 +3218,8 @@ function moverCarruselTodos(direccion) {
 
     window.todosCarouselIndex += direccion;
 
-    // Calcular el máximo índice basado en el número real de tarjetas disponibles
-    const maxIndex = Math.max(0, maxCardsToShow - visibleCards);
+    // Calcular el máximo índice sin limitación artificial
+    const maxIndex = Math.max(0, totalCards - visibleCards);
 
     if (window.todosCarouselIndex < 0) {
         window.todosCarouselIndex = 0;
@@ -3236,16 +3228,8 @@ function moverCarruselTodos(direccion) {
         window.todosCarouselIndex = maxIndex;
     }
 
-    // Ajustar la translación para evitar espacios vacíos al final
-    let translateX = -window.todosCarouselIndex * cardWidth;
-    
-    // Si estamos en el último conjunto de tarjetas, ajustar para mostrar exactamente las últimas tarjetas
-    if (window.todosCarouselIndex === maxIndex && maxCardsToShow > visibleCards) {
-        const totalWidth = maxCardsToShow * cardWidth - (cardWidth - 220); // Restar el último gap
-        const maxTranslate = totalWidth - containerWidth;
-        translateX = Math.min(-window.todosCarouselIndex * cardWidth, -maxTranslate);
-    }
-
+    // Calcular translación normal
+    const translateX = -window.todosCarouselIndex * cardWidth;
     track.style.transform = `translateX(${translateX}px)`;
 }
 
@@ -3265,11 +3249,11 @@ function moverCarruselGiftCardsTodos(direccion) {
     const containerWidth = track.parentElement.offsetWidth;
     const visibleCards = Math.floor(containerWidth / cardWidth);
     
-    // Limitar a máximo 5 tarjetas en móvil
-    const maxCardsToShow = window.innerWidth <= 768 ? Math.min(5, giftCards.length) : giftCards.length;
+    // En móvil, usar todas las tarjetas pero limitar el movimiento
+    const totalCards = giftCards.length;
     
     // Si hay menos tarjetas que las visibles, no permitir movimiento
-    if (maxCardsToShow <= visibleCards) {
+    if (totalCards <= visibleCards) {
         window.giftCardsTodosCarouselIndex = 0;
         track.style.transform = `translateX(0px)`;
         return;
@@ -3277,8 +3261,8 @@ function moverCarruselGiftCardsTodos(direccion) {
 
     window.giftCardsTodosCarouselIndex += direccion;
 
-    // Calcular el máximo índice basado en el número real de tarjetas disponibles
-    const maxIndex = Math.max(0, maxCardsToShow - visibleCards);
+    // Calcular el máximo índice sin limitación artificial
+    const maxIndex = Math.max(0, totalCards - visibleCards);
 
     if (window.giftCardsTodosCarouselIndex < 0) {
         window.giftCardsTodosCarouselIndex = 0;
@@ -3287,16 +3271,8 @@ function moverCarruselGiftCardsTodos(direccion) {
         window.giftCardsTodosCarouselIndex = maxIndex;
     }
 
-    // Ajustar la translación para evitar espacios vacíos al final
-    let translateX = -window.giftCardsTodosCarouselIndex * cardWidth;
-    
-    // Si estamos en el último conjunto de tarjetas, ajustar para mostrar exactamente las últimas tarjetas
-    if (window.giftCardsTodosCarouselIndex === maxIndex && maxCardsToShow > visibleCards) {
-        const totalWidth = maxCardsToShow * cardWidth - (cardWidth - 220); // Restar el último gap
-        const maxTranslate = totalWidth - containerWidth;
-        translateX = Math.min(-window.giftCardsTodosCarouselIndex * cardWidth, -maxTranslate);
-    }
-
+    // Calcular translación normal
+    const translateX = -window.giftCardsTodosCarouselIndex * cardWidth;
     track.style.transform = `translateX(${translateX}px)`;
 }
 
