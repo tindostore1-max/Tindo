@@ -510,6 +510,12 @@ def init_db():
             ADD COLUMN IF NOT EXISTS telefono VARCHAR(20);
         '''))
 
+        # Agregar columna google_id si no existe (migración)
+        conn.execute(text('''
+            ALTER TABLE usuarios 
+            ADD COLUMN IF NOT EXISTS google_id VARCHAR(255);
+        '''))
+
         # Verificar si ya hay productos
         result = conn.execute(text('SELECT COUNT(*) FROM juegos'))
         product_count = result.fetchone()[0]
@@ -1558,17 +1564,17 @@ def login():
     if not email or not password:
         return jsonify({'error': 'Email y contraseña son requeridos'}), 400
 
-    conn = get_db_connection()
+    conn = get_psycopg2_connection()
     try:
         cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
         user = cursor.fetchone()
 
         # Verificar si es usuario de Google (sin password)
-        if user and user['google_id'] and not user['password_hash']:
+        if user and user.get('google_id') and (not user.get('password_hash') or user['password_hash'] == ''):
             return jsonify({'error': 'Esta cuenta está vinculada con Google. Usa "Continuar con Google" para acceder.'}), 400
 
-        if user and user['password_hash'] and check_password_hash(user['password_hash'], password):
+        if user and user.get('password_hash') and check_password_hash(user['password_hash'], password):
             # Guardar sesión permanente con tiempo de expiración
             session.permanent = True
             session['user_id'] = user['id']      # id
@@ -1582,13 +1588,14 @@ def login():
                     'id': user['id'],
                     'nombre': user['nombre'],
                     'email': user['email'],
-                    'fecha_registro': user['fecha_registro'].isoformat(),
-                     'es_admin': user['es_admin']
+                    'fecha_registro': user['fecha_registro'].isoformat() if user['fecha_registro'] else None,
+                    'es_admin': user['es_admin']
                 }
             })
         else:
             return jsonify({'error': 'Email o contraseña incorrectos'}), 401
     finally:
+        cursor.close()
         conn.close()
 
 @app.route('/logout', methods=['POST'])
@@ -1632,7 +1639,7 @@ def oauth2callback():
         return render_template('index.html'), 400
 
     # Buscar o crear usuario en la base de datos
-    conn = get_db_connection()
+    conn = get_psycopg2_connection()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
     try:
@@ -1641,17 +1648,34 @@ def oauth2callback():
         usuario_existente = cursor.fetchone()
 
         if usuario_existente:
-            # Usuario existe, iniciar sesión
+            # Usuario existe, actualizar información de Google si es necesario
+            if not usuario_existente.get('google_id'):
+                cursor.execute("""
+                    UPDATE usuarios 
+                    SET google_id = %s, nombre = %s 
+                    WHERE email = %s
+                """, (user_info.get('sub', ''), user_info.get('name', usuario_existente['nombre']), user_info['email']))
+
+            # Iniciar sesión
+            session.permanent = True
             session['user_id'] = usuario_existente['id']
             session['user_email'] = usuario_existente['email']
-            session['user_name'] = usuario_existente['nombre']
+            session['user_name'] = user_info.get('name', usuario_existente['nombre'])
             session['es_admin'] = usuario_existente['es_admin']
+            
+            usuario_para_frontend = {
+                'id': usuario_existente['id'],
+                'nombre': user_info.get('name', usuario_existente['nombre']),
+                'email': usuario_existente['email'],
+                'es_admin': usuario_existente['es_admin'],
+                'fecha_registro': usuario_existente['fecha_registro'].isoformat() if usuario_existente['fecha_registro'] else None
+            }
         else:
             # Crear nuevo usuario
             cursor.execute("""
                 INSERT INTO usuarios (nombre, email, telefono, password_hash, google_id, fecha_registro)
                 VALUES (%s, %s, %s, %s, %s, %s)
-                RETURNING id, es_admin
+                RETURNING id, es_admin, fecha_registro
             """, (
                 user_info.get('name', ''),
                 user_info['email'],
@@ -1663,19 +1687,85 @@ def oauth2callback():
 
             nuevo_usuario = cursor.fetchone()
 
+            session.permanent = True
             session['user_id'] = nuevo_usuario['id']
             session['user_email'] = user_info['email']
             session['user_name'] = user_info.get('name', '')
             session['es_admin'] = nuevo_usuario['es_admin']
+            
+            usuario_para_frontend = {
+                'id': nuevo_usuario['id'],
+                'nombre': user_info.get('name', ''),
+                'email': user_info['email'],
+                'es_admin': nuevo_usuario['es_admin'],
+                'fecha_registro': nuevo_usuario['fecha_registro'].isoformat() if nuevo_usuario['fecha_registro'] else None
+            }
 
         conn.commit()
+        
+        print(f"✅ Usuario logueado con Google: {user_info['email']} - {user_info.get('name', '')}")
 
-        # Redirigir a la página principal con hash para Mi Cuenta
-        return redirect('/#login')
+        # Crear una página HTML que actualice el frontend y luego redirija
+        html_content = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Iniciando sesión...</title>
+            <style>
+                body {{ 
+                    font-family: Arial, sans-serif; 
+                    background: #1a1a1a; 
+                    color: white; 
+                    text-align: center; 
+                    padding: 50px; 
+                }}
+                .loading {{ 
+                    font-size: 24px; 
+                    margin-bottom: 20px; 
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="loading">✅ Sesión iniciada correctamente</div>
+            <div>Redirigiendo...</div>
+            
+            <script>
+                // Actualizar información del usuario en el localStorage para que el frontend la detecte
+                const usuario = {json.dumps(usuario_para_frontend)};
+                
+                // Función para actualizar la interfaz cuando se cargue la página principal
+                function actualizarInterfazUsuario() {{
+                    // Disparar evento personalizado para notificar al frontend
+                    if (window.parent && window.parent !== window) {{
+                        // Si estamos en un iframe, enviar mensaje al padre
+                        window.parent.postMessage({{
+                            type: 'GOOGLE_LOGIN_SUCCESS',
+                            usuario: usuario
+                        }}, '*');
+                    }} else {{
+                        // Si no estamos en iframe, usar localStorage como puente
+                        localStorage.setItem('google_login_usuario', JSON.stringify(usuario));
+                        localStorage.setItem('google_login_timestamp', Date.now().toString());
+                    }}
+                }}
+                
+                // Ejecutar actualización
+                actualizarInterfazUsuario();
+                
+                // Redirigir después de un breve delay
+                setTimeout(function() {{
+                    window.location.href = '/#login';
+                }}, 1500);
+            </script>
+        </body>
+        </html>
+        """
+        
+        return html_content
 
     except Exception as e:
         conn.rollback()
-        print(f"Error en Google OAuth: {e}")
+        print(f"❌ Error en Google OAuth: {e}")
         return render_template('index.html'), 500
 
     finally:

@@ -146,13 +146,16 @@ function cargarElementosCriticos() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Iniciando carga optimizada...');
 
-    // 1. Cargar elementos críticos inmediatamente (incluye precarga de logo y carrusel)
+    // 1. Verificar si hay datos de login con Google pendientes
+    verificarLoginGooglePendiente();
+
+    // 2. Cargar elementos críticos inmediatamente (incluye precarga de logo y carrusel)
     cargarElementosCriticos();
 
-    // 2. Inicializar eventos básicos
+    // 3. Inicializar eventos básicos
     inicializarEventos();
 
-    // 3. Cargar datos en paralelo SIEMPRE para mantener actualizada la información
+    // 4. Cargar datos en paralelo SIEMPRE para mantener actualizada la información
     if (!cargandoDatos) {
         cargandoDatos = true;
         
@@ -4423,6 +4426,59 @@ function precargarCarruselDesdeCache() {
 if (cargarCacheDesdeStorage()) {
     console.log('💾 Cache cargado desde localStorage');
 }
+
+// Función para verificar si hay un login con Google pendiente
+function verificarLoginGooglePendiente() {
+    // Verificar si hay datos de usuario de Google en localStorage
+    const googleUsuario = localStorage.getItem('google_login_usuario');
+    const googleTimestamp = localStorage.getItem('google_login_timestamp');
+    
+    if (googleUsuario && googleTimestamp) {
+        try {
+            const usuario = JSON.parse(googleUsuario);
+            const timestamp = parseInt(googleTimestamp);
+            const ahora = Date.now();
+            
+            // Si el login fue hace menos de 30 segundos, procesarlo
+            if (ahora - timestamp < 30000) {
+                console.log('🔄 Procesando login con Google:', usuario);
+                
+                // Limpiar datos del localStorage
+                localStorage.removeItem('google_login_usuario');
+                localStorage.removeItem('google_login_timestamp');
+                
+                // Actualizar interfaz inmediatamente
+                actualizarInterfazUsuario(usuario);
+                
+                // Mostrar mensaje de bienvenida
+                setTimeout(() => {
+                    mostrarAlerta(`¡Bienvenido, ${usuario.nombre}! Has iniciado sesión con Google exitosamente.`, 'success');
+                }, 1000);
+                
+                return true;
+            } else {
+                // Limpiar datos antiguos
+                localStorage.removeItem('google_login_usuario');
+                localStorage.removeItem('google_login_timestamp');
+            }
+        } catch (error) {
+            console.error('Error al procesar login con Google:', error);
+            localStorage.removeItem('google_login_usuario');
+            localStorage.removeItem('google_login_timestamp');
+        }
+    }
+    
+    return false;
+}
+
+// Escuchar mensajes de login con Google (para casos de iframe)
+window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'GOOGLE_LOGIN_SUCCESS') {
+        console.log('📨 Recibido mensaje de login con Google:', event.data.usuario);
+        actualizarInterfazUsuario(event.data.usuario);
+        mostrarAlerta(`¡Bienvenido, ${event.data.usuario.nombre}! Has iniciado sesión con Google exitosamente.`, 'success');
+    }
+});
 
 // Funciones de placeholder removidas para evitar parpadeo visual
 // El contenido se carga directamente cuando los datos están listos
