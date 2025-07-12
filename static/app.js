@@ -3141,14 +3141,17 @@ function moverCarruselJuegos(direccion) {
     const containerWidth = track.parentElement.offsetWidth;
     const visibleCards = Math.floor(containerWidth / cardWidth);
     
+    // Limitar a máximo 5 tarjetas en móvil
+    const maxCardsToShow = window.innerWidth <= 768 ? Math.min(5, gamesCarouselItems.length) : gamesCarouselItems.length;
+    
     // Si hay menos tarjetas que las visibles, no permitir movimiento
-    if (gamesCarouselItems.length <= visibleCards) {
+    if (maxCardsToShow <= visibleCards) {
         gamesCarouselIndex = 0;
         track.style.transform = `translateX(0px)`;
         return;
     }
 
-    const maxIndex = gamesCarouselItems.length - visibleCards;
+    const maxIndex = maxCardsToShow - visibleCards;
 
     gamesCarouselIndex += direccion;
 
@@ -3201,14 +3204,17 @@ function moverCarruselTodos(direccion) {
     const containerWidth = track.parentElement.offsetWidth;
     const visibleCards = Math.floor(containerWidth / cardWidth);
     
+    // Limitar a máximo 5 tarjetas en móvil
+    const maxCardsToShow = window.innerWidth <= 768 ? Math.min(5, window.todosCarouselItems.length) : window.todosCarouselItems.length;
+    
     // Si hay menos tarjetas que las visibles, no permitir movimiento
-    if (window.todosCarouselItems.length <= visibleCards) {
+    if (maxCardsToShow <= visibleCards) {
         window.todosCarouselIndex = 0;
         track.style.transform = `translateX(0px)`;
         return;
     }
 
-    const maxIndex = window.todosCarouselItems.length - visibleCards;
+    const maxIndex = maxCardsToShow - visibleCards;
 
     window.todosCarouselIndex += direccion;
 

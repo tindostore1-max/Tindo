@@ -980,6 +980,11 @@ header {
         margin-right: 8px;
     }
 
+    /* Limitar carrusel a máximo 5 tarjetas */
+    .games-carousel-track:has(.games-carousel-card:nth-child(6)) .games-carousel-card:nth-child(n+6) {
+        display: none;
+    }
+
     .games-carousel-card .product-name {
         font-size: 12px;
         margin-bottom: 4px;
@@ -1031,6 +1036,11 @@ header {
         max-width: 180px; /* Máximo ancho ajustado */
         padding: 15px;
         margin-right: 8px;
+    }
+
+    /* Limitar carrusel de todos a máximo 5 tarjetas */
+    .todos-carousel-track:has(.todos-carousel-card:nth-child(6)) .todos-carousel-card:nth-child(n+6) {
+        display: none;
     }
 
     .todos-carousel-card .product-name {
