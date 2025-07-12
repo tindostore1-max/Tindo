@@ -1723,39 +1723,68 @@ def oauth2callback():
                     font-size: 24px; 
                     margin-bottom: 20px; 
                 }}
+                .success {{ 
+                    color: #4CAF50; 
+                    font-weight: bold; 
+                }}
             </style>
         </head>
         <body>
-            <div class="loading">✅ Sesión iniciada correctamente</div>
-            <div>Redirigiendo...</div>
+            <div class="loading success">✅ Sesión iniciada correctamente</div>
+            <div>Redirigiendo a la página principal...</div>
             
             <script>
-                // Actualizar información del usuario en el localStorage para que el frontend la detecte
-                const usuario = {json.dumps(usuario_para_frontend)};
+                console.log('🔄 Procesando callback de Google OAuth...');
                 
-                // Función para actualizar la interfaz cuando se cargue la página principal
-                function actualizarInterfazUsuario() {{
-                    // Disparar evento personalizado para notificar al frontend
-                    if (window.parent && window.parent !== window) {{
-                        // Si estamos en un iframe, enviar mensaje al padre
-                        window.parent.postMessage({{
-                            type: 'GOOGLE_LOGIN_SUCCESS',
-                            usuario: usuario
-                        }}, '*');
-                    }} else {{
-                        // Si no estamos en iframe, usar localStorage como puente
+                // Información del usuario autenticado
+                const usuario = {json.dumps(usuario_para_frontend)};
+                console.log('👤 Usuario autenticado:', usuario);
+                
+                // Función para notificar al frontend principal
+                function notificarLogin() {{
+                    try {{
+                        // Método 1: localStorage para comunicación entre páginas
                         localStorage.setItem('google_login_usuario', JSON.stringify(usuario));
                         localStorage.setItem('google_login_timestamp', Date.now().toString());
+                        console.log('💾 Datos guardados en localStorage');
+                        
+                        // Método 2: postMessage si estamos en iframe
+                        if (window.parent && window.parent !== window) {{
+                            window.parent.postMessage({{
+                                type: 'GOOGLE_LOGIN_SUCCESS',
+                                usuario: usuario
+                            }}, '*');
+                            console.log('📨 Mensaje enviado al padre');
+                        }}
+                        
+                        // Método 3: Dispatching event para la misma ventana
+                        window.dispatchEvent(new CustomEvent('googleLoginSuccess', {{
+                            detail: usuario
+                        }}));
+                        console.log('🎉 Evento personalizado disparado');
+                        
+                    }} catch (error) {{
+                        console.error('❌ Error al notificar login:', error);
                     }}
                 }}
                 
-                // Ejecutar actualización
-                actualizarInterfazUsuario();
+                // Ejecutar notificación inmediatamente
+                notificarLogin();
                 
-                // Redirigir después de un breve delay
+                // Redirigir a la página principal
                 setTimeout(function() {{
-                    window.location.href = '/#login';
-                }}, 1500);
+                    console.log('🔄 Redirigiendo a la página principal...');
+                    // Forzar una redirección completa para asegurar que la sesión se cargue
+                    window.location.href = '/';
+                }}, 2000);
+                
+                // Backup: Si no se redirige automáticamente
+                setTimeout(function() {{
+                    if (!document.hidden) {{
+                        console.log('🔄 Redirección de respaldo...');
+                        window.location.replace('/');
+                    }}
+                }}, 5000);
             </script>
         </body>
         </html>
