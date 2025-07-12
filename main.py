@@ -17,7 +17,6 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import threading
 from dotenv import load_dotenv
-from authlib.integrations.flask_client import OAuth
 import json
 load_dotenv()
 
@@ -25,19 +24,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'tu_clave_secreta_aqui')
 app.config['UPLOAD_FOLDER'] = 'static/images'
 
-# Configuración OAuth
-oauth = OAuth(app)
 
-# Configurar Google OAuth
-google = oauth.register(
-    name='google',
-    client_id=os.environ.get('GOOGLE_CLIENT_ID'),
-    client_secret=os.environ.get('GOOGLE_CLIENT_SECRET'),
-    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
-    client_kwargs={
-        'scope': 'openid email profile'
-    }
-)
 
 # Configuración de sesión
 from datetime import timedelta
@@ -521,12 +508,6 @@ def init_db():
             ADD COLUMN IF NOT EXISTS telefono VARCHAR(20);
         '''))
 
-        # Agregar columna google_id si no existe (migración)
-        conn.execute(text('''
-            ALTER TABLE usuarios 
-            ADD COLUMN IF NOT EXISTS google_id VARCHAR(255);
-        '''))
-
         # Verificar si ya hay productos
         result = conn.execute(text('SELECT COUNT(*) FROM juegos'))
         product_count = result.fetchone()[0]
@@ -673,113 +654,7 @@ def init_db():
     finally:
         conn.close()
 
-# RUTAS DE GOOGLE OAUTH
-@app.route('/auth/google')
-def google_login():
-    """Iniciar login con Google"""
-    try:
-        client_id = os.environ.get('GOOGLE_CLIENT_ID')
-        client_secret = os.environ.get('GOOGLE_CLIENT_SECRET')
-        
-        if not client_id or not client_secret:
-            print(f"❌ Google OAuth no configurado - Client ID: {'✓' if client_id else '✗'}, Client Secret: {'✓' if client_secret else '✗'}")
-            return redirect('/?google_login=config_error')
-        
-        # Forzar HTTPS para Replit en producción
-        redirect_uri = url_for('google_callback', _external=True)
-        if 'replit.app' in redirect_uri:
-            redirect_uri = redirect_uri.replace('http://', 'https://')
-        
-        print(f"🔐 Iniciando Google OAuth con redirect_uri: {redirect_uri}")
-        return google.authorize_redirect(redirect_uri)
-    except Exception as e:
-        print(f"❌ Error en Google OAuth: {e}")
-        return redirect('/?google_login=error')
 
-@app.route('/auth/google/callback')
-def google_callback():
-    """Callback de Google OAuth"""
-    try:
-        print(f"🔄 Recibiendo callback de Google OAuth")
-        print(f"📋 Query params: {dict(request.args)}")
-        
-        # Verificar si hay error en los parámetros
-        error = request.args.get('error')
-        if error:
-            print(f"❌ Error en callback de Google: {error}")
-            return redirect(f'/?google_login=error&detail={error}')
-        
-        # Obtener token y información del usuario
-        token = google.authorize_access_token()
-        print(f"✅ Token obtenido exitosamente")
-        
-        user_info = google.parse_id_token(token)
-        print(f"📝 Información del usuario obtenida: {user_info.get('email', 'Email no disponible')}")
-        
-        if not user_info:
-            print(f"❌ No se pudo obtener información del usuario")
-            return redirect('/?google_login=error&detail=no_user_info')
-        
-        # Extraer datos del usuario
-        google_id = user_info.get('sub')
-        email = user_info.get('email')
-        name = user_info.get('name')
-        
-        if not email:
-            print(f"❌ Email no encontrado en la información del usuario")
-            return redirect('/?google_login=error&detail=no_email')
-        
-        conn = get_db_connection()
-        try:
-            # Verificar si el usuario ya existe
-            result = conn.execute(text('SELECT * FROM usuarios WHERE email = :email'), 
-                                 {'email': email})
-            usuario = result.fetchone()
-            
-            if usuario:
-                # Usuario existente - actualizar google_id si no lo tiene
-                if not usuario[7]:  # google_id column
-                    conn.execute(text('UPDATE usuarios SET google_id = :google_id WHERE email = :email'), 
-                               {'google_id': google_id, 'email': email})
-                    conn.commit()
-                
-                # Iniciar sesión
-                session.permanent = True
-                session['user_id'] = usuario[0]      # id
-                session['user_email'] = usuario[2]   # email
-                session['user_name'] = usuario[1]    # nombre
-                session['es_admin'] = usuario[6] if usuario[6] is not None else False  # es_admin
-                
-            else:
-                # Nuevo usuario - crear cuenta
-                result = conn.execute(text('''
-                    INSERT INTO usuarios (nombre, email, telefono, password_hash, es_admin, google_id)
-                    VALUES (:nombre, :email, '', '', FALSE, :google_id) RETURNING id
-                '''), {
-                    'nombre': name,
-                    'email': email,
-                    'google_id': google_id
-                })
-                
-                user_id = result.fetchone()[0]
-                conn.commit()
-                
-                # Iniciar sesión
-                session.permanent = True
-                session['user_id'] = user_id
-                session['user_email'] = email
-                session['user_name'] = name
-                session['es_admin'] = False
-            
-            # Redirigir a la página principal con mensaje de éxito
-            return redirect('/?google_login=success')
-            
-        finally:
-            conn.close()
-            
-    except Exception as e:
-        print(f"Error en Google OAuth: {e}")
-        return redirect('/?google_login=error')
 
 @app.route('/')
 def index():
