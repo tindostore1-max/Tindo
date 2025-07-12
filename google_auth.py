@@ -23,7 +23,7 @@ class GoogleAuth:
         # Configuración desde variables de entorno
         self.client_id = os.getenv('GOOGLE_CLIENT_ID')
         self.client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
-        self.redirect_uri = os.getenv('GOOGLE_REDIRECT_URI', 'https://python-12-1yorbi1.replit.dev/oauth2callback')
+        self.redirect_uri = os.getenv('GOOGLE_REDIRECT_URI', 'https://python-12-1yorbi1.replit.app/oauth2callback')
         
         # Verificar que las credenciales estén configuradas
         if not self.client_id or not self.client_secret:
