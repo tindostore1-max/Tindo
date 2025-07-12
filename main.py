@@ -17,7 +17,8 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import threading
 from dotenv import load_dotenv
-from google_auth import GoogleAuth
+from authlib.integrations.flask_client import OAuth
+from urllib.parse import urlencode
 
 load_dotenv()
 
@@ -25,8 +26,15 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'tu_clave_secreta_aqui'
 app.config['UPLOAD_FOLDER'] = 'static/images'
 
-# Inicializar Google OAuth
-google_auth = GoogleAuth(app)
+# Inicializar OAuth con Authlib
+oauth = OAuth(app)
+google = oauth.register(
+    name='google',
+    client_id=os.getenv('GOOGLE_CLIENT_ID'),
+    client_secret=os.getenv('GOOGLE_CLIENT_SECRET'),
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={'scope': 'openid email profile'}
+)
 
 # Configuración de sesión
 from datetime import timedelta
@@ -1610,203 +1618,202 @@ def logout():
 @app.route('/auth/google')
 def google_login():
     """Iniciar proceso de login con Google"""
-    if not google_auth.is_configured():
+    if not os.getenv('GOOGLE_CLIENT_ID') or not os.getenv('GOOGLE_CLIENT_SECRET'):
         return jsonify({'error': 'Google OAuth no está configurado'}), 500
 
-    auth_url = google_auth.get_authorization_url()
-    if not auth_url:
-        return jsonify({'error': 'No se pudo generar URL de autorización'}), 500
-
-    return redirect(auth_url)
+    redirect_uri = url_for('google_callback', _external=True)
+    return google.authorize_redirect(redirect_uri)
 
 @app.route('/oauth2callback')
-def oauth2callback():
-    """Callback de Google OAuth"""
-    code = request.args.get('code')
-    state = request.args.get('state')
-    error = request.args.get('error')
-
-    if error:
-        return render_template('index.html'), 400
-
-    if not code:
-        return render_template('index.html'), 400
-
-    # Procesar callback
-    user_info, error_msg = google_auth.handle_callback(code, state)
-
-    if error_msg:
-        return render_template('index.html'), 400
-
-    # Buscar o crear usuario en la base de datos
-    conn = get_psycopg2_connection()
-    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-
+def google_callback():
+    """Callback de Google OAuth usando Authlib"""
     try:
-        # Buscar usuario existente por email
-        cursor.execute("SELECT * FROM usuarios WHERE email = %s", (user_info['email'],))
-        usuario_existente = cursor.fetchone()
+        # Obtener token y información del usuario
+        token = google.authorize_access_token()
+        user_info = google.parse_id_token(token)
+        
+        if not user_info:
+            print("❌ No se pudo obtener información del usuario")
+            return render_template('index.html'), 400
 
-        if usuario_existente:
-            # Usuario existe, actualizar información de Google si es necesario
-            if not usuario_existente.get('google_id'):
+        print(f"🔄 Procesando usuario de Google: {user_info.get('email')} - {user_info.get('name')}")
+
+        # Buscar o crear usuario en la base de datos
+        conn = get_psycopg2_connection()
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        try:
+            # Buscar usuario existente por email
+            cursor.execute("SELECT * FROM usuarios WHERE email = %s", (user_info['email'],))
+            usuario_existente = cursor.fetchone()
+
+            if usuario_existente:
+                # Usuario existe, actualizar información de Google si es necesario
+                if not usuario_existente.get('google_id'):
+                    cursor.execute("""
+                        UPDATE usuarios 
+                        SET google_id = %s, nombre = %s 
+                        WHERE email = %s
+                    """, (user_info.get('sub', ''), user_info.get('name', usuario_existente['nombre']), user_info['email']))
+
+                # Iniciar sesión
+                session.permanent = True
+                session['user_id'] = usuario_existente['id']
+                session['user_email'] = usuario_existente['email']
+                session['user_name'] = user_info.get('name', usuario_existente['nombre'])
+                session['es_admin'] = usuario_existente['es_admin']
+                
+                usuario_para_frontend = {
+                    'id': usuario_existente['id'],
+                    'nombre': user_info.get('name', usuario_existente['nombre']),
+                    'email': usuario_existente['email'],
+                    'es_admin': usuario_existente['es_admin'],
+                    'fecha_registro': usuario_existente['fecha_registro'].isoformat() if usuario_existente['fecha_registro'] else None
+                }
+            else:
+                # Crear nuevo usuario
                 cursor.execute("""
-                    UPDATE usuarios 
-                    SET google_id = %s, nombre = %s 
-                    WHERE email = %s
-                """, (user_info.get('sub', ''), user_info.get('name', usuario_existente['nombre']), user_info['email']))
+                    INSERT INTO usuarios (nombre, email, telefono, password_hash, google_id, fecha_registro)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                    RETURNING id, es_admin, fecha_registro
+                """, (
+                    user_info.get('name', ''),
+                    user_info['email'],
+                    '',  # Sin teléfono desde Google
+                    '',  # Sin password para usuarios de Google
+                    user_info.get('sub', ''),  # Google ID
+                    datetime.now()
+                ))
 
-            # Iniciar sesión
-            session.permanent = True
-            session['user_id'] = usuario_existente['id']
-            session['user_email'] = usuario_existente['email']
-            session['user_name'] = user_info.get('name', usuario_existente['nombre'])
-            session['es_admin'] = usuario_existente['es_admin']
-            
-            usuario_para_frontend = {
-                'id': usuario_existente['id'],
-                'nombre': user_info.get('name', usuario_existente['nombre']),
-                'email': usuario_existente['email'],
-                'es_admin': usuario_existente['es_admin'],
-                'fecha_registro': usuario_existente['fecha_registro'].isoformat() if usuario_existente['fecha_registro'] else None
-            }
-        else:
-            # Crear nuevo usuario
-            cursor.execute("""
-                INSERT INTO usuarios (nombre, email, telefono, password_hash, google_id, fecha_registro)
-                VALUES (%s, %s, %s, %s, %s, %s)
-                RETURNING id, es_admin, fecha_registro
-            """, (
-                user_info.get('name', ''),
-                user_info['email'],
-                '',  # Sin teléfono desde Google
-                '',  # Sin password para usuarios de Google
-                user_info.get('sub', ''),  # Google ID
-                datetime.now()
-            ))
+                nuevo_usuario = cursor.fetchone()
 
-            nuevo_usuario = cursor.fetchone()
-
-            session.permanent = True
-            session['user_id'] = nuevo_usuario['id']
-            session['user_email'] = user_info['email']
-            session['user_name'] = user_info.get('name', '')
-            session['es_admin'] = nuevo_usuario['es_admin']
-            
-            usuario_para_frontend = {
-                'id': nuevo_usuario['id'],
-                'nombre': user_info.get('name', ''),
-                'email': user_info['email'],
-                'es_admin': nuevo_usuario['es_admin'],
-                'fecha_registro': nuevo_usuario['fecha_registro'].isoformat() if nuevo_usuario['fecha_registro'] else None
-            }
-
-        conn.commit()
-        
-        print(f"✅ Usuario logueado con Google: {user_info['email']} - {user_info.get('name', '')}")
-
-        # Crear una página HTML que actualice el frontend y luego redirija
-        html_content = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Iniciando sesión...</title>
-            <style>
-                body {{ 
-                    font-family: Arial, sans-serif; 
-                    background: #1a1a1a; 
-                    color: white; 
-                    text-align: center; 
-                    padding: 50px; 
-                }}
-                .loading {{ 
-                    font-size: 24px; 
-                    margin-bottom: 20px; 
-                }}
-                .success {{ 
-                    color: #4CAF50; 
-                    font-weight: bold; 
-                }}
-            </style>
-        </head>
-        <body>
-            <div class="loading success">✅ Sesión iniciada correctamente</div>
-            <div>Redirigiendo a la página principal...</div>
-            
-            <script>
-                console.log('🔄 Procesando callback de Google OAuth...');
+                session.permanent = True
+                session['user_id'] = nuevo_usuario['id']
+                session['user_email'] = user_info['email']
+                session['user_name'] = user_info.get('name', '')
+                session['es_admin'] = nuevo_usuario['es_admin']
                 
-                // Información del usuario autenticado
-                const usuario = {json.dumps(usuario_para_frontend)};
-                console.log('👤 Usuario autenticado:', usuario);
+                usuario_para_frontend = {
+                    'id': nuevo_usuario['id'],
+                    'nombre': user_info.get('name', ''),
+                    'email': user_info['email'],
+                    'es_admin': nuevo_usuario['es_admin'],
+                    'fecha_registro': nuevo_usuario['fecha_registro'].isoformat() if nuevo_usuario['fecha_registro'] else None
+                }
+
+            conn.commit()
+            
+            print(f"✅ Usuario logueado con Google: {user_info['email']} - {user_info.get('name', '')}")
+
+            # Crear una página HTML que actualice el frontend y luego redirija
+            html_content = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Iniciando sesión...</title>
+                <style>
+                    body {{ 
+                        font-family: Arial, sans-serif; 
+                        background: #1a1a1a; 
+                        color: white; 
+                        text-align: center; 
+                        padding: 50px; 
+                    }}
+                    .loading {{ 
+                        font-size: 24px; 
+                        margin-bottom: 20px; 
+                    }}
+                    .success {{ 
+                        color: #4CAF50; 
+                        font-weight: bold; 
+                    }}
+                </style>
+            </head>
+            <body>
+                <div class="loading success">✅ Sesión iniciada correctamente</div>
+                <div>Redirigiendo a la página principal...</div>
                 
-                // Función para notificar al frontend principal
-                function notificarLogin() {{
-                    try {{
-                        // Método 1: localStorage para comunicación entre páginas
-                        localStorage.setItem('google_login_usuario', JSON.stringify(usuario));
-                        localStorage.setItem('google_login_timestamp', Date.now().toString());
-                        console.log('💾 Datos guardados en localStorage');
-                        
-                        // Método 2: postMessage si estamos en iframe
-                        if (window.parent && window.parent !== window) {{
-                            window.parent.postMessage({{
-                                type: 'GOOGLE_LOGIN_SUCCESS',
-                                usuario: usuario
-                            }}, '*');
-                            console.log('📨 Mensaje enviado al padre');
+                <script>
+                    console.log('🔄 Procesando callback de Google OAuth...');
+                    
+                    // Información del usuario autenticado
+                    const usuario = {json.dumps(usuario_para_frontend)};
+                    console.log('👤 Usuario autenticado:', usuario);
+                    
+                    // Función para notificar al frontend principal
+                    function notificarLogin() {{
+                        try {{
+                            // Método 1: localStorage para comunicación entre páginas
+                            localStorage.setItem('google_login_usuario', JSON.stringify(usuario));
+                            localStorage.setItem('google_login_timestamp', Date.now().toString());
+                            console.log('💾 Datos guardados en localStorage');
+                            
+                            // Método 2: postMessage si estamos en iframe
+                            if (window.parent && window.parent !== window) {{
+                                window.parent.postMessage({{
+                                    type: 'GOOGLE_LOGIN_SUCCESS',
+                                    usuario: usuario
+                                }}, '*');
+                                console.log('📨 Mensaje enviado al padre');
+                            }}
+                            
+                            // Método 3: Dispatching event para la misma ventana
+                            window.dispatchEvent(new CustomEvent('googleLoginSuccess', {{
+                                detail: usuario
+                            }}));
+                            console.log('🎉 Evento personalizado disparado');
+                            
+                        }} catch (error) {{
+                            console.error('❌ Error al notificar login:', error);
                         }}
-                        
-                        // Método 3: Dispatching event para la misma ventana
-                        window.dispatchEvent(new CustomEvent('googleLoginSuccess', {{
-                            detail: usuario
-                        }}));
-                        console.log('🎉 Evento personalizado disparado');
-                        
-                    }} catch (error) {{
-                        console.error('❌ Error al notificar login:', error);
                     }}
-                }}
-                
-                // Ejecutar notificación inmediatamente
-                notificarLogin();
-                
-                // Redirigir a la página principal
-                setTimeout(function() {{
-                    console.log('🔄 Redirigiendo a la página principal...');
-                    // Forzar una redirección completa para asegurar que la sesión se cargue
-                    window.location.href = '/';
-                }}, 2000);
-                
-                // Backup: Si no se redirige automáticamente
-                setTimeout(function() {{
-                    if (!document.hidden) {{
-                        console.log('🔄 Redirección de respaldo...');
-                        window.location.replace('/');
-                    }}
-                }}, 5000);
-            </script>
-        </body>
-        </html>
-        """
-        
-        return html_content
+                    
+                    // Ejecutar notificación inmediatamente
+                    notificarLogin();
+                    
+                    // Redirigir a la página principal
+                    setTimeout(function() {{
+                        console.log('🔄 Redirigiendo a la página principal...');
+                        // Forzar una redirección completa para asegurar que la sesión se cargue
+                        window.location.href = '/';
+                    }}, 2000);
+                    
+                    // Backup: Si no se redirige automáticamente
+                    setTimeout(function() {{
+                        if (!document.hidden) {{
+                            console.log('🔄 Redirección de respaldo...');
+                            window.location.replace('/');
+                        }}
+                    }}, 5000);
+                </script>
+            </body>
+            </html>
+            """
+            
+            return html_content
+
+        except Exception as e:
+            conn.rollback()
+            print(f"❌ Error en Google OAuth: {e}")
+            return render_template('index.html'), 500
+
+        finally:
+            cursor.close()
+            conn.close()
 
     except Exception as e:
-        conn.rollback()
-        print(f"❌ Error en Google OAuth: {e}")
+        print(f"❌ Error en callback de Google: {e}")
         return render_template('index.html'), 500
-
-    finally:
-        cursor.close()
-        conn.close()
 
 @app.route('/auth/google/status')
 def google_auth_status():
     """Verificar si Google OAuth está disponible"""
+    client_id = os.getenv('GOOGLE_CLIENT_ID')
+    client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
+    
     return jsonify({
-        'available': google_auth.is_configured(),
-        'client_id': google_auth.client_id if google_auth.is_configured() else None
+        'available': bool(client_id and client_secret),
+        'client_id': client_id if client_id else None
     })
 
 @app.route('/usuario')
