@@ -223,6 +223,11 @@ html
             color: #155724;
         }
 
+        .status-rechazado {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
         .paquete-item {
             background: #f8f9fa;
             padding: 15px;
@@ -316,6 +321,10 @@ html
 
         .status-mini.status-procesado {
             background: #28a745;
+        }
+
+        .status-mini.status-rechazado {
+            background: #dc3545;
         }
 
         .orden-cajita-content {
@@ -1466,14 +1475,29 @@ html
                                 (orden.tiempo_pago ? '<div class="orden-tiempo">🕐 ' + new Date(orden.tiempo_pago).toLocaleString('es') + '</div>' : '') +
                             '</div>' +
                             '<div class="orden-cajita-actions">' +
-                                (esGiftCard(orden) ? 
-                                    '<input type="text" placeholder="Código" id="codigo-' + orden.id + '" class="codigo-input-cajita" value="' + (orden.codigo_producto || '') + '">' +
-                                    '<button class="btn-cajita ' + (orden.estado === 'procesando' ? 'btn-success' : 'btn-warning') + '" onclick="updateEstadoConCodigo(' + orden.id + ', \'' + (orden.estado === 'procesando' ? 'procesado' : 'procesando') + '\')">' +
-                                        (orden.estado === 'procesando' ? '✓' : '✗') +
-                                    '</button>' :
-                                    '<button class="btn-cajita ' + (orden.estado === 'procesando' ? 'btn-success' : 'btn-warning') + '" onclick="updateEstado(' + orden.id + ', \'' + (orden.estado === 'procesando' ? 'procesado' : 'procesando') + '\')">' +
-                                        (orden.estado === 'procesando' ? '✓' : '✗') +
-                                    '</button>'
+                                (orden.estado === 'procesando' ? 
+                                    (esGiftCard(orden) ? 
+                                        '<input type="text" placeholder="Código" id="codigo-' + orden.id + '" class="codigo-input-cajita" value="' + (orden.codigo_producto || '') + '">' +
+                                        '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">' +
+                                            '<button class="btn-cajita btn-success" onclick="updateEstadoConCodigo(' + orden.id + ', \'procesado\')">' +
+                                                '✓' +
+                                            '</button>' +
+                                            '<button class="btn-cajita btn-danger" onclick="rechazarOrden(' + orden.id + ')" style="background: linear-gradient(135deg, #dc3545, #c82333);">' +
+                                                '✗' +
+                                            '</button>' +
+                                        '</div>' :
+                                        '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">' +
+                                            '<button class="btn-cajita btn-success" onclick="updateEstado(' + orden.id + ', \'procesado\')">' +
+                                                '✓' +
+                                            '</button>' +
+                                            '<button class="btn-cajita btn-danger" onclick="rechazarOrden(' + orden.id + ')" style="background: linear-gradient(135deg, #dc3545, #c82333);">' +
+                                                '✗' +
+                                            '</button>' +
+                                        '</div>'
+                                    ) :
+                                    '<div style="text-align: center; padding: 8px; font-size: 10px; color: #666;">' +
+                                        (orden.estado === 'procesado' ? 'Completado' : orden.estado === 'rechazado' ? 'Rechazado' : orden.estado) +
+                                    '</div>'
                                 ) +
                             '</div>' +
                         '</div>';
@@ -1519,16 +1543,31 @@ html
                             '<td><span class="status-badge status-' + orden.estado + '">' + orden.estado + '</span></td>' +
                             '<td><small>' + fechaCorta + '</small></td>' +
                             '<td class="actions-compact">' +
-                                (esGiftCard(orden) ? 
-                                    '<div class="gift-card-actions">' +
-                                        '<input type="text" placeholder="Código" id="codigo-' + orden.id + '" class="codigo-input-compact" value="' + (orden.codigo_producto || '') + '">' +
-                                        '<button class="btn btn-sm ' + (orden.estado === 'procesando' ? 'btn-success' : 'btn-warning') + '" onclick="updateEstadoConCodigo(' + orden.id + ', \'' + (orden.estado === 'procesando' ? 'procesado' : 'procesando') + '\')">' +
-                                            (orden.estado === 'procesando' ? '✓' : '✗') +
-                                        '</button>' +
-                                    '</div>' :
-                                    '<button class="btn btn-sm ' + (orden.estado === 'procesando' ? 'btn-success' : 'btn-warning') + '" onclick="updateEstado(' + orden.id + ', \'' + (orden.estado === 'procesando' ? 'procesado' : 'procesando') + '\')">' +
-                                        (orden.estado === 'procesando' ? '✓' : '✗') +
-                                    '</button>'
+                                (orden.estado === 'procesando' ? 
+                                    (esGiftCard(orden) ? 
+                                        '<div class="gift-card-actions">' +
+                                            '<input type="text" placeholder="Código" id="codigo-' + orden.id + '" class="codigo-input-compact" value="' + (orden.codigo_producto || '') + '">' +
+                                            '<div style="display: flex; gap: 4px;">' +
+                                                '<button class="btn btn-sm btn-success" onclick="updateEstadoConCodigo(' + orden.id + ', \'procesado\')" title="Aprobar orden">' +
+                                                    '✓' +
+                                                '</button>' +
+                                                '<button class="btn btn-sm btn-danger" onclick="rechazarOrden(' + orden.id + ')" title="Rechazar orden por datos incorrectos">' +
+                                                    '✗' +
+                                                '</button>' +
+                                            '</div>' +
+                                        '</div>' :
+                                        '<div style="display: flex; gap: 4px;">' +
+                                            '<button class="btn btn-sm btn-success" onclick="updateEstado(' + orden.id + ', \'procesado\')" title="Aprobar orden">' +
+                                                '✓' +
+                                            '</button>' +
+                                            '<button class="btn btn-sm btn-danger" onclick="rechazarOrden(' + orden.id + ')" title="Rechazar orden por datos incorrectos">' +
+                                                '✗' +
+                                            '</button>' +
+                                        '</div>'
+                                    ) :
+                                    '<span style="font-size: 12px; color: #666;">' +
+                                        (orden.estado === 'procesado' ? 'Completado' : orden.estado === 'rechazado' ? 'Rechazado' : orden.estado) +
+                                    '</span>'
                                 ) +
                             '</td>' +
                         '</tr>';
@@ -1647,6 +1686,33 @@ html
                 }
             } catch (error) {
                 showAlert('Error al actualizar estado', 'error');
+            }
+        }
+
+        // Función para rechazar órdenes
+        async function rechazarOrden(ordenId) {
+            if (!confirm('¿Estás seguro de que quieres rechazar esta orden? Se enviará un correo al usuario notificando que su referencia de pago no fue encontrada.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/orden/${ordenId}/rechazar`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (response.ok) {
+                    showAlert('Orden rechazada correctamente. Se ha enviado un correo al usuario notificando el rechazo.', 'success');
+                    // Recargar órdenes para mostrar cambios
+                    await loadOrdenes();
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    showAlert(errorData.error || 'Error al rechazar orden', 'error');
+                }
+            } catch (error) {
+                showAlert('Error al rechazar orden', 'error');
             }
         }
 

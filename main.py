@@ -248,6 +248,85 @@ def enviar_correo_recarga_completada(orden_info):
         print(f"❌ Error al enviar correo de confirmación: {str(e)}")
         return False
 
+def enviar_correo_orden_rechazada(orden_info):
+    """Envía correo al usuario notificando que su orden ha sido rechazada por datos incorrectos"""
+    try:
+        # Configuración del correo
+        smtp_server = "smtp.gmail.com"
+        smtp_port = 587
+        email_usuario = "1yorbi1@gmail.com"
+        email_password = os.environ.get('GMAIL_APP_PASSWORD')
+
+        print(f"📧 Enviando notificación de orden rechazada para orden #{orden_info['id']}")
+        print(f"📧 Destinatario: {orden_info['usuario_email']}")
+
+        if not email_password:
+            print("❌ ERROR: No se encontró la contraseña de Gmail")
+            return False
+
+        # Crear mensaje
+        mensaje = MIMEMultipart()
+        mensaje['From'] = email_usuario
+        mensaje['To'] = orden_info['usuario_email']
+        mensaje['Subject'] = f"⚠️ Orden Rechazada - Datos Incorrectos - Orden #{orden_info['id']} - Inefable Store"
+
+        # Cuerpo del mensaje para orden rechazada
+        cuerpo = f"""
+        Hola,
+
+        Lamentamos informarte que tu orden ha sido rechazada debido a datos incorrectos.
+
+        📋 Detalles de la orden rechazada:
+        • Orden #: {orden_info['id']}
+        • Juego: {orden_info.get('juego_nombre', 'N/A')}
+        • Paquete: {orden_info['paquete']}
+        • Monto: ${orden_info['monto']}
+        • Método de pago: {orden_info['metodo_pago']}
+        • Referencia proporcionada: {orden_info['referencia_pago']}
+        • Estado: ❌ RECHAZADA
+        • Fecha de rechazo: {datetime.now().strftime('%d/%m/%Y a las %H:%M')}
+
+        ⚠️ Motivo del rechazo:
+        No pudimos encontrar la referencia de pago proporcionada en nuestro sistema. 
+        Esto puede deberse a:
+        
+        • Referencia de pago incorrecta o incompleta
+        • El pago aún no se ha procesado
+        • Error al escribir la referencia
+
+        🔄 ¿Qué puedes hacer?
+        1. Verifica que la referencia de pago sea correcta
+        2. Asegúrate de que el pago se haya completado exitosamente
+        3. Contacta con nosotros si estás seguro de que los datos son correctos
+        4. Realiza una nueva orden con la información correcta
+
+        📞 Contacto:
+        Si tienes alguna duda o necesitas ayuda, no dudes en contactarnos a través de nuestros canales de atención.
+
+        Gracias por tu comprensión.
+
+        ---
+        Equipo de Inefable Store
+        """
+
+        mensaje.attach(MIMEText(cuerpo, 'plain'))
+
+        print("📤 Enviando correo de orden rechazada al usuario...")
+        # Enviar correo
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+        server.login(email_usuario, email_password)
+        texto = mensaje.as_string()
+        server.sendmail(email_usuario, orden_info['usuario_email'], texto)
+        server.quit()
+
+        print(f"✅ Correo de orden rechazada enviado exitosamente a: {orden_info['usuario_email']}")
+        return True
+
+    except Exception as e:
+        print(f"❌ Error al enviar correo de orden rechazada: {str(e)}")
+        return False
+
 def limpiar_ordenes_antiguas(usuario_email):
     """Mantiene solo las últimas 40 órdenes por usuario, eliminando las más antiguas"""
     conn = get_db_connection()
@@ -867,6 +946,44 @@ def update_orden(orden_id):
     except Exception as e:
         conn.rollback()
         return jsonify({'error': f'Error al actualizar orden: {str(e)}'}), 500
+    finally:
+        conn.close()
+
+@app.route('/admin/orden/<int:orden_id>/rechazar', methods=['PATCH'])
+@admin_required
+def rechazar_orden(orden_id):
+    conn = get_db_connection()
+
+    try:
+        # Obtener información completa de la orden antes de rechazar
+        result = conn.execute(text('''
+            SELECT o.*, j.nombre as juego_nombre, j.categoria 
+            FROM ordenes o 
+            LEFT JOIN juegos j ON o.juego_id = j.id 
+            WHERE o.id = :orden_id
+        '''), {'orden_id': orden_id})
+        orden_info = result.fetchone()
+
+        if not orden_info:
+            return jsonify({'error': 'Orden no encontrada'}), 404
+
+        # Actualizar estado a rechazado
+        conn.execute(text('UPDATE ordenes SET estado = :estado WHERE id = :orden_id'), 
+                    {'estado': 'rechazado', 'orden_id': orden_id})
+        
+        conn.commit()
+
+        # Convertir orden_info a diccionario para envío de correo
+        orden_dict = dict(orden_info._mapping)
+
+        # Enviar correo de notificación de rechazo al usuario
+        threading.Thread(target=enviar_correo_orden_rechazada, args=(orden_dict,)).start()
+
+        return jsonify({'message': 'Orden rechazada y correo de notificación enviado al usuario'})
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': f'Error al rechazar orden: {str(e)}'}), 500
     finally:
         conn.close()
 
