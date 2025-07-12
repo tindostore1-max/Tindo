@@ -1,4 +1,3 @@
-
 -- Script para inicializar la base de datos PostgreSQL de Inefablestore
 
 -- Crear base de datos (ejecutar como superusuario)
@@ -43,6 +42,17 @@ CREATE TABLE IF NOT EXISTS configuracion (
     id SERIAL PRIMARY KEY,
     campo VARCHAR(50) UNIQUE NOT NULL,
     valor TEXT
+);
+
+CREATE TABLE IF NOT EXISTS usuarios (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    telefono VARCHAR(20),
+    password VARCHAR(255),
+    google_id VARCHAR(255) UNIQUE,
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    es_admin BOOLEAN DEFAULT FALSE
 );
 
 -- Insertar datos de ejemplo

@@ -17,12 +17,16 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import threading
 from dotenv import load_dotenv
+from google_auth import GoogleAuth
 
 load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'tu_clave_secreta_aqui'
 app.config['UPLOAD_FOLDER'] = 'static/images'
+
+# Inicializar Google OAuth
+google_auth = GoogleAuth(app)
 
 # Configuración de sesión
 from datetime import timedelta
@@ -510,7 +514,7 @@ def init_db():
         result = conn.execute(text('SELECT COUNT(*) FROM juegos'))
         product_count = result.fetchone()[0]
 
-    # Insertar productos de ejemplo si no existen
+        # Insertar productos de ejemplo si no existen
         if product_count == 0:
             # Free Fire
             result = conn.execute(text('''
@@ -800,6 +804,7 @@ def get_ordenes():
         # Convertir a lista de diccionarios
         ordenes_dict = []
         for orden in ordenes:
+```text
             orden_dict = dict(orden._mapping)
             ordenes_dict.append(orden_dict)
 
@@ -1148,9 +1153,9 @@ def crear_valoracion():
             SELECT COUNT(*) FROM ordenes 
             WHERE juego_id = :juego_id AND usuario_email = :usuario_email AND estado = 'procesado'
         '''), {'juego_id': juego_id, 'usuario_email': usuario_email})
-        
+
         compras = result.fetchone()[0]
-        
+
         if compras == 0:
             return jsonify({'error': 'Solo puedes valorar productos que hayas comprado'}), 403
 
@@ -1188,7 +1193,7 @@ def get_valoraciones_producto(juego_id):
             WHERE v.juego_id = :juego_id
             ORDER BY v.fecha DESC
         '''), {'juego_id': juego_id})
-        
+
         valoraciones = result.fetchall()
 
         # Obtener estadísticas
@@ -1204,7 +1209,7 @@ def get_valoraciones_producto(juego_id):
             FROM valoraciones 
             WHERE juego_id = :juego_id
         '''), {'juego_id': juego_id})
-        
+
         stats = stats_result.fetchone()
 
         # Convertir a diccionarios
@@ -1241,7 +1246,7 @@ def get_valoracion_usuario(juego_id):
         return jsonify({'error': 'Debes iniciar sesión'}), 401
 
     usuario_email = session['user_email']
-    
+
     conn = get_db_connection()
     try:
         # Verificar si el usuario puede valorar (ha comprado el producto)
@@ -1249,7 +1254,7 @@ def get_valoracion_usuario(juego_id):
             SELECT COUNT(*) FROM ordenes 
             WHERE juego_id = :juego_id AND usuario_email = :usuario_email AND estado = 'procesado'
         '''), {'juego_id': juego_id, 'usuario_email': usuario_email})
-        
+
         puede_valorar = result.fetchone()[0] > 0
 
         # Obtener valoración existente del usuario
@@ -1257,7 +1262,7 @@ def get_valoracion_usuario(juego_id):
             SELECT * FROM valoraciones 
             WHERE juego_id = :juego_id AND usuario_email = :usuario_email
         '''), {'juego_id': juego_id, 'usuario_email': usuario_email})
-        
+
         valoracion = result.fetchone()
         valoracion_dict = dict(valoracion._mapping) if valoracion else None
 
@@ -1304,12 +1309,12 @@ def upload_imagen():
         # Validar que sea una imagen
         if not file.content_type.startswith('image/'):
             return jsonify({'error': 'El archivo debe ser una imagen'}), 400
-        
+
         # Validar tamaño (máximo 10MB)
         file.seek(0, 2)  # Ir al final del archivo
         file_size = file.tell()
         file.seek(0)  # Volver al inicio
-        
+
         max_size = 10 * 1024 * 1024  # 10MB
         if file_size > max_size:
             return jsonify({'error': 'La imagen es muy grande (máximo 10MB)'}), 400
@@ -1322,7 +1327,7 @@ def upload_imagen():
         os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        
+
         try:
             file.save(file_path)
         except Exception as e:
@@ -1337,7 +1342,7 @@ def upload_imagen():
             '''), {'tipo': tipo, 'ruta': f'images/{filename}'})
             imagen_id = result.fetchone()[0]
             conn.commit()
-            
+
             return jsonify({
                 'message': 'Imagen subida correctamente',
                 'id': imagen_id,
@@ -1360,33 +1365,33 @@ def upload_imagenes_bulk():
 
     files = request.files.getlist('imagenes')
     tipo = request.form.get('tipo', 'producto')
-    
+
     if not files:
         return jsonify({'error': 'No se seleccionaron archivos'}), 400
 
     resultados = []
     errores = []
-    
+
     # Crear directorio si no existe
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-    
+
     conn = get_db_connection()
-    
+
     try:
         for file in files:
             if file.filename == '':
                 continue
-                
+
             # Validar que sea una imagen
             if not file.content_type.startswith('image/'):
                 errores.append(f'{file.filename}: No es una imagen válida')
                 continue
-            
+
             # Validar tamaño (máximo 10MB)
             file.seek(0, 2)
             file_size = file.tell()
             file.seek(0)
-            
+
             max_size = 10 * 1024 * 1024  # 10MB
             if file_size > max_size:
                 errores.append(f'{file.filename}: Archivo muy grande (máximo 10MB)')
@@ -1398,24 +1403,24 @@ def upload_imagenes_bulk():
             filename = f"{timestamp}{len(resultados):03d}_{filename}"
 
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            
+
             try:
                 file.save(file_path)
-                
+
                 # Guardar en base de datos
                 result = conn.execute(text('''
                     INSERT INTO imagenes (tipo, ruta) 
                     VALUES (:tipo, :ruta) RETURNING id
                 '''), {'tipo': tipo, 'ruta': f'images/{filename}'})
                 imagen_id = result.fetchone()[0]
-                
+
                 resultados.append({
                     'id': imagen_id,
                     'nombre_original': file.filename,
                     'ruta': f'images/{filename}',
                     'exito': True
                 })
-                
+
             except Exception as e:
                 # Si hay error, eliminar archivo si se creó
                 if os.path.exists(file_path):
@@ -1423,7 +1428,7 @@ def upload_imagenes_bulk():
                 errores.append(f'{file.filename}: Error al procesar - {str(e)}')
 
         conn.commit()
-        
+
         return jsonify({
             'message': f'Proceso completado. {len(resultados)} imágenes subidas, {len(errores)} errores.',
             'subidas': len(resultados),
@@ -1556,24 +1561,30 @@ def login():
 
     conn = get_db_connection()
     try:
-        result = conn.execute(text('SELECT * FROM usuarios WHERE email = :email'), 
-                             {'email': email})
-        usuario = result.fetchone()
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
+        user = cursor.fetchone()
 
-        if usuario and check_password_hash(usuario[3], password):  # password_hash es índice 3
+        # Verificar si es usuario de Google (sin password)
+        if user and user['google_id'] and not user['password_hash']:
+            return jsonify({'error': 'Esta cuenta está vinculada con Google. Usa "Continuar con Google" para acceder.'}), 400
+
+        if user and user['password_hash'] and check_password_hash(user['password_hash'], password):
             # Guardar sesión permanente con tiempo de expiración
             session.permanent = True
-            session['user_id'] = usuario[0]      # id
-            session['user_email'] = usuario[2]   # email
-            session['user_name'] = usuario[1]    # nombre
+            session['user_id'] = user['id']      # id
+            session['user_email'] = user['email']   # email
+            session['user_name'] = user['nombre']    # nombre
+            session['es_admin'] = user['es_admin']
 
             return jsonify({
                 'message': 'Sesión iniciada correctamente',
                 'usuario': {
-                    'id': usuario[0],
-                    'nombre': usuario[1],
-                    'email': usuario[2],
-                    'fecha_registro': usuario[4].isoformat()
+                    'id': user['id'],
+                    'nombre': user['nombre'],
+                    'email': user['email'],
+                    'fecha_registro': user['fecha_registro'].isoformat(),
+                     'es_admin': user['es_admin']
                 }
             })
         else:
@@ -1585,6 +1596,100 @@ def login():
 def logout():
     session.clear()
     return jsonify({'message': 'Sesión cerrada correctamente'})
+
+# ============================================================
+# RUTAS DE GOOGLE OAUTH
+# ============================================================
+
+@app.route('/auth/google')
+def google_login():
+    """Iniciar proceso de login con Google"""
+    if not google_auth.is_configured():
+        return jsonify({'error': 'Google OAuth no está configurado'}), 500
+
+    auth_url = google_auth.get_authorization_url()
+    if not auth_url:
+        return jsonify({'error': 'No se pudo generar URL de autorización'}), 500
+
+    return redirect(auth_url)
+
+@app.route('/oauth2callback')
+def oauth2callback():
+    """Callback de Google OAuth"""
+    code = request.args.get('code')
+    state = request.args.get('state')
+    error = request.args.get('error')
+
+    if error:
+        return render_template('index.html'), 400
+
+    if not code:
+        return render_template('index.html'), 400
+
+    # Procesar callback
+    user_info, error_msg = google_auth.handle_callback(code, state)
+
+    if error_msg:
+        return render_template('index.html'), 400
+
+    # Buscar o crear usuario en la base de datos
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+    try:
+        # Buscar usuario existente por email
+        cursor.execute("SELECT * FROM usuarios WHERE email = %s", (user_info['email'],))
+        usuario_existente = cursor.fetchone()
+
+        if usuario_existente:
+            # Usuario existe, iniciar sesión
+            session['user_id'] = usuario_existente['id']
+            session['user_email'] = usuario_existente['email']
+            session['user_name'] = usuario_existente['nombre']
+            session['es_admin'] = usuario_existente['es_admin']
+        else:
+            # Crear nuevo usuario
+            cursor.execute("""
+                INSERT INTO usuarios (nombre, email, telefono, password_hash, google_id, fecha_registro)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                RETURNING id, es_admin
+            """, (
+                user_info.get('name', ''),
+                user_info['email'],
+                '',  # Sin teléfono desde Google
+                '',  # Sin password para usuarios de Google
+                user_info.get('sub', ''),  # Google ID
+                datetime.now()
+            ))
+
+            nuevo_usuario = cursor.fetchone()
+
+            session['user_id'] = nuevo_usuario['id']
+            session['user_email'] = user_info['email']
+            session['user_name'] = user_info.get('name', '')
+            session['es_admin'] = nuevo_usuario['es_admin']
+
+        conn.commit()
+
+        # Redirigir a la página principal con hash para Mi Cuenta
+        return redirect('/#login')
+
+    except Exception as e:
+        conn.rollback()
+        print(f"Error en Google OAuth: {e}")
+        return render_template('index.html'), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/auth/google/status')
+def google_auth_status():
+    """Verificar si Google OAuth está disponible"""
+    return jsonify({
+        'available': google_auth.is_configured(),
+        'client_id': google_auth.client_id if google_auth.is_configured() else None
+    })
 
 @app.route('/usuario')
 def obtener_usuario():
