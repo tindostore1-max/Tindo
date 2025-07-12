@@ -3151,9 +3151,10 @@ function moverCarruselJuegos(direccion) {
         return;
     }
 
-    const maxIndex = maxCardsToShow - visibleCards;
-
     gamesCarouselIndex += direccion;
+
+    // Calcular el máximo índice basado en el número real de tarjetas disponibles
+    const maxIndex = Math.max(0, maxCardsToShow - visibleCards);
 
     if (gamesCarouselIndex < 0) {
         gamesCarouselIndex = 0;
@@ -3162,7 +3163,16 @@ function moverCarruselJuegos(direccion) {
         gamesCarouselIndex = maxIndex;
     }
 
-    const translateX = -gamesCarouselIndex * cardWidth;
+    // Ajustar la translación para evitar espacios vacíos al final
+    let translateX = -gamesCarouselIndex * cardWidth;
+    
+    // Si estamos en el último conjunto de tarjetas, ajustar para mostrar exactamente las últimas tarjetas
+    if (gamesCarouselIndex === maxIndex && maxCardsToShow > visibleCards) {
+        const totalWidth = maxCardsToShow * cardWidth - (cardWidth - 220); // Restar el último gap
+        const maxTranslate = totalWidth - containerWidth;
+        translateX = Math.min(-gamesCarouselIndex * cardWidth, -maxTranslate);
+    }
+
     track.style.transform = `translateX(${translateX}px)`;
 }
 
@@ -3214,9 +3224,10 @@ function moverCarruselTodos(direccion) {
         return;
     }
 
-    const maxIndex = maxCardsToShow - visibleCards;
-
     window.todosCarouselIndex += direccion;
+
+    // Calcular el máximo índice basado en el número real de tarjetas disponibles
+    const maxIndex = Math.max(0, maxCardsToShow - visibleCards);
 
     if (window.todosCarouselIndex < 0) {
         window.todosCarouselIndex = 0;
@@ -3225,7 +3236,16 @@ function moverCarruselTodos(direccion) {
         window.todosCarouselIndex = maxIndex;
     }
 
-    const translateX = -window.todosCarouselIndex * cardWidth;
+    // Ajustar la translación para evitar espacios vacíos al final
+    let translateX = -window.todosCarouselIndex * cardWidth;
+    
+    // Si estamos en el último conjunto de tarjetas, ajustar para mostrar exactamente las últimas tarjetas
+    if (window.todosCarouselIndex === maxIndex && maxCardsToShow > visibleCards) {
+        const totalWidth = maxCardsToShow * cardWidth - (cardWidth - 220); // Restar el último gap
+        const maxTranslate = totalWidth - containerWidth;
+        translateX = Math.min(-window.todosCarouselIndex * cardWidth, -maxTranslate);
+    }
+
     track.style.transform = `translateX(${translateX}px)`;
 }
 
@@ -3245,16 +3265,20 @@ function moverCarruselGiftCardsTodos(direccion) {
     const containerWidth = track.parentElement.offsetWidth;
     const visibleCards = Math.floor(containerWidth / cardWidth);
     
+    // Limitar a máximo 5 tarjetas en móvil
+    const maxCardsToShow = window.innerWidth <= 768 ? Math.min(5, giftCards.length) : giftCards.length;
+    
     // Si hay menos tarjetas que las visibles, no permitir movimiento
-    if (giftCards.length <= visibleCards) {
+    if (maxCardsToShow <= visibleCards) {
         window.giftCardsTodosCarouselIndex = 0;
         track.style.transform = `translateX(0px)`;
         return;
     }
 
-    const maxIndex = giftCards.length - visibleCards;
-
     window.giftCardsTodosCarouselIndex += direccion;
+
+    // Calcular el máximo índice basado en el número real de tarjetas disponibles
+    const maxIndex = Math.max(0, maxCardsToShow - visibleCards);
 
     if (window.giftCardsTodosCarouselIndex < 0) {
         window.giftCardsTodosCarouselIndex = 0;
@@ -3263,7 +3287,16 @@ function moverCarruselGiftCardsTodos(direccion) {
         window.giftCardsTodosCarouselIndex = maxIndex;
     }
 
-    const translateX = -window.giftCardsTodosCarouselIndex * cardWidth;
+    // Ajustar la translación para evitar espacios vacíos al final
+    let translateX = -window.giftCardsTodosCarouselIndex * cardWidth;
+    
+    // Si estamos en el último conjunto de tarjetas, ajustar para mostrar exactamente las últimas tarjetas
+    if (window.giftCardsTodosCarouselIndex === maxIndex && maxCardsToShow > visibleCards) {
+        const totalWidth = maxCardsToShow * cardWidth - (cardWidth - 220); // Restar el último gap
+        const maxTranslate = totalWidth - containerWidth;
+        translateX = Math.min(-window.giftCardsTodosCarouselIndex * cardWidth, -maxTranslate);
+    }
+
     track.style.transform = `translateX(${translateX}px)`;
 }
 
