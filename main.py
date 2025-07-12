@@ -682,24 +682,43 @@ def google_login():
         client_secret = os.environ.get('GOOGLE_CLIENT_SECRET')
         
         if not client_id or not client_secret:
+            print(f"❌ Google OAuth no configurado - Client ID: {'✓' if client_id else '✗'}, Client Secret: {'✓' if client_secret else '✗'}")
             return redirect('/?google_login=config_error')
         
+        # Forzar HTTPS para Replit en producción
         redirect_uri = url_for('google_callback', _external=True)
+        if 'replit.app' in redirect_uri:
+            redirect_uri = redirect_uri.replace('http://', 'https://')
+        
+        print(f"🔐 Iniciando Google OAuth con redirect_uri: {redirect_uri}")
         return google.authorize_redirect(redirect_uri)
     except Exception as e:
-        print(f"Error en Google OAuth: {e}")
+        print(f"❌ Error en Google OAuth: {e}")
         return redirect('/?google_login=error')
 
 @app.route('/auth/google/callback')
 def google_callback():
     """Callback de Google OAuth"""
     try:
+        print(f"🔄 Recibiendo callback de Google OAuth")
+        print(f"📋 Query params: {dict(request.args)}")
+        
+        # Verificar si hay error en los parámetros
+        error = request.args.get('error')
+        if error:
+            print(f"❌ Error en callback de Google: {error}")
+            return redirect(f'/?google_login=error&detail={error}')
+        
         # Obtener token y información del usuario
         token = google.authorize_access_token()
+        print(f"✅ Token obtenido exitosamente")
+        
         user_info = google.parse_id_token(token)
+        print(f"📝 Información del usuario obtenida: {user_info.get('email', 'Email no disponible')}")
         
         if not user_info:
-            return jsonify({'error': 'No se pudo obtener información del usuario'}), 400
+            print(f"❌ No se pudo obtener información del usuario")
+            return redirect('/?google_login=error&detail=no_user_info')
         
         # Extraer datos del usuario
         google_id = user_info.get('sub')
@@ -707,7 +726,8 @@ def google_callback():
         name = user_info.get('name')
         
         if not email:
-            return jsonify({'error': 'No se pudo obtener el email del usuario'}), 400
+            print(f"❌ Email no encontrado en la información del usuario")
+            return redirect('/?google_login=error&detail=no_email')
         
         conn = get_db_connection()
         try:
