@@ -1455,14 +1455,14 @@ def upload_imagen():
             result = conn.execute(text('''
                 INSERT INTO imagenes (tipo, ruta) 
                 VALUES (:tipo, :ruta) RETURNING id
-            '''), {'tipo': tipo, 'ruta': f'/static/images/{filename}'})
+            '''), {'tipo': tipo, 'ruta': f'images/{filename}'})
             imagen_id = result.fetchone()[0]
             conn.commit()
 
             return jsonify({
                 'message': 'Imagen subida correctamente',
                 'id': imagen_id,
-                'ruta': f'/static/images/{filename}'
+                'ruta': f'images/{filename}'
             })
         except Exception as e:
             # Si hay error en BD, eliminar archivo
@@ -1527,13 +1527,13 @@ def upload_imagenes_bulk():
                 result = conn.execute(text('''
                     INSERT INTO imagenes (tipo, ruta) 
                     VALUES (:tipo, :ruta) RETURNING id
-                '''), {'tipo': tipo, 'ruta': f'/static/images/{filename}'})
+                '''), {'tipo': tipo, 'ruta': f'images/{filename}'})
                 imagen_id = result.fetchone()[0]
 
                 resultados.append({
                     'id': imagen_id,
                     'nombre_original': file.filename,
-                    'ruta': f'/static/images/{filename}',
+                    'ruta': f'images/{filename}',
                     'exito': True
                 })
 
@@ -1789,8 +1789,8 @@ def serve_image(filename):
         imagen = result.fetchone()
 
         if imagen:
-            # La ruta ya incluye /static/, así que redirigir directamente
-            return redirect(imagen[0])
+            # Redirigir a la ruta real de la imagen
+            return redirect(f'/static/{imagen[0]}')
         else:
             # Si no se encuentra, devolver imagen por defecto
             return redirect('/static/images/20250704_223016_Recurso-40.png')
