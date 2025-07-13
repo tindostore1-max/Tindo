@@ -552,21 +552,23 @@ header {
 }
 
 .section-more-btn {
-    background: linear-gradient(135deg, #28a745, #20c997);
+    background: transparent;
     color: white;
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 25px;
     padding: 10px 20px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    box-shadow: none;
 }
 
 .section-more-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .games-carousel-container {
@@ -1089,16 +1091,16 @@ header {
         display: none;
         width: 100%;
         margin: 15px auto 0;
-        background: linear-gradient(135deg, #28a745, #20c997);
+        background: transparent;
         color: white;
-        border: none;
+        border: 1px solid rgba(255, 255, 255, 0.3);
         border-radius: 15px;
         padding: 15px 20px;
         font-size: 14px;
         font-weight: 700;
         cursor: pointer;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        box-shadow: none;
         z-index: 20;
         white-space: nowrap;
         text-align: center;
@@ -1107,8 +1109,10 @@ header {
     }
 
     .carousel-ver-mas-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.5);
         transform: translateY(-2px) scale(1.02);
-        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     }
 
     .carousel-ver-mas-btn.show {
