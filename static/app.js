@@ -3225,8 +3225,8 @@ function moverCarruselTodos(direccion) {
 
     window.todosCarouselIndex += direccion;
 
-    // Calcular el máximo índice sin limitación artificial
-    const maxIndex = Math.max(0, totalCards - visibleCards);
+    // Calcular el máximo índice para que la última tarjeta quede perfectamente alineada
+    const maxIndex = totalCards - visibleCards;
 
     if (window.todosCarouselIndex < 0) {
         window.todosCarouselIndex = 0;
@@ -3271,8 +3271,8 @@ function moverCarruselGiftCardsTodos(direccion) {
 
     window.giftCardsTodosCarouselIndex += direccion;
 
-    // Calcular el máximo índice sin limitación artificial
-    const maxIndex = Math.max(0, totalCards - visibleCards);
+    // Calcular el máximo índice para que la última tarjeta quede perfectamente alineada
+    const maxIndex = totalCards - visibleCards;
 
     if (window.giftCardsTodosCarouselIndex < 0) {
         window.giftCardsTodosCarouselIndex = 0;
@@ -3311,12 +3311,12 @@ function verificarBotonVerMas(tipo) {
     const cardWidth = 220 + 15;
     const containerWidth = wrapper.offsetWidth;
     const visibleCards = Math.floor(containerWidth / cardWidth);
-    const maxIndex = Math.max(0, totalItems - visibleCards);
+    const maxIndex = totalItems - visibleCards;
 
     // Verificar si ya existe el botón
     let verMasBtn = wrapper.querySelector('.carousel-ver-mas-btn');
     
-    // Si estamos en la última posición y hay más elementos de los visibles
+    // Si estamos exactamente en la última posición y hay más elementos de los visibles
     if (index >= maxIndex && totalItems > visibleCards) {
         if (!verMasBtn) {
             // Crear botón "Ver más"
