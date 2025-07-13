@@ -1367,53 +1367,169 @@ function mostrarProductos() {
             });
         }
 
+        // En móvil, mostrar solo las primeras 4 tarjetas de cada categoría
+        const esMobil = window.innerWidth <= 768;
+        const juegosParaMostrar = esMobil ? juegos.slice(0, 4) : juegos;
+        const giftCardsParaMostrar = esMobil ? giftCards.slice(0, 4) : giftCards;
+
+        // Regenerar HTML con las tarjetas limitadas
+        let cardsHtmlLimitado = '';
+        juegosParaMostrar.forEach(juego => {
+            // Corregir ruta de imagen
+            let imagenUrl = juego.imagen || '';
+            if (imagenUrl && !imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
+                imagenUrl = `/static/${imagenUrl}`;
+            }
+            if (!imagenUrl) {
+                imagenUrl = 'https://via.placeholder.com/300x200/007bff/ffffff?text=Producto';
+            }
+
+            // Calcular precio mínimo y máximo
+            let precioMinimo = 0;
+            let precioMaximo = 0;
+            if (juego.paquetes && Array.isArray(juego.paquetes) && juego.paquetes.length > 0) {
+                const precios = juego.paquetes.map(p => parseFloat(p.precio) || 0);
+                precioMinimo = Math.min(...precios);
+                precioMaximo = Math.max(...precios);
+            }
+
+            // Mostrar solo precio inicial con "Desde"
+            let rangoPrecio = '';
+            if (monedaActual === 'VES') {
+                rangoPrecio = `Desde Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)}`;
+            } else {
+                rangoPrecio = `Desde $${precioMinimo.toFixed(2)}`;
+            }
+
+            // Procesar etiquetas del juego
+            let etiquetasHtml = '';
+            if (juego.etiquetas && juego.etiquetas.trim()) {
+                const etiquetasArray = juego.etiquetas.split(',').map(e => e.trim()).filter(e => e);
+                etiquetasHtml = etiquetasArray.map(etiqueta => {
+                    let clase = 'default';
+                    if (etiqueta.includes('%') || etiqueta.toLowerCase().includes('descuento') || etiqueta.toLowerCase().includes('oferta')) {
+                        clase = 'descuento';
+                    } else if (etiqueta.toLowerCase().includes('hot')) {
+                        clase = 'hot';
+                    } else if (etiqueta.toLowerCase().includes('nuevo')) {
+                        clase = 'nuevo';
+                    } else if (etiqueta.toLowerCase().includes('popular')) {
+                        clase = 'popular';
+                    }
+                    return `<span class="product-tag ${clase}">${etiqueta}</span>`;
+                }).join('');
+            }
+
+            cardsHtmlLimitado += `
+                <div class="todos-carousel-card" onclick="verDetalleProducto(${juego.id})">
+                    ${etiquetasHtml ? `<div class="product-tags">${etiquetasHtml}</div>` : ''}
+                    <img src="${imagenUrl}" alt="${juego.nombre || 'Producto'}" class="product-image" onerror="this.src='/static/images/20250706_020025_20250705_163435_Recurso-40.png'; this.onerror=null;">
+                    <div class="product-name">${juego.nombre || 'Producto sin nombre'}</div>
+                    ${mostrarValoracionEnTarjeta(juego)}
+                    <div class="price-desde">${rangoPrecio}</div>
+                </div>
+            `;
+        });
+
+        let giftCardsHtmlLimitado = '';
+        if (giftCards.length > 0) {
+            giftCardsParaMostrar.forEach(giftCard => {
+                // Corregir ruta de imagen
+                let imagenUrl = giftCard.imagen || '';
+                if (imagenUrl && !imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
+                    imagenUrl = `/static/${imagenUrl}`;
+                }
+                if (!imagenUrl) {
+                    imagenUrl = 'https://via.placeholder.com/300x200/007bff/ffffff?text=Producto';
+                }
+
+                // Calcular precio mínimo y máximo
+                let precioMinimo = 0;
+                let precioMaximo = 0;
+                if (giftCard.paquetes && Array.isArray(giftCard.paquetes) && giftCard.paquetes.length > 0) {
+                    const precios = giftCard.paquetes.map(p => parseFloat(p.precio) || 0);
+                    precioMinimo = Math.min(...precios);
+                    precioMaximo = Math.max(...precios);
+                }
+
+                // Mostrar solo precio inicial con "Desde"
+                let rangoPrecio = '';
+                if (monedaActual === 'VES') {
+                    rangoPrecio = `Desde Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)}`;
+                } else {
+                    rangoPrecio = `Desde $${precioMinimo.toFixed(2)}`;
+                }
+
+                // Procesar etiquetas para gift cards
+                let etiquetasHtml = '';
+                if (giftCard.etiquetas && giftCard.etiquetas.trim()) {
+                    const etiquetasArray = giftCard.etiquetas.split(',').map(e => e.trim()).filter(e => e);
+                    etiquetasHtml = etiquetasArray.map(etiqueta => {
+                        const clase = etiqueta.toLowerCase().replace(/[^a-z0-9]/g, '');
+                        return `<span class="product-tag ${clase}">${etiqueta}</span>`;
+                    }).join('');
+                }
+
+                giftCardsHtmlLimitado += `
+                    <div class="todos-carousel-card" onclick="verDetalleProducto(${giftCard.id})">
+                        ${etiquetasHtml ? `<div class="product-tags">${etiquetasHtml}</div>` : ''}
+                        <img src="${imagenUrl}" alt="${giftCard.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
+                        <div class="product-name">${giftCard.nombre || 'Producto sin nombre'}</div>
+                        ${mostrarValoracionEnTarjeta(giftCard)}
+                        <div class="price-desde">${rangoPrecio}</div>
+                    </div>
+                `;
+            });
+        }
+
         grid.innerHTML = `
             <div class="section-header">
                 <h3 class="section-title">Recarga de juegos</h3>
-                <button class="section-more-btn" onclick="mostrarTodosLosJuegos()">Ver más</button>
+                ${!esMobil ? `<button class="section-more-btn" onclick="mostrarTodosLosJuegos()">Ver más</button>` : ''}
             </div>
             <div class="todos-carousel-wrapper">
                 <div class="todos-carousel-track" id="todos-carousel-track">
-                    ${cardsHtml}
+                    ${cardsHtmlLimitado}
                 </div>
-                ${juegos.length > 2 ? `
+                ${!esMobil && juegos.length > 2 ? `
                     <button class="todos-carousel-nav prev" onclick="moverCarruselTodos(-1)">‹</button>
                     <button class="todos-carousel-nav next" onclick="moverCarruselTodos(1)">›</button>
+                ` : ''}
+                ${esMobil && juegos.length > 4 ? `
+                    <button class="carousel-ver-mas-btn show" onclick="mostrarTodosLosJuegos()">Ver más juegos</button>
                 ` : ''}
             </div>
 
             ${giftCards.length > 0 ? `
             <div class="section-header" style="margin-top: 40px;">
                 <h3 class="section-title">Gift Cards</h3>
-                <button class="section-more-btn" onclick="mostrarTodasLasGiftCards()">Ver más</button>
+                ${!esMobil ? `<button class="section-more-btn" onclick="mostrarTodasLasGiftCards()">Ver más</button>` : ''}
             </div>
             <div class="todos-carousel-wrapper">
                 <div class="todos-carousel-track" id="giftcards-todos-carousel-track">
-                    ${giftCardsHtml}
+                    ${giftCardsHtmlLimitado}
                 </div>
-                ${giftCards.length > 2 ? `
+                ${!esMobil && giftCards.length > 2 ? `
                     <button class="todos-carousel-nav prev" onclick="moverCarruselGiftCardsTodos(-1)">‹</button>
                     <button class="todos-carousel-nav next" onclick="moverCarruselGiftCardsTodos(1)">›</button>
+                ` : ''}
+                ${esMobil && giftCards.length > 4 ? `
+                    <button class="carousel-ver-mas-btn show" onclick="mostrarTodasLasGiftCards()">Ver más gift cards</button>
                 ` : ''}
             </div>
             ` : ''}
         `;
 
-        // Inicializar índice del carrusel
-        window.todosCarouselIndex = 0;
-        window.todosCarouselItems = juegos;
+        // Inicializar índice del carrusel solo en desktop
+        if (!esMobil) {
+            window.todosCarouselIndex = 0;
+            window.todosCarouselItems = juegos;
 
-        // Inicializar eventos táctiles después de crear el HTML
-        setTimeout(() => {
-            inicializarSwipeCarruseles();
-            // Verificar botones "Ver más" después de que se inicialice
+            // Inicializar eventos táctiles después de crear el HTML
             setTimeout(() => {
-                verificarBotonVerMas('todos');
-                if (giftCards.length > 0) {
-                    verificarBotonVerMas('giftcards-todos');
-                }
-            }, 200);
-        }, 100);
+                inicializarSwipeCarruseles();
+            }, 100);
+        }
 
         return;
     }

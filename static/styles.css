@@ -972,53 +972,55 @@ header {
         gap: 10px;
     }
 
-    /* Ajustar tamaño de cards para mostrar 1.8 productos en móvil (mostrar pedacito del siguiente) */
-    .games-carousel-card {
-        flex: 0 0 calc(55% - 8px); /* Mostrar 1.8 productos para indicar que hay más contenido */
-        max-width: 180px; /* Máximo ancho ajustado */
-        padding: 15px;
-        margin-right: 8px;
+    /* Cambiar carrusel a grid 2x2 en móvil */
+    .games-carousel-track {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        grid-template-rows: 1fr 1fr !important;
+        gap: 12px !important;
+        width: 100% !important;
+        transform: none !important;
+        transition: none !important;
+        padding: 0 15px !important;
     }
 
-    /* Limitar carrusel a máximo 5 tarjetas */
-    .games-carousel-track:has(.games-carousel-card:nth-child(6)) .games-carousel-card:nth-child(n+6) {
-        display: none;
+    .games-carousel-card {
+        flex: none !important;
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 12px;
+        height: auto;
+        min-height: 200px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
 
     .games-carousel-card .product-name {
-        font-size: 12px;
+        font-size: 11px;
         margin-bottom: 4px;
-        line-height: 1.1;
+        line-height: 1.2;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
     .games-carousel-card .price-desde {
-        font-size: 11px;
+        font-size: 10px;
         margin-top: 4px;
         font-weight: 700;
     }
 
     .games-carousel-card .product-image {
-        height: 155px; /* Altura aumentada un poco más */
+        height: 120px;
         object-fit: cover;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
+        border-radius: 8px;
     }
 
     .games-carousel-nav {
-        width: 32px;
-        height: 32px;
-        font-size: 14px;
-        z-index: 15;
-    }
-
-    .games-carousel-nav.prev {
-        left: 3px;
-    }
-
-    .games-carousel-nav.next {
-        right: 3px;
+        display: none !important; /* Ocultar navegación en móvil para grid */
     }
 
     /* Estilos móviles para carrusel de Todos */
@@ -1031,77 +1033,81 @@ header {
         box-shadow: none !important;
     }
 
-    .todos-carousel-card {
-        flex: 0 0 calc(55% - 8px); /* Mostrar 1.8 productos para indicar que hay más contenido */
-        max-width: 180px; /* Máximo ancho ajustado */
-        padding: 15px;
-        margin-right: 8px;
+    /* Cambiar carrusel de todos a grid 2x2 en móvil */
+    .todos-carousel-track {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        grid-template-rows: 1fr 1fr !important;
+        gap: 12px !important;
+        width: 100% !important;
+        transform: none !important;
+        transition: none !important;
+        padding: 0 15px !important;
     }
 
-    /* Limitar carrusel de todos a máximo 5 tarjetas */
-    .todos-carousel-track:has(.todos-carousel-card:nth-child(6)) .todos-carousel-card:nth-child(n+6) {
-        display: none;
+    .todos-carousel-card {
+        flex: none !important;
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 12px;
+        height: auto;
+        min-height: 200px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
 
     .todos-carousel-card .product-name {
-        font-size: 12px;
+        font-size: 11px;
         margin-bottom: 4px;
-        line-height: 1.1;
+        line-height: 1.2;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
     .todos-carousel-card .price-desde {
-        font-size: 11px;
+        font-size: 10px;
         margin-top: 4px;
         font-weight: 700;
     }
 
     .todos-carousel-card .product-image {
-        height: 155px; /* Altura aumentada un poco más */
+        height: 120px;
         object-fit: cover;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
+        border-radius: 8px;
     }
 
     .todos-carousel-nav {
-        width: 32px;
-        height: 32px;
-        font-size: 14px;
-        z-index: 15;
+        display: none !important; /* Ocultar navegación en móvil para grid */
     }
 
-    .todos-carousel-nav.prev {
-        left: 3px;
-    }
-
-    .todos-carousel-nav.next {
-        right: 3px;
-    }
-
-    /* Botón Ver más para carruseles en móvil */
+    /* Botón Ver más para carruseles en móvil - estilo grid */
     .carousel-ver-mas-btn {
         display: none;
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
+        width: 100%;
+        margin: 15px auto 0;
         background: linear-gradient(135deg, #28a745, #20c997);
         color: white;
         border: none;
-        border-radius: 25px;
-        padding: 12px 20px;
-        font-size: 12px;
+        border-radius: 15px;
+        padding: 15px 20px;
+        font-size: 14px;
         font-weight: 700;
         cursor: pointer;
         transition: all 0.3s ease;
         box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
         z-index: 20;
         white-space: nowrap;
+        text-align: center;
+        position: relative;
+        transform: none;
     }
 
     .carousel-ver-mas-btn:hover {
-        transform: translateY(-50%) scale(1.05);
+        transform: translateY(-2px) scale(1.02);
         box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
     }
 
