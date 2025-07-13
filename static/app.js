@@ -1406,6 +1406,13 @@ function mostrarProductos() {
         // Inicializar eventos táctiles después de crear el HTML
         setTimeout(() => {
             inicializarSwipeCarruseles();
+            // Verificar botones "Ver más" después de que se inicialice
+            setTimeout(() => {
+                verificarBotonVerMas('todos');
+                if (giftCards.length > 0) {
+                    verificarBotonVerMas('giftcards-todos');
+                }
+            }, 200);
         }, 100);
 
         return;
@@ -3231,6 +3238,9 @@ function moverCarruselTodos(direccion) {
     // Calcular translación normal
     const translateX = -window.todosCarouselIndex * cardWidth;
     track.style.transform = `translateX(${translateX}px)`;
+
+    // Verificar si mostrar botón "Ver más" en móvil
+    verificarBotonVerMas('todos');
 }
 
 function moverCarruselGiftCardsTodos(direccion) {
@@ -3274,6 +3284,61 @@ function moverCarruselGiftCardsTodos(direccion) {
     // Calcular translación normal
     const translateX = -window.giftCardsTodosCarouselIndex * cardWidth;
     track.style.transform = `translateX(${translateX}px)`;
+
+    // Verificar si mostrar botón "Ver más" en móvil
+    verificarBotonVerMas('giftcards-todos');
+}
+
+// Función para verificar y mostrar el botón "Ver más" en móviles
+function verificarBotonVerMas(tipo) {
+    // Solo en móvil
+    if (window.innerWidth > 768) return;
+
+    let wrapper, index, totalItems;
+    
+    if (tipo === 'todos') {
+        wrapper = document.querySelector('.todos-carousel-wrapper');
+        index = window.todosCarouselIndex || 0;
+        totalItems = window.todosCarouselItems ? window.todosCarouselItems.length : 0;
+    } else if (tipo === 'giftcards-todos') {
+        wrapper = document.querySelector('#giftcards-todos-carousel-track').parentElement;
+        index = window.giftCardsTodosCarouselIndex || 0;
+        totalItems = productos.filter(producto => producto.categoria === 'gift-cards').length;
+    }
+
+    if (!wrapper) return;
+
+    const cardWidth = 220 + 15;
+    const containerWidth = wrapper.offsetWidth;
+    const visibleCards = Math.floor(containerWidth / cardWidth);
+    const maxIndex = Math.max(0, totalItems - visibleCards);
+
+    // Verificar si ya existe el botón
+    let verMasBtn = wrapper.querySelector('.carousel-ver-mas-btn');
+    
+    // Si estamos en la última posición y hay más elementos de los visibles
+    if (index >= maxIndex && totalItems > visibleCards) {
+        if (!verMasBtn) {
+            // Crear botón "Ver más"
+            verMasBtn = document.createElement('button');
+            verMasBtn.className = 'carousel-ver-mas-btn';
+            verMasBtn.textContent = 'Ver más';
+            verMasBtn.addEventListener('click', () => {
+                if (tipo === 'todos') {
+                    mostrarTodosLosJuegos();
+                } else if (tipo === 'giftcards-todos') {
+                    mostrarTodasLasGiftCards();
+                }
+            });
+            wrapper.appendChild(verMasBtn);
+        }
+        verMasBtn.classList.add('show');
+    } else {
+        // Ocultar botón si no estamos en la última posición
+        if (verMasBtn) {
+            verMasBtn.classList.remove('show');
+        }
+    }
 }
 
 function mostrarTodosLosJuegos() {

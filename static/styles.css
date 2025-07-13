@@ -1079,6 +1079,53 @@ header {
         right: 3px;
     }
 
+    /* Botón Ver más para carruseles en móvil */
+    .carousel-ver-mas-btn {
+        display: none;
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        padding: 12px 20px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        z-index: 20;
+        white-space: nowrap;
+    }
+
+    .carousel-ver-mas-btn:hover {
+        transform: translateY(-50%) scale(1.05);
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    }
+
+    .carousel-ver-mas-btn.show {
+        display: block;
+    }
+
+    /* Ajustar posición del botón en diferentes tamaños de pantalla */
+    @media (max-width: 480px) {
+        .carousel-ver-mas-btn {
+            padding: 10px 16px;
+            font-size: 11px;
+            right: 8px;
+        }
+    }
+
+    @media (max-width: 360px) {
+        .carousel-ver-mas-btn {
+            padding: 8px 14px;
+            font-size: 10px;
+            right: 6px;
+        }
+    }
+
     /* Asegurar que el track permita scroll horizontal suave */
     .games-carousel-track, .todos-carousel-track {
         touch-action: pan-x pan-y; /* Permitir deslizamiento horizontal Y vertical */
