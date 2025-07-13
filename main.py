@@ -1792,8 +1792,12 @@ def serve_image(filename):
             # La ruta ya incluye /static/, así que redirigir directamente
             return redirect(imagen[0])
         else:
-            # Si no se encuentra, devolver imagen por defecto
-            return redirect('/static/images/20250704_223016_Recurso-40.png')
+            # Si no se encuentra, devolver imagen por defecto disponible
+            return redirect('/static/images/20250706_020025_20250705_163435_Recurso-40.png')
+    except Exception as e:
+        print(f"Error al servir imagen {filename}: {e}")
+        # En caso de error, devolver imagen por defecto
+        return redirect('/static/images/20250706_020025_20250705_163435_Recurso-40.png')
     finally:
         conn.close()
 

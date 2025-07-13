@@ -1300,7 +1300,7 @@ function mostrarProductos() {
             cardsHtml += `
                 <div class="todos-carousel-card" onclick="verDetalleProducto(${juego.id})">
                     ${etiquetasHtml ? `<div class="product-tags">${etiquetasHtml}</div>` : ''}
-                    <img src="${imagenUrl}" alt="${juego.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
+                    <img src="${imagenUrl}" alt="${juego.nombre || 'Producto'}" class="product-image" onerror="this.src='/static/images/20250706_020025_20250705_163435_Recurso-40.png'; this.onerror=null;">
                     <div class="product-name">${juego.nombre || 'Producto sin nombre'}</div>
                     ${paquetesPreviewHtml}
                     ${mostrarValoracionEnTarjeta(juego)}
@@ -1491,7 +1491,7 @@ function mostrarProductos() {
         html += `
             <div class="product-card" onclick="verDetalleProducto(${producto.id})">
                 ${etiquetasHtml ? `<div class="product-tags">${etiquetasHtml}</div>` : ''}
-                <img src="${imagenUrl}" alt="${producto.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
+                <img src="${imagenUrl}" alt="${producto.nombre || 'Producto'}" class="product-image" onerror="this.src='/static/images/20250706_020025_20250705_163435_Recurso-40.png'; this.onerror=null;">
                 <div class="product-name">${producto.nombre || 'Producto sin nombre'}</div>
                 <div class="product-description">${producto.descripcion || 'Sin descripción'}</div>
                 ${paquetesPreviewHtml}
