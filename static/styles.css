@@ -2126,41 +2126,56 @@ header {
     }
 
     .details-info-container .package-item {
-        padding: 8px 4px !important; /* Padding reducido */
-        min-height: 180px !important; /* Altura aumentada para aprovechar espacio */
+        padding: 12px 8px !important; /* Padding aumentado para mejor visualización */
+        min-height: 220px !important; /* Altura aumentada para estar siempre expandidas */
         width: 100% !important; /* Ocupar todo el ancho de la columna */
         max-width: none !important; /* Sin limitación de ancho máximo */
         margin: 0 !important; /* Sin márgenes */
         box-sizing: border-box !important;
-        border-radius: 10px !important; /* Bordes más compactos */
+        border-radius: 12px !important; /* Bordes más compactos */
+        transform: none !important; /* Sin transformaciones - siempre expandidas */
+        box-shadow: 0 8px 25px rgba(0,0,0,0.4) !important; /* Sombra expandida permanente */
+        border: 2px solid #28a745 !important; /* Borde verde permanente para indicar expansión */
+        background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%) !important; /* Fondo expandido */
     }
 
     .details-info-container .package-image-container .package-name img {
         width: 100% !important; /* Ocupar todo el ancho disponible */
-        height: 100px !important; /* Altura optimizada */
+        height: 120px !important; /* Altura aumentada para tarjetas expandidas */
         object-fit: cover !important;
         object-position: center !important;
         aspect-ratio: 1 / 1 !important;
-        min-width: 100px !important;
+        min-width: 120px !important;
         max-width: 100% !important;
-        min-height: 100px !important;
-        max-height: 100px !important;
-        border-radius: 6px !important;
+        min-height: 120px !important;
+        max-height: 120px !important;
+        border-radius: 8px !important;
+        border: 2px solid #28a745 !important; /* Borde verde en las imágenes también */
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4) !important; /* Sombra verde */
     }
 
     .details-info-container .package-name {
-        font-size: 12px !important; /* Texto más compacto */
-        margin-bottom: 3px !important;
-        line-height: 1.2 !important;
-        padding: 0 2px !important;
+        font-size: 14px !important; /* Texto más grande para tarjetas expandidas */
+        margin-bottom: 8px !important;
+        line-height: 1.3 !important;
+        padding: 0 4px !important;
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        text-align: center !important;
     }
 
     .details-info-container .package-price {
-        font-size: 14px !important; /* Precio compacto pero legible */
-        padding: 6px 8px !important; /* Padding reducido */
+        font-size: 16px !important; /* Precio más grande para mejor legibilidad */
+        padding: 10px 12px !important; /* Padding aumentado */
         width: 100% !important; /* Ocupar todo el ancho disponible */
         font-weight: 700 !important;
-        border-radius: 6px !important;
+        border-radius: 8px !important;
+        background: rgba(40, 167, 69, 0.2) !important; /* Fondo verde para destacar */
+        border: 2px solid #28a745 !important; /* Borde verde */
+        box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3) !important; /* Sombra verde */
+        color: #28a745 !important;
+        text-align: center !important;
+        margin-top: auto !important; /* Empujar hacia abajo */
     }
 
     .selected-product-image {
