@@ -1042,10 +1042,10 @@ header {
 
     .giftcards-grid {
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 12px; /* Gap optimizado para 2 tarjetas */
+        gap: 15px; /* Mismo gap que product-grid */
         display: grid !important;
         justify-items: stretch; /* Estirar tarjetas para ocupar todo el espacio */
-        padding: 0 10px; /* Padding optimizado para centrar mejor */
+        padding: 0; /* Sin padding adicional */
         margin: 0; /* Sin margen para ocupar todo el ancho */
         max-width: 100%; /* Limitación de ancho máximo al 100% del contenedor */
         width: 100%; /* Ocupar todo el ancho disponible */
@@ -1054,18 +1054,18 @@ header {
     }
 
     .giftcards-grid .product-card {
-        height: 260px !important; /* Altura ligeramente mayor para gift cards */
-        min-height: 260px !important;
-        max-height: 260px !important;
+        height: 240px !important; /* MISMA altura que todas las demás tarjetas */
+        min-height: 240px !important;
+        max-height: 240px !important;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        padding: 10px; /* Padding ligeramente mayor para mejor espaciado */
+        padding: 8px; /* MISMO padding que product-card general */
         width: 100%;
         max-width: none; /* Sin limitación de ancho máximo para ocupar espacio completo */
         margin: 0; /* Sin margen para ocupar todo el espacio */
         box-sizing: border-box; /* Incluir padding en el cálculo de ancho */
-        border-radius: 12px; /* Bordes más redondeados */
+        border-radius: 15px; /* Mismo border-radius que product-card general */
     }
 
     /* Asegurar que todas las tarjetas en categorías específicas tengan el mismo tamaño */
@@ -1084,42 +1084,35 @@ header {
 
     .giftcards-grid .product-image {
         width: 100% !important;
-        height: 150px !important; /* Altura optimizada para gift cards */
+        height: 140px !important; /* MISMA altura que product-image general */
         aspect-ratio: 1 / 1 !important; /* Aspecto cuadrado */
         object-fit: cover !important;
         object-position: center !important;
-        margin: 0 auto 8px auto;
-        border-radius: 10px; /* Bordes más redondeados */
+        margin: 0 auto 6px auto; /* MISMO margen que product-image general */
+        border-radius: 8px; /* MISMO border-radius que product-image general */
         flex-shrink: 0;
         max-width: 100% !important; /* Ancho máximo del contenedor padre */
-        min-height: 150px !important;
-        max-height: 150px !important;
+        min-height: 140px !important;
+        max-height: 140px !important;
         display: block;
         box-sizing: border-box; /* Incluir padding en el cálculo de ancho */
-        border: 2px solid #444; /* Borde para definir mejor la imagen */
     }
 
     .giftcards-grid .product-name {
-        font-size: 12px; /* Tamaño ligeramente mayor para gift cards */
-        margin-bottom: 4px; /* Margen optimizado */
-        line-height: 1.2; /* Altura de línea mejorada */
+        font-size: 10px; /* MISMO tamaño que product-name general */
+        margin-bottom: 3px; /* MISMO margen que product-name general */
+        line-height: 1.1; /* MISMA altura de línea que product-name general */
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
         flex-shrink: 0;
-        font-weight: 600; /* Peso de fuente más visible */
-        text-align: center; /* Centrar texto */
     }
 
     .giftcards-grid .price-desde {
-        font-size: 11px; /* Tamaño ligeramente mayor para gift cards */
-        margin-top: 4px; /* Margen optimizado */
+        font-size: 9px; /* MISMO tamaño que price-desde general */
+        margin-top: 3px; /* MISMO margen que price-desde general */
         font-weight: 700;
         flex-shrink: 0;
-        text-align: center; /* Centrar precio */
-        padding: 4px 8px; /* Padding para mejor presentación */
-        background: rgba(40, 167, 69, 0.1); /* Fondo sutil para el precio */
-        border-radius: 8px; /* Bordes redondeados */
     }
 
     /* Mantener carrusel deslizante en móvil - 2 en 2 para juegos */
