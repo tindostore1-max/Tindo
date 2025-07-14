@@ -901,10 +901,13 @@ header {
 
     .product-grid {
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 15px; /* Gap mayor para aprovechar el espacio expandido */
+        gap: 8px !important; /* Gap reducido para aprovechar mejor el espacio */
         display: grid !important;
         justify-items: stretch; /* Estirar las tarjetas para llenar el espacio */
-        padding: 0; /* Sin padding adicional */
+        padding: 0 4px !important; /* Padding mínimo lateral */
+        margin: 0 -8px !important; /* Margen negativo para extender hasta los bordes */
+        width: calc(100% + 16px) !important; /* Ancho que compensa el margen negativo */
+        box-sizing: border-box !important;
     }
 
     .product-card {
