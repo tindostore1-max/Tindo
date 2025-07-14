@@ -1060,7 +1060,7 @@ header {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        padding: 12px; /* Padding aumentado para las tarjetas de Gift Cards */
+        padding: 16px; /* Padding aumentado para las tarjetas de Gift Cards */
         width: 100%;
         max-width: none; /* Sin limitación de ancho máximo para ocupar espacio completo */
         margin: 0; /* Sin margen para ocupar todo el espacio */
