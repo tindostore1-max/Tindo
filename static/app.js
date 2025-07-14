@@ -1794,11 +1794,6 @@ function generarHTMLDetalleProducto(producto) {
                         ${paquetesHtml}
                     </div>
 
-                    <!-- Información del paquete seleccionado -->
-                    <div id="paquete-seleccionado" style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); display: none;">
-                        <!-- Se llenará dinámicamente -->
-                    </div>
-
                     <div style="margin-top: 20px; display: flex; gap: 12px;">
                         <button id="btn-agregar-carrito" onclick="agregarPaqueteSeleccionado()" class="btn btn-success" style="flex: 1; padding: 15px 20px; font-size: 16px; font-weight: 700; background: linear-gradient(135deg, #28a745, #20c997); border: none; border-radius: 10px; color: white; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3); opacity: 0.6;" disabled>
                             🛒 Agregar al Carrito
@@ -1943,21 +1938,10 @@ function seleccionarPaquete(elemento) {
         precio: parseFloat(elemento.getAttribute('data-package-price'))
     };
 
-    // Actualizar información del paquete seleccionado
-    const infoDiv = document.getElementById('paquete-seleccionado');
+    // Habilitar botón de agregar al carrito
     const botonAgregar = document.getElementById('btn-agregar-carrito');
 
-    if (infoDiv && botonAgregar) {
-        infoDiv.innerHTML = `
-            <div style="color: #28a745; font-weight: 700; font-size: 18px;">
-                🎮 Paquete seleccionado: <span style="color: #28a745;">${paqueteSeleccionado.nombre}</span>
-            </div>
-            <div style="color: #6c757d; font-size: 14px; margin-top: 5px;">
-                Precio: ${convertirPrecio(paqueteSeleccionado.precio)}
-            </div>
-        `;
-        infoDiv.style.display = 'block';
-
+    if (botonAgregar) {
         botonAgregar.disabled = false;
         botonAgregar.style.opacity = '1';
         botonAgregar.style.cursor = 'pointer';
@@ -2420,20 +2404,7 @@ function actualizarPreciosDetalles() {
         }
     });
 
-    // Actualizar información del paquete seleccionado si hay uno
-    if (paqueteSeleccionado) {
-        const infoDiv = document.getElementById('paquete-seleccionado');
-        if (infoDiv && infoDiv.innerHTML.includes('Paquete seleccionado:')) {
-            infoDiv.innerHTML = `
-                <div style="color: #28a745; font-weight: 700; font-size: 18px;">
-                    🎮 Paquete seleccionado: <span style="color: #28a745;">${paqueteSeleccionado.nombre}</span>
-                </div>
-                <div style="color: #6c757d; font-size: 14px; margin-top: 5px;">
-                    Precio: ${convertirPrecio(paqueteSeleccionado.precio)}
-                </div>
-            `;
-        }
-    }
+    // La información del paquete seleccionado ya no se muestra
 }
 
 // Función de verificación de cálculos
