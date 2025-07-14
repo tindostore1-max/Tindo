@@ -833,7 +833,8 @@ header {
 /* Responsive para móviles */
 @media (max-width: 768px) {
     .container {
-        padding: 40px 0px 8px 0px; /* Sin padding lateral - tarjetas llegan al borde */
+        padding: 40px 15px 8px 15px; /* Expandir contenedor con padding lateral */
+        max-width: none; /* Sin limitación de ancho máximo */
     }
 
     header {
@@ -879,10 +880,10 @@ header {
 
     .product-grid {
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 2px; /* Gap mínimo para aprovechar todo el espacio */
+        gap: 15px; /* Gap mayor para aprovechar el espacio expandido */
         display: grid !important;
         justify-items: stretch; /* Estirar las tarjetas para llenar el espacio */
-        padding: 0 2px; /* Padding mínimo lateral */
+        padding: 0; /* Sin padding adicional */
     }
 
     .product-card {
@@ -1015,10 +1016,10 @@ header {
 
     .giftcards-grid {
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 2px; /* Gap mínimo */
+        gap: 15px; /* Gap mayor para aprovechar el espacio expandido */
         display: grid !important;
         justify-items: stretch; /* Estirar las tarjetas para llenar el espacio */
-        padding: 0 2px; /* Padding mínimo lateral */
+        padding: 0; /* Sin padding adicional */
     }
 
     .giftcards-grid .product-card {
