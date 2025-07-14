@@ -2129,10 +2129,11 @@ header {
         padding: 8px 4px !important; /* Padding reducido */
         min-height: 180px !important; /* Altura normal */
         width: 100% !important; /* Ocupar todo el ancho de la columna */
-        max-width: none !important; /* Sin limitación de ancho máximo */
+        max-width: 100% !important; /* Ancho máximo del 100% */
         margin: 0 !important; /* Sin márgenes */
         box-sizing: border-box !important;
         border-radius: 10px !important; /* Bordes normales */
+        flex: 1 !important; /* Flex para distribución uniforme */
     }
 
     .details-info-container .package-image-container .package-name img {
@@ -2237,6 +2238,8 @@ header {
     grid-template-columns: repeat(3, 1fr);
     gap: 15px;
     margin-top: 20px;
+    width: 100%;
+    align-items: stretch;
 }
 
 .package-item {
@@ -2254,6 +2257,9 @@ header {
     position: relative;
     overflow: hidden;
     min-height: 180px;
+    width: 100%;
+    max-width: 100%;
+    flex: 1;
 }
 
 .package-item::before {
@@ -2415,6 +2421,12 @@ header {
     text-align: center;
     margin-bottom: 8px;
     text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+    width: 100%;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    line-height: 1.3;
+    min-height: 1.3em;
 }
 
 /* Mostrar título solo cuando no hay imagen */
