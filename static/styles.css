@@ -850,8 +850,9 @@ header {
     }
 
     .product-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, 1fr) !important;
         gap: 12px;
+        display: grid !important;
     }
 
     .product-card {
@@ -981,8 +982,9 @@ header {
     }
 
     .giftcards-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, 1fr) !important;
         gap: 12px;
+        display: grid !important;
     }
 
     .giftcards-grid .product-card {
@@ -993,6 +995,18 @@ header {
         flex-direction: column;
         justify-content: space-between;
         padding: 12px;
+    }
+
+    /* Asegurar que todas las tarjetas en categorías específicas tengan el mismo tamaño */
+    .product-grid .product-card {
+        height: 300px !important;
+        min-height: 300px !important;
+        max-height: 300px !important;
+        display: flex !important;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 12px;
+        box-sizing: border-box;
     }
 
     .giftcards-grid .product-image {
