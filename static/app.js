@@ -3416,13 +3416,6 @@ function verificarBotonVerMas(tipo) {
         wrapper = document.querySelector('.todos-carousel-wrapper');
         index = window.todosCarouselIndex || 0;
         totalItems = window.todosCarouselItems ? window.todosCarouselItems.length : 0;
-    } else if (tipo === 'games') {
-        wrapper = document.querySelector('.games-carousel-container');
-        index = window.gamesCarouselIndex || 0;
-        totalItems = window.gamesCarouselItems ? window.gamesCarouselItems.length : 0;) {
-        wrapper = document.querySelector('.todos-carousel-wrapper');
-        index = window.todosCarouselIndex || 0;
-        totalItems = window.todosCarouselItems ? window.todosCarouselItems.length : 0;
     } else if (tipo === 'giftcards-todos') {
         wrapper = document.querySelector('#giftcards-todos-carousel-track').parentElement;
         index = window.giftCardsTodosCarouselIndex || 0;
@@ -3442,28 +3435,7 @@ function verificarBotonVerMas(tipo) {
     // Si estamos exactamente en la última posición y hay más elementos de los visibles
     if (index >= maxIndex && totalItems > visibleCards) {
         if (!verMasBtn) {
-            // Crear el botón "Ver más"
-            verMasBtn = document.createElement('button');
-            verMasBtn.className = 'carousel-ver-mas-btn';
-            verMasBtn.textContent = 'Ver más';
-            verMasBtn.onclick = function() {
-                if (tipo === 'todos') {
-                    mostrarTab('todos');
-                } else if (tipo === 'games') {
-                    mostrarTab('juegos');
-                } else if (tipo === 'giftcards-todos') {
-                    mostrarTab('gift-cards');
-                }
-            };
-            wrapper.appendChild(verMasBtn);
-        }
-        verMasBtn.classList.add('show');
-    } else {
-        if (verMasBtn) {
-            verMasBtn.classList.remove('show');
-        }
-    }
-}/ Crear botón "Ver más"
+            // Crear botón "Ver más"
             verMasBtn = document.createElement('button');
             verMasBtn.className = 'carousel-ver-mas-btn';
             verMasBtn.textContent = 'Ver más';
