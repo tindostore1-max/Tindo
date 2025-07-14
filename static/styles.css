@@ -1045,7 +1045,7 @@ header {
         gap: 15px; /* Mismo gap que product-grid */
         display: grid !important;
         justify-items: stretch; /* Estirar tarjetas para ocupar todo el espacio */
-        padding: 20px 0 25px 0; /* Padding superior e inferior para alejar del header y footer */
+        padding: 20px 20px 25px 20px; /* Padding horizontal de 20px para más margen */
         margin: 0; /* Sin margen lateral para ocupar todo el ancho */
         max-width: 100%; /* Limitación de ancho máximo al 100% del contenedor */
         width: 100%; /* Ocupar todo el ancho disponible */
