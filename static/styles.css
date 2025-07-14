@@ -1105,7 +1105,7 @@ header {
         flex-shrink: 0;
     }
 
-    /* Mantener carrusel deslizante en móvil */
+    /* Mantener carrusel deslizante en móvil - 2 en 2 para juegos */
     .games-carousel-track {
         display: flex !important;
         transition: transform 0.5s ease !important;
@@ -1176,7 +1176,7 @@ header {
         box-shadow: none !important;
     }
 
-    /* Mantener carrusel deslizante de todos en móvil */
+    /* Mantener carrusel deslizante de todos en móvil - 2 en 2 */
     .todos-carousel-track {
         display: flex !important;
         transition: transform 0.5s ease !important;
