@@ -2124,7 +2124,7 @@ header {
         justify-items: stretch !important; /* Estirar items para llenar espacio */
         align-items: stretch !important; /* Estirar items verticalmente */
         box-sizing: border-box !important;
-        row-gap: 12px !important; /* Mayor separación entre filas */
+        row-gap: 18px !important; /* Mayor separación entre filas */
         justify-content: center !important; /* Centrar toda la grilla */
     }
 
