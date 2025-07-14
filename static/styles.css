@@ -2115,12 +2115,12 @@ header {
     /* Optimización para vista de detalles - aprovechando todo el espacio */
     .details-info-container .package-list {
         display: grid !important;
-        grid-template-columns: 1fr 1fr 1fr !important; /* 3 columnas iguales */
-        gap: 4px !important; /* Gap más reducido para 3 columnas */
+        grid-template-columns: 1fr 1fr !important; /* 2 columnas iguales */
+        gap: 6px !important; /* Gap más reducido */
         width: 100% !important; /* Ocupar todo el ancho disponible */
         max-width: 100% !important; /* Sin limitación de ancho */
         margin: 0 auto !important; /* Centrar la grilla horizontalmente */
-        padding: 0 2px !important; /* Padding lateral aún más mínimo para 3 columnas */
+        padding: 0 3px !important; /* Padding lateral súper mínimo - 3px cada lado */
         justify-items: stretch !important; /* Estirar items para llenar espacio */
         align-items: stretch !important; /* Estirar items verticalmente */
         box-sizing: border-box !important;
@@ -2128,58 +2128,58 @@ header {
     }
 
     .details-info-container .package-item {
-        padding: 4px 2px !important; /* Padding más compacto para 3 columnas */
-        min-height: 160px !important; /* Altura ajustada para 3 columnas */
+        padding: 6px 4px !important; /* Padding más compacto */
+        min-height: 180px !important; /* Altura normal */
         width: 100% !important; /* Ocupar todo el ancho de la columna */
         max-width: none !important; /* Sin límite de ancho máximo */
         margin: 0 !important; /* Sin márgenes */
         box-sizing: border-box !important;
-        border-radius: 6px !important; /* Bordes más compactos para 3 columnas */
+        border-radius: 8px !important; /* Bordes más compactos */
         flex: 1 !important; /* Flex para distribución uniforme */
     }
 
     .details-info-container .package-image-container .package-name img {
         width: 100% !important; /* Expandir al ancho completo del contenedor */
-        height: 70px !important; /* Altura ajustada para 3 columnas */
+        height: 90px !important; /* Altura expandida */
         object-fit: contain !important;
         object-position: center !important;
         max-width: 100% !important;
-        min-height: 70px !important;
-        max-height: 70px !important;
-        border-radius: 4px !important;
+        min-height: 90px !important;
+        max-height: 90px !important;
+        border-radius: 6px !important;
         flex-shrink: 0 !important;
         margin: 0 auto !important;
     }
 
     .details-info-container .package-image-container {
-        min-height: 80px !important;
-        max-height: 80px !important;
+        min-height: 100px !important;
+        max-height: 100px !important;
         margin-bottom: 0px !important;
         flex: 1 !important;
         width: 100% !important;
-        padding: 0 2px !important;
+        padding: 0 4px !important;
         box-sizing: border-box !important;
     }
 
     .details-info-container .package-footer {
-        min-height: 35px !important;
-        max-height: 35px !important;
+        min-height: 40px !important;
+        max-height: 40px !important;
         flex-shrink: 0 !important;
     }
 
     .details-info-container .package-name {
-        font-size: 10px !important; /* Texto más compacto para 3 columnas */
-        margin-bottom: 2px !important;
-        line-height: 1.1 !important;
-        padding: 0 1px !important;
+        font-size: 12px !important; /* Texto compacto */
+        margin-bottom: 3px !important;
+        line-height: 1.2 !important;
+        padding: 0 2px !important;
     }
 
     .details-info-container .package-price {
-        font-size: 12px !important; /* Precio más compacto para 3 columnas */
-        padding: 4px 6px !important; /* Padding más reducido */
+        font-size: 14px !important; /* Precio compacto pero legible */
+        padding: 6px 8px !important; /* Padding reducido */
         width: 100% !important; /* Ocupar todo el ancho disponible */
         font-weight: 700 !important;
-        border-radius: 4px !important;
+        border-radius: 6px !important;
     }
 
     .selected-product-image {
