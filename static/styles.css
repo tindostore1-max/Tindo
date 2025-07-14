@@ -909,9 +909,9 @@ header {
 
     .product-card {
         padding: 8px;
-        height: 300px !important; /* Altura estandarizada para todas las tarjetas */
-        min-height: 300px !important;
-        max-height: 300px !important;
+        height: 240px !important; /* Altura unificada igual que carruseles */
+        min-height: 240px !important;
+        max-height: 240px !important;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -921,17 +921,16 @@ header {
 
     .product-image {
         width: 100% !important;
-        height: 160px !important; /* Altura para móvil */
-        aspect-ratio: 1.2 / 1 !important; /* Expandir horizontalmente */
+        height: 140px !important; /* Altura unificada igual que carruseles */
+        aspect-ratio: 1 / 1 !important; /* Aspecto cuadrado igual que carruseles */
         object-fit: cover !important;
         object-position: center !important;
         margin: 0 auto 6px auto;
         border-radius: 8px;
         flex-shrink: 0;
-        min-width: 192px !important; /* 160 * 1.2 */
-        max-width: 192px !important;
-        min-height: 160px !important;
-        max-height: 160px !important;
+        max-width: 100% !important;
+        min-height: 140px !important;
+        max-height: 140px !important;
         display: block;
     }
 
@@ -1054,13 +1053,13 @@ header {
     }
 
     .giftcards-grid .product-card {
-        height: 300px !important; /* Altura estandarizada igual que otras categorías */
-        min-height: 300px !important;
-        max-height: 300px !important;
+        height: 240px !important; /* Altura unificada igual que carruseles */
+        min-height: 240px !important;
+        max-height: 240px !important;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        padding: 10px; /* Padding reducido para evitar desbordamiento */
+        padding: 8px; /* Padding igual que otras tarjetas */
         width: 100%;
         max-width: none; /* Sin limitación de ancho máximo para ocupar espacio completo */
         margin: 0; /* Sin margen para ocupar todo el espacio */
@@ -1069,9 +1068,9 @@ header {
 
     /* Asegurar que todas las tarjetas en categorías específicas tengan el mismo tamaño */
     .product-grid .product-card {
-        height: 300px !important;
-        min-height: 300px !important;
-        max-height: 300px !important;
+        height: 240px !important; /* Altura unificada igual que carruseles */
+        min-height: 240px !important;
+        max-height: 240px !important;
         display: flex !important;
         flex-direction: column;
         justify-content: space-between;
@@ -1083,16 +1082,16 @@ header {
 
     .giftcards-grid .product-image {
         width: 100% !important;
-        height: 160px !important; /* Altura para móvil */
-        aspect-ratio: 1 / 1 !important; /* Aspecto cuadrado para evitar desbordamiento */
+        height: 140px !important; /* Altura unificada igual que carruseles */
+        aspect-ratio: 1 / 1 !important; /* Aspecto cuadrado igual que carruseles */
         object-fit: cover !important;
         object-position: center !important;
         margin: 0 auto 6px auto;
         border-radius: 8px;
         flex-shrink: 0;
         max-width: 100% !important; /* Ancho máximo del contenedor padre */
-        min-height: 160px !important;
-        max-height: 160px !important;
+        min-height: 140px !important;
+        max-height: 140px !important;
         display: block;
         box-sizing: border-box; /* Incluir padding en el cálculo de ancho */
     }
