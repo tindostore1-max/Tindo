@@ -972,11 +972,12 @@ header {
         gap: 12px !important; /* Espacio entre paquetes */
         width: 100% !important; /* Ocupar todo el ancho disponible */
         max-width: 100% !important; /* Sin limitación de ancho */
-        margin: 0 !important; /* Sin márgenes */
+        margin: 0 auto !important; /* Centrar la grilla horizontalmente */
         padding: 0 8px !important; /* Padding lateral para centrar mejor */
         justify-items: center !important; /* Centrar cada item en su columna */
         align-items: stretch !important; /* Estirar items verticalmente */
         box-sizing: border-box !important;
+        justify-content: center !important; /* Centrar toda la grilla */
     }
 
     .package-item {
@@ -2118,11 +2119,12 @@ header {
         gap: 8px !important; /* Gap reducido para aprovechar espacio */
         width: 100% !important; /* Ocupar todo el ancho disponible */
         max-width: 100% !important; /* Sin limitación de ancho */
-        margin: 0 !important; /* Sin márgenes */
+        margin: 0 auto !important; /* Centrar la grilla horizontalmente */
         padding: 0 5px !important; /* Padding mínimo */
-        justify-items: stretch !important; /* Estirar items para ocupar espacio */
+        justify-items: center !important; /* Centrar items en sus columnas */
         align-items: stretch !important; /* Estirar items verticalmente */
         box-sizing: border-box !important;
+        justify-content: center !important; /* Centrar toda la grilla */
     }
 
     .details-info-container .package-item {
@@ -2256,8 +2258,9 @@ header {
     margin-top: 20px;
     width: 100%;
     align-items: stretch;
-    justify-items: stretch; /* Forzar que cada item ocupe todo el espacio de su celda */
+    justify-items: center; /* Centrar cada item en su columna */
     grid-template-rows: auto; /* Altura automática pero uniforme */
+    justify-content: center; /* Centrar toda la grilla */
 }
 
 .package-item {
