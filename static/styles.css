@@ -899,7 +899,7 @@ header {
 
     .product-image {
         width: 100% !important;
-        height: 140px !important; /* Altura reducida pero manteniendo proporción cuadrada */
+        height: 180px !important; /* Altura aumentada manteniendo proporción cuadrada */
         aspect-ratio: 1 / 1 !important; /* Forzar aspecto cuadrado */
         object-fit: cover !important;
         margin-bottom: 6px;
@@ -1022,9 +1022,9 @@ header {
     }
 
     .giftcards-grid .product-card {
-        height: 240px !important; /* Altura uniforme reducida */
-        min-height: 240px !important;
-        max-height: 240px !important;
+        height: 300px !important; /* Altura aumentada */
+        min-height: 300px !important;
+        max-height: 300px !important;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -1035,9 +1035,9 @@ header {
 
     /* Asegurar que todas las tarjetas en categorías específicas tengan el mismo tamaño */
     .product-grid .product-card {
-        height: 240px !important;
-        min-height: 240px !important;
-        max-height: 240px !important;
+        height: 300px !important;
+        min-height: 300px !important;
+        max-height: 300px !important;
         display: flex !important;
         flex-direction: column;
         justify-content: space-between;
@@ -1049,7 +1049,7 @@ header {
 
     .giftcards-grid .product-image {
         width: 100% !important;
-        height: 140px !important; /* Altura reducida */
+        height: 180px !important; /* Altura aumentada */
         aspect-ratio: 1 / 1 !important; /* Forzar aspecto cuadrado */
         object-fit: cover !important;
         margin-bottom: 6px;
@@ -1343,9 +1343,9 @@ header {
     border: 1px solid #666;
     transition: transform 0.3s ease;
     cursor: pointer;
-    height: 300px;
-    min-height: 300px;
-    max-height: 300px;
+    height: 380px;
+    min-height: 380px;
+    max-height: 380px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -1358,7 +1358,7 @@ header {
 
 .product-image {
     width: 100%;
-    height: 180px;
+    height: 240px;
     aspect-ratio: 1 / 1;
     object-fit: cover;
     border-radius: 10px;
