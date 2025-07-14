@@ -980,7 +980,9 @@ header {
     }
 
     .package-item {
-        min-height: 180px !important; /* Altura mayor para aprovechar espacio */
+        height: 200px !important; /* Altura fija para móvil */
+        min-height: 200px !important; /* Altura mínima fija */
+        max-height: 200px !important; /* Altura máxima fija */
         padding: 12px 8px !important; /* Padding compacto pero funcional */
         width: 100% !important; /* Ocupar todo el ancho de la columna */
         max-width: 180px !important; /* Ancho máximo para mantener proporción */
@@ -2127,7 +2129,9 @@ header {
 
     .details-info-container .package-item {
         padding: 8px 4px !important; /* Padding reducido */
-        min-height: 180px !important; /* Altura normal */
+        height: 180px !important; /* Altura fija */
+        min-height: 180px !important; /* Altura mínima fija */
+        max-height: 180px !important; /* Altura máxima fija */
         width: 100% !important; /* Ocupar todo el ancho de la columna */
         max-width: 100% !important; /* Ancho máximo del 100% */
         margin: 0 !important; /* Sin márgenes */
@@ -2274,7 +2278,9 @@ header {
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    min-height: 180px;
+    height: 220px; /* Altura fija para mantener uniformidad */
+    min-height: 220px; /* Altura mínima fija */
+    max-height: 220px; /* Altura máxima fija */
     width: 100%;
     max-width: 100%;
     flex: 1 1 0; /* Flex grow, shrink, basis para distribución uniforme */
@@ -2344,8 +2350,8 @@ header {
     z-index: 2;
     width: 100%;
     height: 100%;
-    min-height: 180px;
-    max-height: 180px;
+    min-height: 200px; /* Altura fija para el contenido */
+    max-height: 200px; /* Altura fija para el contenido */
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -2359,10 +2365,11 @@ header {
     justify-content: center;
     align-items: center;
     margin-bottom: 0px;
-    min-height: 130px;
-    max-height: 130px;
+    height: 130px; /* Altura fija */
+    min-height: 130px; /* Altura mínima fija */
+    max-height: 130px; /* Altura máxima fija */
     position: relative;
-    flex: 1;
+    flex-shrink: 0; /* No permitir que se encoja */
     overflow: hidden;
     width: 100%;
     padding: 0 4px; /* Padding reducido para aprovechar más espacio */
@@ -2489,12 +2496,13 @@ header {
 .package-footer {
     margin-top: auto;
     padding-top: 8px;
-    min-height: 50px;
-    max-height: 50px;
+    height: 50px; /* Altura fija */
+    min-height: 50px; /* Altura mínima fija */
+    max-height: 50px; /* Altura máxima fija */
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
+    flex-shrink: 0; /* No permitir que se encoja */
 }
 
 .package-price {
