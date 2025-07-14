@@ -616,9 +616,9 @@ header {
 .games-carousel-card {
     flex: 0 0 220px;
     width: 220px;
-    height: 350px;
-    min-height: 350px;
-    max-height: 350px;
+    height: 290px;
+    min-height: 290px;
+    max-height: 290px;
     background: #4a4a4a;
     border-radius: 15px;
     padding: 15px;
@@ -638,7 +638,7 @@ header {
 
 .games-carousel-card .product-image {
     width: 100% !important;
-    height: 190px !important;
+    height: 160px !important;
     aspect-ratio: 1 / 1 !important;
     object-fit: cover !important;
     object-position: center !important;
@@ -648,10 +648,10 @@ header {
     border: 2px solid #333;
     box-sizing: border-box;
     flex-shrink: 0;
-    min-width: 190px !important;
-    max-width: 190px !important;
-    min-height: 190px !important;
-    max-height: 190px !important;
+    min-width: 160px !important;
+    max-width: 160px !important;
+    min-height: 160px !important;
+    max-height: 160px !important;
 }
 
 .games-carousel-card .product-name {
@@ -746,9 +746,9 @@ header {
 .todos-carousel-card {
     flex: 0 0 220px;
     width: 220px;
-    height: 300px;
-    min-height: 300px;
-    max-height: 300px;
+    height: 260px;
+    min-height: 260px;
+    max-height: 260px;
     background: #4a4a4a;
     border-radius: 15px;
     padding: 15px;
@@ -768,7 +768,7 @@ header {
 
 .todos-carousel-card .product-image {
     width: 100% !important;
-    height: 180px !important;
+    height: 130px !important;
     aspect-ratio: 1 / 1 !important;
     object-fit: cover !important;
     object-position: center !important;
@@ -778,10 +778,10 @@ header {
     border: 2px solid #333;
     box-sizing: border-box;
     flex-shrink: 0;
-    min-width: 180px !important;
-    max-width: 180px !important;
-    min-height: 180px !important;
-    max-height: 180px !important;
+    min-width: 130px !important;
+    max-width: 130px !important;
+    min-height: 130px !important;
+    max-height: 130px !important;
 }
 
 .todos-carousel-card .product-name {
@@ -1374,9 +1374,9 @@ header {
     border: 1px solid #666;
     transition: transform 0.3s ease;
     cursor: pointer;
-    height: 380px;
-    min-height: 380px;
-    max-height: 380px;
+    height: 320px;
+    min-height: 320px;
+    max-height: 320px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -1389,7 +1389,7 @@ header {
 
 .product-image {
     width: 100% !important;
-    height: 240px !important;
+    height: 180px !important;
     aspect-ratio: 1 / 1 !important;
     object-fit: cover !important;
     object-position: center !important;
@@ -1399,17 +1399,17 @@ header {
     border: 2px solid #333;
     box-sizing: border-box;
     flex-shrink: 0;
-    min-width: 240px !important;
-    max-width: 240px !important;
-    min-height: 240px !important;
-    max-height: 240px !important;
+    min-width: 180px !important;
+    max-width: 180px !important;
+    min-height: 180px !important;
+    max-height: 180px !important;
 }
 
 /* Versión desktop: mantener imágenes cuadradas perfectas */
 @media (min-width: 769px) {
     .product-image {
         width: 100% !important;
-        height: 240px !important;
+        height: 180px !important;
         aspect-ratio: 1 / 1 !important;
         object-fit: cover !important;
         object-position: center !important;
@@ -1417,10 +1417,10 @@ header {
         border: 2px solid #333;
         box-sizing: border-box;
         border-radius: 10px;
-        min-width: 240px !important;
-        max-width: 240px !important;
-        min-height: 240px !important;
-        max-height: 240px !important;
+        min-width: 180px !important;
+        max-width: 180px !important;
+        min-height: 180px !important;
+        max-height: 180px !important;
     }
 }
 
