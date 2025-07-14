@@ -2120,7 +2120,7 @@ header {
         width: 100% !important; /* Ocupar todo el ancho disponible */
         max-width: 100% !important; /* Sin limitación de ancho */
         margin: 0 auto !important; /* Centrar la grilla horizontalmente */
-        padding: 0 10px !important; /* Padding lateral - 10px cada lado */
+        padding: 0 15px !important; /* Padding lateral - 15px cada lado */
         justify-items: stretch !important; /* Estirar items para llenar espacio */
         align-items: stretch !important; /* Estirar items verticalmente */
         box-sizing: border-box !important;
