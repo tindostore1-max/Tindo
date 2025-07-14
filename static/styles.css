@@ -582,7 +582,7 @@ header {
     display: block;
     width: 100%;
     clear: both;
-    padding: 40px 0 0 0; /* Aumentar padding superior */
+    padding: 60px 0 0 0; /* Aumentar padding superior de 40px a 60px */
 }
 
     /* En móvil, optimizar carrusel para mejor visualización */
@@ -595,7 +595,7 @@ header {
             border-radius: 0 !important;
             box-shadow: none !important;
             margin: 0 !important;
-            padding: 10px 0 0 0 !important;
+            padding: 30px 0 0 0 !important; /* Aumentar padding superior en móvil de 10px a 30px */
             width: 100% !important;
             display: block !important;
             visibility: visible !important;
@@ -609,7 +609,7 @@ header {
             border-radius: 0 !important;
             box-shadow: none !important;
             margin: 0 !important;
-            padding: 10px 0 0 0 !important;
+            padding: 30px 0 0 0 !important; /* Aumentar padding superior en móvil de 10px a 30px */
             width: 100% !important;
             display: block !important;
             visibility: visible !important;
@@ -744,7 +744,7 @@ header {
     margin-top: 0;
     display: block;
     width: 100%;
-    padding: 20px 0 0 0; /* Sin padding inferior */
+    padding: 40px 0 0 0; /* Aumentar padding superior de 20px a 40px */
 }
 
 .todos-carousel-track {
