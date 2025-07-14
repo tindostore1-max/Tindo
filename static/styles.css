@@ -1034,10 +1034,12 @@ header {
 
     .giftcards-grid {
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 15px; /* Gap mayor para aprovechar el espacio expandido */
+        gap: 20px; /* Mayor espacio entre tarjetas */
         display: grid !important;
-        justify-items: stretch; /* Estirar las tarjetas para llenar el espacio */
-        padding: 0; /* Sin padding adicional */
+        justify-items: center; /* Centrar tarjetas en lugar de estirar */
+        padding: 0 25px; /* Padding lateral para alejar de los bordes */
+        margin: 0 auto; /* Centrar el grid */
+        max-width: 400px; /* Limitar ancho máximo para mejor separación */
     }
 
     .giftcards-grid .product-card {
@@ -1047,9 +1049,10 @@ header {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        padding: 8px;
+        padding: 12px;
         width: 100%;
-        max-width: none; /* Sin límite de ancho máximo */
+        max-width: 160px; /* Limitar ancho para mejor separación */
+        margin: 0 auto; /* Centrar cada tarjeta */
     }
 
     /* Asegurar que todas las tarjetas en categorías específicas tengan el mismo tamaño */
