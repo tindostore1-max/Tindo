@@ -639,7 +639,7 @@ header {
 .games-carousel-card .product-image {
     width: 100% !important;
     height: 160px !important;
-    aspect-ratio: 1 / 1 !important;
+    aspect-ratio: 1.2 / 1 !important; /* Expandir horizontalmente */
     object-fit: cover !important;
     object-position: center !important;
     border-radius: 10px;
@@ -648,8 +648,8 @@ header {
     border: 2px solid #333;
     box-sizing: border-box;
     flex-shrink: 0;
-    min-width: 160px !important;
-    max-width: 160px !important;
+    min-width: 192px !important; /* 160 * 1.2 */
+    max-width: 192px !important;
     min-height: 160px !important;
     max-height: 160px !important;
     display: block;
@@ -770,7 +770,7 @@ header {
 .todos-carousel-card .product-image {
     width: 100% !important;
     height: 130px !important;
-    aspect-ratio: 1 / 1 !important;
+    aspect-ratio: 1.2 / 1 !important; /* Expandir horizontalmente */
     object-fit: cover !important;
     object-position: center !important;
     border-radius: 10px;
@@ -779,8 +779,8 @@ header {
     border: 2px solid #333;
     box-sizing: border-box;
     flex-shrink: 0;
-    min-width: 130px !important;
-    max-width: 130px !important;
+    min-width: 156px !important; /* 130 * 1.2 */
+    max-width: 156px !important;
     min-height: 130px !important;
     max-height: 130px !important;
     display: block;
@@ -912,15 +912,15 @@ header {
 
     .product-image {
         width: 100% !important;
-        height: 160px !important; /* Altura cuadrada perfecta para móvil */
-        aspect-ratio: 1 / 1 !important; /* Forzar aspecto cuadrado */
+        height: 160px !important; /* Altura para móvil */
+        aspect-ratio: 1.2 / 1 !important; /* Expandir horizontalmente */
         object-fit: cover !important;
         object-position: center !important;
         margin: 0 auto 6px auto;
         border-radius: 8px;
         flex-shrink: 0;
-        min-width: 160px !important;
-        max-width: 160px !important;
+        min-width: 192px !important; /* 160 * 1.2 */
+        max-width: 192px !important;
         min-height: 160px !important;
         max-height: 160px !important;
         display: block;
@@ -1068,15 +1068,15 @@ header {
 
     .giftcards-grid .product-image {
         width: 100% !important;
-        height: 160px !important; /* Altura cuadrada perfecta igual que otras categorías */
-        aspect-ratio: 1 / 1 !important; /* Forzar aspecto cuadrado */
+        height: 160px !important; /* Altura para móvil */
+        aspect-ratio: 1.2 / 1 !important; /* Expandir horizontalmente */
         object-fit: cover !important;
         object-position: center !important;
         margin: 0 auto 6px auto;
         border-radius: 8px;
         flex-shrink: 0;
-        min-width: 160px !important;
-        max-width: 160px !important;
+        min-width: 192px !important; /* 160 * 1.2 */
+        max-width: 192px !important;
         min-height: 160px !important;
         max-height: 160px !important;
         display: block;
@@ -1143,15 +1143,15 @@ header {
 
     .games-carousel-card .product-image {
         width: 100% !important;
-        height: 160px !important; /* Altura cuadrada perfecta */
-        aspect-ratio: 1 / 1 !important; /* Forzar aspecto cuadrado */
+        height: 160px !important; /* Altura para móvil */
+        aspect-ratio: 1.2 / 1 !important; /* Expandir horizontalmente */
         object-fit: cover !important;
         object-position: center !important;
         margin: 0 auto 8px auto;
         border-radius: 8px;
         flex-shrink: 0;
-        min-width: 160px !important;
-        max-width: 160px !important;
+        min-width: 192px !important; /* 160 * 1.2 */
+        max-width: 192px !important;
         min-height: 160px !important;
         max-height: 160px !important;
         display: block;
@@ -1244,15 +1244,15 @@ header {
 
     .todos-carousel-card .product-image {
         width: 100% !important;
-        height: 160px !important; /* Altura cuadrada perfecta */
-        aspect-ratio: 1 / 1 !important; /* Forzar aspecto cuadrado */
+        height: 160px !important; /* Altura para móvil */
+        aspect-ratio: 1.2 / 1 !important; /* Expandir horizontalmente */
         object-fit: cover !important;
         object-position: center !important;
         margin: 0 auto 8px auto;
         border-radius: 8px;
         flex-shrink: 0;
-        min-width: 160px !important;
-        max-width: 160px !important;
+        min-width: 192px !important; /* 160 * 1.2 */
+        max-width: 192px !important;
         min-height: 160px !important;
         max-height: 160px !important;
         display: block;
@@ -1396,7 +1396,7 @@ header {
 .product-image {
     width: 100% !important;
     height: 180px !important;
-    aspect-ratio: 1 / 1 !important;
+    aspect-ratio: 1.2 / 1 !important; /* Expandir horizontalmente */
     object-fit: cover !important;
     object-position: center !important;
     border-radius: 10px;
@@ -1405,8 +1405,8 @@ header {
     border: 2px solid #333;
     box-sizing: border-box;
     flex-shrink: 0;
-    min-width: 180px !important;
-    max-width: 180px !important;
+    min-width: 216px !important; /* 180 * 1.2 */
+    max-width: 216px !important;
     min-height: 180px !important;
     max-height: 180px !important;
     display: block;
