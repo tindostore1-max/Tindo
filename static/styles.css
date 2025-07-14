@@ -1122,9 +1122,9 @@ header {
         max-width: calc(50% - 5px) !important;
         margin: 0 !important;
         padding: 8px;
-        height: 220px !important; /* Altura reducida */
-        min-height: 220px !important;
-        max-height: 220px !important;
+        height: 240px !important; /* Altura aumentada para acomodar imagen más grande */
+        min-height: 240px !important;
+        max-height: 240px !important;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -1150,7 +1150,7 @@ header {
 
     .games-carousel-card .product-image {
         width: 100% !important;
-        height: 120px !important; /* Altura reducida para móvil */
+        height: 140px !important; /* Altura aumentada para móvil */
         aspect-ratio: 1 / 1 !important; /* Aspecto cuadrado */
         object-fit: cover !important;
         object-position: center !important;
@@ -1158,8 +1158,8 @@ header {
         border-radius: 8px;
         flex-shrink: 0;
         max-width: 100% !important;
-        min-height: 120px !important;
-        max-height: 120px !important;
+        min-height: 140px !important;
+        max-height: 140px !important;
         display: block;
     }
 
@@ -1194,9 +1194,9 @@ header {
         max-width: calc(50% - 5px) !important;
         margin: 0 !important;
         padding: 8px;
-        height: 220px !important; /* Altura reducida */
-        min-height: 220px !important;
-        max-height: 220px !important;
+        height: 240px !important; /* Altura aumentada para acomodar imagen más grande */
+        min-height: 240px !important;
+        max-height: 240px !important;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -1221,9 +1221,9 @@ header {
         max-width: calc(50% - 5px) !important;
         margin: 0 !important;
         padding: 8px;
-        height: 220px !important; /* Altura reducida */
-        min-height: 220px !important;
-        max-height: 220px !important;
+        height: 240px !important; /* Altura aumentada para acomodar imagen más grande */
+        min-height: 240px !important;
+        max-height: 240px !important;
         display: flex !important;
         flex-direction: column;
         justify-content: space-between;
@@ -1252,7 +1252,7 @@ header {
 
     .todos-carousel-card .product-image {
         width: 100% !important;
-        height: 120px !important; /* Altura reducida para móvil */
+        height: 140px !important; /* Altura aumentada para móvil */
         aspect-ratio: 1 / 1 !important; /* Aspecto cuadrado */
         object-fit: cover !important;
         object-position: center !important;
@@ -1260,8 +1260,8 @@ header {
         border-radius: 8px;
         flex-shrink: 0;
         max-width: 100% !important;
-        min-height: 120px !important;
-        max-height: 120px !important;
+        min-height: 140px !important;
+        max-height: 140px !important;
         display: block;
     }
 
@@ -1289,7 +1289,7 @@ header {
 
     #giftcards-todos-carousel-track .todos-carousel-card .product-image {
         width: 100% !important;
-        height: 120px !important; /* Altura reducida */
+        height: 140px !important; /* Altura aumentada */
         aspect-ratio: 1 / 1 !important;
         object-fit: cover !important;
         margin-bottom: 6px;
@@ -1297,8 +1297,8 @@ header {
         flex-shrink: 0;
         display: block !important;
         max-width: 100% !important;
-        min-height: 120px !important;
-        max-height: 120px !important;
+        min-height: 140px !important;
+        max-height: 140px !important;
     }
 
     .todos-carousel-nav {
