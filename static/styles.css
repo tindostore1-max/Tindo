@@ -1022,25 +1022,24 @@ header {
         flex-shrink: 0;
     }
 
-    /* Cambiar carrusel a grid 2x2 en móvil */
+    /* Mantener carrusel deslizante en móvil */
     .games-carousel-track {
-        display: grid !important;
-        grid-template-columns: 1fr 1fr !important;
-        grid-template-rows: 1fr 1fr !important;
-        gap: 12px !important;
-        width: 100% !important;
-        transform: none !important;
-        transition: none !important;
+        display: flex !important;
+        transition: transform 0.5s ease !important;
+        gap: 15px !important;
         padding: 0 15px !important;
+        overflow-x: auto !important;
+        scroll-behavior: smooth !important;
+        -webkit-overflow-scrolling: touch !important;
     }
 
     .games-carousel-card {
-        flex: none !important;
-        width: 100% !important;
-        max-width: none !important;
+        flex: 0 0 220px !important;
+        width: 220px !important;
+        max-width: 220px !important;
         margin: 0 !important;
-        padding: 12px;
-        height: 280px !important; /* Altura aumentada para todas las tarjetas */
+        padding: 15px;
+        height: 280px !important;
         min-height: 280px !important;
         max-height: 280px !important;
         display: flex;
@@ -1076,7 +1075,7 @@ header {
     }
 
     .games-carousel-nav {
-        display: none !important; /* Ocultar navegación en móvil para grid */
+        display: flex !important; /* Mostrar navegación en móvil */
     }
 
     /* Estilos móviles para carrusel de Todos */
@@ -1089,25 +1088,24 @@ header {
         box-shadow: none !important;
     }
 
-    /* Cambiar carrusel de todos a grid 2x2 en móvil */
+    /* Mantener carrusel deslizante de todos en móvil */
     .todos-carousel-track {
-        display: grid !important;
-        grid-template-columns: 1fr 1fr !important;
-        grid-template-rows: 1fr 1fr !important;
-        gap: 12px !important;
-        width: 100% !important;
-        transform: none !important;
-        transition: none !important;
+        display: flex !important;
+        transition: transform 0.5s ease !important;
+        gap: 15px !important;
         padding: 0 15px !important;
+        overflow-x: auto !important;
+        scroll-behavior: smooth !important;
+        -webkit-overflow-scrolling: touch !important;
     }
 
     .todos-carousel-card {
-        flex: none !important;
-        width: 100% !important;
-        max-width: none !important;
+        flex: 0 0 220px !important;
+        width: 220px !important;
+        max-width: 220px !important;
         margin: 0 !important;
-        padding: 12px;
-        height: 300px !important; /* Altura aumentada y uniforme para todas las tarjetas */
+        padding: 15px;
+        height: 300px !important;
         min-height: 300px !important;
         max-height: 300px !important;
         display: flex;
@@ -1144,58 +1142,10 @@ header {
     }
 
     .todos-carousel-nav {
-        display: none !important; /* Ocultar navegación en móvil para grid */
+        display: flex !important; /* Mostrar navegación en móvil */
     }
 
-    /* Botón Ver más para carruseles en móvil - estilo grid */
-    .carousel-ver-mas-btn {
-        display: none;
-        width: 100%;
-        margin: 15px auto 0;
-        background: transparent;
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: 15px;
-        padding: 15px 20px;
-        font-size: 14px;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: none;
-        z-index: 20;
-        white-space: nowrap;
-        text-align: center;
-        position: relative;
-        transform: none;
-    }
-
-    .carousel-ver-mas-btn:hover {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: rgba(255, 255, 255, 0.5);
-        transform: translateY(-2px) scale(1.02);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    }
-
-    .carousel-ver-mas-btn.show {
-        display: block;
-    }
-
-    /* Ajustar posición del botón en diferentes tamaños de pantalla */
-    @media (max-width: 480px) {
-        .carousel-ver-mas-btn {
-            padding: 10px 16px;
-            font-size: 11px;
-            right: 8px;
-        }
-    }
-
-    @media (max-width: 360px) {
-        .carousel-ver-mas-btn {
-            padding: 8px 14px;
-            font-size: 10px;
-            right: 6px;
-        }
-    }
+    /* Eliminar botón Ver más - no es necesario en carrusel deslizante */
 
     /* Asegurar que el track permita scroll horizontal suave */
     .games-carousel-track, .todos-carousel-track {
