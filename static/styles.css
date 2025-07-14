@@ -1042,28 +1042,30 @@ header {
 
     .giftcards-grid {
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 10px; /* Gap reducido para evitar desbordamiento */
+        gap: 12px; /* Gap optimizado para 2 tarjetas */
         display: grid !important;
         justify-items: stretch; /* Estirar tarjetas para ocupar todo el espacio */
-        padding: 0 8px; /* Padding reducido para mantener dentro de pantalla */
+        padding: 0 10px; /* Padding optimizado para centrar mejor */
         margin: 0; /* Sin margen para ocupar todo el ancho */
         max-width: 100%; /* Limitación de ancho máximo al 100% del contenedor */
         width: 100%; /* Ocupar todo el ancho disponible */
         box-sizing: border-box; /* Incluir padding en el cálculo de ancho */
+        align-items: start; /* Alinear tarjetas al inicio */
     }
 
     .giftcards-grid .product-card {
-        height: 240px !important; /* Altura unificada igual que carruseles */
-        min-height: 240px !important;
-        max-height: 240px !important;
+        height: 260px !important; /* Altura ligeramente mayor para gift cards */
+        min-height: 260px !important;
+        max-height: 260px !important;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        padding: 8px; /* Padding igual que otras tarjetas */
+        padding: 10px; /* Padding ligeramente mayor para mejor espaciado */
         width: 100%;
         max-width: none; /* Sin limitación de ancho máximo para ocupar espacio completo */
         margin: 0; /* Sin margen para ocupar todo el espacio */
         box-sizing: border-box; /* Incluir padding en el cálculo de ancho */
+        border-radius: 12px; /* Bordes más redondeados */
     }
 
     /* Asegurar que todas las tarjetas en categorías específicas tengan el mismo tamaño */
@@ -1082,35 +1084,42 @@ header {
 
     .giftcards-grid .product-image {
         width: 100% !important;
-        height: 140px !important; /* Altura unificada igual que carruseles */
-        aspect-ratio: 1 / 1 !important; /* Aspecto cuadrado igual que carruseles */
+        height: 150px !important; /* Altura optimizada para gift cards */
+        aspect-ratio: 1 / 1 !important; /* Aspecto cuadrado */
         object-fit: cover !important;
         object-position: center !important;
-        margin: 0 auto 6px auto;
-        border-radius: 8px;
+        margin: 0 auto 8px auto;
+        border-radius: 10px; /* Bordes más redondeados */
         flex-shrink: 0;
         max-width: 100% !important; /* Ancho máximo del contenedor padre */
-        min-height: 140px !important;
-        max-height: 140px !important;
+        min-height: 150px !important;
+        max-height: 150px !important;
         display: block;
         box-sizing: border-box; /* Incluir padding en el cálculo de ancho */
+        border: 2px solid #444; /* Borde para definir mejor la imagen */
     }
 
     .giftcards-grid .product-name {
-        font-size: 10px; /* Tamaño igual que todas las tarjetas */
-        margin-bottom: 3px; /* Margen igual que todas las tarjetas */
-        line-height: 1.1; /* Altura de línea igual que todas las tarjetas */
+        font-size: 12px; /* Tamaño ligeramente mayor para gift cards */
+        margin-bottom: 4px; /* Margen optimizado */
+        line-height: 1.2; /* Altura de línea mejorada */
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
         flex-shrink: 0;
+        font-weight: 600; /* Peso de fuente más visible */
+        text-align: center; /* Centrar texto */
     }
 
     .giftcards-grid .price-desde {
-        font-size: 9px; /* Tamaño igual que todas las tarjetas */
-        margin-top: 3px; /* Margen igual que todas las tarjetas */
+        font-size: 11px; /* Tamaño ligeramente mayor para gift cards */
+        margin-top: 4px; /* Margen optimizado */
         font-weight: 700;
         flex-shrink: 0;
+        text-align: center; /* Centrar precio */
+        padding: 4px 8px; /* Padding para mejor presentación */
+        background: rgba(40, 167, 69, 0.1); /* Fondo sutil para el precio */
+        border-radius: 8px; /* Bordes redondeados */
     }
 
     /* Mantener carrusel deslizante en móvil - 2 en 2 para juegos */
