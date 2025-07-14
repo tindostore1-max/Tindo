@@ -969,12 +969,12 @@ header {
     .package-list {
         display: grid !important;
         grid-template-columns: 1fr 1fr !important; /* 2 columnas iguales */
-        gap: 12px !important; /* Espacio entre paquetes */
+        gap: 8px !important; /* Gap reducido */
         width: 100% !important; /* Ocupar todo el ancho disponible */
         max-width: 100% !important; /* Sin limitación de ancho */
         margin: 0 auto !important; /* Centrar la grilla horizontalmente */
-        padding: 0 15px !important; /* Padding lateral simétrico aumentado */
-        justify-items: center !important; /* Centrar cada item en su columna */
+        padding: 0 8px !important; /* Padding lateral reducido */
+        justify-items: stretch !important; /* Estirar items para llenar espacio */
         align-items: stretch !important; /* Estirar items verticalmente */
         box-sizing: border-box !important;
         justify-content: center !important; /* Centrar toda la grilla */
@@ -982,10 +982,10 @@ header {
 
     .package-item {
         min-height: 180px !important; /* Altura mayor para aprovechar espacio */
-        padding: 12px 8px !important; /* Padding compacto pero funcional */
+        padding: 8px 6px !important; /* Padding más compacto */
         width: 100% !important; /* Ocupar todo el ancho de la columna */
-        max-width: 180px !important; /* Ancho máximo para mantener proporción */
-        margin: 0 auto !important; /* Centrar cada paquete en su columna */
+        max-width: none !important; /* Sin límite de ancho - ocupar todo el espacio */
+        margin: 0 !important; /* Sin márgenes */
         box-sizing: border-box !important;
     }
 
@@ -2116,25 +2116,25 @@ header {
     .details-info-container .package-list {
         display: grid !important;
         grid-template-columns: 1fr 1fr !important; /* 2 columnas iguales */
-        gap: 8px !important; /* Gap reducido para aprovechar espacio */
+        gap: 6px !important; /* Gap más reducido */
         width: 100% !important; /* Ocupar todo el ancho disponible */
         max-width: 100% !important; /* Sin limitación de ancho */
         margin: 0 auto !important; /* Centrar la grilla horizontalmente */
-        padding: 0 12px !important; /* Padding simétrico aumentado */
-        justify-items: center !important; /* Centrar items en sus columnas */
+        padding: 0 6px !important; /* Padding lateral mínimo */
+        justify-items: stretch !important; /* Estirar items para llenar espacio */
         align-items: stretch !important; /* Estirar items verticalmente */
         box-sizing: border-box !important;
         justify-content: center !important; /* Centrar toda la grilla */
     }
 
     .details-info-container .package-item {
-        padding: 8px 4px !important; /* Padding reducido */
+        padding: 6px 4px !important; /* Padding más compacto */
         min-height: 180px !important; /* Altura normal */
         width: 100% !important; /* Ocupar todo el ancho de la columna */
-        max-width: 100% !important; /* Ancho máximo del 100% */
+        max-width: none !important; /* Sin límite de ancho máximo */
         margin: 0 !important; /* Sin márgenes */
         box-sizing: border-box !important;
-        border-radius: 10px !important; /* Bordes normales */
+        border-radius: 8px !important; /* Bordes más compactos */
         flex: 1 !important; /* Flex para distribución uniforme */
     }
 
