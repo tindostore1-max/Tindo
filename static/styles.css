@@ -2090,7 +2090,7 @@ header {
         flex-direction: column !important;
         gap: 15px !important;
         margin-bottom: 15px !important;
-        padding: 0 5px !important; /* Padding mínimo para aprovechar espacio */
+        padding: 0 2px !important; /* Padding súper mínimo */
     }
 
     .details-image-container {
@@ -2120,7 +2120,7 @@ header {
         width: 100% !important; /* Ocupar todo el ancho disponible */
         max-width: 100% !important; /* Sin limitación de ancho */
         margin: 0 auto !important; /* Centrar la grilla horizontalmente */
-        padding: 0 6px !important; /* Padding lateral mínimo */
+        padding: 0 3px !important; /* Padding lateral súper mínimo - 3px cada lado */
         justify-items: stretch !important; /* Estirar items para llenar espacio */
         align-items: stretch !important; /* Estirar items verticalmente */
         box-sizing: border-box !important;
