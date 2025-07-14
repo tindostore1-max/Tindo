@@ -973,7 +973,7 @@ header {
         width: 100% !important; /* Ocupar todo el ancho disponible */
         max-width: 100% !important; /* Sin limitación de ancho */
         margin: 0 auto !important; /* Centrar la grilla horizontalmente */
-        padding: 0 8px !important; /* Padding lateral para centrar mejor */
+        padding: 0 15px !important; /* Padding lateral simétrico aumentado */
         justify-items: center !important; /* Centrar cada item en su columna */
         align-items: stretch !important; /* Estirar items verticalmente */
         box-sizing: border-box !important;
@@ -2120,7 +2120,7 @@ header {
         width: 100% !important; /* Ocupar todo el ancho disponible */
         max-width: 100% !important; /* Sin limitación de ancho */
         margin: 0 auto !important; /* Centrar la grilla horizontalmente */
-        padding: 0 5px !important; /* Padding mínimo */
+        padding: 0 12px !important; /* Padding simétrico aumentado */
         justify-items: center !important; /* Centrar items en sus columnas */
         align-items: stretch !important; /* Estirar items verticalmente */
         box-sizing: border-box !important;
