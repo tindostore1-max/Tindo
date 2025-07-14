@@ -1367,12 +1367,12 @@ function mostrarProductos() {
             });
         }
 
-        // En móvil, mostrar solo las primeras 4 tarjetas de cada categoría
+        // Mostrar todas las tarjetas tanto en móvil como en desktop
         const esMobil = window.innerWidth <= 768;
-        const juegosParaMostrar = esMobil ? juegos.slice(0, 4) : juegos;
-        const giftCardsParaMostrar = esMobil ? giftCards.slice(0, 4) : giftCards;
+        const juegosParaMostrar = juegos; // Mostrar todos los juegos
+        const giftCardsParaMostrar = giftCards; // Mostrar todas las gift cards
 
-        // Regenerar HTML con las tarjetas limitadas
+        // Regenerar HTML con todas las tarjetas
         let cardsHtmlLimitado = '';
         juegosParaMostrar.forEach(juego => {
             // Corregir ruta de imagen
@@ -1485,7 +1485,7 @@ function mostrarProductos() {
         grid.innerHTML = `
             <div class="section-header">
                 <h3 class="section-title">Recarga de juegos</h3>
-                ${juegos.length > (esMobil ? 4 : 2) ? `<button class="section-more-btn" onclick="mostrarTodosLosJuegos()">Ver más</button>` : ''}
+                ${juegos.length > 2 ? `<button class="section-more-btn" onclick="mostrarTodosLosJuegos()">Ver más</button>` : ''}
             </div>
             <div class="todos-carousel-wrapper">
                 <div class="todos-carousel-track" id="todos-carousel-track">
@@ -1500,7 +1500,7 @@ function mostrarProductos() {
             ${giftCards.length > 0 ? `
             <div class="section-header" style="margin-top: 40px;">
                 <h3 class="section-title">Gift Cards</h3>
-                ${giftCards.length > (esMobil ? 4 : 2) ? `<button class="section-more-btn" onclick="mostrarTodasLasGiftCards()">Ver más</button>` : ''}
+                ${giftCards.length > 2 ? `<button class="section-more-btn" onclick="mostrarTodasLasGiftCards()">Ver más</button>` : ''}
             </div>
             <div class="todos-carousel-wrapper">
                 <div class="todos-carousel-track" id="giftcards-todos-carousel-track">
