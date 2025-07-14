@@ -585,25 +585,25 @@ header {
     /* En móvil, eliminar todos los bordes y fondos del carrusel */
     @media (max-width: 768px) {
         .games-carousel-container {
-            overflow: visible;
-            padding-right: 20px; /* Espacio para mostrar pedacito */
+            overflow: hidden;
+            padding-right: 0;
             background: transparent !important;
             border: none !important;
             border-radius: 0 !important;
             box-shadow: none !important;
             margin: 0 !important;
-            padding: 10px 20px 0 0 !important; /* Sin padding inferior */
+            padding: 10px 0 0 0 !important;
         }
 
         .todos-carousel-wrapper {
-            overflow: visible;
-            padding-right: 20px; /* Espacio para mostrar pedacito */
+            overflow: hidden;
+            padding-right: 0;
             background: transparent !important;
             border: none !important;
             border-radius: 0 !important;
             box-shadow: none !important;
             margin: 0 !important;
-            padding: 10px 20px 0 0 !important; /* Sin padding inferior */
+            padding: 10px 0 0 0 !important;
         }
     }
 
@@ -1110,8 +1110,8 @@ header {
         display: flex !important;
         transition: transform 0.5s ease !important;
         gap: 10px !important;
-        padding: 0 10px !important;
-        overflow-x: auto !important;
+        padding: 0 15px !important;
+        overflow-x: visible !important;
         scroll-behavior: smooth !important;
         -webkit-overflow-scrolling: touch !important;
     }
@@ -1182,8 +1182,8 @@ header {
         display: flex !important;
         transition: transform 0.5s ease !important;
         gap: 10px !important;
-        padding: 0 10px !important;
-        overflow-x: auto !important;
+        padding: 0 15px !important;
+        overflow-x: visible !important;
         scroll-behavior: smooth !important;
         -webkit-overflow-scrolling: touch !important;
     }
@@ -1209,8 +1209,8 @@ header {
         display: flex !important;
         transition: transform 0.5s ease !important;
         gap: 10px !important;
-        padding: 0 10px !important;
-        overflow-x: auto !important;
+        padding: 0 15px !important;
+        overflow-x: visible !important;
         scroll-behavior: smooth !important;
         -webkit-overflow-scrolling: touch !important;
     }
