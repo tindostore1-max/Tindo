@@ -27,6 +27,9 @@ html {
     margin: 0 auto;
     padding: 100px 1px 8px 1px; /* Padding lateral mínimo de 1px y inferior de 8px */
     overflow-x: hidden; /* Evitar scroll horizontal */
+    min-height: 100vh; /* Asegurar altura mínima */
+    display: block !important;
+    visibility: visible !important;
 }
 
 header {
@@ -582,7 +585,7 @@ header {
     padding: 40px 0 0 0; /* Aumentar padding superior */
 }
 
-    /* En móvil, eliminar todos los bordes y fondos del carrusel */
+    /* En móvil, optimizar carrusel para mejor visualización */
     @media (max-width: 768px) {
         .games-carousel-container {
             overflow: hidden;
@@ -593,6 +596,9 @@ header {
             box-shadow: none !important;
             margin: 0 !important;
             padding: 10px 0 0 0 !important;
+            width: 100% !important;
+            display: block !important;
+            visibility: visible !important;
         }
 
         .todos-carousel-wrapper {
@@ -604,6 +610,9 @@ header {
             box-shadow: none !important;
             margin: 0 !important;
             padding: 10px 0 0 0 !important;
+            width: 100% !important;
+            display: block !important;
+            visibility: visible !important;
         }
     }
 
@@ -5041,6 +5050,9 @@ header {
         border: none !important; /* Sin bordes */
         box-shadow: none !important; /* Sin sombra */
         overflow: hidden; /* Asegurar que no haya desbordamiento */
+        display: block !important;
+        visibility: visible !important;
+        width: 100% !important;
     }
 
     .carousel-slide {
@@ -5079,6 +5091,9 @@ header {
         margin-right: -50vw !important;
         overflow: hidden; /* Evitar cualquier desbordamiento */
         max-width: none !important; /* Eliminar cualquier limitación de ancho máximo */
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
     }
     
     .container {
