@@ -2090,7 +2090,7 @@ header {
         flex-direction: column !important;
         gap: 15px !important;
         margin-bottom: 15px !important;
-        padding: 0 2px !important; /* Padding súper mínimo */
+        padding: 0 !important; /* Sin padding - ocupar todo el espacio disponible */
     }
 
     .details-image-container {
@@ -2102,14 +2102,14 @@ header {
     .details-info-container h1 {
         font-size: 20px !important;
         margin-bottom: 8px !important;
-        padding: 0 8px !important;
+        padding: 0 4px !important; /* Padding simétrico mínimo */
     }
 
     .details-info-container p {
         font-size: 13px !important;
         margin-bottom: 15px !important;
         line-height: 1.4 !important;
-        padding: 0 8px !important;
+        padding: 0 4px !important; /* Padding simétrico mínimo */
     }
 
     /* Optimización para vista de detalles - aprovechando todo el espacio */
@@ -2119,8 +2119,8 @@ header {
         gap: 6px !important; /* Gap más reducido */
         width: 100% !important; /* Ocupar todo el ancho disponible */
         max-width: 100% !important; /* Sin limitación de ancho */
-        margin: 0 auto !important; /* Centrar la grilla horizontalmente */
-        padding: 0 8px !important; /* Padding lateral - 8px cada lado para estar más cerca del borde */
+        margin: 0 !important; /* Sin margen - ocupar todo el espacio */
+        padding: 0 4px !important; /* Padding lateral simétrico mínimo - 4px cada lado */
         justify-items: center !important; /* Centrar items dentro de sus celdas */
         align-items: stretch !important; /* Estirar items verticalmente */
         box-sizing: border-box !important;
