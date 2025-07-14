@@ -1034,12 +1034,13 @@ header {
 
     .giftcards-grid {
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 20px; /* Mayor espacio entre tarjetas */
+        gap: 15px; /* Espacio optimizado entre tarjetas */
         display: grid !important;
-        justify-items: center; /* Centrar tarjetas en lugar de estirar */
-        padding: 0 25px; /* Padding lateral para alejar de los bordes */
-        margin: 0 auto; /* Centrar el grid */
-        max-width: 400px; /* Limitar ancho máximo para mejor separación */
+        justify-items: stretch; /* Estirar tarjetas para ocupar todo el espacio */
+        padding: 0 10px; /* Padding mínimo para llegar al límite de pantalla */
+        margin: 0; /* Sin margen para ocupar todo el ancho */
+        max-width: none; /* Sin limitación de ancho máximo */
+        width: 100%; /* Ocupar todo el ancho disponible */
     }
 
     .giftcards-grid .product-card {
@@ -1051,8 +1052,8 @@ header {
         justify-content: space-between;
         padding: 12px;
         width: 100%;
-        max-width: 160px; /* Limitar ancho para mejor separación */
-        margin: 0 auto; /* Centrar cada tarjeta */
+        max-width: none; /* Sin limitación de ancho máximo para ocupar espacio completo */
+        margin: 0; /* Sin margen para ocupar todo el espacio */
     }
 
     /* Asegurar que todas las tarjetas en categorías específicas tengan el mismo tamaño */
