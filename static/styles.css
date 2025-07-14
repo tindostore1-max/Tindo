@@ -1042,10 +1042,10 @@ header {
 
     .giftcards-grid {
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 15px; /* Mismo gap que product-grid */
+        gap: 10px; /* Gap más pequeño para pantallas móviles */
         display: grid !important;
         justify-items: stretch; /* Estirar tarjetas para ocupar todo el espacio */
-        padding: 20px 20px 25px 20px; /* Padding horizontal de 20px para más margen */
+        padding: 15px 8px 20px 8px; /* Padding reducido para pantallas pequeñas */
         margin: 0; /* Sin margen lateral para ocupar todo el ancho */
         max-width: 100%; /* Limitación de ancho máximo al 100% del contenedor */
         width: 100%; /* Ocupar todo el ancho disponible */
@@ -1054,18 +1054,18 @@ header {
     }
 
     .giftcards-grid .product-card {
-        height: 240px !important; /* MISMA altura que todas las demás tarjetas */
-        min-height: 240px !important;
-        max-height: 240px !important;
+        height: 220px !important; /* Altura reducida para pantallas pequeñas */
+        min-height: 220px !important;
+        max-height: 220px !important;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        padding: 8px; /* MISMO padding que product-card general */
+        padding: 6px; /* Padding más pequeño para pantallas móviles */
         width: 100%;
         max-width: none; /* Sin limitación de ancho máximo para ocupar espacio completo */
         margin: 0; /* Sin margen para ocupar todo el espacio */
         box-sizing: border-box; /* Incluir padding en el cálculo de ancho */
-        border-radius: 15px; /* Mismo border-radius que product-card general */
+        border-radius: 12px; /* Border-radius más pequeño para móvil */
     }
 
     /* Asegurar que todas las tarjetas en categorías específicas tengan el mismo tamaño */
@@ -1084,24 +1084,24 @@ header {
 
     .giftcards-grid .product-image {
         width: 100% !important;
-        height: 140px !important; /* MISMA altura que product-image general */
+        height: 120px !important; /* Altura reducida para pantallas pequeñas */
         aspect-ratio: 1 / 1 !important; /* Aspecto cuadrado */
         object-fit: cover !important;
         object-position: center !important;
-        margin: 0 auto 6px auto; /* MISMO margen que product-image general */
-        border-radius: 8px; /* MISMO border-radius que product-image general */
+        margin: 0 auto 4px auto; /* Margen reducido para móvil */
+        border-radius: 6px; /* Border-radius más pequeño para móvil */
         flex-shrink: 0;
         max-width: 100% !important; /* Ancho máximo del contenedor padre */
-        min-height: 140px !important;
-        max-height: 140px !important;
+        min-height: 120px !important;
+        max-height: 120px !important;
         display: block;
         box-sizing: border-box; /* Incluir padding en el cálculo de ancho */
     }
 
     .giftcards-grid .product-name {
-        font-size: 10px; /* MISMO tamaño que product-name general */
-        margin-bottom: 3px; /* MISMO margen que product-name general */
-        line-height: 1.1; /* MISMA altura de línea que product-name general */
+        font-size: 9px; /* Tamaño más pequeño para pantallas móviles */
+        margin-bottom: 2px; /* Margen reducido para móvil */
+        line-height: 1.2; /* Altura de línea ajustada para legibilidad */
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -1109,8 +1109,8 @@ header {
     }
 
     .giftcards-grid .price-desde {
-        font-size: 9px; /* MISMO tamaño que price-desde general */
-        margin-top: 3px; /* MISMO margen que price-desde general */
+        font-size: 8px; /* Tamaño más pequeño para pantallas móviles */
+        margin-top: 2px; /* Margen reducido para móvil */
         font-weight: 700;
         flex-shrink: 0;
     }
@@ -4774,6 +4774,39 @@ header {
     .copyright-social-title {
         margin-right: 8px;
     }
+
+    /* Optimizaciones específicas para Gift Cards en pantallas pequeñas */
+    .giftcards-grid {
+        gap: 8px !important;
+        padding: 10px 6px 15px 6px !important;
+    }
+
+    .giftcards-grid .product-card {
+        height: 200px !important;
+        min-height: 200px !important;
+        max-height: 200px !important;
+        padding: 5px !important;
+        border-radius: 10px !important;
+    }
+
+    .giftcards-grid .product-image {
+        height: 100px !important;
+        min-height: 100px !important;
+        max-height: 100px !important;
+        margin-bottom: 3px !important;
+        border-radius: 5px !important;
+    }
+
+    .giftcards-grid .product-name {
+        font-size: 8px !important;
+        margin-bottom: 1px !important;
+        line-height: 1.1 !important;
+    }
+
+    .giftcards-grid .price-desde {
+        font-size: 7px !important;
+        margin-top: 1px !important;
+    }
 }
 .no-products {
     text-align: center;
@@ -5230,6 +5263,39 @@ header {
     .dot {
         height: 7px;
         width: 7px;
+    }
+
+    /* Optimizaciones extremas para Gift Cards en pantallas muy pequeñas */
+    .giftcards-grid {
+        gap: 6px !important;
+        padding: 8px 4px 12px 4px !important;
+    }
+
+    .giftcards-grid .product-card {
+        height: 180px !important;
+        min-height: 180px !important;
+        max-height: 180px !important;
+        padding: 4px !important;
+        border-radius: 8px !important;
+    }
+
+    .giftcards-grid .product-image {
+        height: 90px !important;
+        min-height: 90px !important;
+        max-height: 90px !important;
+        margin-bottom: 2px !important;
+        border-radius: 4px !important;
+    }
+
+    .giftcards-grid .product-name {
+        font-size: 7px !important;
+        margin-bottom: 1px !important;
+        line-height: 1.0 !important;
+    }
+
+    .giftcards-grid .price-desde {
+        font-size: 6px !important;
+        margin-top: 1px !important;
     }
 }
 
