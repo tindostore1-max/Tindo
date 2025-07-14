@@ -845,7 +845,7 @@ header {
 /* Responsive para móviles */
 @media (max-width: 768px) {
     .container {
-        padding: 80px 15px 8px 15px; /* Aumentar padding superior para mayor espacio */
+        padding: 80px 8px 8px 8px; /* Padding lateral reducido para Gift Cards */
         max-width: none; /* Sin limitación de ancho máximo */
     }
 
@@ -1034,13 +1034,14 @@ header {
 
     .giftcards-grid {
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 15px; /* Espacio optimizado entre tarjetas */
+        gap: 10px; /* Gap reducido para evitar desbordamiento */
         display: grid !important;
         justify-items: stretch; /* Estirar tarjetas para ocupar todo el espacio */
-        padding: 0 10px; /* Padding mínimo para llegar al límite de pantalla */
+        padding: 0 8px; /* Padding reducido para mantener dentro de pantalla */
         margin: 0; /* Sin margen para ocupar todo el ancho */
-        max-width: none; /* Sin limitación de ancho máximo */
+        max-width: 100%; /* Limitación de ancho máximo al 100% del contenedor */
         width: 100%; /* Ocupar todo el ancho disponible */
+        box-sizing: border-box; /* Incluir padding en el cálculo de ancho */
     }
 
     .giftcards-grid .product-card {
@@ -1050,10 +1051,11 @@ header {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        padding: 12px;
+        padding: 10px; /* Padding reducido para evitar desbordamiento */
         width: 100%;
         max-width: none; /* Sin limitación de ancho máximo para ocupar espacio completo */
         margin: 0; /* Sin margen para ocupar todo el espacio */
+        box-sizing: border-box; /* Incluir padding en el cálculo de ancho */
     }
 
     /* Asegurar que todas las tarjetas en categorías específicas tengan el mismo tamaño */
@@ -1073,17 +1075,17 @@ header {
     .giftcards-grid .product-image {
         width: 100% !important;
         height: 160px !important; /* Altura para móvil */
-        aspect-ratio: 1.2 / 1 !important; /* Expandir horizontalmente */
+        aspect-ratio: 1 / 1 !important; /* Aspecto cuadrado para evitar desbordamiento */
         object-fit: cover !important;
         object-position: center !important;
         margin: 0 auto 6px auto;
         border-radius: 8px;
         flex-shrink: 0;
-        min-width: 192px !important; /* 160 * 1.2 */
-        max-width: 192px !important;
+        max-width: 100% !important; /* Ancho máximo del contenedor padre */
         min-height: 160px !important;
         max-height: 160px !important;
         display: block;
+        box-sizing: border-box; /* Incluir padding en el cálculo de ancho */
     }
 
     .giftcards-grid .product-name {
