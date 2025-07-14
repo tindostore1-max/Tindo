@@ -1114,6 +1114,34 @@ header {
         box-sizing: border-box;
     }
 
+    /* Estilos específicos para carrusel de gift cards en móvil */
+    #giftcards-todos-carousel-track {
+        display: flex !important;
+        transition: transform 0.5s ease !important;
+        gap: 15px !important;
+        padding: 0 15px !important;
+        overflow-x: auto !important;
+        scroll-behavior: smooth !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    #giftcards-todos-carousel-track .todos-carousel-card {
+        flex: 0 0 220px !important;
+        width: 220px !important;
+        max-width: 220px !important;
+        margin: 0 !important;
+        padding: 15px;
+        height: 300px !important;
+        min-height: 300px !important;
+        max-height: 300px !important;
+        display: flex !important;
+        flex-direction: column;
+        justify-content: space-between;
+        box-sizing: border-box;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
     .todos-carousel-card .product-name {
         font-size: 11px;
         margin-bottom: 1px;
@@ -1139,6 +1167,39 @@ header {
         margin-bottom: 8px;
         border-radius: 8px;
         flex-shrink: 0;
+    }
+
+    /* Asegurar visibilidad específica para gift cards */
+    #giftcards-todos-carousel-track .todos-carousel-card .product-name {
+        font-size: 11px;
+        margin-bottom: 1px;
+        line-height: 1.2;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex-shrink: 0;
+        color: #ffffff !important;
+        display: block !important;
+    }
+
+    #giftcards-todos-carousel-track .todos-carousel-card .price-desde {
+        font-size: 10px;
+        margin-top: 4px;
+        font-weight: 700;
+        flex-shrink: 0;
+        color: #28a745 !important;
+        display: block !important;
+    }
+
+    #giftcards-todos-carousel-track .todos-carousel-card .product-image {
+        width: 100% !important;
+        height: 200px !important;
+        aspect-ratio: 1 / 1 !important;
+        object-fit: cover !important;
+        margin-bottom: 8px;
+        border-radius: 8px;
+        flex-shrink: 0;
+        display: block !important;
     }
 
     .todos-carousel-nav {
