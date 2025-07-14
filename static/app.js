@@ -1485,7 +1485,7 @@ function mostrarProductos() {
         grid.innerHTML = `
             <div class="section-header">
                 <h3 class="section-title">Recarga de juegos</h3>
-                ${!esMobil ? `<button class="section-more-btn" onclick="mostrarTodosLosJuegos()">Ver más</button>` : ''}
+                ${juegos.length > (esMobil ? 4 : 2) ? `<button class="section-more-btn" onclick="mostrarTodosLosJuegos()">Ver más</button>` : ''}
             </div>
             <div class="todos-carousel-wrapper">
                 <div class="todos-carousel-track" id="todos-carousel-track">
@@ -1495,15 +1495,12 @@ function mostrarProductos() {
                     <button class="todos-carousel-nav prev" onclick="moverCarruselTodos(-1)">‹</button>
                     <button class="todos-carousel-nav next" onclick="moverCarruselTodos(1)">›</button>
                 ` : ''}
-                ${esMobil && juegos.length > 4 ? `
-                    <button class="carousel-ver-mas-btn show" onclick="mostrarTodosLosJuegos()">Ver más juegos</button>
-                ` : ''}
             </div>
 
             ${giftCards.length > 0 ? `
             <div class="section-header" style="margin-top: 40px;">
                 <h3 class="section-title">Gift Cards</h3>
-                ${!esMobil ? `<button class="section-more-btn" onclick="mostrarTodasLasGiftCards()">Ver más</button>` : ''}
+                ${giftCards.length > (esMobil ? 4 : 2) ? `<button class="section-more-btn" onclick="mostrarTodasLasGiftCards()">Ver más</button>` : ''}
             </div>
             <div class="todos-carousel-wrapper">
                 <div class="todos-carousel-track" id="giftcards-todos-carousel-track">
@@ -1512,9 +1509,6 @@ function mostrarProductos() {
                 ${!esMobil && giftCards.length > 2 ? `
                     <button class="todos-carousel-nav prev" onclick="moverCarruselGiftCardsTodos(-1)">‹</button>
                     <button class="todos-carousel-nav next" onclick="moverCarruselGiftCardsTodos(1)">›</button>
-                ` : ''}
-                ${esMobil && giftCards.length > 4 ? `
-                    <button class="carousel-ver-mas-btn show" onclick="mostrarTodasLasGiftCards()">Ver más gift cards</button>
                 ` : ''}
             </div>
             ` : ''}
@@ -3405,54 +3399,11 @@ function moverCarruselGiftCardsTodos(direccion) {
     verificarBotonVerMas('giftcards-todos');
 }
 
-// Función para verificar y mostrar el botón "Ver más" en móviles
+// Función para verificar y mostrar el botón "Ver más" (ya no necesaria, botón siempre en header)
 function verificarBotonVerMas(tipo) {
-    // Funciona tanto en móvil como en desktop
-    let wrapper, index, totalItems;
-    
-    if (tipo === 'todos') {
-        wrapper = document.querySelector('.todos-carousel-wrapper');
-        index = window.todosCarouselIndex || 0;
-        totalItems = window.todosCarouselItems ? window.todosCarouselItems.length : 0;
-    } else if (tipo === 'giftcards-todos') {
-        wrapper = document.querySelector('#giftcards-todos-carousel-track').parentElement;
-        index = window.giftCardsTodosCarouselIndex || 0;
-        totalItems = productos.filter(producto => producto.categoria === 'gift-cards').length;
-    }
-
-    if (!wrapper) return;
-
-    const cardWidth = 220 + 15;
-    const containerWidth = wrapper.offsetWidth;
-    const visibleCards = Math.floor(containerWidth / cardWidth);
-    const maxIndex = totalItems - visibleCards;
-
-    // Verificar si ya existe el botón
-    let verMasBtn = wrapper.querySelector('.carousel-ver-mas-btn');
-    
-    // Si estamos exactamente en la última posición y hay más elementos de los visibles
-    if (index >= maxIndex && totalItems > visibleCards) {
-        if (!verMasBtn) {
-            // Crear botón "Ver más"
-            verMasBtn = document.createElement('button');
-            verMasBtn.className = 'carousel-ver-mas-btn';
-            verMasBtn.textContent = 'Ver más';
-            verMasBtn.addEventListener('click', () => {
-                if (tipo === 'todos') {
-                    mostrarTodosLosJuegos();
-                } else if (tipo === 'giftcards-todos') {
-                    mostrarTodasLasGiftCards();
-                }
-            });
-            wrapper.appendChild(verMasBtn);
-        }
-        verMasBtn.classList.add('show');
-    } else {
-        // Ocultar botón si no estamos en la última posición
-        if (verMasBtn) {
-            verMasBtn.classList.remove('show');
-        }
-    }
+    // Esta función ya no es necesaria porque el botón "Ver más" 
+    // ahora siempre está en la esquina superior del section-header
+    return;
 }
 
 function mostrarTodosLosJuegos() {
