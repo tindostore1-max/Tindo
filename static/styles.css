@@ -1097,9 +1097,9 @@ header {
     }
 
     .giftcards-grid .product-name {
-        font-size: 11px;
-        margin-bottom: 1px;
-        line-height: 1.2;
+        font-size: 10px; /* Tamaño igual que todas las tarjetas */
+        margin-bottom: 3px; /* Margen igual que todas las tarjetas */
+        line-height: 1.1; /* Altura de línea igual que todas las tarjetas */
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -1107,8 +1107,8 @@ header {
     }
 
     .giftcards-grid .price-desde {
-        font-size: 10px;
-        margin-top: 4px;
+        font-size: 9px; /* Tamaño igual que todas las tarjetas */
+        margin-top: 3px; /* Margen igual que todas las tarjetas */
         font-weight: 700;
         flex-shrink: 0;
     }
@@ -1130,7 +1130,7 @@ header {
         max-width: calc(50% - 5px) !important;
         margin: 0 !important;
         padding: 8px;
-        height: 240px !important; /* Altura aumentada para acomodar imagen más grande */
+        height: 240px !important; /* Altura igual que todas las tarjetas */
         min-height: 240px !important;
         max-height: 240px !important;
         display: flex;
@@ -1140,9 +1140,9 @@ header {
     }
 
     .games-carousel-card .product-name {
-        font-size: 11px;
-        margin-bottom: 4px;
-        line-height: 1.2;
+        font-size: 10px; /* Tamaño igual que todas las tarjetas */
+        margin-bottom: 3px; /* Margen igual que todas las tarjetas */
+        line-height: 1.1; /* Altura de línea igual que todas las tarjetas */
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -1150,16 +1150,16 @@ header {
     }
 
     .games-carousel-card .price-desde {
-        font-size: 10px;
-        margin-top: 4px;
+        font-size: 9px; /* Tamaño igual que todas las tarjetas */
+        margin-top: 3px; /* Margen igual que todas las tarjetas */
         font-weight: 700;
         flex-shrink: 0;
     }
 
     .games-carousel-card .product-image {
         width: 100% !important;
-        height: 140px !important; /* Altura aumentada para móvil */
-        aspect-ratio: 1 / 1 !important; /* Aspecto cuadrado */
+        height: 140px !important; /* Altura igual que todas las tarjetas */
+        aspect-ratio: 1 / 1 !important; /* Aspecto cuadrado igual que todas */
         object-fit: cover !important;
         object-position: center !important;
         margin: 0 auto 6px auto;
@@ -1202,7 +1202,7 @@ header {
         max-width: calc(50% - 5px) !important;
         margin: 0 !important;
         padding: 8px;
-        height: 240px !important; /* Altura aumentada para acomodar imagen más grande */
+        height: 240px !important; /* Altura igual que todas las tarjetas */
         min-height: 240px !important;
         max-height: 240px !important;
         display: flex;
@@ -1242,9 +1242,9 @@ header {
     }
 
     .todos-carousel-card .product-name {
-        font-size: 11px;
-        margin-bottom: 4px;
-        line-height: 1.2;
+        font-size: 10px; /* Tamaño igual que todas las tarjetas */
+        margin-bottom: 3px; /* Margen igual que todas las tarjetas */
+        line-height: 1.1; /* Altura de línea igual que todas las tarjetas */
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -1252,16 +1252,16 @@ header {
     }
 
     .todos-carousel-card .price-desde {
-        font-size: 10px;
-        margin-top: 4px;
+        font-size: 9px; /* Tamaño igual que todas las tarjetas */
+        margin-top: 3px; /* Margen igual que todas las tarjetas */
         font-weight: 700;
         flex-shrink: 0;
     }
 
     .todos-carousel-card .product-image {
         width: 100% !important;
-        height: 140px !important; /* Altura aumentada para móvil */
-        aspect-ratio: 1 / 1 !important; /* Aspecto cuadrado */
+        height: 140px !important; /* Altura igual que todas las tarjetas */
+        aspect-ratio: 1 / 1 !important; /* Aspecto cuadrado igual que todas */
         object-fit: cover !important;
         object-position: center !important;
         margin: 0 auto 6px auto;
@@ -1275,9 +1275,9 @@ header {
 
     /* Asegurar visibilidad específica para gift cards */
     #giftcards-todos-carousel-track .todos-carousel-card .product-name {
-        font-size: 11px;
-        margin-bottom: 1px;
-        line-height: 1.2;
+        font-size: 10px; /* Tamaño igual que todas las tarjetas */
+        margin-bottom: 3px; /* Margen igual que todas las tarjetas */
+        line-height: 1.1; /* Altura de línea igual que todas las tarjetas */
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -1287,8 +1287,8 @@ header {
     }
 
     #giftcards-todos-carousel-track .todos-carousel-card .price-desde {
-        font-size: 10px;
-        margin-top: 4px;
+        font-size: 9px; /* Tamaño igual que todas las tarjetas */
+        margin-top: 3px; /* Margen igual que todas las tarjetas */
         font-weight: 700;
         flex-shrink: 0;
         color: #28a745 !important;
@@ -1297,7 +1297,7 @@ header {
 
     #giftcards-todos-carousel-track .todos-carousel-card .product-image {
         width: 100% !important;
-        height: 140px !important; /* Altura aumentada */
+        height: 140px !important; /* Altura igual que todas las tarjetas */
         aspect-ratio: 1 / 1 !important;
         object-fit: cover !important;
         margin-bottom: 6px;
