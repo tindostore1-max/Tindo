@@ -2138,22 +2138,22 @@ header {
 
     .details-info-container .package-image-container .package-name img {
         width: 100% !important; /* Expandir al ancho completo del contenedor */
-        height: 70px !important; /* Altura fija uniforme */
+        height: 90px !important; /* Altura expandida */
         object-fit: contain !important;
         object-position: center !important;
         max-width: 100% !important;
-        min-height: 70px !important;
-        max-height: 70px !important;
+        min-height: 90px !important;
+        max-height: 90px !important;
         border-radius: 6px !important;
         flex-shrink: 0 !important;
         margin: 0 auto !important;
     }
 
     .details-info-container .package-image-container {
-        min-height: 80px !important;
-        max-height: 80px !important;
-        margin-bottom: 6px !important;
-        flex-shrink: 0 !important;
+        min-height: 100px !important;
+        max-height: 100px !important;
+        margin-bottom: 0px !important;
+        flex: 1 !important;
         width: 100% !important;
         padding: 0 4px !important;
         box-sizing: border-box !important;
@@ -2357,11 +2357,11 @@ header {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 8px;
-    min-height: 100px;
-    max-height: 100px;
+    margin-bottom: 0px;
+    min-height: 130px;
+    max-height: 130px;
     position: relative;
-    flex-shrink: 0;
+    flex: 1;
     overflow: hidden;
     width: 100%;
     padding: 0 8px;
@@ -2383,12 +2383,12 @@ header {
     margin: 0 auto;
     display: block;
     width: 100% !important;
-    height: 80px !important;
+    height: 110px !important;
     object-fit: contain !important;
     object-position: center !important;
     max-width: 100% !important;
-    min-height: 80px !important;
-    max-height: 80px !important;
+    min-height: 110px !important;
+    max-height: 110px !important;
     flex-shrink: 0;
 }
 
