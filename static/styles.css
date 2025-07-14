@@ -833,7 +833,7 @@ header {
 /* Responsive para móviles */
 @media (max-width: 768px) {
     .container {
-        padding: 40px 15px 8px 15px; /* Expandir contenedor con padding lateral */
+        padding: 80px 15px 8px 15px; /* Aumentar padding superior para mayor espacio */
         max-width: none; /* Sin limitación de ancho máximo */
     }
 
