@@ -854,7 +854,7 @@ header {
 /* Responsive para móviles */
 @media (max-width: 768px) {
     .container {
-        padding: 80px 8px 8px 8px; /* Padding lateral reducido para Gift Cards */
+        padding: 80px 5px 8px 5px; /* Padding lateral mínimo para aprovechar espacio */
         max-width: none; /* Sin limitación de ancho máximo */
     }
 
@@ -2089,91 +2089,109 @@ header {
         flex-direction: column !important;
         gap: 15px !important;
         margin-bottom: 15px !important;
+        padding: 0 5px !important; /* Padding mínimo para aprovechar espacio */
     }
 
     .details-image-container {
         flex: none !important;
         width: 100% !important;
+        padding: 0 !important; /* Sin padding extra */
     }
 
     .details-info-container h1 {
-        font-size: 22px !important;
+        font-size: 20px !important;
         margin-bottom: 8px !important;
+        padding: 0 8px !important;
     }
 
     .details-info-container p {
-        font-size: 14px !important;
+        font-size: 13px !important;
         margin-bottom: 15px !important;
         line-height: 1.4 !important;
+        padding: 0 8px !important;
     }
 
-    /* Optimización para vista de detalles - 2 columnas centradas */
+    /* Optimización para vista de detalles - aprovechando todo el espacio */
     .details-info-container .package-list {
         display: grid !important;
         grid-template-columns: 1fr 1fr !important; /* 2 columnas iguales */
-        gap: 12px !important; /* Espacio entre paquetes */
+        gap: 8px !important; /* Gap reducido para aprovechar espacio */
         width: 100% !important; /* Ocupar todo el ancho disponible */
         max-width: 100% !important; /* Sin limitación de ancho */
         margin: 0 !important; /* Sin márgenes */
-        padding: 0 8px !important; /* Padding lateral para centrar mejor */
-        justify-items: center !important; /* Centrar cada item en su columna */
+        padding: 0 5px !important; /* Padding mínimo */
+        justify-items: stretch !important; /* Estirar items para ocupar espacio */
         align-items: stretch !important; /* Estirar items verticalmente */
         box-sizing: border-box !important;
     }
 
     .details-info-container .package-item {
-        padding: 12px 8px !important; /* Padding compacto */
-        min-height: 140px !important; /* Altura mayor para aprovechar espacio */
+        padding: 8px 4px !important; /* Padding reducido */
+        min-height: 180px !important; /* Altura aumentada para aprovechar espacio */
         width: 100% !important; /* Ocupar todo el ancho de la columna */
-        max-width: 180px !important; /* Ancho máximo para mantener proporción */
-        margin: 0 auto !important; /* Centrar cada paquete en su columna */
+        max-width: none !important; /* Sin limitación de ancho máximo */
+        margin: 0 !important; /* Sin márgenes */
         box-sizing: border-box !important;
+        border-radius: 10px !important; /* Bordes más compactos */
     }
 
     .details-info-container .package-image-container .package-name img {
-        width: 120px !important; /* Ancho cuadrado perfecto */
-        height: 120px !important; /* Altura cuadrada perfecta */
+        width: 100% !important; /* Ocupar todo el ancho disponible */
+        height: 100px !important; /* Altura optimizada */
         object-fit: cover !important;
         object-position: center !important;
         aspect-ratio: 1 / 1 !important;
-        min-width: 120px !important;
-        max-width: 120px !important;
-        min-height: 120px !important;
-        max-height: 120px !important;
+        min-width: 100px !important;
+        max-width: 100% !important;
+        min-height: 100px !important;
+        max-height: 100px !important;
+        border-radius: 6px !important;
     }
 
     .details-info-container .package-name {
-        font-size: 14px !important; /* Nombre legible */
-        margin-bottom: 4px !important;
+        font-size: 12px !important; /* Texto más compacto */
+        margin-bottom: 3px !important;
+        line-height: 1.2 !important;
+        padding: 0 2px !important;
     }
 
     .details-info-container .package-price {
-        font-size: 16px !important; /* Precio proporcional */
-        padding: 8px 12px !important; /* Padding ajustado */
+        font-size: 14px !important; /* Precio compacto pero legible */
+        padding: 6px 8px !important; /* Padding reducido */
         width: 100% !important; /* Ocupar todo el ancho disponible */
+        font-weight: 700 !important;
+        border-radius: 6px !important;
     }
 
     .selected-product-image {
         aspect-ratio: 1 / 1 !important;
         margin-bottom: 10px !important;
+        width: 100% !important;
+        max-width: 100% !important;
     }
 
     /* Hacer los botones más compactos en móvil */
     .details-info-container button {
-        padding: 12px 16px !important;
-        font-size: 14px !important;
+        padding: 10px 14px !important;
+        font-size: 13px !important;
+        margin: 5px 0 !important;
+        width: 100% !important;
+        border-radius: 8px !important;
     }
 
     /* Campo de ID más compacto */
     .details-image-container input {
-        padding: 10px 12px !important;
-        font-size: 14px !important;
-        border-radius: 8px !important;
+        padding: 8px 10px !important;
+        font-size: 13px !important;
+        border-radius: 6px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
     }
 
     .details-image-container label {
-        font-size: 13px !important;
-        margin-bottom: 5px !important;
+        font-size: 12px !important;
+        margin-bottom: 4px !important;
+        padding: 0 2px !important;
     }
 }
 
