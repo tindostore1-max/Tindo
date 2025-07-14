@@ -1630,6 +1630,14 @@ function mostrarDetalleProductoDesdeURL(producto) {
     // Mostrar la pestaña de detalles
     mostrarTab('detalles');
 
+    // Auto-seleccionar el primer paquete disponible
+    setTimeout(() => {
+        const primerPaquete = document.querySelector('.package-selectable');
+        if (primerPaquete) {
+            primerPaquete.click();
+        }
+    }, 100);
+
     // Cargar valoraciones después de mostrar el producto
     cargarValoracionesProducto(producto.id);
 }
@@ -1864,6 +1872,14 @@ function verDetalleProducto(productoId) {
     const html = generarHTMLDetalleProducto(producto);
     document.getElementById('producto-detalle').innerHTML = html;
     mostrarTab('detalles');
+
+    // Auto-seleccionar el primer paquete disponible
+    setTimeout(() => {
+        const primerPaquete = document.querySelector('.package-selectable');
+        if (primerPaquete) {
+            primerPaquete.click();
+        }
+    }, 100);
 
     // Cargar valoraciones después de mostrar el producto
     cargarValoracionesProducto(producto.id);
