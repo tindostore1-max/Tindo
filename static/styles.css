@@ -1121,18 +1121,19 @@ header {
         width: calc(50% - 5px) !important;
         max-width: calc(50% - 5px) !important;
         margin: 0 !important;
-        padding: 12px;
-        height: 300px !important; /* Altura estandarizada */
-        min-height: 300px !important;
-        max-height: 300px !important;
+        padding: 8px;
+        height: 220px !important; /* Altura reducida */
+        min-height: 220px !important;
+        max-height: 220px !important;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        overflow: hidden; /* Evitar desbordamiento */
     }
 
     .games-carousel-card .product-name {
         font-size: 11px;
-        margin-bottom: 1px;
+        margin-bottom: 4px;
         line-height: 1.2;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -1149,16 +1150,16 @@ header {
 
     .games-carousel-card .product-image {
         width: 100% !important;
-        height: 140px !important; /* Altura para móvil 2x2 */
-        aspect-ratio: 1.2 / 1 !important; /* Expandir horizontalmente */
+        height: 120px !important; /* Altura reducida para móvil */
+        aspect-ratio: 1 / 1 !important; /* Aspecto cuadrado */
         object-fit: cover !important;
         object-position: center !important;
         margin: 0 auto 6px auto;
         border-radius: 8px;
         flex-shrink: 0;
-        max-width: 100% !important; /* Adaptar al contenedor */
-        min-height: 140px !important;
-        max-height: 140px !important;
+        max-width: 100% !important;
+        min-height: 120px !important;
+        max-height: 120px !important;
         display: block;
     }
 
@@ -1192,14 +1193,15 @@ header {
         width: calc(50% - 5px) !important;
         max-width: calc(50% - 5px) !important;
         margin: 0 !important;
-        padding: 12px;
-        height: 300px !important;
-        min-height: 300px !important;
-        max-height: 300px !important;
+        padding: 8px;
+        height: 220px !important; /* Altura reducida */
+        min-height: 220px !important;
+        max-height: 220px !important;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         box-sizing: border-box;
+        overflow: hidden; /* Evitar desbordamiento */
     }
 
     /* Estilos específicos para carrusel de gift cards en móvil */
@@ -1218,21 +1220,22 @@ header {
         width: calc(50% - 5px) !important;
         max-width: calc(50% - 5px) !important;
         margin: 0 !important;
-        padding: 12px;
-        height: 300px !important;
-        min-height: 300px !important;
-        max-height: 300px !important;
+        padding: 8px;
+        height: 220px !important; /* Altura reducida */
+        min-height: 220px !important;
+        max-height: 220px !important;
         display: flex !important;
         flex-direction: column;
         justify-content: space-between;
         box-sizing: border-box;
         visibility: visible !important;
         opacity: 1 !important;
+        overflow: hidden; /* Evitar desbordamiento */
     }
 
     .todos-carousel-card .product-name {
         font-size: 11px;
-        margin-bottom: 1px;
+        margin-bottom: 4px;
         line-height: 1.2;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -1249,16 +1252,16 @@ header {
 
     .todos-carousel-card .product-image {
         width: 100% !important;
-        height: 140px !important; /* Altura para móvil 2x2 */
-        aspect-ratio: 1.2 / 1 !important; /* Expandir horizontalmente */
+        height: 120px !important; /* Altura reducida para móvil */
+        aspect-ratio: 1 / 1 !important; /* Aspecto cuadrado */
         object-fit: cover !important;
         object-position: center !important;
         margin: 0 auto 6px auto;
         border-radius: 8px;
         flex-shrink: 0;
-        max-width: 100% !important; /* Adaptar al contenedor */
-        min-height: 140px !important;
-        max-height: 140px !important;
+        max-width: 100% !important;
+        min-height: 120px !important;
+        max-height: 120px !important;
         display: block;
     }
 
@@ -1286,7 +1289,7 @@ header {
 
     #giftcards-todos-carousel-track .todos-carousel-card .product-image {
         width: 100% !important;
-        height: 140px !important;
+        height: 120px !important; /* Altura reducida */
         aspect-ratio: 1 / 1 !important;
         object-fit: cover !important;
         margin-bottom: 6px;
@@ -1294,6 +1297,8 @@ header {
         flex-shrink: 0;
         display: block !important;
         max-width: 100% !important;
+        min-height: 120px !important;
+        max-height: 120px !important;
     }
 
     .todos-carousel-nav {
@@ -1460,6 +1465,16 @@ header {
     max-width: calc(100% - 16px);
 }
 
+/* Ajustar etiquetas en móvil */
+@media (max-width: 768px) {
+    .product-tags {
+        top: 4px;
+        left: 4px;
+        gap: 2px;
+        max-width: calc(100% - 8px);
+    }
+}
+
 .product-tag {
     display: inline-block;
     padding: 4px 8px;
@@ -1475,6 +1490,15 @@ header {
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
+}
+
+/* Ajustar etiquetas en móvil */
+@media (max-width: 768px) {
+    .product-tag {
+        padding: 2px 6px;
+        font-size: 8px;
+        border-radius: 8px;
+    }
 }
 
 /* Diferentes colores para diferentes tipos de etiquetas */
