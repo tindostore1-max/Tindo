@@ -637,16 +637,21 @@ header {
 }
 
 .games-carousel-card .product-image {
-    width: 100%;
-    height: 220px;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
+    width: 100% !important;
+    height: 190px !important;
+    aspect-ratio: 1 / 1 !important;
+    object-fit: cover !important;
+    object-position: center !important;
     border-radius: 10px;
     margin-bottom: 12px;
     background: #1a1a1a;
     border: 2px solid #333;
     box-sizing: border-box;
     flex-shrink: 0;
+    min-width: 190px !important;
+    max-width: 190px !important;
+    min-height: 190px !important;
+    max-height: 190px !important;
 }
 
 .games-carousel-card .product-name {
@@ -762,16 +767,21 @@ header {
 }
 
 .todos-carousel-card .product-image {
-    width: 100%;
-    height: 180px;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
+    width: 100% !important;
+    height: 180px !important;
+    aspect-ratio: 1 / 1 !important;
+    object-fit: cover !important;
+    object-position: center !important;
     border-radius: 10px;
     margin-bottom: 12px;
     background: #1a1a1a;
     border: 2px solid #333;
     box-sizing: border-box;
     flex-shrink: 0;
+    min-width: 180px !important;
+    max-width: 180px !important;
+    min-height: 180px !important;
+    max-height: 180px !important;
 }
 
 .todos-carousel-card .product-name {
@@ -900,12 +910,17 @@ header {
 
     .product-image {
         width: 100% !important;
-        height: 200px !important; /* Altura estandarizada para todas las imágenes */
+        height: 160px !important; /* Altura cuadrada perfecta para móvil */
         aspect-ratio: 1 / 1 !important; /* Forzar aspecto cuadrado */
         object-fit: cover !important;
+        object-position: center !important;
         margin-bottom: 6px;
         border-radius: 8px;
         flex-shrink: 0;
+        min-width: 160px !important;
+        max-width: 160px !important;
+        min-height: 160px !important;
+        max-height: 160px !important;
     }
 
     .product-name {
@@ -1050,12 +1065,17 @@ header {
 
     .giftcards-grid .product-image {
         width: 100% !important;
-        height: 200px !important; /* Altura estandarizada igual que otras categorías */
+        height: 160px !important; /* Altura cuadrada perfecta igual que otras categorías */
         aspect-ratio: 1 / 1 !important; /* Forzar aspecto cuadrado */
         object-fit: cover !important;
+        object-position: center !important;
         margin-bottom: 6px;
         border-radius: 8px;
         flex-shrink: 0;
+        min-width: 160px !important;
+        max-width: 160px !important;
+        min-height: 160px !important;
+        max-height: 160px !important;
     }
 
     .giftcards-grid .product-name {
@@ -1119,12 +1139,17 @@ header {
 
     .games-carousel-card .product-image {
         width: 100% !important;
-        height: 200px !important; /* Altura estandarizada */
+        height: 160px !important; /* Altura cuadrada perfecta */
         aspect-ratio: 1 / 1 !important; /* Forzar aspecto cuadrado */
         object-fit: cover !important;
+        object-position: center !important;
         margin-bottom: 8px;
         border-radius: 8px;
         flex-shrink: 0;
+        min-width: 160px !important;
+        max-width: 160px !important;
+        min-height: 160px !important;
+        max-height: 160px !important;
     }
 
     .games-carousel-nav {
@@ -1214,12 +1239,17 @@ header {
 
     .todos-carousel-card .product-image {
         width: 100% !important;
-        height: 200px !important; /* Altura aumentada cuadrada */
+        height: 160px !important; /* Altura cuadrada perfecta */
         aspect-ratio: 1 / 1 !important; /* Forzar aspecto cuadrado */
         object-fit: cover !important;
+        object-position: center !important;
         margin-bottom: 8px;
         border-radius: 8px;
         flex-shrink: 0;
+        min-width: 160px !important;
+        max-width: 160px !important;
+        min-height: 160px !important;
+        max-height: 160px !important;
     }
 
     /* Asegurar visibilidad específica para gift cards */
@@ -1358,28 +1388,39 @@ header {
 }
 
 .product-image {
-    width: 100%;
-    height: 240px;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
+    width: 100% !important;
+    height: 240px !important;
+    aspect-ratio: 1 / 1 !important;
+    object-fit: cover !important;
+    object-position: center !important;
     border-radius: 10px;
     margin-bottom: 15px;
     background: #1a1a1a;
     border: 2px solid #333;
     box-sizing: border-box;
     flex-shrink: 0;
+    min-width: 240px !important;
+    max-width: 240px !important;
+    min-height: 240px !important;
+    max-height: 240px !important;
 }
 
-/* Versión desktop: mantener imágenes cuadradas */
+/* Versión desktop: mantener imágenes cuadradas perfectas */
 @media (min-width: 769px) {
     .product-image {
-        width: 100%;
-        aspect-ratio: 1 / 1;
-        object-fit: cover;
+        width: 100% !important;
+        height: 240px !important;
+        aspect-ratio: 1 / 1 !important;
+        object-fit: cover !important;
+        object-position: center !important;
         background: #1a1a1a;
         border: 2px solid #333;
         box-sizing: border-box;
         border-radius: 10px;
+        min-width: 240px !important;
+        max-width: 240px !important;
+        min-height: 240px !important;
+        max-height: 240px !important;
     }
 }
 
@@ -1972,9 +2013,15 @@ header {
     }
 
     .details-info-container .package-image-container .package-name img {
-        width: 100% !important; /* Ancho completo del contenedor */
-        max-width: none !important; /* Sin limitación de ancho máximo */
-        height: 120px !important; /* Imágenes proporcionadas */
+        width: 120px !important; /* Ancho cuadrado perfecto */
+        height: 120px !important; /* Altura cuadrada perfecta */
+        object-fit: cover !important;
+        object-position: center !important;
+        aspect-ratio: 1 / 1 !important;
+        min-width: 120px !important;
+        max-width: 120px !important;
+        min-height: 120px !important;
+        max-height: 120px !important;
     }
 
     .details-info-container .package-name {
@@ -2145,9 +2192,15 @@ header {
     border-radius: 8px;
     margin: 0 auto;
     display: block;
-    width: 200px;
-    height: 140px;
-    object-fit: cover;
+    width: 140px !important;
+    height: 140px !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    aspect-ratio: 1 / 1 !important;
+    min-width: 140px !important;
+    max-width: 140px !important;
+    min-height: 140px !important;
+    max-height: 140px !important;
 }
 
 .package-item:hover .package-image-container .package-name img {
