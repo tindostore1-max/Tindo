@@ -3355,7 +3355,7 @@ function moverCarruselTodos(direccion) {
     const translateX = -window.todosCarouselIndex * cardWidth;
     track.style.transform = `translateX(${translateX}px)`;
 
-    // Verificar si mostrar botón "Ver más" en móvil
+    // Verificar si mostrar botón "Ver más"
     verificarBotonVerMas('todos');
 }
 
@@ -3401,15 +3401,13 @@ function moverCarruselGiftCardsTodos(direccion) {
     const translateX = -window.giftCardsTodosCarouselIndex * cardWidth;
     track.style.transform = `translateX(${translateX}px)`;
 
-    // Verificar si mostrar botón "Ver más" en móvil
+    // Verificar si mostrar botón "Ver más"
     verificarBotonVerMas('giftcards-todos');
 }
 
 // Función para verificar y mostrar el botón "Ver más" en móviles
 function verificarBotonVerMas(tipo) {
-    // Solo en móvil
-    if (window.innerWidth > 768) return;
-
+    // Funciona tanto en móvil como en desktop
     let wrapper, index, totalItems;
     
     if (tipo === 'todos') {
