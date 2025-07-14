@@ -1076,10 +1076,50 @@ header {
         display: flex !important;
         flex-direction: column;
         justify-content: space-between;
-        padding: 8px;
+        padding: 8px !important;
         box-sizing: border-box;
-        width: 100%;
-        max-width: none; /* Sin límite de ancho máximo */
+        width: 100% !important;
+        max-width: none !important; /* Sin límite de ancho máximo */
+        border-radius: 12px !important; /* Border-radius consistente */
+    }
+
+    /* Asegurar que las imágenes en las tarjetas filtradas tengan el mismo tamaño */
+    .product-grid .product-card .product-image {
+        width: 100% !important;
+        height: 140px !important; /* Altura igual que carruseles */
+        aspect-ratio: 1 / 1 !important; /* Aspecto cuadrado igual que carruseles */
+        object-fit: cover !important;
+        object-position: center !important;
+        margin: 0 auto 6px auto !important;
+        border-radius: 8px !important;
+        flex-shrink: 0;
+        max-width: 100% !important;
+        min-height: 140px !important;
+        max-height: 140px !important;
+        display: block !important;
+        border: 2px solid #333 !important;
+        background: #1a1a1a !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Asegurar que el texto en las tarjetas filtradas tenga el mismo tamaño */
+    .product-grid .product-card .product-name {
+        font-size: 10px !important; /* Tamaño igual que carruseles */
+        margin-bottom: 3px !important; /* Margen igual que carruseles */
+        line-height: 1.1 !important; /* Altura de línea igual que carruseles */
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+        color: #ffffff !important;
+    }
+
+    .product-grid .product-card .price-desde {
+        font-size: 9px !important; /* Tamaño igual que carruseles */
+        margin-top: 3px !important; /* Margen igual que carruseles */
+        font-weight: 700 !important;
+        flex-shrink: 0 !important;
+        color: #28a745 !important;
     }
 
     .giftcards-grid .product-image {
