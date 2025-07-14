@@ -920,6 +920,13 @@ header {
         justify-content: space-between;
         width: 100%;
         max-width: none; /* Sin límite de ancho máximo - ocupar todo el espacio disponible */
+        transition: none !important; /* Sin animaciones de transición */
+        transform: none !important; /* Sin transformaciones */
+    }
+
+    .product-card:hover {
+        transform: none !important; /* Sin animación hover */
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3) !important; /* Sombra fija sin cambios */
     }
 
     .product-image {
@@ -1069,6 +1076,13 @@ header {
         margin: 0; /* Sin margen para ocupar todo el espacio */
         box-sizing: border-box; /* Incluir padding en el cálculo de ancho */
         border-radius: 12px; /* Border-radius más pequeño para móvil */
+        transition: none !important; /* Sin animaciones de transición */
+        transform: none !important; /* Sin transformaciones */
+    }
+
+    .giftcards-grid .product-card:hover {
+        transform: none !important; /* Sin animación hover */
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3) !important; /* Sombra fija sin cambios */
     }
 
     /* Asegurar que todas las tarjetas en categorías específicas tengan el mismo tamaño */
@@ -1182,6 +1196,13 @@ header {
         flex-direction: column;
         justify-content: space-between;
         overflow: hidden; /* Evitar desbordamiento */
+        transition: none !important; /* Sin animaciones de transición */
+        transform: none !important; /* Sin transformaciones */
+    }
+
+    .games-carousel-card:hover {
+        transform: none !important; /* Sin animación hover */
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3) !important; /* Sombra fija sin cambios */
     }
 
     .games-carousel-card .product-name {
@@ -1255,6 +1276,13 @@ header {
         justify-content: space-between;
         box-sizing: border-box;
         overflow: hidden; /* Evitar desbordamiento */
+        transition: none !important; /* Sin animaciones de transición */
+        transform: none !important; /* Sin transformaciones */
+    }
+
+    .todos-carousel-card:hover {
+        transform: none !important; /* Sin animación hover */
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3) !important; /* Sombra fija sin cambios */
     }
 
     /* Estilos específicos para carrusel de gift cards en móvil */
