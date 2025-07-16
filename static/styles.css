@@ -1185,9 +1185,9 @@ header {
     }
 
     .games-carousel-card {
-        flex: 0 0 calc(50% - 5px) !important;
-        width: calc(50% - 5px) !important;
-        max-width: calc(50% - 5px) !important;
+        flex: 0 0 calc(40% - 5px) !important;
+        width: calc(40% - 5px) !important;
+        max-width: calc(40% - 5px) !important;
         margin: 0 !important;
         padding: 8px;
         height: 240px !important; /* Altura igual que todas las tarjetas */
@@ -1264,9 +1264,9 @@ header {
     }
 
     .todos-carousel-card {
-        flex: 0 0 calc(50% - 5px) !important;
-        width: calc(50% - 5px) !important;
-        max-width: calc(50% - 5px) !important;
+        flex: 0 0 calc(40% - 5px) !important;
+        width: calc(40% - 5px) !important;
+        max-width: calc(40% - 5px) !important;
         margin: 0 !important;
         padding: 8px;
         height: 240px !important; /* Altura igual que todas las tarjetas */
@@ -1298,9 +1298,9 @@ header {
     }
 
     #giftcards-todos-carousel-track .todos-carousel-card {
-        flex: 0 0 calc(50% - 5px) !important;
-        width: calc(50% - 5px) !important;
-        max-width: calc(50% - 5px) !important;
+        flex: 0 0 calc(40% - 5px) !important;
+        width: calc(40% - 5px) !important;
+        max-width: calc(40% - 5px) !important;
         margin: 0 !important;
         padding: 8px;
         height: 240px !important; /* Altura aumentada para acomodar imagen más grande */
