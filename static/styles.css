@@ -900,7 +900,7 @@ header {
     }
 
     .product-grid {
-        grid-template-columns: repeat(2, 30%) !important;
+        grid-template-columns: repeat(2, 45%) !important;
         gap: 8px !important; /* Gap reducido para aprovechar mejor el espacio */
         display: grid !important;
         justify-items: stretch; /* Estirar las tarjetas para llenar el espacio */
@@ -1052,7 +1052,7 @@ header {
     }
 
     .giftcards-grid {
-        grid-template-columns: repeat(2, 30%) !important;
+        grid-template-columns: repeat(2, 45%) !important;
         gap: 10px; /* Gap más pequeño para pantallas móviles */
         display: grid !important;
         justify-items: stretch; /* Estirar tarjetas para ocupar todo el espacio */
