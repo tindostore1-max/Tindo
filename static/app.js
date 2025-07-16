@@ -1794,12 +1794,9 @@ function generarHTMLDetalleProducto(producto) {
                         ${paquetesHtml}
                     </div>
 
-                    <div style="margin-top: 20px; display: flex; gap: 12px;">
-                        <button id="btn-agregar-carrito" onclick="agregarPaqueteSeleccionado()" class="btn btn-success" style="flex: 1; padding: 15px 20px; font-size: 16px; font-weight: 700; background: linear-gradient(135deg, #28a745, #20c997); border: none; border-radius: 10px; color: white; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3); opacity: 0.6;" disabled>
+                    <div style="margin-top: 20px;">
+                        <button id="btn-agregar-carrito" onclick="agregarPaqueteSeleccionado()" class="btn btn-success" style="width: 100%; padding: 15px 20px; font-size: 16px; font-weight: 700; background: linear-gradient(135deg, #28a745, #20c997); border: none; border-radius: 10px; color: white; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3); opacity: 0.6;" disabled>
                             🛒 Agregar al Carrito
-                        </button>
-                        <button onclick="mostrarTab('catalogo')" class="btn btn-secondary" style="padding: 15px 20px; font-size: 14px; font-weight: 600; background: #6c757d; border: none; border-radius: 10px; color: white; cursor: pointer; transition: all 0.3s ease;">
-                            ← Volver
                         </button>
                     </div>
 
