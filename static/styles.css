@@ -970,8 +970,8 @@ header {
         display: grid !important;
         grid-template-columns: 1fr 1fr !important; /* 2 columnas iguales */
         gap: 8px !important; /* Gap reducido */
-        width: 120% !important; /* Aumentar al 120% del ancho disponible */
-        max-width: 500px !important; /* Ancho máximo aumentado a 500px */
+        width: 90% !important; /* Reducir al 90% del ancho disponible */
+        max-width: 450px !important; /* Ancho máximo reducido a 450px */
         margin: 0 auto !important; /* Centrar la grilla horizontalmente */
         padding: 0 8px !important; /* Padding lateral reducido */
         justify-items: stretch !important; /* Estirar items para llenar espacio */
@@ -2117,8 +2117,8 @@ header {
         display: grid !important;
         grid-template-columns: 1fr 1fr !important; /* 2 columnas iguales */
         gap: 6px !important; /* Gap más reducido */
-        width: 120% !important; /* Aumentar al 120% del ancho disponible */
-        max-width: 480px !important; /* Ancho máximo aumentado a 480px */
+        width: 90% !important; /* Reducir al 90% del ancho disponible */
+        max-width: 430px !important; /* Ancho máximo reducido a 430px */
         margin: 0 auto !important; /* Centrar horizontalmente */
         padding: 0 4px !important; /* Padding lateral simétrico mínimo - 4px cada lado */
         justify-items: center !important; /* Centrar items dentro de sus celdas */
