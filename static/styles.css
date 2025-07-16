@@ -970,8 +970,8 @@ header {
         display: grid !important;
         grid-template-columns: 1fr 1fr !important; /* 2 columnas iguales */
         gap: 8px !important; /* Gap reducido */
-        width: 100% !important; /* Ocupar todo el ancho disponible */
-        max-width: 100% !important; /* Sin limitación de ancho */
+        width: 90% !important; /* Ajustar al 90% del ancho disponible */
+        max-width: 400px !important; /* Ancho máximo de 400px */
         margin: 0 auto !important; /* Centrar la grilla horizontalmente */
         padding: 0 8px !important; /* Padding lateral reducido */
         justify-items: stretch !important; /* Estirar items para llenar espacio */
@@ -2117,9 +2117,9 @@ header {
         display: grid !important;
         grid-template-columns: 1fr 1fr !important; /* 2 columnas iguales */
         gap: 6px !important; /* Gap más reducido */
-        width: 100% !important; /* Ocupar todo el ancho disponible */
-        max-width: 100% !important; /* Sin limitación de ancho */
-        margin: 0 !important; /* Sin margen - ocupar todo el espacio */
+        width: 95% !important; /* Ocupar el 95% del ancho disponible */
+        max-width: 380px !important; /* Ancho máximo de 380px */
+        margin: 0 auto !important; /* Centrar horizontalmente */
         padding: 0 4px !important; /* Padding lateral simétrico mínimo - 4px cada lado */
         justify-items: center !important; /* Centrar items dentro de sus celdas */
         align-items: stretch !important; /* Estirar items verticalmente */
