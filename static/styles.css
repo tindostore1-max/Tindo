@@ -911,10 +911,10 @@ header {
     }
 
     .product-card {
-        padding: 8px;
-        height: 240px !important; /* Altura unificada igual que carruseles */
-        min-height: 240px !important;
-        max-height: 240px !important;
+        padding: 10px;
+        height: 280px !important; /* Altura aumentada para acomodar imágenes más grandes */
+        min-height: 280px !important;
+        max-height: 280px !important;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -931,17 +931,20 @@ header {
 
     .product-image {
         width: 100% !important;
-        height: 140px !important; /* Altura unificada igual que carruseles */
-        aspect-ratio: 1 / 1 !important; /* Aspecto cuadrado igual que carruseles */
+        height: 160px !important; /* Altura aumentada para aprovechar mejor el espacio en 47% */
+        aspect-ratio: 1.1 / 1 !important; /* Aspecto ligeramente más ancho para aprovechar el espacio */
         object-fit: cover !important;
         object-position: center !important;
-        margin: 0 auto 6px auto;
-        border-radius: 8px;
+        margin: 0 auto 8px auto;
+        border-radius: 10px;
         flex-shrink: 0;
         max-width: 100% !important;
-        min-height: 140px !important;
-        max-height: 140px !important;
+        min-height: 160px !important;
+        max-height: 160px !important;
         display: block;
+        border: 2px solid #333;
+        background: #1a1a1a;
+        box-sizing: border-box;
     }
 
     .product-name {
@@ -1065,13 +1068,13 @@ header {
     }
 
     .giftcards-grid .product-card {
-        height: 220px !important; /* Altura reducida para pantallas pequeñas */
-        min-height: 220px !important;
-        max-height: 220px !important;
+        height: 250px !important; /* Altura aumentada para acomodar imágenes más grandes */
+        min-height: 250px !important;
+        max-height: 250px !important;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        padding: 16px; /* Padding aumentado para las tarjetas de Gift Cards */
+        padding: 12px; /* Padding optimizado para las tarjetas de Gift Cards */
         width: 100%;
         max-width: none; /* Sin limitación de ancho máximo para ocupar espacio completo */
         margin: 0; /* Sin margen para ocupar todo el espacio */
@@ -1088,13 +1091,13 @@ header {
 
     /* Asegurar que todas las tarjetas en categorías específicas tengan el mismo tamaño */
     .product-grid .product-card {
-        height: 240px !important; /* Altura unificada igual que carruseles */
-        min-height: 240px !important;
-        max-height: 240px !important;
+        height: 280px !important; /* Altura aumentada para acomodar imágenes más grandes */
+        min-height: 280px !important;
+        max-height: 280px !important;
         display: flex !important;
         flex-direction: column;
         justify-content: space-between;
-        padding: 8px !important;
+        padding: 10px !important;
         box-sizing: border-box;
         width: 100% !important;
         max-width: none !important; /* Sin límite de ancho máximo */
@@ -1104,16 +1107,16 @@ header {
     /* Asegurar que las imágenes en las tarjetas filtradas tengan el mismo tamaño */
     .product-grid .product-card .product-image {
         width: 100% !important;
-        height: 140px !important; /* Altura igual que carruseles */
-        aspect-ratio: 1 / 1 !important; /* Aspecto cuadrado igual que carruseles */
+        height: 160px !important; /* Altura aumentada para aprovechar mejor el espacio en 47% */
+        aspect-ratio: 1.1 / 1 !important; /* Aspecto ligeramente más ancho para aprovechar el espacio */
         object-fit: cover !important;
         object-position: center !important;
-        margin: 0 auto 6px auto !important;
-        border-radius: 8px !important;
+        margin: 0 auto 8px auto !important;
+        border-radius: 10px !important;
         flex-shrink: 0;
         max-width: 100% !important;
-        min-height: 140px !important;
-        max-height: 140px !important;
+        min-height: 160px !important;
+        max-height: 160px !important;
         display: block !important;
         border: 2px solid #333 !important;
         background: #1a1a1a !important;
@@ -1142,18 +1145,20 @@ header {
 
     .giftcards-grid .product-image {
         width: 100% !important;
-        height: 120px !important; /* Altura reducida para pantallas pequeñas */
-        aspect-ratio: 1 / 1 !important; /* Aspecto cuadrado */
+        height: 140px !important; /* Altura aumentada para aprovechar mejor el espacio en 47% */
+        aspect-ratio: 1.1 / 1 !important; /* Aspecto ligeramente más ancho para aprovechar el espacio */
         object-fit: cover !important;
         object-position: center !important;
-        margin: 0 auto 4px auto; /* Margen reducido para móvil */
-        border-radius: 6px; /* Border-radius más pequeño para móvil */
+        margin: 0 auto 6px auto; /* Margen optimizado para móvil */
+        border-radius: 8px; /* Border-radius optimizado para móvil */
         flex-shrink: 0;
         max-width: 100% !important; /* Ancho máximo del contenedor padre */
-        min-height: 120px !important;
-        max-height: 120px !important;
+        min-height: 140px !important;
+        max-height: 140px !important;
         display: block;
         box-sizing: border-box; /* Incluir padding en el cálculo de ancho */
+        border: 2px solid #333;
+        background: #1a1a1a;
     }
 
     .giftcards-grid .product-name {
