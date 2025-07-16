@@ -903,10 +903,12 @@ header {
         grid-template-columns: repeat(2, 47%) !important;
         gap: 8px !important; /* Gap reducido para aprovechar mejor el espacio */
         display: grid !important;
-        justify-items: stretch; /* Estirar las tarjetas para llenar el espacio */
-        padding: 0 4px !important; /* Padding mínimo lateral */
-        margin: 0 -8px !important; /* Margen negativo para extender hasta los bordes */
-        width: calc(100% + 16px) !important; /* Ancho que compensa el margen negativo */
+        justify-items: center !important; /* Centrar las tarjetas */
+        justify-content: center !important; /* Centrar la grilla completa */
+        padding: 0 15px !important; /* Más padding lateral para centrar mejor */
+        margin: 0 auto !important; /* Centrar horizontalmente */
+        width: 100% !important; /* Ancho completo sin extensión */
+        max-width: 400px !important; /* Ancho máximo para mejor centrado */
         box-sizing: border-box !important;
     }
 
@@ -1059,13 +1061,14 @@ header {
         grid-template-columns: repeat(2, 47%) !important;
         gap: 10px; /* Gap más pequeño para pantallas móviles */
         display: grid !important;
-        justify-items: stretch; /* Estirar tarjetas para ocupar todo el espacio */
-        padding: 15px 8px 20px 8px; /* Padding reducido para pantallas pequeñas */
-        margin: 0; /* Sin margen lateral para ocupar todo el ancho */
-        max-width: 100%; /* Limitación de ancho máximo al 100% del contenedor */
-        width: 100%; /* Ocupar todo el ancho disponible */
-        box-sizing: border-box; /* Incluir padding en el cálculo de ancho */
-        align-items: start; /* Alinear tarjetas al inicio */
+        justify-items: center !important; /* Centrar tarjetas */
+        justify-content: center !important; /* Centrar la grilla completa */
+        padding: 15px 15px 20px 15px !important; /* Más padding lateral para centrar mejor */
+        margin: 0 auto !important; /* Centrar horizontalmente */
+        max-width: 400px !important; /* Ancho máximo para mejor centrado */
+        width: 100% !important; /* Ocupar todo el ancho disponible */
+        box-sizing: border-box !important; /* Incluir padding en el cálculo de ancho */
+        align-items: start !important; /* Alinear tarjetas al inicio */
     }
 
     .giftcards-grid .product-card {
