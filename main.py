@@ -54,19 +54,34 @@ def create_db_engine():
     # Crear versión censurada para logging
     try:
         if '://' in database_url and '@' in database_url:
-            masked_url = database_url.replace(database_url.split('://')[1].split('@')[0], '***:***')
+            url_parts = database_url.split('://')
+            if len(url_parts) == 2:
+                protocol = url_parts[0]
+                rest = url_parts[1]
+                if '@' in rest:
+                    auth_part = rest.split('@')[0]
+                    host_part = rest.split('@')[1]
+                    masked_url = f"{protocol}://***:***@{host_part}"
+                else:
+                    masked_url = database_url
+            else:
+                masked_url = database_url
         else:
             masked_url = database_url
         print(f"🔗 Intentando conectar con: {masked_url}")
-    except:
-        print(f"🔗 Intentando conectar con base de datos...")
+    except Exception as log_error:
+        print(f"🔗 Intentando conectar con base de datos... (error en logging: {log_error})")
 
     try:
-        # Crear engine de SQLAlchemy
+        # Agregar configuraciones específicas para Supabase/PostgreSQL
         engine = create_engine(
             database_url,
             poolclass=NullPool,  # Para evitar problemas de conexión en Replit
             pool_pre_ping=True,  # Para verificar conexiones antes de usarlas
+            connect_args={
+                "connect_timeout": 30,  # Timeout de conexión
+                "application_name": "InefableStore"
+            },
             echo=False  # Cambiar a True para debug SQL
         )
 
@@ -78,7 +93,10 @@ def create_db_engine():
         return engine
     except Exception as e:
         print(f"❌ Error conectando a PostgreSQL: {e}")
-        print("💡 Asegúrate de tener configurada la variable DATABASE_URL o las variables de entorno individuales")
+        print("💡 Verifica que:")
+        print("   - El Secret DATABASE_URL esté configurado correctamente")
+        print("   - La URL incluya la contraseña correcta")
+        print("   - El servidor de base de datos esté disponible")
         raise e
 
 # Engine global
@@ -108,7 +126,16 @@ def get_psycopg2_connection():
         elif database_url.startswith("psql "):
             database_url = database_url[5:]  # Remover "psql " del inicio
 
-    return psycopg2.connect(database_url)
+    try:
+        return psycopg2.connect(
+            database_url,
+            connect_timeout=30,
+            application_name="InefableStore-Direct"
+        )
+    except Exception as e:
+        print(f"❌ Error en conexión psycopg2: {e}")
+        print(f"🔗 URL utilizada: {database_url[:20]}...{database_url[-20:] if len(database_url) > 40 else database_url}")
+        raise e
 
 def enviar_correo_gift_card_completada(orden_info):
     """Envía correo al usuario con el código de la Gift Card"""
