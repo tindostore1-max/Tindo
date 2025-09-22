@@ -393,6 +393,47 @@ def limpiar_ordenes_antiguas(usuario_email):
     finally:
         conn.close()
 
+# Endpoint público de salud para verificar conexión a SQLite en Render
+@app.route('/health/db', methods=['GET'])
+def health_db():
+    db_path = os.environ.get('DATABASE_PATH', 'inefablestore.db')
+    info = {
+        'database_path': db_path,
+        'db_file_exists': os.path.exists(db_path),
+    }
+    # Intentar conexión y consultas básicas
+    try:
+        # Probar con SQLAlchemy
+        conn = get_db_connection()
+        try:
+            conn.execute(text('SELECT 1'))
+            info['sqlalchemy_connect'] = True
+            # Probar existencia de tablas clave
+            res = conn.execute(text("SELECT name FROM sqlite_master WHERE type='table' AND name IN ('usuarios','juegos','ordenes')"))
+            info['tables_present'] = [r[0] for r in res.fetchall()]
+            # Contar usuarios y si hay admin
+            res_user = conn.execute(text('SELECT COUNT(*) FROM usuarios'))
+            info['usuarios_total'] = int(res_user.fetchone()[0])
+            res_admin = conn.execute(text('SELECT COUNT(*) FROM usuarios WHERE es_admin = 1'))
+            info['admins_total'] = int(res_admin.fetchone()[0])
+        finally:
+            conn.close()
+    except Exception as e:
+        info['sqlalchemy_connect'] = False
+        info['error'] = str(e)
+    # También probar con sqlite3 directa
+    try:
+        sconn = sqlite3.connect(db_path, timeout=5)
+        try:
+            sconn.execute('PRAGMA user_version')
+            info['sqlite3_connect'] = True
+        finally:
+            sconn.close()
+    except Exception as e:
+        info['sqlite3_connect'] = False
+        info['sqlite3_error'] = str(e)
+    return jsonify(info)
+
 def enviar_notificacion_orden(orden_data):
     """Envía notificación por correo de nueva orden"""
     try:

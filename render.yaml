@@ -10,10 +10,16 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.9
+      - key: PYTHONIOENCODING
+        value: utf-8
       - key: DATABASE_PATH
         value: /var/data/inefablestore.db
       - key: SECRET_KEY
         generateValue: true
+      - key: ADMIN_EMAIL
+        fromSecret: ADMIN_EMAIL
+      - key: ADMIN_PASSWORD
+        fromSecret: ADMIN_PASSWORD
     disk:
       name: data
       mountPath: /var/data
