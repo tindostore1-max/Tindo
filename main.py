@@ -641,6 +641,24 @@ def init_db():
         _ensure_sqlite_column(conn, 'usuarios', 'telefono', 'telefono TEXT')
         _ensure_sqlite_column(conn, 'usuarios', 'es_admin', 'es_admin INTEGER DEFAULT 0')
 
+        # Normalizar rutas de imágenes guardadas antiguas
+        try:
+            # Quitar prefijo '/static/' si existe (convierte '/static/images/x.jpg' -> 'images/x.jpg')
+            conn.execute(text("""
+                UPDATE imagenes
+                SET ruta = substr(ruta, length('/static/') + 1)
+                WHERE ruta LIKE '/static/%'
+            """))
+            # Normalizar separadores por si existen backslashes
+            conn.execute(text("""
+                UPDATE imagenes
+                SET ruta = REPLACE(ruta, '\\', '/')
+                WHERE instr(ruta, '\\') > 0
+            """))
+            print("🧹 Migración: rutas de imágenes normalizadas")
+        except Exception as e:
+            print(f"⚠️ No se pudo normalizar rutas de imágenes: {e}")
+
         # Verificar si ya hay productos
         result = conn.execute(text('SELECT COUNT(*) FROM juegos'))
         product_count = result.fetchone()[0]
@@ -1735,6 +1753,11 @@ def get_imagenes():
         imagenes_list = []
         for imagen in imagenes:
             imagen_dict = dict(imagen._mapping)
+            # Normalizar ruta: quitar prefijo '/static/' si existe
+            ruta = imagen_dict.get('ruta') or ''
+            if ruta.startswith('/static/'):
+                ruta = ruta[len('/static/'):]
+            imagen_dict['ruta'] = ruta
             imagenes_list.append(imagen_dict)
 
         return jsonify(imagenes_list)
@@ -1784,17 +1807,18 @@ def upload_imagen():
         # Guardar en base de datos
         conn = get_db_connection()
         try:
+            # Guardar ruta normalizada sin prefijo '/static/'
             result = conn.execute(text('''
                 INSERT INTO imagenes (tipo, ruta) 
                 VALUES (:tipo, :ruta)
-            '''), {'tipo': tipo, 'ruta': f'/static/images/{filename}'})
+            '''), {'tipo': tipo, 'ruta': f'images/{filename}'})
             imagen_id = result.lastrowid
             conn.commit()
 
             return jsonify({
                 'message': 'Imagen subida correctamente',
                 'id': imagen_id,
-                'ruta': f'/static/images/{filename}'
+                'ruta': f'images/{filename}'
             })
         except Exception as e:
             # Si hay error en BD, eliminar archivo
@@ -1856,16 +1880,17 @@ def upload_imagenes_bulk():
                 file.save(file_path)
 
                 # Guardar en base de datos
+                # Guardar ruta normalizada sin prefijo '/static/'
                 result = conn.execute(text('''
                     INSERT INTO imagenes (tipo, ruta) 
                     VALUES (:tipo, :ruta)
-                '''), {'tipo': tipo, 'ruta': f'/static/images/{filename}'})
+                '''), {'tipo': tipo, 'ruta': f'images/{filename}'})
                 imagen_id = result.lastrowid
 
                 resultados.append({
                     'id': imagen_id,
                     'nombre_original': file.filename,
-                    'ruta': f'/static/images/{filename}',
+                    'ruta': f'images/{filename}',
                     'exito': True
                 })
 
@@ -1906,7 +1931,12 @@ def delete_imagen(imagen_id):
 
         # Eliminar archivo físico
         imagen_dict = dict(imagen._mapping)
-        file_path = os.path.join('static', imagen_dict['ruta'])
+        # Soportar rutas antiguas con prefijo '/static/' y nuevas 'images/...'
+        ruta_db = imagen_dict['ruta'] or ''
+        if ruta_db.startswith('/static/'):
+            file_path = ruta_db.lstrip('/')  # 'static/images/...'
+        else:
+            file_path = os.path.join('static', ruta_db)  # 'static/images/...'
         if os.path.exists(file_path):
             try:
                 os.remove(file_path)
