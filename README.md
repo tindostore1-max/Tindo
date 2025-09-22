@@ -173,6 +173,40 @@ python scripts/seed_admin.py --email admin@inefablestore.com --password admin123
 
 Opcionalmente, puedes definir variables de entorno `ADMIN_EMAIL` y `ADMIN_PASSWORD` y ejecutar sin flags.
 
+## ☁️ Despliegue en Render
+
+- **Blueprint**: El archivo `render.yaml` en la raíz define el servicio web.
+- **Disco persistente**: Se crea y monta automáticamente en `/var/data` (ver `render.yaml` → `disk`). La app usa `DATABASE_PATH=/var/data/inefablestore.db` para que SQLite persista entre despliegues.
+- **Comando de inicio**: `gunicorn main:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120`.
+
+### Variables de entorno en Render
+
+- En producción (Render) NO se usa tu archivo `.env`. Debes configurar variables desde el panel o como Secrets.
+- Ya están declaradas en `render.yaml`:
+  - `DATABASE_PATH=/var/data/inefablestore.db`
+  - `SECRET_KEY` (autogenerada)
+  - `ADMIN_EMAIL` y `ADMIN_PASSWORD` (con `fromSecret`)
+
+### Configurar Secrets en el panel de Render
+
+1. Ve a tu servicio → `Settings` → `Secrets` → `Add Secret`.
+2. Crea los siguientes secrets:
+   - `ADMIN_EMAIL` → tu correo de administrador
+   - `ADMIN_PASSWORD` → tu contraseña segura
+3. Redeploy del servicio.
+
+Al iniciar, `init_db()` en `main.py` creará o actualizará el usuario admin con esas credenciales.
+
+### Comprobación en Render
+
+- La ruta `/` es el `healthCheckPath` y debería responder tras la inicialización.
+- Si algo falla, revisa `Logs` del servicio en el panel de Render.
+
+### Desarrollo local vs Producción
+
+- Local: usa `.env` (copia desde `.env.example`) y ejecuta `python -X utf8 main.py`.
+- Producción (Render): usa variables del panel/Secrets. El `.env` del repo no se lee en Render.
+
 ## 🤝 Contribuciones
 
 Este panel fue desarrollado específicamente para Inefablestore según las especificaciones proporcionadas.
