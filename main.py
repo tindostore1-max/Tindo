@@ -50,18 +50,13 @@ def ensure_storage_paths():
 # Ejecutar inmediatamente para entornos como Gunicorn en Render
 ensure_storage_paths()
 
-# Inicialización para entornos WSGI (Gunicorn/Render)
-@app.before_first_request
-def _bootstrap_on_first_request():
-    """Asegura rutas y base de datos inicializadas cuando se ejecuta bajo Gunicorn.
-    Se ejecuta una vez por proceso worker en el primer request.
-    """
-    try:
-        ensure_storage_paths()
-        init_db()
-        print("✅ Entorno listo: rutas creadas e init_db ejecutado (before_first_request)")
-    except Exception as e:
-        print(f"⚠️ Error en bootstrap inicial: {e}")
+# Inicialización al importar la app (compatible con Flask 3.x y Gunicorn)
+try:
+    # ensure_storage_paths() ya fue llamado arriba
+    init_db()
+    print("✅ Entorno listo: init_db ejecutado al importar la app")
+except Exception as e:
+    print(f"⚠️ Error en bootstrap inicial: {e}")
 
 # Configuración de SQLAlchemy con SQLite
 def create_db_engine():
