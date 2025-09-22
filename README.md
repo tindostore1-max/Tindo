@@ -1,7 +1,7 @@
 
 # 🛡️ Panel Administrador Inefablestore
 
-Panel web administrativo para gestionar el contenido y configuración del sitio Inefablestore. Desarrollado en Python Flask con PostgreSQL.
+Panel web administrativo para gestionar el contenido y configuración del sitio Inefablestore. Desarrollado en Python Flask con SQLite (migrado desde PostgreSQL).
 
 ## 🚀 Características
 
@@ -15,54 +15,38 @@ Panel web administrativo para gestionar el contenido y configuración del sitio 
 ## 🛠️ Requisitos
 
 - Python 3.11+
-- PostgreSQL
 - Dependencias de Python (se instalan automáticamente)
 
 ## 📦 Instalación
 
-### 1. Configurar PostgreSQL
+### 1) Configurar variables de entorno
 
-Primero, necesitas tener PostgreSQL instalado y crear la base de datos:
+Crea o edita el archivo `.env` en la raíz del proyecto con estas claves mínimas:
+
+```
+# SQLite
+DATABASE_PATH=inefablestore.db
+
+# App
+SECRET_KEY=una_clave_segura
+
+# (Opcional) Crear/actualizar admin automáticamente al iniciar
+ADMIN_EMAIL=admin@inefablestore.com
+ADMIN_PASSWORD=admin123
+```
+
+### 2) Instalar dependencias
 
 ```bash
-# Conectar a PostgreSQL como superusuario
-sudo -u postgres psql
-
-# Crear base de datos
-CREATE DATABASE inefablestore;
-
-# Crear usuario (opcional)
-CREATE USER inefable_admin WITH PASSWORD 'tu_password_segura';
-GRANT ALL PRIVILEGES ON DATABASE inefablestore TO inefable_admin;
-
-\q
+pip install -r requirements.txt
 ```
 
-### 2. Configurar la aplicación
-
-1. Edita el archivo `.env` con tus credenciales de PostgreSQL:
-```
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=inefablestore
-DB_USER=postgres
-DB_PASSWORD=tu_password
-```
-
-2. (Opcional) Inicializar con datos de ejemplo:
-```bash
-psql -U postgres -d inefablestore -f init_db.sql
-```
-
-### 3. Ejecutar la aplicación
-
-La aplicación se iniciará automáticamente cuando ejecutes:
+### 3) Ejecutar la aplicación
 
 ```bash
-python main.py
+# En Windows se recomienda forzar UTF-8 para evitar errores con emojis en logs
+python -X utf8 main.py
 ```
-
-O simplemente haz clic en el botón **Run** en Replit.
 
 ## 🌐 Uso
 
@@ -117,17 +101,19 @@ O simplemente haz clic en el botón **Run** en Replit.
 - `GET /admin/config` - Obtener configuración
 - `PUT /admin/config` - Actualizar configuración
 
-## 🗂️ Estructura de Base de Datos
+## 🗂️ Estructura de Base de Datos (SQLite)
 
 ```sql
-juegos (id, nombre, descripcion, imagen)
-├── paquetes (id, juego_id, nombre, precio)
+juegos (id, nombre, descripcion, imagen, categoria, orden, etiquetas)
+├── paquetes (id, juego_id, nombre, precio, orden, imagen)
 
-ordenes (id, juego_id, paquete, monto, usuario_email, metodo_pago, referencia_pago, estado, fecha)
+ordenes (id, juego_id, paquete, monto, usuario_email, usuario_id, usuario_telefono, metodo_pago, referencia_pago, codigo_producto, estado, fecha)
 
 imagenes (id, tipo, ruta)
 
 configuracion (id, campo, valor)
+
+usuarios (id, nombre, email, telefono, password_hash, es_admin, fecha_registro)
 ```
 
 ## 🔒 Seguridad
@@ -148,9 +134,9 @@ El diseño utiliza CSS moderno con:
 ## 🐛 Solución de Problemas
 
 ### Error de conexión a la base de datos
-1. Verifica que PostgreSQL esté ejecutándose
-2. Confirma las credenciales en `.env`
-3. Asegúrate de que la base de datos `inefablestore` exista
+1. Verifica permisos de escritura en el directorio del proyecto
+2. Revisa que `DATABASE_PATH` apunte a una ruta válida
+3. Ejecuta con UTF-8 en Windows: `python -X utf8 main.py`
 
 ### Error al subir imágenes
 1. Verifica que el directorio `static/images` exista
@@ -162,10 +148,30 @@ Si el puerto 5000 está ocupado, cambia la variable `PORT` en `.env`
 
 ## 📝 Notas Adicionales
 
-- El sistema crea automáticamente las tablas necesarias al inicio
+- El sistema crea automáticamente las tablas necesarias al inicio (SQLite)
 - Las imágenes se almacenan en `static/images/`
 - Los datos de configuración se persisten en la base de datos
 - La aplicación es completamente funcional y lista para producción
+
+## 🧪 Verificación rápida de admin
+
+- Inicia sesión con `POST /login` enviando `{ "email": ADMIN_EMAIL, "password": ADMIN_PASSWORD }`.
+- Verifica sesión y DB con `GET /admin/ping` (requiere haber iniciado sesión).
+
+## 📁 Carpeta legacy/
+
+- `legacy/init_db.postgres.sql`: script histórico de PostgreSQL (no usado con SQLite).
+- `legacy/sqlite_fallback.py`: legado; la inicialización actual se hace en `main.py:init_db()`.
+
+## 🧰 Script CLI para crear/actualizar Admin
+
+Puedes crear/actualizar un admin desde consola con:
+
+```bash
+python scripts/seed_admin.py --email admin@inefablestore.com --password admin123
+```
+
+Opcionalmente, puedes definir variables de entorno `ADMIN_EMAIL` y `ADMIN_PASSWORD` y ejecutar sin flags.
 
 ## 🤝 Contribuciones
 

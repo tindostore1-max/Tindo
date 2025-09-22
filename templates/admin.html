@@ -818,6 +818,76 @@ html
             border: 1px solid #bbdefb;
         }
     </style>
+    <script>
+        // Asegurar que todas las peticiones fetch (mismo origen) envíen cookies de sesión
+        (function() {
+            try {
+                const originalFetch = window.fetch;
+                window.fetch = function(input, init) {
+                    init = init || {};
+                    try {
+                        const url = typeof input === 'string' ? input : (input && input.url) || '';
+                        const sameOrigin = !/^https?:\/\//i.test(url) || url.startsWith(window.location.origin);
+                        if (sameOrigin) {
+                            init.credentials = init.credentials || 'include';
+                        }
+                    } catch (e) {}
+                    return originalFetch(input, init);
+                };
+            } catch (e) {
+                console.warn('No se pudo envolver fetch para incluir credenciales en Admin:', e);
+            }
+        })();
+    </script>
+    <script>
+        // Función global para probar envío de correo desde Configuración (asegura disponibilidad para onclick)
+        window.adminTestEmail = async function() {
+            try {
+                const toInput = document.getElementById('test-email-to');
+                const resultEl = document.getElementById('test-email-result');
+                const to = toInput ? toInput.value.trim() : '';
+                if (resultEl) resultEl.textContent = 'Enviando correo de prueba...';
+
+                const resp = await fetch('/admin/test-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(to ? { to } : {})
+                });
+                const contentType = resp.headers.get('content-type') || '';
+                let data = null;
+                if (contentType.includes('application/json')) {
+                    data = await resp.json().catch(() => ({}));
+                } else {
+                    const text = await resp.text().catch(() => '');
+                    data = { error: text ? `Respuesta no-JSON (status ${resp.status}).` : undefined };
+                }
+
+                if (resp.ok && data && data.ok) {
+                    if (resultEl) resultEl.innerHTML = `✅ (${resp.status}) Correo de prueba enviado a <b>${data.to || ''}</b>${data.from ? ` (desde ${data.from})` : ''}.`;
+                } else {
+                    let msg = `❌ (${resp.status}) No se pudo enviar el correo de prueba.`;
+                    if (data && data.error) {
+                        const snippet = typeof data.error === 'string' ? data.error.slice(0, 300) : JSON.stringify(data.error).slice(0, 300);
+                        msg += `<br>${snippet}${snippet.length >= 300 ? '…' : ''}`;
+                    }
+                    if (typeof data.host !== 'undefined' || typeof data.port !== 'undefined' || typeof data.use_tls !== 'undefined' || typeof data.use_ssl !== 'undefined') {
+                        const host = (data.host !== undefined && data.host !== null) ? data.host : 'desconocido';
+                        const port = (data.port !== undefined && data.port !== null) ? data.port : 'desconocido';
+                        const tls = (typeof data.use_tls !== 'undefined') ? (data.use_tls ? 'sí' : 'no') : 'desconocido';
+                        const ssl = (typeof data.use_ssl !== 'undefined') ? (data.use_ssl ? 'sí' : 'no') : 'desconocido';
+                        msg += `<br><small>Host: ${host} • Puerto: ${port} • TLS: ${tls} • SSL: ${ssl}</small>`;
+                    }
+                    if (resp.status === 401 || resp.status === 403) {
+                        msg += '<br><small>Debes iniciar sesión como administrador para realizar esta acción.</small>';
+                    }
+                    if (resultEl) resultEl.innerHTML = msg;
+                }
+            } catch (e) {
+                const resultEl = document.getElementById('test-email-result');
+                if (resultEl) resultEl.textContent = '❌ Error inesperado: ' + (e && e.message ? e.message : e);
+            }
+        }
+    </script>
 </head>
 <body>
     <div class="container">
@@ -1043,6 +1113,16 @@ html
                         <button type="submit" class="btn btn-success">💾 Guardar Configuración</button>
                         <button type="button" class="btn btn-primary" onclick="loadConfig()">🔄 Cargar</button>
                     </form>
+                </div>
+
+                <div class="card">
+                    <h3>✉️ Probar envío de correo</h3>
+                    <div class="form-group">
+                        <label>Correo destino (opcional). Si lo dejas vacío usará SMTP_FROM o SMTP_USER</label>
+                        <input type="email" id="test-email-to" class="form-control" placeholder="tiendostore12@gmail.com">
+                    </div>
+                    <button type="button" class="btn btn-success" onclick="window.adminTestEmail()">📨 Enviar correo de prueba</button>
+                    <div id="test-email-result" style="margin-top:10px; font-size: 14px; color:#495057;"></div>
                 </div>
 
                 <div class="card">
@@ -1668,9 +1748,9 @@ html
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ 
+                    body: JSON.stringify({
                         estado: nuevoEstado,
-                        codigo_producto: codigo 
+                        codigo_producto: codigo
                     })
                 });
 
@@ -2665,6 +2745,32 @@ html
                 loadImagenes();
             } else if (tabName === 'configuracion') {
                 loadConfig();
+            }
+        }
+
+        // =============================
+        // Probar envío de correo (SMTP)
+        // =============================
+        async function adminTestEmail() {
+            const toInput = document.getElementById('test-email-to');
+            const resultEl = document.getElementById('test-email-result');
+            const to = toInput ? toInput.value.trim() : '';
+            if (resultEl) resultEl.textContent = 'Enviando correo de prueba...';
+
+            try {
+                const resp = await fetch('/admin/test-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(to ? { to } : {})
+                });
+                const data = await resp.json();
+                if (resp.ok && data.ok) {
+                    if (resultEl) resultEl.innerHTML = `✅ Correo de prueba enviado a <b>${data.to}</b> (desde ${data.from}).`;
+                } else {
+                    if (resultEl) resultEl.innerHTML = `❌ No se pudo enviar el correo de prueba. Revisa la consola del servidor.<br>Host: ${data.host} • Puerto: ${data.port}`;
+                }
+            } catch (e) {
+                if (resultEl) resultEl.textContent = '❌ Error inesperado: ' + (e && e.message ? e.message : e);
             }
         }
 

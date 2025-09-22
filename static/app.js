@@ -1,3 +1,24 @@
+// Forzar envío de cookies de sesión en todas las peticiones same-origin
+(() => {
+  try {
+    const originalFetch = window.fetch;
+    window.fetch = (input, init = {}) => {
+      try {
+        const url = typeof input === 'string' ? input : (input && input.url) || '';
+        const sameOrigin = !/^https?:\/\//i.test(url) || url.startsWith(window.location.origin);
+        if (sameOrigin) {
+          init = { credentials: 'include', ...init };
+        }
+      } catch (e) {
+        // ignorar errores y continuar
+      }
+      return originalFetch(input, init);
+    };
+  } catch (e) {
+    console.warn('No se pudo envolver fetch para incluir credenciales:', e);
+  }
+})();
+
 // Variables globales
 let productos = [];
 let carrito = cargarCarritoDesdeStorage();
@@ -116,7 +137,7 @@ function cargarElementosCriticos() {
                 console.log('Logo del cache cargado inmediatamente:', logoUrl);
             };
             img.onerror = function() {
-                logoImg.src = 'https://via.placeholder.com/200x60/007bff/ffffff?text=INEFABLESTORE';
+                logoImg.src = '/static/images/20250706_015933_Captura_de_pantalla_5-7-2025_182440_www.inefablestor.png';
             };
             img.src = logoUrl;
         } else {
@@ -739,7 +760,7 @@ function actualizarLogo() {
             };
             img.onerror = function() {
                 // Si la imagen falla al cargar, mostrar logo por defecto
-                logoImg.src = 'https://via.placeholder.com/200x60/007bff/ffffff?text=INEFABLESTORE';
+                logoImg.src = '/static/images/20250706_015933_Captura_de_pantalla_5-7-2025_182440_www.inefablestor.png';
                 logoImg.style.opacity = '1';
                 console.log('Error al cargar logo personalizado, usando logo por defecto');
             };
@@ -821,7 +842,7 @@ function actualizarImagenesCarrusel() {
     function cargarImagenCarrusel(slide, url, index) {
         if (!slide) return;
 
-        const urlFinal = url || `https://via.placeholder.com/800x300/007bff/ffffff?text=Oferta+${index + 1}`;
+        const urlFinal = url || `/static/images/20250701_212818_free_fire.webp`;
         
         // Solo cargar si la URL es diferente para evitar recargas innecesarias
         if (slide.src !== urlFinal && !slide.src.includes(urlFinal.split('/').pop())) {
@@ -837,7 +858,7 @@ function actualizarImagenesCarrusel() {
                 img.onerror = function() {
                     console.warn(`Error al cargar imagen del carrusel ${index + 1}:`, urlFinal);
                     // Usar imagen placeholder si falla
-                    slide.src = `https://via.placeholder.com/800x300/007bff/ffffff?text=Oferta+${index + 1}`;
+                    slide.src = `/static/images/20250701_212818_free_fire.webp`;
                     slide.style.display = 'block';
                     slide.style.opacity = '1';
                 };
@@ -868,16 +889,17 @@ function actualizarImagenesCarrusel() {
 // Versión optimizada de cargar productos
 async function cargarProductosOptimizado() {
     try {
-        // Usar cache si está disponible y es válido
+        // Si hay cache válido, mostrarlo de inmediato para una carga rápida,
+        // pero NO regresar: siempre vamos a buscar datos frescos para reflejar
+        // productos nuevos o cambios desde el panel admin.
         if (productosCache && cacheValido()) {
             productos = productosCache;
-            // Mostrar productos de forma diferida para no bloquear UI
             setTimeout(() => mostrarProductos(), 50);
             productosCargados = true;
-            return;
+            // Continuar para obtener datos frescos
         }
 
-        const response = await fetch('/productos');
+        const response = await fetch('/productos', { credentials: 'include' });
 
         if (!response.ok) {
             throw new Error(`Error ${response.status}: ${response.statusText}`);

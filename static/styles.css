@@ -448,6 +448,79 @@ header {
     border: none;
 }
 
+/* ==========================
+   Hero Carousel (homepage)
+   ========================== */
+.carousel-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    background: #111;
+}
+
+.carousel {
+    display: flex;
+    width: 100%;
+    transition: transform 0.5s ease;
+}
+
+.carousel-slide {
+    min-width: 100%;
+}
+
+.carousel-slide img {
+    width: 100%;
+    height: 320px; /* Desktop height */
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+.carousel-dots {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 2;
+}
+
+.carousel-dots .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+    border: 1px solid rgba(255,255,255,0.8);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.carousel-dots .dot.active {
+    background: #28a745;
+    border-color: #28a745;
+}
+
+@media (max-width: 768px) {
+    .carousel-container {
+        border-radius: 12px;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    }
+    .carousel-slide img {
+        height: 200px; /* Phone height: mantiene look, adapta altura al teléfono */
+    }
+    .carousel-dots {
+        bottom: 8px;
+        gap: 6px;
+    }
+    .carousel-dots .dot {
+        width: 8px;
+        height: 8px;
+    }
+}
+
 .tab-section {
     display: none;
 }

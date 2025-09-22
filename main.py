@@ -1,11 +1,9 @@
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for
 import os
-import psycopg2
-from psycopg2.extras import RealDictCursor
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from sqlalchemy import create_engine, text
-from sqlalchemy.pool import NullPool
+from sqlalchemy.pool import StaticPool
 import secrets
 from datetime import datetime, timedelta
 import uuid
@@ -15,6 +13,7 @@ import time
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.message import EmailMessage
 import threading
 from dotenv import load_dotenv
 import json
@@ -24,8 +23,6 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'tu_clave_secreta_aqui')
 app.config['UPLOAD_FOLDER'] = 'static/images'
 
-
-
 # Configuración de sesión
 from datetime import timedelta
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)  # 1 hora
@@ -33,54 +30,23 @@ app.config['SESSION_COOKIE_SECURE'] = False  # True en producción con HTTPS
 app.config['SESSION_COOKIE_HTTPONLY'] = True  # Previene acceso via JavaScript
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Protección CSRF
 
-# Configuración de SQLAlchemy con DATABASE_URL
+# Configuración de SQLAlchemy con SQLite
 def create_db_engine():
-    database_url = os.environ.get('DATABASE_URL')
-    if not database_url:
-        # Fallback para desarrollo local usando variables de entorno individuales
-        db_user = os.environ.get('DB_USER', 'postgres')
-        db_password = os.environ.get('DB_PASSWORD', '')
-        db_host = os.environ.get('DB_HOST', 'localhost')
-        db_port = os.environ.get('DB_PORT', '5432')
-        db_name = os.environ.get('DB_NAME', 'inefablestore')
-        database_url = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
-    else:
-        # Limpiar la URL si viene con formato psql
-        if database_url.startswith("psql '") and database_url.endswith("'"):
-            database_url = database_url[6:-1]  # Remover "psql '" del inicio y "'" del final
-        elif database_url.startswith("psql "):
-            database_url = database_url[5:]  # Remover "psql " del inicio
-
-    # Crear versión censurada para logging
-    try:
-        if '://' in database_url and '@' in database_url:
-            url_parts = database_url.split('://')
-            if len(url_parts) == 2:
-                protocol = url_parts[0]
-                rest = url_parts[1]
-                if '@' in rest:
-                    auth_part = rest.split('@')[0]
-                    host_part = rest.split('@')[1]
-                    masked_url = f"{protocol}://***:***@{host_part}"
-                else:
-                    masked_url = database_url
-            else:
-                masked_url = database_url
-        else:
-            masked_url = database_url
-        print(f"🔗 Intentando conectar con: {masked_url}")
-    except Exception as log_error:
-        print(f"🔗 Intentando conectar con base de datos... (error en logging: {log_error})")
+    # Usar SQLite como base de datos por defecto
+    db_path = os.environ.get('DATABASE_PATH', 'inefablestore.db')
+    database_url = f"sqlite:///{db_path}"
+    
+    print(f"🔗 Conectando con SQLite: {db_path}")
 
     try:
-        # Agregar configuraciones específicas para Supabase/PostgreSQL
+        # Configuración específica para SQLite
         engine = create_engine(
             database_url,
-            poolclass=NullPool,  # Para evitar problemas de conexión en Replit
+            poolclass=StaticPool,  # Para SQLite
             pool_pre_ping=True,  # Para verificar conexiones antes de usarlas
             connect_args={
-                "connect_timeout": 30,  # Timeout de conexión
-                "application_name": "InefableStore"
+                "check_same_thread": False,  # Permitir acceso desde múltiples threads
+                "timeout": 30  # Timeout de conexión
             },
             echo=False  # Cambiar a True para debug SQL
         )
@@ -89,14 +55,13 @@ def create_db_engine():
         with engine.connect() as conn:
             conn.execute(text('SELECT 1'))
 
-        print("✅ Conexión a la base de datos exitosa")
+        print("✅ Conexión a SQLite exitosa")
         return engine
     except Exception as e:
-        print(f"❌ Error conectando a PostgreSQL: {e}")
+        print(f"❌ Error conectando a SQLite: {e}")
         print("💡 Verifica que:")
-        print("   - El Secret DATABASE_URL esté configurado correctamente")
-        print("   - La URL incluya la contraseña correcta")
-        print("   - El servidor de base de datos esté disponible")
+        print("   - El directorio tenga permisos de escritura")
+        print("   - No haya problemas de espacio en disco")
         raise e
 
 # Engine global
@@ -109,32 +74,39 @@ def get_db_connection():
         db_engine = create_db_engine()
     return db_engine.connect()
 
-def get_psycopg2_connection():
-    """Obtener conexión directa con psycopg2 para funciones que lo requieren"""
-    database_url = os.environ.get('DATABASE_URL')
-    if not database_url:
-        db_user = os.environ.get('DB_USER', 'postgres')
-        db_password = os.environ.get('DB_PASSWORD', '')
-        db_host = os.environ.get('DB_HOST', 'localhost')
-        db_port = os.environ.get('DB_PORT', '5432')
-        db_name = os.environ.get('DB_NAME', 'inefablestore')
-        database_url = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
-    else:
-        # Limpiar la URL si viene con formato psql
-        if database_url.startswith("psql '") and database_url.endswith("'"):
-            database_url = database_url[6:-1]  # Remover "psql '" del inicio y "'" del final
-        elif database_url.startswith("psql "):
-            database_url = database_url[5:]  # Remover "psql " del inicio
-
+def _sqlite_column_exists(conn, table: str, column: str) -> bool:
     try:
-        return psycopg2.connect(
-            database_url,
-            connect_timeout=30,
-            application_name="InefableStore-Direct"
+        result = conn.execute(text(f"PRAGMA table_info({table})"))
+        cols = [row[1] for row in result.fetchall()]
+        return column in cols
+    except Exception:
+        return False
+
+def _ensure_sqlite_column(conn, table: str, column: str, ddl: str):
+    """Ensure a column exists in a SQLite table. ddl must be 'column_name TYPE [DEFAULT ...]'."""
+    if not _sqlite_column_exists(conn, table, column):
+        try:
+            conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {ddl}"))
+            print(f"🧩 Migración SQLite: añadida columna {table}.{column}")
+        except Exception as e:
+            print(f"⚠️ No se pudo añadir columna {table}.{column}: {e}")
+
+def get_sqlite_connection():
+    """Obtener conexión directa con sqlite3 para funciones que lo requieren"""
+    db_path = os.environ.get('DATABASE_PATH', 'inefablestore.db')
+    
+    try:
+        conn = sqlite3.connect(
+            db_path,
+            timeout=30,
+            check_same_thread=False
         )
+        # Configurar SQLite para que devuelva filas como diccionarios
+        conn.row_factory = sqlite3.Row
+        return conn
     except Exception as e:
-        print(f"❌ Error en conexión psycopg2: {e}")
-        print(f"🔗 URL utilizada: {database_url[:20]}...{database_url[-20:] if len(database_url) > 40 else database_url}")
+        print(f"❌ Error en conexión SQLite: {e}")
+        print(f"🔗 Ruta utilizada: {db_path}")
         raise e
 
 def enviar_correo_gift_card_completada(orden_info):
@@ -476,115 +448,77 @@ def init_db():
     conn = get_db_connection()
 
     try:
-        # Crear tablas usando SQLAlchemy
+        # Asegurar tablas base (si no existen)
+        # Crear tablas usando SQLAlchemy (SQLite compatible)
         conn.execute(text('''
             CREATE TABLE IF NOT EXISTS juegos (
-                id SERIAL PRIMARY KEY,
-                nombre VARCHAR(100),
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nombre TEXT,
                 descripcion TEXT,
-                imagen VARCHAR(255),
-                categoria VARCHAR(50) DEFAULT 'juegos'
+                imagen TEXT,
+                categoria TEXT DEFAULT 'juegos',
+                orden INTEGER DEFAULT 0,
+                etiquetas TEXT
             );
         '''))
 
-        # Agregar columna categoria si no existe (migración)
-        conn.execute(text('''
-            ALTER TABLE juegos 
-            ADD COLUMN IF NOT EXISTS categoria VARCHAR(50) DEFAULT 'juegos';
-        '''))
+        # SQLite no soporta ADD COLUMN IF NOT EXISTS, pero las columnas ya están en CREATE TABLE
 
         conn.execute(text('''
             CREATE TABLE IF NOT EXISTS paquetes (
-                id SERIAL PRIMARY KEY,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
                 juego_id INTEGER REFERENCES juegos(id),
-                nombre VARCHAR(100),
-                precio NUMERIC(10,2)
+                nombre TEXT,
+                precio REAL,
+                orden INTEGER DEFAULT 0,
+                imagen TEXT
             );
         '''))
 
         conn.execute(text('''
             CREATE TABLE IF NOT EXISTS ordenes (
-                id SERIAL PRIMARY KEY,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
                 juego_id INTEGER REFERENCES juegos(id),
-                paquete VARCHAR(100),
-                monto NUMERIC(10,2),
-                usuario_email VARCHAR(100),
-                usuario_id VARCHAR(100),
-                usuario_telefono VARCHAR(20),
-                metodo_pago VARCHAR(50),
-                referencia_pago VARCHAR(100),
-                estado VARCHAR(20) DEFAULT 'procesando',
-                fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                paquete TEXT,
+                monto REAL,
+                usuario_email TEXT,
+                usuario_id TEXT,
+                usuario_telefono TEXT,
+                metodo_pago TEXT,
+                referencia_pago TEXT,
+                codigo_producto TEXT,
+                estado TEXT DEFAULT 'procesando',
+                fecha DATETIME DEFAULT CURRENT_TIMESTAMP
             );
         '''))
 
-        # Agregar columna usuario_id si no existe (migración)
-        conn.execute(text('''
-            ALTER TABLE ordenes 
-            ADD COLUMN IF NOT EXISTS usuario_id VARCHAR(100);
-        '''))
-
-        # Agregar columna codigo_producto si no existe (migración)
-        conn.execute(text('''
-            ALTER TABLE ordenes 
-            ADD COLUMN IF NOT EXISTS codigo_producto VARCHAR(255);
-        '''))
-
-        # Agregar columna usuario_telefono si no existe (migración)
-        conn.execute(text('''
-            ALTER TABLE ordenes 
-            ADD COLUMN IF NOT EXISTS usuario_telefono VARCHAR(20);
-        '''))
-
-        # Agregar columna orden si no existe (migración)
-        conn.execute(text('''
-            ALTER TABLE paquetes 
-            ADD COLUMN IF NOT EXISTS orden INTEGER DEFAULT 0;
-        '''))
-
-        # Agregar columna imagen si no existe (migración)
-        conn.execute(text('''
-            ALTER TABLE paquetes 
-            ADD COLUMN IF NOT EXISTS imagen VARCHAR(255);
-        '''))
-
-        # Agregar columna orden a juegos si no existe (migración)
-        conn.execute(text('''
-            ALTER TABLE juegos 
-            ADD COLUMN IF NOT EXISTS orden INTEGER DEFAULT 0;
-        '''))
-
-        # Agregar columna etiquetas si no existe (migración)
-        conn.execute(text('''
-            ALTER TABLE juegos 
-            ADD COLUMN IF NOT EXISTS etiquetas VARCHAR(255);
-        '''))
+        # SQLite migrations are handled by including all columns in CREATE TABLE statements above
 
         # Crear tabla de valoraciones
         conn.execute(text('''
             CREATE TABLE IF NOT EXISTS valoraciones (
-                id SERIAL PRIMARY KEY,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
                 juego_id INTEGER REFERENCES juegos(id) ON DELETE CASCADE,
-                usuario_email VARCHAR(100) NOT NULL,
+                usuario_email TEXT NOT NULL,
                 calificacion INTEGER CHECK (calificacion >= 1 AND calificacion <= 5),
                 comentario TEXT,
-                fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
                 UNIQUE(juego_id, usuario_email)
             );
         '''))
 
         conn.execute(text('''
             CREATE TABLE IF NOT EXISTS imagenes (
-                id SERIAL PRIMARY KEY,
-                tipo VARCHAR(50),
-                ruta VARCHAR(255)
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                tipo TEXT,
+                ruta TEXT
             );
         '''))
 
         conn.execute(text('''
             CREATE TABLE IF NOT EXISTS configuracion (
-                id SERIAL PRIMARY KEY,
-                campo VARCHAR(50) UNIQUE,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                campo TEXT UNIQUE,
                 valor TEXT
             );
         '''))
@@ -592,27 +526,30 @@ def init_db():
         # Crear tabla de usuarios
         conn.execute(text('''
             CREATE TABLE IF NOT EXISTS usuarios (
-                id SERIAL PRIMARY KEY,
-                nombre VARCHAR(100) NOT NULL,
-                email VARCHAR(100) UNIQUE NOT NULL,
-                telefono VARCHAR(20),
-                password_hash VARCHAR(255) NOT NULL,
-                es_admin BOOLEAN DEFAULT FALSE,
-                fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nombre TEXT NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                telefono TEXT,
+                password_hash TEXT NOT NULL,
+                es_admin INTEGER DEFAULT 0,
+                fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP
             );
         '''))
 
-        # Agregar columna es_admin si no existe (migración)
-        conn.execute(text('''
-            ALTER TABLE usuarios 
-            ADD COLUMN IF NOT EXISTS es_admin BOOLEAN DEFAULT FALSE;
-        '''))
+        # Migraciones SQLite: añadir columnas faltantes si la DB ya existía sin estas columnas
+        _ensure_sqlite_column(conn, 'juegos', 'categoria', "categoria TEXT DEFAULT 'juegos'")
+        _ensure_sqlite_column(conn, 'juegos', 'orden', 'orden INTEGER DEFAULT 0')
+        _ensure_sqlite_column(conn, 'juegos', 'etiquetas', 'etiquetas TEXT')
 
-        # Agregar columna telefono si no existe (migración)
-        conn.execute(text('''
-            ALTER TABLE usuarios 
-            ADD COLUMN IF NOT EXISTS telefono VARCHAR(20);
-        '''))
+        _ensure_sqlite_column(conn, 'paquetes', 'orden', 'orden INTEGER DEFAULT 0')
+        _ensure_sqlite_column(conn, 'paquetes', 'imagen', 'imagen TEXT')
+
+        _ensure_sqlite_column(conn, 'ordenes', 'usuario_id', 'usuario_id TEXT')
+        _ensure_sqlite_column(conn, 'ordenes', 'usuario_telefono', 'usuario_telefono TEXT')
+        _ensure_sqlite_column(conn, 'ordenes', 'codigo_producto', 'codigo_producto TEXT')
+
+        _ensure_sqlite_column(conn, 'usuarios', 'telefono', 'telefono TEXT')
+        _ensure_sqlite_column(conn, 'usuarios', 'es_admin', 'es_admin INTEGER DEFAULT 0')
 
         # Verificar si ya hay productos
         result = conn.execute(text('SELECT COUNT(*) FROM juegos'))
@@ -621,17 +558,17 @@ def init_db():
         # Insertar productos de ejemplo si no existen
         if product_count == 0:
             # Free Fire
-            result = conn.execute(text('''
+            conn.execute(text('''
                 INSERT INTO juegos (nombre, descripcion, imagen, categoria) 
-                VALUES (:nombre, :descripcion, :imagen, :categoria) RETURNING id
+                VALUES (:nombre, :descripcion, :imagen, :categoria)
             '''), {
                 'nombre': 'Free Fire',
                 'descripcion': 'Juego de batalla real con acción intensa y gráficos increíbles',
                 'imagen': '/static/images/20250701_212818_free_fire.webp',
                 'categoria': 'juegos'
             })
-
-            ff_id = result.fetchone()[0]
+            result = conn.execute(text('SELECT last_insert_rowid()'))
+            ff_id = result.scalar()
 
             # Paquetes de Free Fire
             ff_packages = [
@@ -649,17 +586,17 @@ def init_db():
                 '''), {'juego_id': ff_id, 'nombre': nombre, 'precio': precio, 'orden': orden})
 
             # PUBG Mobile
-            result = conn.execute(text('''
+            conn.execute(text('''
                 INSERT INTO juegos (nombre, descripcion, imagen, categoria) 
-                VALUES (:nombre, :descripcion, :imagen, :categoria) RETURNING id
+                VALUES (:nombre, :descripcion, :imagen, :categoria)
             '''), {
                 'nombre': 'PUBG Mobile',
                 'descripcion': 'Battle royale de última generación con mecánicas realistas',
                 'imagen': '/static/images/default-product.jpg',
                 'categoria': 'juegos'
             })
-
-            pubg_id = result.fetchone()[0]
+            result = conn.execute(text('SELECT last_insert_rowid()'))
+            pubg_id = result.scalar()
 
             # Paquetes de PUBG
             pubg_packages = [
@@ -677,17 +614,17 @@ def init_db():
                 '''), {'juego_id': pubg_id, 'nombre': nombre, 'precio': precio, 'orden': orden})
 
             # Call of Duty Mobile
-            result = conn.execute(text('''
+            conn.execute(text('''
                 INSERT INTO juegos (nombre, descripcion, imagen, categoria) 
-                VALUES (:nombre, :descripcion, :imagen, :categoria) RETURNING id
+                VALUES (:nombre, :descripcion, :imagen, :categoria)
             '''), {
                 'nombre': 'Call of Duty Mobile',
                 'descripcion': 'FPS de acción con multijugador competitivo y battle royale',
                 'imagen': '/static/images/default-product.jpg',
                 'categoria': 'juegos'
             })
-
-            cod_id = result.fetchone()[0]
+            result = conn.execute(text('SELECT last_insert_rowid()'))
+            cod_id = result.scalar()
 
             # Paquetes de COD
             cod_packages = [
@@ -738,7 +675,7 @@ def init_db():
                 password_hash = generate_password_hash(admin_password)
                 conn.execute(text('''
                     INSERT INTO usuarios (nombre, email, password_hash, es_admin)
-                    VALUES (:nombre, :email, :password_hash, TRUE)
+                    VALUES (:nombre, :email, :password_hash, 1)
                 '''), {
                     'nombre': 'Administrador',
                     'email': admin_email,
@@ -747,9 +684,10 @@ def init_db():
                 print(f"✅ Usuario administrador creado: {admin_email}")
             else:
                 # Actualizar usuario existente para que sea admin
+                password_hash = generate_password_hash(admin_password)
                 conn.execute(text('''
-                    UPDATE usuarios SET es_admin = TRUE WHERE email = :email
-                '''), {'email': admin_email})
+                    UPDATE usuarios SET es_admin = 1, password_hash = :password_hash WHERE email = :email
+                '''), {'email': admin_email, 'password_hash': password_hash})
                 print(f"✅ Usuario actualizado como administrador: {admin_email}")
 
         conn.commit()
@@ -760,7 +698,178 @@ def init_db():
     finally:
         conn.close()
 
+# =====================
+# Email / Notificaciones
+# =====================
 
+def _smtp_config():
+    """Obtiene configuración SMTP desde variables de entorno.
+    Para Gmail: smtp.gmail.com:587 TLS. Variables esperadas:
+    SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, SMTP_FROM, SMTP_USE_TLS (1/0)
+    """
+    host = os.getenv('SMTP_HOST', 'smtp.gmail.com')
+    port = int(os.getenv('SMTP_PORT', '587'))
+    user = os.getenv('SMTP_USER')
+    password = os.getenv('SMTP_PASSWORD')
+    sender = os.getenv('SMTP_FROM', user or '')
+    use_tls = os.getenv('SMTP_USE_TLS', '1') not in ('0', 'false', 'False')
+    use_ssl = os.getenv('SMTP_USE_SSL', '0') not in ('0', 'false', 'False')
+    return host, port, user, password, sender, use_tls, use_ssl
+
+def _send_email_safe(to_email: str, subject: str, html_body: str, text_body: str = None):
+    host, port, user, password, sender, use_tls, use_ssl = _smtp_config()
+    if not (host and port and sender and user and password and to_email):
+        missing = []
+        if not host: missing.append('SMTP_HOST')
+        if not port: missing.append('SMTP_PORT')
+        if not user: missing.append('SMTP_USER')
+        if not sender: missing.append('SMTP_FROM (o SMTP_USER)')
+        if not password: missing.append('SMTP_PASSWORD')
+        if not to_email: missing.append('DESTINATARIO (to_email)')
+        print('✉️ Aviso: SMTP no configurado completamente. Saltando envío de correo.')
+        print(f"Faltan: {', '.join(missing) if missing else 'campos desconocidos'}")
+        print(f'Subject: {subject} | To: {to_email}')
+        return False
+
+    try:
+        msg = EmailMessage()
+        msg['Subject'] = subject
+        msg['From'] = sender
+        msg['To'] = to_email
+        if text_body:
+            msg.set_content(text_body)
+        msg.add_alternative(html_body, subtype='html')
+        # Elegir modo de conexión: SSL puro (465) o STARTTLS (587) o plano
+        if use_ssl or port == 465:
+            with smtplib.SMTP_SSL(host, port, timeout=30) as server:
+                server.login(user, password)
+                server.send_message(msg)
+        else:
+            with smtplib.SMTP(host, port, timeout=30) as server:
+                if use_tls:
+                    server.starttls()
+                server.login(user, password)
+                server.send_message(msg)
+        print(f'✅ Correo enviado a {to_email}: {subject}')
+        return True
+    except Exception as e:
+        print(f'❌ Error enviando correo a {to_email}: {e}')
+        return False
+
+def enviar_correo_recarga_completada(orden: dict):
+    asunto = f"Tu recarga de {orden.get('juego_nombre','juego')} fue procesada"
+    to = orden.get('usuario_email')
+    monto = orden.get('monto')
+    paquete = orden.get('paquete')
+    ref = orden.get('referencia_pago')
+    html = f"""
+    <h2>¡Tu recarga fue procesada! 🎮</h2>
+    <p>Juego: <b>{orden.get('juego_nombre','')}</b></p>
+    <p>Paquete: <b>{paquete}</b></p>
+    <p>Monto: <b>{monto}</b></p>
+    <p>Referencia: <b>{ref}</b></p>
+    <p>Gracias por comprar en Inefablestore.</p>
+    """
+    _send_email_safe(to, asunto, html, f"Recarga procesada. Juego: {orden.get('juego_nombre','')}, Paquete: {paquete}, Monto: {monto}, Ref: {ref}")
+
+def enviar_correo_gift_card_completada(orden: dict):
+    asunto = f"Tu Gift Card de {orden.get('juego_nombre','Gift Card')} fue entregada"
+    to = orden.get('usuario_email')
+    codigo = orden.get('codigo_producto')
+    html = f"""
+    <h2>¡Tu Gift Card está lista! 🎁</h2>
+    <p>Producto: <b>{orden.get('juego_nombre','Gift Card')}</b></p>
+    <p>Código: <b style='font-size:18px'>{codigo}</b></p>
+    <p>Gracias por comprar en Inefablestore.</p>
+    """
+    _send_email_safe(to, asunto, html, f"Gift Card lista. Código: {codigo}")
+
+def enviar_correo_orden_rechazada(orden: dict):
+    asunto = f"Tu orden fue rechazada"
+    to = orden.get('usuario_email')
+    ref = orden.get('referencia_pago')
+    html = f"""
+    <h2>Tu orden fue rechazada ⚠️</h2>
+    <p>Juego: <b>{orden.get('juego_nombre','')}</b></p>
+    <p>Paquete: <b>{orden.get('paquete','')}</b></p>
+    <p>Referencia: <b>{ref}</b></p>
+    <p>Si crees que es un error, contáctanos respondiendo este correo.</p>
+    """
+    _send_email_safe(to, asunto, html, f"Orden rechazada. Ref: {ref}")
+
+def enviar_notificacion_orden(orden: dict):
+    """Notifica creación de orden:
+    - Envía un correo de confirmación al comprador (usuario_email).
+    - Envía una copia resumida al correo de la tienda (SMTP_FROM/SMTP_USER).
+    """
+    try:
+        # Correo al comprador
+        asunto_user = "Hemos recibido tu orden"
+        html_user = f"""
+        <h2>¡Gracias por tu compra! 🧾</h2>
+        <p>Hemos recibido tu orden y está en estado <b>{orden.get('estado')}</b>.</p>
+        <ul>
+          <li>Orden: <b>#{orden.get('id')}</b></li>
+          <li>Juego: <b>{orden.get('juego_nombre','')}</b></li>
+          <li>Paquete: <b>{orden.get('paquete','')}</b></li>
+          <li>Monto: <b>{orden.get('monto')}</b></li>
+          <li>Método de pago: <b>{orden.get('metodo_pago')}</b></li>
+          <li>Referencia: <b>{orden.get('referencia_pago')}</b></li>
+        </ul>
+        <p>Te avisaremos cuando esté procesada.</p>
+        """
+        # Enviar al comprador si tiene email válido
+        to_user = (orden.get('usuario_email') or '').strip()
+        if to_user:
+            _send_email_safe(to_user, asunto_user, html_user)
+        else:
+            print('✉️ Aviso: correo del comprador vacío o inválido, se omite envío al comprador.')
+
+        # Correo a la tienda
+        host, port, user, password, sender, use_tls, use_ssl = _smtp_config()
+        admin_mail = (sender or user or '').strip()
+        if admin_mail:
+            asunto_admin = f"Nueva orden #{orden.get('id')}"
+            html_admin = f"""
+            <h3>Nueva orden recibida</h3>
+            <ul>
+              <li>Orden: <b>#{orden.get('id')}</b></li>
+              <li>Cliente: <b>{orden.get('usuario_email')}</b></li>
+              <li>Teléfono: <b>{orden.get('usuario_telefono') or ''}</b></li>
+              <li>Juego: <b>{orden.get('juego_nombre','')}</b></li>
+              <li>Paquete: <b>{orden.get('paquete','')}</b></li>
+              <li>Monto: <b>{orden.get('monto')}</b></li>
+              <li>Método de pago: <b>{orden.get('metodo_pago')}</b></li>
+              <li>Referencia: <b>{orden.get('referencia_pago')}</b></li>
+              <li>Fecha: <b>{orden.get('fecha')}</b></li>
+            </ul>
+            """
+            _send_email_safe(admin_mail, asunto_admin, html_admin)
+        else:
+            print('✉️ Aviso: no se encontró SMTP_FROM ni SMTP_USER para notificar a la tienda. Se omite envío de copia a la tienda.')
+    except Exception as e:
+        print(f"❌ Error en enviar_notificacion_orden: {e}")
+
+def limpiar_ordenes_antiguas(usuario_email):
+    """Mantiene solo las últimas 40 órdenes del usuario para evitar acumulación."""
+    try:
+        conn = get_db_connection()
+        try:
+            conn.execute(text('''
+                DELETE FROM ordenes 
+                WHERE usuario_email = :email 
+                AND id NOT IN (
+                    SELECT id FROM ordenes 
+                    WHERE usuario_email = :email 
+                    ORDER BY fecha DESC 
+                    LIMIT 40
+                )
+            '''), {'email': usuario_email})
+            conn.commit()
+        finally:
+            conn.close()
+    except Exception as e:
+        print(f"⚠️ Error limpiando órdenes antiguas: {e}")
 
 @app.route('/')
 def index():
@@ -810,10 +919,9 @@ def create_orden():
         usuario_data = result_user.fetchone()
         usuario_telefono = usuario_data[0] if usuario_data else None
 
-        result = conn.execute(text('''
+        conn.execute(text('''
             INSERT INTO ordenes (juego_id, paquete, monto, usuario_email, usuario_id, usuario_telefono, metodo_pago, referencia_pago, estado, fecha)
-            VALUES (:juego_id, :paquete, :monto, :usuario_email, :usuario_id, :usuario_telefono, :metodo_pago, :referencia_pago, 'procesando', CURRENT_TIMESTAMP)
-            RETURNING id
+            VALUES (:juego_id, :paquete, :monto, :usuario_email, :usuario_id, :usuario_telefono, :metodo_pago, :referencia_pago, 'procesando', datetime('now'))
         '''), {
             'juego_id': juego_id,
             'paquete': paquete,
@@ -825,18 +933,27 @@ def create_orden():
             'referencia_pago': referencia_pago
         })
 
-        orden_id = result.fetchone()[0]
+        # Obtener ID insertado en SQLite de forma confiable
+        result = conn.execute(text('SELECT last_insert_rowid()'))
+        orden_id = result.scalar()
 
         # Obtener datos completos de la orden para la notificación
         result = conn.execute(text('''
             SELECT o.*, j.nombre as juego_nombre 
             FROM ordenes o 
-            LEFT JOIN juegos j ON o.juego_id = j.id 
+            LEFT JOIN juegos j ON o.juego_id = COALESCE(j.id, j.rowid)
             WHERE o.id = :orden_id
         '''), {'orden_id': orden_id})
 
         orden_completa = result.fetchone()
         conn.commit()
+
+        # Debug: mostrar datos de la orden creada
+        print(f"🔍 Orden creada - ID: {orden_id}")
+        if orden_completa:
+            print(f"🔍 Datos orden completa: {dict(orden_completa._mapping)}")
+        else:
+            print("⚠️ No se pudo obtener orden_completa tras INSERT")
 
         # Limpiar órdenes antiguas del usuario (mantener solo las últimas 40)
         limpiar_ordenes_antiguas(usuario_email)
@@ -849,6 +966,7 @@ def create_orden():
 
     # Enviar notificación por correo en un hilo separado para no bloquear la respuesta
     if orden_completa:
+        print("📧 Preparando envío de notificación por correo...")
         orden_data = {
             'id': orden_completa[0],
             'juego_id': orden_completa[1],
@@ -863,9 +981,13 @@ def create_orden():
             'fecha': orden_completa[10],
             'juego_nombre': orden_completa[11]
         }
+        print(f"📧 Datos para correo: {orden_data}")
 
         # Enviar notificación en hilo separado
+        print("📧 Iniciando hilo de envío de correo...")
         threading.Thread(target=enviar_notificacion_orden, args=(orden_data,)).start()
+    else:
+        print("❌ No se enviará correo: orden_completa es None")
 
     return jsonify({'message': 'Orden creada correctamente', 'id': orden_id})
 
@@ -883,7 +1005,8 @@ def admin_required(f):
                                  {'user_id': session['user_id']})
             usuario = result.fetchone()
 
-            if not usuario or not usuario[0]:  # es_admin es False
+            # usuario[0] puede ser 0/1; convertir a bool
+            if not usuario or not bool(usuario[0]):  # es_admin es False
                 return jsonify({'error': 'Acceso denegado. No tienes permisos de administrador.'}), 403
 
         finally:
@@ -892,6 +1015,61 @@ def admin_required(f):
         return f(*args, **kwargs)
     decorated_function.__name__ = f.__name__
     return decorated_function
+
+# Endpoint ligero para verificar sesión de admin y conectividad a la DB
+@app.route('/admin/ping', methods=['GET'])
+@admin_required
+def admin_ping():
+    conn = get_db_connection()
+    try:
+        # SELECT 1 para validar conexión
+        conn.execute(text('SELECT 1'))
+        return jsonify({
+            'ok': True,
+            'db': 'ok',
+            'engine': 'sqlite',
+            'user_id': session.get('user_id'),
+        })
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)}), 500
+    finally:
+        conn.close()
+
+# Probar envío de correo desde el panel admin
+@app.route('/admin/test-email', methods=['POST'])
+@admin_required
+def admin_test_email():
+    try:
+        data = request.get_json(silent=True) or {}
+        to = data.get('to')
+        host, port, user, password, sender, use_tls, use_ssl = _smtp_config()
+        destino = to or sender or user
+        if not destino:
+            return jsonify({'ok': False, 'error': 'No se pudo determinar un destinatario. Configure SMTP_FROM o envíe {"to": "correo@destino"}.',
+                            'host': host, 'port': port, 'use_tls': use_tls, 'use_ssl': use_ssl}), 400
+
+        asunto = 'Prueba SMTP Inefablestore'
+        html = '<h3>Correo de prueba</h3><p>Este es un correo de prueba desde el panel admin.</p>'
+        ok = _send_email_safe(destino, asunto, html, 'Correo de prueba desde admin')
+        status = 200 if ok else 500
+        return jsonify({
+            'ok': bool(ok),
+            'to': destino,
+            'from': sender or user,
+            'host': host,
+            'port': port,
+            'use_tls': use_tls,
+            'use_ssl': use_ssl,
+        }), status
+    except Exception as e:
+        # Asegurar respuesta JSON ante errores inesperados
+        try:
+            host, port, user, password, sender, use_tls, use_ssl = _smtp_config()
+        except Exception:
+            host = port = user = sender = None
+            use_tls = use_ssl = None
+        return jsonify({'ok': False, 'error': f'Error inesperado en test-email: {str(e)}',
+                        'host': host, 'port': port, 'use_tls': use_tls, 'use_ssl': use_ssl}), 500
 
 # ENDPOINTS PARA ÓRDENES
 @app.route('/admin/ordenes', methods=['GET'])
@@ -902,7 +1080,7 @@ def get_ordenes():
         result = conn.execute(text('''
             SELECT o.*, j.nombre as juego_nombre, j.categoria 
             FROM ordenes o 
-            LEFT JOIN juegos j ON o.juego_id = j.id 
+            LEFT JOIN juegos j ON o.juego_id = COALESCE(j.id, j.rowid)
             ORDER BY o.fecha DESC
         '''))
         ordenes = result.fetchall()
@@ -931,7 +1109,7 @@ def update_orden(orden_id):
         result = conn.execute(text('''
             SELECT o.*, j.nombre as juego_nombre, j.categoria 
             FROM ordenes o 
-            LEFT JOIN juegos j ON o.juego_id = j.id 
+            LEFT JOIN juegos j ON o.juego_id = COALESCE(j.id, j.rowid) 
             WHERE o.id = :orden_id
         '''), {'orden_id': orden_id})
         orden_info = result.fetchone()
@@ -986,7 +1164,7 @@ def rechazar_orden(orden_id):
         result = conn.execute(text('''
             SELECT o.*, j.nombre as juego_nombre, j.categoria 
             FROM ordenes o 
-            LEFT JOIN juegos j ON o.juego_id = j.id 
+            LEFT JOIN juegos j ON o.juego_id = COALESCE(j.id, j.rowid) 
             WHERE o.id = :orden_id
         '''), {'orden_id': orden_id})
         orden_info = result.fetchone()
@@ -1020,13 +1198,19 @@ def rechazar_orden(orden_id):
 def get_productos():
     conn = get_db_connection()
     try:
-        result = conn.execute(text('SELECT * FROM juegos ORDER BY orden ASC, id ASC'))
+        # In SQLite, ensure we can fallback to rowid if an older table has a NULL id due to legacy
+        result = conn.execute(text('SELECT rowid as _rowid, * FROM juegos ORDER BY orden ASC, id ASC'))
         productos = result.fetchall()
 
         # Convertir a lista de diccionarios y obtener paquetes para cada producto
         productos_list = []
         for producto in productos:
             producto_dict = dict(producto._mapping)
+            # Asegurar id válido (fallback a rowid si fuese None por alguna DB antigua)
+            if producto_dict.get('id') is None and producto_dict.get('_rowid') is not None:
+                producto_dict['id'] = producto_dict['_rowid']
+            # Remover helper interno
+            producto_dict.pop('_rowid', None)
 
             # Obtener paquetes para este producto
             paquetes_result = conn.execute(text('SELECT * FROM paquetes WHERE juego_id = :juego_id ORDER BY orden ASC, id ASC'), 
@@ -1059,9 +1243,9 @@ def create_producto():
     conn = get_db_connection()
     try:
         # Insertar producto
-        result = conn.execute(text('''
+        conn.execute(text('''
             INSERT INTO juegos (nombre, descripcion, imagen, categoria, orden, etiquetas) 
-            VALUES (:nombre, :descripcion, :imagen, :categoria, :orden, :etiquetas) RETURNING id
+            VALUES (:nombre, :descripcion, :imagen, :categoria, :orden, :etiquetas)
         '''), {
             'nombre': nombre, 
             'descripcion': descripcion, 
@@ -1071,7 +1255,9 @@ def create_producto():
             'etiquetas': etiquetas
         })
 
-        producto_id = result.fetchone()[0]
+        # Obtener ID insertado en SQLite de forma confiable
+        result = conn.execute(text('SELECT last_insert_rowid()'))
+        producto_id = result.scalar()
 
         print(f"✅ Producto creado con ID: {producto_id}, categoría: {categoria}")
 
@@ -1111,23 +1297,43 @@ def update_producto(producto_id):
 
     conn = get_db_connection()
     try:
-        # Actualizar producto
-        conn.execute(text('''
-            UPDATE juegos SET nombre = :nombre, descripcion = :descripcion, imagen = :imagen, categoria = :categoria, orden = :orden, etiquetas = :etiquetas 
-            WHERE id = :producto_id
-        '''), {
-            'nombre': nombre, 
-            'descripcion': descripcion, 
-            'imagen': imagen, 
-            'categoria': categoria,
-            'orden': orden,
-            'etiquetas': etiquetas,
-            'producto_id': producto_id
-        })
+        # Resolver clave del producto (id o rowid para legados)
+        res = conn.execute(text('SELECT rowid as _rowid, id FROM juegos WHERE id = :pid OR rowid = :pid'), {'pid': producto_id}).fetchone()
+        if not res:
+            return jsonify({'error': 'Producto no encontrado'}), 404
+        rowid = res._mapping.get('_rowid')
+        real_id = res._mapping.get('id') if res._mapping.get('id') is not None else rowid
 
-        # Eliminar paquetes existentes y crear nuevos
-        conn.execute(text('DELETE FROM paquetes WHERE juego_id = :producto_id'), 
-                    {'producto_id': producto_id})
+        # Actualizar producto por rowid si id es NULL
+        if res._mapping.get('id') is None:
+            conn.execute(text('''
+                UPDATE juegos SET nombre = :nombre, descripcion = :descripcion, imagen = :imagen, categoria = :categoria, orden = :orden, etiquetas = :etiquetas 
+                WHERE rowid = :rid
+            '''), {
+                'nombre': nombre,
+                'descripcion': descripcion,
+                'imagen': imagen,
+                'categoria': categoria,
+                'orden': orden,
+                'etiquetas': etiquetas,
+                'rid': rowid
+            })
+        else:
+            conn.execute(text('''
+                UPDATE juegos SET nombre = :nombre, descripcion = :descripcion, imagen = :imagen, categoria = :categoria, orden = :orden, etiquetas = :etiquetas 
+                WHERE id = :pid
+            '''), {
+                'nombre': nombre,
+                'descripcion': descripcion,
+                'imagen': imagen,
+                'categoria': categoria,
+                'orden': orden,
+                'etiquetas': etiquetas,
+                'pid': producto_id
+            })
+
+        # Eliminar paquetes existentes por juego_id resuelto y crear nuevos
+        conn.execute(text('DELETE FROM paquetes WHERE juego_id = :jid'), {'jid': real_id})
 
         # Insertar nuevos paquetes
         for paquete in paquetes:
@@ -1135,7 +1341,7 @@ def update_producto(producto_id):
                 INSERT INTO paquetes (juego_id, nombre, precio, orden, imagen) 
                 VALUES (:juego_id, :nombre, :precio, :orden, :imagen)
             '''), {
-                'juego_id': producto_id,
+                'juego_id': real_id,
                 'nombre': paquete['nombre'],
                 'precio': paquete['precio'],
                 'orden': paquete.get('orden', 1),
@@ -1155,15 +1361,22 @@ def update_producto(producto_id):
 def delete_producto(producto_id):
     conn = get_db_connection()
     try:
-        # Eliminar órdenes relacionadas primero
-        conn.execute(text('DELETE FROM ordenes WHERE juego_id = :producto_id'), 
-                    {'producto_id': producto_id})
-        # Eliminar paquetes
-        conn.execute(text('DELETE FROM paquetes WHERE juego_id = :producto_id'), 
-                    {'producto_id': producto_id})
-        # Eliminar producto
-        conn.execute(text('DELETE FROM juegos WHERE id = :producto_id'), 
-                    {'producto_id': producto_id})
+        # Resolver la clave del producto (id o rowid)
+        res = conn.execute(text('SELECT rowid as _rowid, id FROM juegos WHERE id = :pid OR rowid = :pid'), {'pid': producto_id}).fetchone()
+        if not res:
+            return jsonify({'error': 'Producto no encontrado'}), 404
+        rowid = res._mapping.get('_rowid')
+        real_id = res._mapping.get('id') if res._mapping.get('id') is not None else rowid
+
+        # Eliminar órdenes y paquetes asociados usando la clave resuelta
+        conn.execute(text('DELETE FROM ordenes WHERE juego_id = :jid'), {'jid': real_id})
+        conn.execute(text('DELETE FROM paquetes WHERE juego_id = :jid'), {'jid': real_id})
+
+        # Eliminar producto por id o rowid según corresponda
+        if res._mapping.get('id') is None:
+            conn.execute(text('DELETE FROM juegos WHERE rowid = :rid'), {'rid': rowid})
+        else:
+            conn.execute(text('DELETE FROM juegos WHERE id = :pid'), {'pid': producto_id})
 
         conn.commit()
         return jsonify({'message': 'Producto eliminado correctamente'})
@@ -1182,11 +1395,12 @@ def get_productos_publico():
         # Optimización: Una sola consulta con JOIN para obtener productos, paquetes y valoraciones
         result = conn.execute(text('''
             SELECT 
+                j.rowid as _rowid,
                 j.id, j.nombre, j.descripcion, j.imagen, j.categoria, j.orden, j.etiquetas,
                 p.id as paquete_id, p.nombre as paquete_nombre, p.precio, p.orden as paquete_orden, p.imagen as paquete_imagen,
                 v.promedio_valoracion, v.total_valoraciones
             FROM juegos j
-            LEFT JOIN paquetes p ON j.id = p.juego_id
+            LEFT JOIN paquetes p ON (p.juego_id = COALESCE(j.id, j.rowid))
             LEFT JOIN (
                 SELECT 
                     juego_id,
@@ -1194,8 +1408,8 @@ def get_productos_publico():
                     COUNT(*) as total_valoraciones
                 FROM valoraciones 
                 GROUP BY juego_id
-            ) v ON j.id = v.juego_id
-            ORDER BY j.orden ASC, j.id ASC, p.orden ASC, p.precio ASC
+            ) v ON COALESCE(j.id, j.rowid) = v.juego_id
+            ORDER BY j.orden ASC, COALESCE(j.id, j.rowid) ASC, p.orden ASC, p.precio ASC
         '''))
 
         rows = result.fetchall()
@@ -1204,14 +1418,15 @@ def get_productos_publico():
         productos_dict = {}
         for row in rows:
             row_dict = dict(row._mapping)
-            producto_id = row_dict['id']
+            # Fallback a rowid si id es NULL (bases antiguas)
+            producto_id = row_dict['id'] if row_dict.get('id') is not None else row_dict.get('_rowid')
 
             if producto_id not in productos_dict:
                 # Asegurar que la categoría no sea None
-                categoria = row_dict['categoria'] or 'juegos'
+                categoria = row_dict.get('categoria') or 'juegos'
 
                 productos_dict[producto_id] = {
-                    'id': row_dict['id'],
+                    'id': producto_id,
                     'nombre': row_dict['nombre'],
                     'descripcion': row_dict['descripcion'],
                     'imagen': row_dict['imagen'],
@@ -1227,7 +1442,7 @@ def get_productos_publico():
                 print(f"📦 Producto: {row_dict['nombre']} | Categoría: {categoria}")
 
             # Agregar paquete si existe
-            if row_dict['paquete_id']:
+            if row_dict['paquete_id'] is not None:
                 productos_dict[producto_id]['paquetes'].append({
                     'id': row_dict['paquete_id'],
                     'nombre': row_dict['paquete_nombre'],
@@ -1481,9 +1696,9 @@ def upload_imagen():
         try:
             result = conn.execute(text('''
                 INSERT INTO imagenes (tipo, ruta) 
-                VALUES (:tipo, :ruta) RETURNING id
+                VALUES (:tipo, :ruta)
             '''), {'tipo': tipo, 'ruta': f'/static/images/{filename}'})
-            imagen_id = result.fetchone()[0]
+            imagen_id = result.lastrowid
             conn.commit()
 
             return jsonify({
@@ -1553,9 +1768,9 @@ def upload_imagenes_bulk():
                 # Guardar en base de datos
                 result = conn.execute(text('''
                     INSERT INTO imagenes (tipo, ruta) 
-                    VALUES (:tipo, :ruta) RETURNING id
+                    VALUES (:tipo, :ruta)
                 '''), {'tipo': tipo, 'ruta': f'/static/images/{filename}'})
-                imagen_id = result.fetchone()[0]
+                imagen_id = result.lastrowid
 
                 resultados.append({
                     'id': imagen_id,
@@ -1678,11 +1893,11 @@ def registro():
         password_hash = generate_password_hash(password)
 
         result = conn.execute(text('''
-            INSERT INTO usuarios (nombre, email, telefono, password_hash)
-            VALUES (:nombre, :email, :telefono, :password_hash) RETURNING id
+            INSERT INTO usuarios (nombre, email, telefono, password_hash, fecha_registro)
+            VALUES (:nombre, :email, :telefono, :password_hash, datetime('now'))
         '''), {'nombre': nombre, 'email': email, 'telefono': telefono, 'password_hash': password_hash})
 
-        user_id = result.fetchone()[0]
+        user_id = result.lastrowid
         conn.commit()
 
         return jsonify({'message': 'Usuario registrado correctamente', 'user_id': user_id})
@@ -1702,34 +1917,47 @@ def login():
     if not email or not password:
         return jsonify({'error': 'Email y contraseña son requeridos'}), 400
 
-    conn = get_psycopg2_connection()
+    conn = get_db_connection()
     try:
-        cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-        cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
-        user = cursor.fetchone()
+        result = conn.execute(text("SELECT id, nombre, email, password_hash, es_admin, fecha_registro FROM usuarios WHERE email = :email"), { 'email': email })
+        row = result.fetchone()
 
-        if user and user.get('password_hash') and check_password_hash(user['password_hash'], password):
-            # Guardar sesión permanente con tiempo de expiración
-            session.permanent = True
-            session['user_id'] = user['id']      # id
-            session['user_email'] = user['email']   # email
-            session['user_name'] = user['nombre']    # nombre
-            session['es_admin'] = user['es_admin']
+        if row:
+            # Mapear fila a dict
+            user = dict(row._mapping)
+            pwd_hash = user.get('password_hash')
+            if pwd_hash and check_password_hash(pwd_hash, password):
+                # Guardar sesión permanente con tiempo de expiración
+                session.permanent = True
+                session['user_id'] = user['id']
+                session['user_email'] = user['email']
+                session['user_name'] = user['nombre']
+                session['es_admin'] = bool(user.get('es_admin', 0))
 
-            return jsonify({
-                'message': 'Sesión iniciada correctamente',
-                'usuario': {
-                    'id': user['id'],
-                    'nombre': user['nombre'],
-                    'email': user['email'],
-                    'fecha_registro': user['fecha_registro'].isoformat() if user['fecha_registro'] else None,
-                    'es_admin': user['es_admin']
-                }
-            })
-        else:
-            return jsonify({'error': 'Email o contraseña incorrectos'}), 401
+                # fecha_registro puede ser str en SQLite
+                fecha_registro = user.get('fecha_registro')
+                fecha_registro_out = None
+                if fecha_registro:
+                    try:
+                        # Intentar parsear a ISO si viene como datetime
+                        fecha_registro_out = fecha_registro.isoformat()
+                    except AttributeError:
+                        # Si ya es str, devolverla tal cual
+                        fecha_registro_out = str(fecha_registro)
+
+                return jsonify({
+                    'message': 'Sesión iniciada correctamente',
+                    'usuario': {
+                        'id': user['id'],
+                        'nombre': user['nombre'],
+                        'email': user['email'],
+                        'fecha_registro': fecha_registro_out,
+                        'es_admin': bool(user.get('es_admin', 0))
+                    }
+                })
+
+        return jsonify({'error': 'Email o contraseña incorrectos'}), 401
     finally:
-        cursor.close()
         conn.close()
 
 @app.route('/logout', methods=['POST'])
@@ -1757,13 +1985,23 @@ def obtener_usuario():
         if not usuario:
             return jsonify({'error': 'Usuario no encontrado'}), 404
 
+        # Manejar fecha_registro que puede venir como datetime o como string (SQLite)
+        fecha_val = usuario[3]
+        try:
+            fecha_out = fecha_val.isoformat() if fecha_val else None
+        except AttributeError:
+            fecha_out = str(fecha_val) if fecha_val else None
+
+        # es_admin entero 0/1 -> booleano
+        es_admin_val = bool(usuario[4]) if usuario[4] is not None else False
+
         return jsonify({
             'usuario': {
                 'id': usuario[0],
                 'nombre': usuario[1],
                 'email': usuario[2],
-                'fecha_registro': usuario[3].isoformat() if usuario[3] else None,
-                'es_admin': usuario[4] if usuario[4] is not None else False
+                'fecha_registro': fecha_out,
+                'es_admin': es_admin_val
             }
         })
 
