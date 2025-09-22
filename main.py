@@ -43,6 +43,18 @@ def ensure_storage_paths():
             os.makedirs(db_dir, exist_ok=True)
         # También asegurar carpeta de imágenes usada por el proyecto
         os.makedirs('static/images', exist_ok=True)
+        # Si la DB no existe aún, intentar copiar una semilla incluida en el repo
+        if not os.path.exists(db_path):
+            seed_path = os.environ.get('SEED_DB_PATH', os.path.join('data', 'proyecto2', 'inefablestore.db'))
+            try:
+                if os.path.exists(seed_path):
+                    import shutil
+                    shutil.copyfile(seed_path, db_path)
+                    print(f"🌱 Base de datos sembrada desde {seed_path} -> {db_path}")
+                else:
+                    print(f"ℹ️ No se encontró seed DB en {seed_path}. Se creará una DB nueva en el primer init_db().")
+            except Exception as e:
+                print(f"⚠️ Error copiando seed DB desde {seed_path} a {db_path}: {e}")
         print(f"🗂️ Rutas de almacenamiento listas. DB dir: {db_dir or os.getcwd()} | DB file: {db_path}")
     except Exception as e:
         print(f"⚠️ No se pudieron crear rutas de almacenamiento: {e}")
