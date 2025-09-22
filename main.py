@@ -30,6 +30,39 @@ app.config['SESSION_COOKIE_SECURE'] = False  # True en producción con HTTPS
 app.config['SESSION_COOKIE_HTTPONLY'] = True  # Previene acceso via JavaScript
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Protección CSRF
 
+# Asegurar rutas de almacenamiento (DB persistente y carpeta de imágenes)
+def ensure_storage_paths():
+    """Crea el directorio del archivo de base de datos y de imágenes si no existen.
+    - En Render, la variable DATABASE_PATH apunta al disco persistente montado (p.ej. /var/data/inefablestore.db)
+    - Creamos el directorio padre si es necesario para evitar errores "no such file or directory".
+    """
+    try:
+        db_path = os.environ.get('DATABASE_PATH', 'inefablestore.db')
+        db_dir = os.path.dirname(db_path)
+        if db_dir:
+            os.makedirs(db_dir, exist_ok=True)
+        # También asegurar carpeta de imágenes usada por el proyecto
+        os.makedirs('static/images', exist_ok=True)
+        print(f"🗂️ Rutas de almacenamiento listas. DB dir: {db_dir or os.getcwd()} | DB file: {db_path}")
+    except Exception as e:
+        print(f"⚠️ No se pudieron crear rutas de almacenamiento: {e}")
+
+# Ejecutar inmediatamente para entornos como Gunicorn en Render
+ensure_storage_paths()
+
+# Inicialización para entornos WSGI (Gunicorn/Render)
+@app.before_first_request
+def _bootstrap_on_first_request():
+    """Asegura rutas y base de datos inicializadas cuando se ejecuta bajo Gunicorn.
+    Se ejecuta una vez por proceso worker en el primer request.
+    """
+    try:
+        ensure_storage_paths()
+        init_db()
+        print("✅ Entorno listo: rutas creadas e init_db ejecutado (before_first_request)")
+    except Exception as e:
+        print(f"⚠️ Error en bootstrap inicial: {e}")
+
 # Configuración de SQLAlchemy con SQLite
 def create_db_engine():
     # Usar SQLite como base de datos por defecto
