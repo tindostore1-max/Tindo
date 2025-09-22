@@ -62,13 +62,7 @@ def ensure_storage_paths():
 # Ejecutar inmediatamente para entornos como Gunicorn en Render
 ensure_storage_paths()
 
-# Inicialización al importar la app (compatible con Flask 3.x y Gunicorn)
-try:
-    # ensure_storage_paths() ya fue llamado arriba
-    init_db()
-    print("✅ Entorno listo: init_db ejecutado al importar la app")
-except Exception as e:
-    print(f"⚠️ Error en bootstrap inicial: {e}")
+# Nota: init_db() se invocará más abajo con un guard para evitar NameError y correrlo solo una vez
 
 # Configuración de SQLAlchemy con SQLite
 def create_db_engine():
@@ -404,6 +398,21 @@ def limpiar_ordenes_antiguas(usuario_email):
         conn.rollback()
     finally:
         conn.close()
+
+# Ejecutar init_db() una sola vez por proceso cuando lleguen las primeras solicitudes
+_DB_INIT_DONE = False
+
+@app.before_request
+def _ensure_db_initialized_once():
+    global _DB_INIT_DONE
+    if not _DB_INIT_DONE:
+        try:
+            init_db()
+            _DB_INIT_DONE = True
+            print("✅ init_db ejecutado (before_request, una sola vez por worker)")
+        except Exception as e:
+            # No bloquear la petición, pero loguear el error para diagnóstico
+            print(f"⚠️ Error ejecutando init_db en before_request: {e}")
 
 # Endpoint público de salud para verificar conexión a SQLite en Render
 @app.route('/health/db', methods=['GET'])
