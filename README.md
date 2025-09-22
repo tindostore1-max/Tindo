@@ -180,3 +180,4 @@ Este panel fue desarrollado específicamente para Inefablestore según las espec
 ---
 
 ¡Listo para gestionar tu tienda de juegos! 🎮✨
+# Tindostore
