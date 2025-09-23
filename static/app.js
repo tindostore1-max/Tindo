@@ -42,6 +42,58 @@ function guardarCarritoEnStorage() {
     }
 }
 
+// Mostrar más/menos paquetes en la sección de detalles
+function toggleMostrarMasPaquetes(productoId) {
+    try {
+        const list = document.getElementById(`package-list-${productoId}`);
+        const btn = document.getElementById(`btn-mostrar-mas-${productoId}`);
+        if (!list || !btn) return;
+
+        const expanded = list.getAttribute('data-expanded') === 'true';
+        const LIMITE_INICIAL_PAQUETES = 8;
+
+        // Determinar la fuente de datos de paquetes
+        let producto = productoSeleccionado && productoSeleccionado.id === productoId ? productoSeleccionado : null;
+        if (!producto) {
+            producto = productos.find(p => p.id === productoId);
+        }
+        if (!producto || !producto.paquetes) return;
+
+        const data = expanded ? producto.paquetes.slice(0, LIMITE_INICIAL_PAQUETES) : producto.paquetes;
+
+        // Generar HTML reutilizando el mismo estilo de item
+        const html = data.map(paquete => {
+            const precio = parseFloat(paquete.precio) || 0;
+            return `
+                <div class=\"pkg-card pkg-selectable\" onclick=\"seleccionarPaquete(this)\" 
+                     data-package-id=\"${paquete.id}\" 
+                     data-package-name=\"${paquete.nombre}\" 
+                     data-package-price=\"${precio}\"
+                     style=\"position:relative; background:#1b1b1b; border:2px solid rgba(255,255,255,0.08); border-radius:12px; padding:10px; cursor:pointer; transition:border-color 0.15s ease, box-shadow 0.15s ease; min-height:90px; height:90px; width:160px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; overflow:visible;\">
+                    <div class=\"pkg-title\" style=\"font-weight:700; font-size:14px; color:#ffffff; text-align:center; max-width:90%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; position:relative; z-index:2;\">${paquete.nombre}</div>
+                    <div class=\"pkg-price\" style=\"position:relative; z-index:2; font-weight:800; color:#21c55d; background:rgba(33,197,93,0.12); border:1.5px solid rgba(33,197,93,0.5); padding:4px 10px; border-radius:10px;\">${convertirPrecio(precio)}</div>
+                </div>
+            `;
+        }).join('');
+
+        list.innerHTML = html;
+        list.setAttribute('data-expanded', expanded ? 'false' : 'true');
+        btn.textContent = expanded ? 'Mostrar más' : 'Mostrar menos';
+
+        // Mantener una selección válida: seleccionar el primero si no hay ninguno
+        setTimeout(() => {
+            const seleccionado = document.querySelector(`#package-list-${productoId} .package-item.selected`);
+            if (!seleccionado) {
+                const primero = document.querySelector(`#package-list-${productoId} .package-item`);
+                if (primero) primero.click();
+            }
+        }, 50);
+
+    } catch (e) {
+        console.warn('toggleMostrarMasPaquetes error:', e);
+    }
+}
+
 function cargarCarritoDesdeStorage() {
     try {
         const carritoGuardado = localStorage.getItem('inefablestore_carrito');
@@ -195,7 +247,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!cargandoDatos) {
         cargandoDatos = true;
         
-        // Si hay cache válido, usar para mostrar contenido inmediatamente
+        // Si hay cache válido, usar para mostrar contenido inmediato
         if (cacheValido()) {
             console.log('📦 Usando datos del cache para mostrar contenido inmediato');
             configuracion = configCache;
@@ -761,8 +813,6 @@ function actualizarLogo() {
             img.onerror = function() {
                 // Si la imagen falla al cargar, mostrar logo por defecto
                 logoImg.src = '/static/images/20250706_015933_Captura_de_pantalla_5-7-2025_182440_www.inefablestor.png';
-                logoImg.style.opacity = '1';
-                console.log('Error al cargar logo personalizado, usando logo por defecto');
             };
             img.src = logoUrl;
         }
@@ -951,7 +1001,7 @@ async function cargarConfiguracion() {
 // Función para mostrar productos en el grid
 function mostrarProductos() {
     const productosGrid = document.getElementById('productos-grid');
-    if (!productosGrid || !productosCache || productosCache.length === 0) {
+    if (!productosCache || productosCache.length === 0) {
         return;
     }
 
@@ -1192,10 +1242,10 @@ function filtrarProductos(categoria, element) {
     const catalogoSection = document.getElementById('catalogo');
     if (!catalogoSection || !catalogoSection.classList.contains('active')) {
         // Asegurar que el botón de catálogo esté activo
-        document.querySelectorAll('.nav-btn, .desktop-nav-btn').forEach(btn => {
+        document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.classList.remove('active');
         });
-        document.querySelectorAll('.nav-btn[onclick*="catalogo"], .desktop-nav-btn[onclick*="catalogo"]').forEach(btn => {
+        document.querySelectorAll('.nav-btn[onclick*="catalogo"]').forEach(btn => {
             btn.classList.add('active');
         });
 
@@ -1316,83 +1366,21 @@ function mostrarProductos() {
                 }).join('');
             }
 
-            // No mostrar preview de paquetes en las tarjetas del carrusel
-            let paquetesPreviewHtml = '';
-
             cardsHtml += `
                 <div class="todos-carousel-card" onclick="verDetalleProducto(${juego.id})">
                     ${etiquetasHtml ? `<div class="product-tags">${etiquetasHtml}</div>` : ''}
                     <img src="${imagenUrl}" alt="${juego.nombre || 'Producto'}" class="product-image" onerror="this.src='/static/images/20250706_020025_20250705_163435_Recurso-40.png'; this.onerror=null;">
                     <div class="product-name">${juego.nombre || 'Producto sin nombre'}</div>
-                    ${paquetesPreviewHtml}
                     ${mostrarValoracionEnTarjeta(juego)}
                     <div class="price-desde">${rangoPrecio}</div>
                 </div>
             `;
         });
 
-        // Crear carrusel de Gift Cards
-        const giftCards = productos.filter(producto => producto.categoria === 'gift-cards');
-        let giftCardsHtml = '';
-
-        if (giftCards.length > 0) {
-            giftCards.forEach(giftCard => {
-                // Corregir ruta de imagen
-                let imagenUrl = giftCard.imagen || '';
-                if (imagenUrl && !imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
-                    imagenUrl = `/static/${imagenUrl}`;
-                }
-                if (!imagenUrl) {
-                    imagenUrl = 'https://via.placeholder.com/300x200/007bff/ffffff?text=Producto';
-                }
-
-                // Calcular precio mínimo y máximo
-                let precioMinimo = 0;
-                let precioMaximo = 0;
-                if (giftCard.paquetes && Array.isArray(giftCard.paquetes) && giftCard.paquetes.length > 0) {
-                    const precios = giftCard.paquetes.map(p => parseFloat(p.precio) || 0);
-                    precioMinimo = Math.min(...precios);
-                    precioMaximo = Math.max(...precios);
-                }
-
-                // Mostrar solo precio inicial con "Desde"
-                let rangoPrecio = '';
-                if (monedaActual === 'VES') {
-                    rangoPrecio = `Desde Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)}`;
-                } else {
-                    rangoPrecio = `Desde $${precioMinimo.toFixed(2)}`;
-                }
-
-                // Procesar etiquetas para gift cards
-                let etiquetasHtml = '';
-                if (giftCard.etiquetas && giftCard.etiquetas.trim()) {
-                    const etiquetasArray = giftCard.etiquetas.split(',').map(e => e.trim()).filter(e => e);
-                    etiquetasHtml = etiquetasArray.map(etiqueta => {
-                        const clase = etiqueta.toLowerCase().replace(/[^a-z0-9]/g, '');
-                        return `<span class="product-tag ${clase}">${etiqueta}</span>`;
-                    }).join('');
-                }
-
-                // No mostrar preview de paquetes en las tarjetas de gift cards del carrusel
-                let paquetesPreviewHtml = '';
-
-                giftCardsHtml += `
-                    <div class="todos-carousel-card" onclick="verDetalleProducto(${giftCard.id})">
-                        ${etiquetasHtml ? `<div class="product-tags">${etiquetasHtml}</div>` : ''}
-                        <img src="${imagenUrl}" alt="${giftCard.nombre || 'Producto'}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200/007bff/ffffff?text=Producto'">
-                        <div class="product-name">${giftCard.nombre || 'Producto sin nombre'}</div>
-                        ${paquetesPreviewHtml}
-                        ${mostrarValoracionEnTarjeta(giftCard)}
-                        <div class="price-desde">${rangoPrecio}</div>
-                    </div>
-                `;
-            });
-        }
-
         // Mostrar todas las tarjetas tanto en móvil como en desktop
         const esMobil = window.innerWidth <= 768;
         const juegosParaMostrar = juegos; // Mostrar todos los juegos
-        const giftCardsParaMostrar = giftCards; // Mostrar todas las gift cards
+        const giftCardsParaMostrar = []; // Mostrar todas las gift cards
 
         // Regenerar HTML con todas las tarjetas
         let cardsHtmlLimitado = '';
@@ -1454,7 +1442,7 @@ function mostrarProductos() {
         });
 
         let giftCardsHtmlLimitado = '';
-        if (giftCards.length > 0) {
+        if (giftCardsParaMostrar.length > 0) {
             giftCardsParaMostrar.forEach(giftCard => {
                 // Corregir ruta de imagen
                 let imagenUrl = giftCard.imagen || '';
@@ -1519,16 +1507,16 @@ function mostrarProductos() {
                 ` : ''}
             </div>
 
-            ${giftCards.length > 0 ? `
+            ${giftCardsHtmlLimitado ? `
             <div class="section-header" style="margin-top: 40px;">
                 <h3 class="section-title">Gift Cards</h3>
-                ${giftCards.length > 2 ? `<button class="section-more-btn" onclick="mostrarTodasLasGiftCards()">Ver más</button>` : ''}
+                ${giftCardsParaMostrar.length > 2 ? `<button class="section-more-btn" onclick="mostrarTodasLasGiftCards()">Ver más</button>` : ''}
             </div>
             <div class="todos-carousel-wrapper">
                 <div class="todos-carousel-track" id="giftcards-todos-carousel-track">
                     ${giftCardsHtmlLimitado}
                 </div>
-                ${!esMobil && giftCards.length > 2 ? `
+                ${!esMobil && giftCardsParaMostrar.length > 2 ? `
                     <button class="todos-carousel-nav prev" onclick="moverCarruselGiftCardsTodos(-1)">‹</button>
                     <button class="todos-carousel-nav next" onclick="moverCarruselGiftCardsTodos(1)">›</button>
                 ` : ''}
@@ -1654,7 +1642,7 @@ function mostrarDetalleProductoDesdeURL(producto) {
 
     // Auto-seleccionar el primer paquete disponible
     setTimeout(() => {
-        const primerPaquete = document.querySelector('.package-selectable');
+        const primerPaquete = document.querySelector('.pkg-selectable') || document.querySelector('.package-selectable');
         if (primerPaquete) {
             primerPaquete.click();
         }
@@ -1713,45 +1701,21 @@ function generarHTMLDetalleProducto(producto) {
     // Determinar si mostrar el formulario de ID según la categoría
     const mostrarFormularioId = producto.categoria !== 'gift-cards';
 
-    // Generar HTML para los paquetes
+    // Generar HTML para los paquetes (sin iconos, solo título y precio)
+    const LIMITE_INICIAL_PAQUETES = 8;
     let paquetesHtml = '';
     if (producto.paquetes && Array.isArray(producto.paquetes) && producto.paquetes.length > 0) {
+        const visibles = producto.paquetes.slice(0, LIMITE_INICIAL_PAQUETES);
         paquetesHtml = producto.paquetes.map(paquete => {
             const precio = parseFloat(paquete.precio) || 0;
-            
-            // Verificar si el paquete tiene imagen
-            const tieneImagen = paquete.imagen && paquete.imagen.trim() !== '';
-            
-            // Procesar icono del paquete
-            let iconoHtml = '';
-            if (tieneImagen) {
-                let imagenUrl = paquete.imagen;
-                if (!imagenUrl.startsWith('http') && !imagenUrl.startsWith('/static/')) {
-                    imagenUrl = `/static/${imagenUrl}`;
-                }
-                iconoHtml = `<img src="${imagenUrl}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; border: 2px solid rgba(255,255,255,0.2); display: block;" onerror="this.parentElement.parentElement.parentElement.parentElement.setAttribute('data-has-image', 'false'); this.style.display='none'" alt="Imagen del paquete">`;
-            }
-            
             return `
-                <div class="package-item package-selectable" onclick="seleccionarPaquete(this)" 
+                <div class="pkg-card pkg-selectable" onclick="seleccionarPaquete(this)" 
                      data-package-id="${paquete.id}" 
                      data-package-name="${paquete.nombre}" 
                      data-package-price="${precio}"
-                     data-has-image="${tieneImagen}">
-                    <div class="package-info">
-                        <div class="package-image-container">
-                            <div class="package-selection">
-                                <span class="package-radio">⚪</span>
-                            </div>
-                            <div class="package-name">
-                                ${iconoHtml}
-                            </div>
-                        </div>
-                        <div class="package-title">${paquete.nombre}</div>
-                        <div class="package-footer">
-                            <div class="package-price">${convertirPrecio(precio)}</div>
-                        </div>
-                    </div>
+                     style="position:relative; background:#1b1b1b; border:2px solid rgba(255,255,255,0.08); border-radius:12px; padding:10px; cursor:pointer; transition:border-color 0.15s ease, box-shadow 0.15s ease; min-height:90px; height:90px; width:160px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; overflow:visible;">
+                    <div class="pkg-title" style="font-weight:700; font-size:14px; color:#ffffff; text-align:center; max-width:90%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; position:relative; z-index:2;">${paquete.nombre}</div>
+                    <div class="pkg-price" style="position:relative; z-index:2; font-weight:800; color:#21c55d; background:rgba(33,197,93,0.12); border:1.5px solid rgba(33,197,93,0.5); padding:4px 10px; border-radius:10px;">${convertirPrecio(precio)}</div>
                 </div>
             `;
         }).join('');
@@ -1789,7 +1753,7 @@ function generarHTMLDetalleProducto(producto) {
     }
 
     return `
-        <div style="margin-top: 15px;">
+        <div class="details-panel" style="margin-top: 15px;">
             <div class="details-container" style="display: flex; gap: 20px; margin-bottom: 20px; align-items: flex-start;">
                 <div class="details-image-container" style="flex: 0 0 400px;">
                     <img src="${imagenUrl}" alt="${producto.nombre || 'Producto'}" class="selected-product-image" style="width: 100%; height: 300px; object-fit: cover; border-radius: 12px;" onerror="this.src='https://via.placeholder.com/400x300/007bff/ffffff?text=Producto'">
@@ -1800,29 +1764,42 @@ function generarHTMLDetalleProducto(producto) {
                     <!-- Valoraciones debajo del título -->
                     ${valoracionesDetalleHtml}
 
-                    ${mostrarFormularioId ? `
-                    <!-- Campo para ID de usuario debajo del título -->
-                    <div style="margin-top: 15px;">
-                        <label for="usuario-id-juego" style="display: block; margin-bottom: 6px; font-weight: 600; color: #ffffff; font-size: 14px;">ID de Usuario en el Juego:</label>
-                        <input type="text" id="usuario-id-juego" class="form-control" placeholder="Ingresa tu ID de usuario" style="width: 100%; padding: 12px 15px; border: 2px solid rgba(255,255,255,0.1); border-radius: 10px; font-size: 14px; background: rgba(255,255,255,0.05); color: #ffffff; transition: all 0.3s ease; backdrop-filter: blur(10px);" required>
-                    </div>
-                    ` : ''}
-
-                    </div>
+                </div>
 
                 <div class="details-info-container" style="flex: 1;">
+                    <div style="background:#1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                        ${mostrarFormularioId ? `
+                        <div style="margin-bottom: 15px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 15px;">
+                            <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+                                <div style="background:#17a2b8; color:#fff; font-weight:800; border-radius:6px; padding:2px 8px;">1</div>
+                                <div style="font-weight:700; color:#fff;">Ingresa tus datos</div>
+                            </div>
+                            <label for="usuario-id-juego" style="display: block; margin-bottom: 6px; font-weight: 600; color: #ffffff; font-size: 14px;">ID de Usuario en el Juego:</label>
+                            <input type="text" id="usuario-id-juego" class="form-control" placeholder="Ingresa tu ID de usuario" style="width: 100%; padding: 12px 15px; border: 2px solid rgba(255,255,255,0.1); border-radius: 10px; font-size: 14px; background: rgba(255,255,255,0.05); color: #ffffff; transition: all 0.3s ease; backdrop-filter: blur(10px);" required>
+                        </div>
+                        ` : ''}
 
-                    <div class="package-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px;">
-                        ${paquetesHtml}
+                        <div style="margin: 10px 0 8px 0; display:flex; align-items:center; gap:8px;">
+                            <div style="background:#28a745; color:#fff; font-weight:800; border-radius:6px; padding:2px 8px;">2</div>
+                            <div style="font-weight:700; color:#fff;">Selecciona tu producto</div>
+                        </div>
+
+                        <div id="package-list-${producto.id}" data-expanded="false" class="pkg-grid">
+                            ${paquetesHtml}
+                        </div>
+
+                        ${producto.paquetes && producto.paquetes.length > LIMITE_INICIAL_PAQUETES ? `
+                        <div style="text-align:center; margin-top:10px;">
+                            <button id="btn-mostrar-mas-${producto.id}" class="btn btn-warning" style="padding:8px 16px; font-weight:700; border-radius:8px;" onclick="toggleMostrarMasPaquetes(${producto.id})">Mostrar más</button>
+                        </div>
+                        ` : ''}
+
+                        <div style="margin-top: 16px;">
+                            <button id="btn-agregar-carrito" onclick="agregarPaqueteSeleccionado()" class="btn btn-success" style="width: 100%; padding: 15px 20px; font-size: 16px; font-weight: 700; background: linear-gradient(135deg, #28a745, #20c997); border: none; border-radius: 10px; color: white; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3); opacity: 0.6;" disabled>
+                                🛒 Agregar al Carrito
+                            </button>
+                        </div>
                     </div>
-
-                    <div style="margin-top: 20px;">
-                        <button id="btn-agregar-carrito" onclick="agregarPaqueteSeleccionado()" class="btn btn-success" style="width: 100%; padding: 15px 20px; font-size: 16px; font-weight: 700; background: linear-gradient(135deg, #28a745, #20c997); border: none; border-radius: 10px; color: white; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3); opacity: 0.6;" disabled>
-                            🛒 Agregar al Carrito
-                        </button>
-                    </div>
-
-                    
                 </div>
             </div>
 
@@ -1934,21 +1911,28 @@ let paqueteSeleccionado = null;
 // Función para seleccionar un paquete
 function seleccionarPaquete(elemento) {
     // Remover selección anterior
-    document.querySelectorAll('.package-selectable').forEach(pkg => {
+    document.querySelectorAll('.pkg-selectable, .package-selectable').forEach(pkg => {
         pkg.classList.remove('selected');
-        pkg.querySelector('.package-radio').textContent = '⚪';
-        pkg.style.background = '';
-        pkg.style.borderColor = '';
+        // Resetear estilos compactos base
+        pkg.style.background = '#1b1b1b';
+        pkg.style.borderColor = 'rgba(255,255,255,0.08)';
         pkg.style.transform = '';
+        pkg.style.boxShadow = '';
+        // No modificar alturas para no encoger las tarjetas
+        pkg.style.minHeight = '';
+        pkg.style.height = '';
     });
 
     // Seleccionar el paquete actual
     elemento.classList.add('selected');
-    elemento.querySelector('.package-radio').textContent = '🟢';
-    elemento.style.background = '#2a2a2a';
+    // Estilos seleccionados manteniendo compacidad
+    elemento.style.background = '#1b1b1b';
     elemento.style.borderColor = '#28a745';
-    elemento.style.transform = 'translateY(-3px)';
-    elemento.style.boxShadow = '0 8px 25px rgba(40, 167, 69, 0.3)';
+    elemento.style.transform = '';
+    elemento.style.boxShadow = '0 0 12px rgba(40,167,69,0.25)';
+    // Mantener altura original de la tarjeta
+    elemento.style.minHeight = '';
+    elemento.style.height = '';
 
     // Guardar información del paquete seleccionado
     paqueteSeleccionado = {
@@ -2412,11 +2396,11 @@ function actualizarPreciosDetalles() {
     if (!productoSeleccionado) return;
 
     // Actualizar precios de los paquetes
-    const packageItems = document.querySelectorAll('.package-item');
+    const packageItems = document.querySelectorAll('.pkg-card, .package-item');
     packageItems.forEach((item, index) => {
         if (productoSeleccionado.paquetes && productoSeleccionado.paquetes[index]) {
             const paquete = productoSeleccionado.paquetes[index];
-            const priceElement = item.querySelector('.package-price');
+            const priceElement = item.querySelector('.pkg-price, .package-price');
             if (priceElement) {
                 priceElement.textContent = convertirPrecio(parseFloat(paquete.precio) || 0);
             }
