@@ -128,14 +128,23 @@
         padding: 16px !important;
         box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
     }
-    /* Mejorar legibilidad del texto en la pestaña Descripción */
+    /* Legibilidad de la Descripción: alinear a la izquierda y sin sangría */
+    .reviews-section .review-tab-content,
     .reviews-section .review-tab-content p {
-        text-align: justify !important;
+        text-align: left !important;
+    }
+    .reviews-section .review-tab-content p {
+        text-indent: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
         hyphens: auto !important;
         color: #dddddd !important;
         line-height: 1.6 !important;
         font-size: 15px !important;
-        margin: 0 !important;
+        white-space: pre-wrap !important;
+        overflow-wrap: anywhere !important; /* Evitar saltos raros */
+        word-break: break-word !important;
+        direction: ltr;
     }
 }
 
@@ -2250,6 +2259,20 @@ header {
 
 .review-tab-content.active {
     display: block;
+}
+
+/* Alineación y legibilidad global para la Descripción */
+.reviews-section .review-tab-content,
+.reviews-section .review-tab-content p {
+    text-align: left; /* evitar centrado por herencia */
+}
+.reviews-section .review-tab-content p {
+    text-indent: 0;
+    margin-left: 0;
+    padding-left: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 @keyframes fadeInTab {
