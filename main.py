@@ -237,31 +237,35 @@ def enviar_correo_recarga_completada(orden_info):
         mensaje = MIMEMultipart()
         mensaje['From'] = email_usuario
         mensaje['To'] = orden_info['usuario_email']
-        mensaje['Subject'] = f"🎉 ¡Tu recarga está lista! - Orden #{orden_info['id']} - Inefable Store"
+        # Asunto con marca Tindo Store
+        mensaje['Subject'] = f"Tu recarga está lista - Orden #{orden_info['id']} - Tindo Store"
 
-        # Cuerpo del mensaje personalizado para el usuario
+        # Función local para formatear la fecha en español (evita depender del locale del sistema)
+        meses_es = [
+            "enero", "febrero", "marzo", "abril", "mayo", "junio",
+            "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+        ]
+        ahora = datetime.now()
+        fecha_es = f"{ahora.day} de {meses_es[ahora.month - 1]} de {ahora.year}"
+
+        # Cuerpo del mensaje con el template solicitado
         cuerpo = f"""
-        ¡Hola! 🎮
+Hola,
 
-        ¡Excelentes noticias! Tu recarga ha sido procesada exitosamente.
+Gracias por tu compra. Nos complace informarte que tu pedido ha sido procesado con éxito.
 
-        📋 Detalles de tu orden:
-        • Orden #: {orden_info['id']}
-        • Juego: {orden_info.get('juego_nombre', 'N/A')}
-        • Paquete: {orden_info['paquete']}
-        • Monto: ${orden_info['monto']}
-        • Tu ID en el juego: {orden_info.get('usuario_id', 'No especificado')}
-        • Estado: ✅ COMPLETADA
-        • Fecha de procesamiento: {datetime.now().strftime('%d/%m/%Y a las %H:%M')}
+Detalles de la orden:  
+📅 Fecha: {fecha_es}  
+🎮 Producto: {orden_info.get('juego_nombre', 'N/A')}  
+🆔 ID de jugador: {orden_info.get('usuario_id', 'No especificado')}  
+💎 Paquete adquirido: {orden_info.get('paquete', 'N/A')}  
+💰 Costo: ${orden_info.get('monto', '0.00')} USD
 
-        🎯 Tu recarga ya está disponible en tu cuenta del juego.
-        Si tienes algún problema, no dudes en contactarnos.
+Si necesitas asistencia o tienes alguna consulta, estamos aquí para ayudarte.
 
-        ¡Gracias por confiar en Inefable Store! 🚀
-
-        ---
-        Equipo de Inefable Store
-        """
+Atentamente,  
+Equipo de Tindo Store
+"""
 
         mensaje.attach(MIMEText(cuerpo, 'plain'))
 
@@ -865,20 +869,48 @@ def _send_email_safe(to_email: str, subject: str, html_body: str, text_body: str
         return False
 
 def enviar_correo_recarga_completada(orden: dict):
-    asunto = f"Tu recarga de {orden.get('juego_nombre','juego')} fue procesada"
+    # Asunto con marca Tindo Store
+    asunto = f"Tu recarga está lista - Orden #{orden.get('id','')} - Tindo Store"
     to = orden.get('usuario_email')
-    monto = orden.get('monto')
-    paquete = orden.get('paquete')
-    ref = orden.get('referencia_pago')
+    # Formateo de fecha en español sin depender del locale del sistema
+    meses_es = [
+        "enero", "febrero", "marzo", "abril", "mayo", "junio",
+        "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+    ]
+    ahora = datetime.now()
+    fecha_es = f"{ahora.day} de {meses_es[ahora.month - 1]} de {ahora.year}"
+    # Datos dinámicos
+    juego = orden.get('juego_nombre', 'N/A')
+    usuario_id = orden.get('usuario_id', 'No especificado')
+    paquete = orden.get('paquete', 'N/A')
+    monto = orden.get('monto', '0.00')
+    # Cuerpo HTML con la plantilla solicitada
     html = f"""
-    <h2>¡Tu recarga fue procesada! 🎮</h2>
-    <p>Juego: <b>{orden.get('juego_nombre','')}</b></p>
-    <p>Paquete: <b>{paquete}</b></p>
-    <p>Monto: <b>{monto}</b></p>
-    <p>Referencia: <b>{ref}</b></p>
-    <p>Gracias por comprar en Inefablestore.</p>
+    <p>Hola,</p>
+    <p>Gracias por tu compra. Nos complace informarte que tu pedido ha sido procesado con éxito.</p>
+    <p><strong>Detalles de la orden:</strong><br/>
+    📅 Fecha: {fecha_es}<br/>
+    🎮 Producto: {juego}<br/>
+    🆔 ID de jugador: {usuario_id}<br/>
+    💎 Paquete adquirido: {paquete}<br/>
+    💰 Costo: ${monto} USD</p>
+    <p>Si necesitas asistencia o tienes alguna consulta, estamos aquí para ayudarte.</p>
+    <p>Atentamente,<br/>
+    <strong>Equipo de Tindo Store</strong></p>
     """
-    _send_email_safe(to, asunto, html, f"Recarga procesada. Juego: {orden.get('juego_nombre','')}, Paquete: {paquete}, Monto: {monto}, Ref: {ref}")
+    text = (
+        "Hola,\n\n"
+        "Gracias por tu compra. Nos complace informarte que tu pedido ha sido procesado con éxito.\n\n"
+        "Detalles de la orden:\n"
+        f"- Fecha: {fecha_es}\n"
+        f"- Producto: {juego}\n"
+        f"- ID de jugador: {usuario_id}\n"
+        f"- Paquete adquirido: {paquete}\n"
+        f"- Costo: ${monto} USD\n\n"
+        "Si necesitas asistencia o tienes alguna consulta, estamos aquí para ayudarte.\n\n"
+        "Atentamente,\nEquipo de Tindo Store"
+    )
+    _send_email_safe(to, asunto, html, text)
 
 def enviar_correo_gift_card_completada(orden: dict):
     asunto = f"Tu Gift Card de {orden.get('juego_nombre','Gift Card')} fue entregada"
