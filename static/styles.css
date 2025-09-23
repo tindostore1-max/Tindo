@@ -109,7 +109,33 @@
     }
     .details-panel .pkg-card {
         width: 100%;
+        box-sizing: border-box; /* Asegura que los bordes/padding no rompan el ancho */
         height: 84px;
+    }
+    /* Hacer que la caja del paso 1/2 (ID + paquetes) ocupe el mismo ancho que la descripción */
+    .details-panel .details-info-container { 
+        width: 100% !important; 
+        align-self: stretch !important;
+    }
+    .details-panel .details-info-container > div { 
+        width: 100% !important; 
+        margin: 0 !important; 
+        box-sizing: border-box !important;
+        /* Igualar estilos visuales a la caja de Descripción */
+        background: rgba(255,255,255,0.02) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        border-radius: 12px !important;
+        padding: 16px !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
+    }
+    /* Mejorar legibilidad del texto en la pestaña Descripción */
+    .reviews-section .review-tab-content p {
+        text-align: justify !important;
+        hyphens: auto !important;
+        color: #dddddd !important;
+        line-height: 1.6 !important;
+        font-size: 15px !important;
+        margin: 0 !important;
     }
 }
 
@@ -130,17 +156,36 @@
         grid-template-columns: repeat(2, 1fr) !important;
         gap: 10px !important;
     }
-    @media (max-width: 360px) {
-        .details-panel .pkg-grid {
-            grid-template-columns: 1fr !important;
-            gap: 8px !important;
-        }
-    }
     .details-panel .pkg-card {
+        width: 100% !important;
+        box-sizing: border-box !important;
         height: 80px !important;
         padding: 8px !important;
         border-radius: 10px !important;
         box-shadow: 0 6px 18px rgba(0,0,0,0.25) !important;
+    }
+    /* Asegurar que la caja del contenido de detalles coincida en ancho con la descripción */
+    .details-panel .details-info-container { 
+        width: 100% !important; 
+    }
+    .details-panel .details-info-container > div { 
+        width: 100% !important; 
+        margin: 0 !important; 
+        /* Igualar estilos visuales a la caja de Descripción */
+        background: rgba(255,255,255,0.02) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        border-radius: 12px !important;
+        padding: 12px !important;
+        box-shadow: 0 8px 22px rgba(0,0,0,0.28) !important;
+    }
+    /* Mejorar legibilidad del texto en la pestaña Descripción */
+    .reviews-section .review-tab-content p {
+        text-align: justify !important;
+        hyphens: auto !important;
+        color: #dddddd !important;
+        line-height: 1.6 !important;
+        font-size: 15px !important;
+        margin: 0 !important;
     }
     .details-panel .pkg-title {
         font-size: 14px !important;
@@ -1681,8 +1726,7 @@ header {
 
     /* Ajustes para pantallas extremadamente pequeñas */
     @media (max-width: 320px) {
-        .```
-.games-carousel-card,
+        .games-carousel-card,
         .todos-carousel-card {
             flex: 0 0 calc(62% - 6px); /* Mostrar 1.8 tarjetas en pantallas muy pequeñas */
             max-width: 150px;
@@ -2273,7 +2317,6 @@ header {
     .review-tabs {
         margin-bottom: 15px;
     }
-}d: linear-gradient(135deg, #007bff, #0056b3);
 }
 
 .product-tag.oferta {
@@ -2315,8 +2358,6 @@ header {
     flex-direction: column;
     gap: 4px;
     max-width: calc(100% - 16px);
-}card {
-    position: relative;
 }
 
 /* Versión desktop para imagen del producto seleccionado */
@@ -3021,12 +3062,6 @@ header {
     height: 3px;
     background: linear-gradient(90deg, #28a745, #20c997);
     border-radius: 2px;
-}
-
-
-    background: rgba(255,255,255,0.05);
-    transform: none;
-    box-shadow: none;
 }
 
 .google-login-section hr {
