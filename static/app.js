@@ -1511,7 +1511,7 @@ function mostrarProductos() {
         grid.innerHTML = `
             <div class="section-header">
                 <h3 class="section-title">Recarga de juegos</h3>
-                ${juegos.length > 2 ? `<button class="section-more-btn" onclick="mostrarTodosLosJuegos()">Ver mÃ¡s</button>` : ''}
+                ${juegos.length > 2 ? `<button class="section-more-btn" onclick="mostrarTodosLosJuegos()">Ver más</button>` : ''}
             </div>
             <div class="todos-carousel-wrapper">
                 <div class="todos-carousel-track" id="todos-carousel-track">
@@ -1526,7 +1526,7 @@ function mostrarProductos() {
             ${giftCardsHtmlLimitado ? `
             <div class="section-header" style="margin-top: 40px;">
                 <h3 class="section-title">Gift Cards</h3>
-                ${giftCardsParaMostrar.length > 2 ? `<button class="section-more-btn" onclick="mostrarTodasLasGiftCards()">Ver mÃ¡s</button>` : ''}
+                ${giftCardsParaMostrar.length > 2 ? `<button class="section-more-btn" onclick="mostrarTodasLasGiftCards()">Ver más</button>` : ''}
             </div>
             <div class="todos-carousel-wrapper">
                 <div class="todos-carousel-track" id="giftcards-todos-carousel-track">
@@ -3167,8 +3167,8 @@ function crearCarruselJuegos() {
 
     return `
         <div class="section-header">
-            <h3 class="section-title">ðŸŽ® Juegos Destacados</h3>
-            <button class="section-more-btn" onclick="mostrarTodosLosJuegos()">Ver mÃ¡s</button>
+            <h3 class="section-title">🎮 Juegos Destacados</h3>
+            <button class="section-more-btn" onclick="mostrarTodosLosJuegos()">Ver más</button>
         </div>
         <div class="games-section">
             <div class="games-carousel-container">
@@ -4681,9 +4681,9 @@ async function cargarFormularioValoracion(juego_id) {
             // Usuario no logueado
             formContainer.innerHTML = `
                 <div class="login-to-review">
-                    <p class="login-to-review-text">Inicia sesiÃ³n para valorar este producto</p>
+                    <p class="login-to-review-text">Inicia sesión para valorar este producto</p>
                     <button class="login-to-review-btn" onclick="mostrarTab('login')">
-                        ðŸ”‘ Iniciar SesiÃ³n
+                        🔑 Iniciar Sesión
                     </button>
                 </div>
             `;
