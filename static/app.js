@@ -1380,7 +1380,8 @@ function mostrarProductos() {
         // Mostrar todas las tarjetas tanto en móvil como en desktop
         const esMobil = window.innerWidth <= 768;
         const juegosParaMostrar = juegos; // Mostrar todos los juegos
-        const giftCardsParaMostrar = []; // Mostrar todas las gift cards
+        // Poblar gift cards disponibles desde la lista completa de productos
+        const giftCardsParaMostrar = (Array.isArray(productos) ? productos : []).filter(p => p && p.categoria === 'gift-cards');
 
         // Regenerar HTML con todas las tarjetas
         let cardsHtmlLimitado = '';
