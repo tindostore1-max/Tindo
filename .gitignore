@@ -33,4 +33,8 @@ dist/
 build/
 
 # Cache
+
 .cache/
+
+# Backups
+*.bak
