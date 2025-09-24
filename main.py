@@ -871,7 +871,11 @@ def _send_email_safe(to_email: str, subject: str, html_body: str, text_body: str
         msg['To'] = to_email
         if text_body:
             msg.set_content(text_body)
-        msg.add_alternative(html_body, subtype='html')
+        else:
+            plain = (html_body or '').replace('<br/>', '\n').replace('<br>', '\n')
+            for tag in ['<p>', '</p>', '<strong>', '</strong>', '<b>', '</b>', '<h1>', '</h1>', '<h2>', '</h2>', '<h3>', '</h3>', '<ul>', '</ul>', '<li>', '</li>']:
+                plain = plain.replace(tag, '')
+            msg.set_content(plain)
         # Elegir modo de conexiÃ³n: SSL puro (465) o STARTTLS (587) o plano
         if use_ssl or port == 465:
             with smtplib.SMTP_SSL(host, port, timeout=30) as server:
@@ -890,8 +894,8 @@ def _send_email_safe(to_email: str, subject: str, html_body: str, text_body: str
         return False
 
 def enviar_correo_recarga_completada(orden: dict):
-    # Asunto con marca Tindo Store
-    asunto = f"Tu recarga estÃ¡ lista - Orden #{orden.get('id','')} - Tindo Store"
+    # Asunto con marca Tindo Store (sin acentos para evitar problemas de codificacion)
+    asunto = f"Tu recarga esta lista - Orden #{orden.get('id','')} - Tindo Store"
     to = orden.get('usuario_email')
     # Formateo de fecha en espaÃ±ol sin depender del locale del sistema
     meses_es = [
@@ -905,58 +909,45 @@ def enviar_correo_recarga_completada(orden: dict):
     usuario_id = orden.get('usuario_id', 'No especificado')
     paquete = orden.get('paquete', 'N/A')
     monto = orden.get('monto', '0.00')
-    # Cuerpo HTML con la plantilla solicitada
-    html = f"""
-    <p>Hola,</p>
-    <p>Gracias por tu compra. Nos complace informarte que tu pedido ha sido procesado con Ã©xito.</p>
-    <p><strong>Detalles de la orden:</strong><br/>
-    ðŸ“… Fecha: {fecha_es}<br/>
-    ðŸŽ® Producto: {juego}<br/>
-    ðŸ†” ID de jugador: {usuario_id}<br/>
-    ðŸ’Ž Paquete adquirido: {paquete}<br/>
-    ðŸ’° Costo: ${monto} USD</p>
-    <p>Si necesitas asistencia o tienes alguna consulta, estamos aquÃ­ para ayudarte.</p>
-    <p>Atentamente,<br/>
-    <strong>Equipo de Tindo Store</strong></p>
-    """
+    # Cuerpo de texto plano sin emojis ni acentos
     text = (
         "Hola,\n\n"
-        "Gracias por tu compra. Nos complace informarte que tu pedido ha sido procesado con Ã©xito.\n\n"
+        "Gracias por tu compra. Nos complace informarte que tu pedido ha sido procesado con exito.\n\n"
         "Detalles de la orden:\n"
         f"- Fecha: {fecha_es}\n"
         f"- Producto: {juego}\n"
         f"- ID de jugador: {usuario_id}\n"
         f"- Paquete adquirido: {paquete}\n"
         f"- Costo: ${monto} USD\n\n"
-        "Si necesitas asistencia o tienes alguna consulta, estamos aquÃ­ para ayudarte.\n\n"
+        "Si necesitas asistencia o tienes alguna consulta, estamos aqui para ayudarte.\n\n"
         "Atentamente,\nEquipo de Tindo Store"
     )
-    _send_email_safe(to, asunto, html, text)
+    _send_email_safe(to, asunto, None, text)
 
 def enviar_correo_gift_card_completada(orden: dict):
     asunto = f"Tu Gift Card de {orden.get('juego_nombre','Gift Card')} fue entregada"
     to = orden.get('usuario_email')
     codigo = orden.get('codigo_producto')
-    html = f"""
-    <h2>Â¡Tu Gift Card estÃ¡ lista! ðŸŽ</h2>
-    <p>Producto: <b>{orden.get('juego_nombre','Gift Card')}</b></p>
-    <p>CÃ³digo: <b style='font-size:18px'>{codigo}</b></p>
-    <p>Gracias por comprar en tindostore.</p>
-    """
-    _send_email_safe(to, asunto, html, f"Gift Card lista. CÃ³digo: {codigo}")
+    text = (
+        "Tu Gift Card esta lista.\n\n"
+        f"Producto: {orden.get('juego_nombre','Gift Card')}\n"
+        f"Codigo: {codigo}\n\n"
+        "Gracias por comprar en Tindo Store."
+    )
+    _send_email_safe(to, asunto, None, text)
 
 def enviar_correo_orden_rechazada(orden: dict):
     asunto = f"Tu orden fue rechazada"
     to = orden.get('usuario_email')
     ref = orden.get('referencia_pago')
-    html = f"""
-    <h2>Tu orden fue rechazada âš ï¸</h2>
-    <p>Juego: <b>{orden.get('juego_nombre','')}</b></p>
-    <p>Paquete: <b>{orden.get('paquete','')}</b></p>
-    <p>Referencia: <b>{ref}</b></p>
-    <p>Si crees que es un error, contÃ¡ctanos respondiendo este correo.</p>
-    """
-    _send_email_safe(to, asunto, html, f"Orden rechazada. Ref: {ref}")
+    text = (
+        "Tu orden fue rechazada.\n\n"
+        f"Juego: {orden.get('juego_nombre','')}\n"
+        f"Paquete: {orden.get('paquete','')}\n"
+        f"Referencia: {ref}\n\n"
+        "Si crees que es un error, contactanos respondiendo este correo."
+    )
+    _send_email_safe(to, asunto, None, text)
 
 def enviar_notificacion_orden(orden: dict):
     """Notifica creaciÃ³n de orden:
@@ -964,25 +955,22 @@ def enviar_notificacion_orden(orden: dict):
     - EnvÃ­a una copia resumida al correo de la tienda (SMTP_FROM/SMTP_USER).
     """
     try:
-        # Correo al comprador
+        # Correo al comprador (texto plano sin emojis)
         asunto_user = "Hemos recibido tu orden"
-        html_user = f"""
-        <h2>Â¡Gracias por tu compra! ðŸ§¾</h2>
-        <p>Hemos recibido tu orden y estÃ¡ en estado <b>{orden.get('estado')}</b>.</p>
-        <ul>
-          <li>Orden: <b>#{orden.get('id')}</b></li>
-          <li>Juego: <b>{orden.get('juego_nombre','')}</b></li>
-          <li>Paquete: <b>{orden.get('paquete','')}</b></li>
-          <li>Monto: <b>{orden.get('monto')}</b></li>
-          <li>MÃ©todo de pago: <b>{orden.get('metodo_pago')}</b></li>
-          <li>Referencia: <b>{orden.get('referencia_pago')}</b></li>
-        </ul>
-        <p>Te avisaremos cuando estÃ© procesada.</p>
-        """
+        text_user = (
+            "Gracias por tu compra. Hemos recibido tu orden y esta en proceso.\n\n"
+            f"Orden: #{orden.get('id')}\n"
+            f"Juego: {orden.get('juego_nombre','')}\n"
+            f"Paquete: {orden.get('paquete','')}\n"
+            f"Monto: {orden.get('monto')}\n"
+            f"Metodo de pago: {orden.get('metodo_pago')}\n"
+            f"Referencia: {orden.get('referencia_pago')}\n\n"
+            "Te avisaremos cuando este procesada."
+        )
         # Enviar al comprador si tiene email vÃ¡lido
         to_user = (orden.get('usuario_email') or '').strip()
         if to_user:
-            _send_email_safe(to_user, asunto_user, html_user)
+            _send_email_safe(to_user, asunto_user, None, text_user)
         else:
             print('âœ‰ï¸ Aviso: correo del comprador vacÃ­o o invÃ¡lido, se omite envÃ­o al comprador.')
 
@@ -991,21 +979,19 @@ def enviar_notificacion_orden(orden: dict):
         admin_mail = (sender or user or '').strip()
         if admin_mail:
             asunto_admin = f"Nueva orden #{orden.get('id')}"
-            html_admin = f"""
-            <h3>Nueva orden recibida</h3>
-            <ul>
-              <li>Orden: <b>#{orden.get('id')}</b></li>
-              <li>Cliente: <b>{orden.get('usuario_email')}</b></li>
-              <li>TelÃ©fono: <b>{orden.get('usuario_telefono') or ''}</b></li>
-              <li>Juego: <b>{orden.get('juego_nombre','')}</b></li>
-              <li>Paquete: <b>{orden.get('paquete','')}</b></li>
-              <li>Monto: <b>{orden.get('monto')}</b></li>
-              <li>MÃ©todo de pago: <b>{orden.get('metodo_pago')}</b></li>
-              <li>Referencia: <b>{orden.get('referencia_pago')}</b></li>
-              <li>Fecha: <b>{orden.get('fecha')}</b></li>
-            </ul>
-            """
-            _send_email_safe(admin_mail, asunto_admin, html_admin)
+            text_admin = (
+                "Nueva orden recibida:\n"
+                f"- Orden: #{orden.get('id')}\n"
+                f"- Cliente: {orden.get('usuario_email')}\n"
+                f"- Telefono: {orden.get('usuario_telefono') or ''}\n"
+                f"- Juego: {orden.get('juego_nombre','')}\n"
+                f"- Paquete: {orden.get('paquete','')}\n"
+                f"- Monto: {orden.get('monto')}\n"
+                f"- Metodo de pago: {orden.get('metodo_pago')}\n"
+                f"- Referencia: {orden.get('referencia_pago')}\n"
+                f"- Fecha: {orden.get('fecha')}\n"
+            )
+            _send_email_safe(admin_mail, asunto_admin, None, text_admin)
         else:
             print('âœ‰ï¸ Aviso: no se encontrÃ³ SMTP_FROM ni SMTP_USER para notificar a la tienda. Se omite envÃ­o de copia a la tienda.')
     except Exception as e:
