@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inefablestore - Tu tienda de juegos favorita</title>
+    <title>tindostore - Tu tienda de juegos favorita</title>
 
     <!-- CSS crítico primero -->
-    <link rel="stylesheet" href="/static/styles.css?v={{ cache_bust }}">
+    <link rel="stylesheet" href="/static/styles.css?v={{ config.ASSET_VERSION }}">
 
     <!-- Preload de recursos críticos -->
-    <link rel="preload" href="/static/app.js?v={{ cache_bust }}" as="script">
+    <link rel="preload" href="/static/app.js?v={{ config.ASSET_VERSION }}" as="script">
 
 </head>
 <body>
@@ -365,11 +365,11 @@
         </button>
     </footer>
 
-        <script src="/static/app.js?v={{ cache_bust }}"></script>
+        <script src="/static/app.js?v={{ config.ASSET_VERSION }}"></script>
 
     <!-- Footer con copyright -->
     <div class="copyright-footer">
-        <div class="copyright-text">© Copyright 2024 | Inefablestore</div>
+        <div class="copyright-text">© Copyright 2024 | tindostore</div>
         <div class="copyright-social-section">
             <span class="copyright-social-title">Contactos:</span>
             <div class="copyright-social-buttons">

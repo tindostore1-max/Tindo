@@ -22,17 +22,38 @@ load_dotenv()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'tu_clave_secreta_aqui')
 app.config['UPLOAD_FOLDER'] = 'static/images'
+# Versión de assets para cache busting (se puede sobreescribir con env var)
+app.config['ASSET_VERSION'] = os.environ.get('ASSET_VERSION', str(int(time.time())))
 
-# Configuración de sesión
+# Forzar charset UTF-8 en respuestas de texto para evitar problemas de codificación en el navegador
+@app.after_request
+def add_utf8_charset(response):
+    try:
+        # Asegurar charset solo en tipos de texto comunes
+        text_mimes = {
+            'text/html',
+            'text/css',
+            'application/javascript',
+            'text/javascript',
+            'application/json',
+        }
+        if getattr(response, 'mimetype', None) in text_mimes:
+            # Si ya tiene Content-Type, reemplazar/ajustar con charset=utf-8
+            response.headers['Content-Type'] = f"{response.mimetype}; charset=utf-8"
+    except Exception:
+        pass
+    return response
+
+# ConfiguraciÃ³n de sesiÃ³n
 from datetime import timedelta
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)  # 1 hora
-app.config['SESSION_COOKIE_SECURE'] = False  # True en producción con HTTPS
+app.config['SESSION_COOKIE_SECURE'] = False  # True en producciÃ³n con HTTPS
 app.config['SESSION_COOKIE_HTTPONLY'] = True  # Previene acceso via JavaScript
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Protección CSRF
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # ProtecciÃ³n CSRF
 
-# Asegurar rutas de almacenamiento (DB persistente y carpeta de imágenes)
+# Asegurar rutas de almacenamiento (DB persistente y carpeta de imÃ¡genes)
 def ensure_storage_paths():
-    """Crea el directorio del archivo de base de datos y de imágenes si no existen.
+    """Crea el directorio del archivo de base de datos y de imÃ¡genes si no existen.
     - En Render, la variable DATABASE_PATH apunta al disco persistente montado (p.ej. /var/data/inefablestore.db)
     - Creamos el directorio padre si es necesario para evitar errores "no such file or directory".
     """
@@ -41,59 +62,59 @@ def ensure_storage_paths():
         db_dir = os.path.dirname(db_path)
         if db_dir:
             os.makedirs(db_dir, exist_ok=True)
-        # También asegurar carpeta de imágenes usada por el proyecto
+        # TambiÃ©n asegurar carpeta de imÃ¡genes usada por el proyecto
         os.makedirs('static/images', exist_ok=True)
-        # Si la DB no existe aún, intentar copiar una semilla incluida en el repo
+        # Si la DB no existe aÃºn, intentar copiar una semilla incluida en el repo
         if not os.path.exists(db_path):
             seed_path = os.environ.get('SEED_DB_PATH', os.path.join('data', 'proyecto2', 'inefablestore.db'))
             try:
                 if os.path.exists(seed_path):
                     import shutil
                     shutil.copyfile(seed_path, db_path)
-                    print(f"🌱 Base de datos sembrada desde {seed_path} -> {db_path}")
+                    print(f"ðŸŒ± Base de datos sembrada desde {seed_path} -> {db_path}")
                 else:
-                    print(f"ℹ️ No se encontró seed DB en {seed_path}. Se creará una DB nueva en el primer init_db().")
+                    print(f"â„¹ï¸ No se encontrÃ³ seed DB en {seed_path}. Se crearÃ¡ una DB nueva en el primer init_db().")
             except Exception as e:
-                print(f"⚠️ Error copiando seed DB desde {seed_path} a {db_path}: {e}")
-        print(f"🗂️ Rutas de almacenamiento listas. DB dir: {db_dir or os.getcwd()} | DB file: {db_path}")
+                print(f"âš ï¸ Error copiando seed DB desde {seed_path} a {db_path}: {e}")
+        print(f"ðŸ—‚ï¸ Rutas de almacenamiento listas. DB dir: {db_dir or os.getcwd()} | DB file: {db_path}")
     except Exception as e:
-        print(f"⚠️ No se pudieron crear rutas de almacenamiento: {e}")
+        print(f"âš ï¸ No se pudieron crear rutas de almacenamiento: {e}")
 
 # Ejecutar inmediatamente para entornos como Gunicorn en Render
 ensure_storage_paths()
 
-# Nota: init_db() se invocará más abajo con un guard para evitar NameError y correrlo solo una vez
+# Nota: init_db() se invocarÃ¡ mÃ¡s abajo con un guard para evitar NameError y correrlo solo una vez
 
-# Configuración de SQLAlchemy con SQLite
+# ConfiguraciÃ³n de SQLAlchemy con SQLite
 def create_db_engine():
     # Usar SQLite como base de datos por defecto
     db_path = os.environ.get('DATABASE_PATH', 'inefablestore.db')
     database_url = f"sqlite:///{db_path}"
     
-    print(f"🔗 Conectando con SQLite: {db_path}")
+    print(f"ðŸ”— Conectando con SQLite: {db_path}")
 
     try:
-        # Configuración específica para SQLite
+        # ConfiguraciÃ³n especÃ­fica para SQLite
         engine = create_engine(
             database_url,
             poolclass=StaticPool,  # Para SQLite
             pool_pre_ping=True,  # Para verificar conexiones antes de usarlas
             connect_args={
-                "check_same_thread": False,  # Permitir acceso desde múltiples threads
-                "timeout": 30  # Timeout de conexión
+                "check_same_thread": False,  # Permitir acceso desde mÃºltiples threads
+                "timeout": 30  # Timeout de conexiÃ³n
             },
             echo=False  # Cambiar a True para debug SQL
         )
 
-        # Probar la conexión
+        # Probar la conexiÃ³n
         with engine.connect() as conn:
             conn.execute(text('SELECT 1'))
 
-        print("✅ Conexión a SQLite exitosa")
+        print("âœ… ConexiÃ³n a SQLite exitosa")
         return engine
     except Exception as e:
-        print(f"❌ Error conectando a SQLite: {e}")
-        print("💡 Verifica que:")
+        print(f"âŒ Error conectando a SQLite: {e}")
+        print("ðŸ’¡ Verifica que:")
         print("   - El directorio tenga permisos de escritura")
         print("   - No haya problemas de espacio en disco")
         raise e
@@ -102,7 +123,7 @@ def create_db_engine():
 db_engine = None
 
 def get_db_connection():
-    """Obtener conexión a la base de datos usando SQLAlchemy"""
+    """Obtener conexiÃ³n a la base de datos usando SQLAlchemy"""
     global db_engine
     if db_engine is None:
         db_engine = create_db_engine()
@@ -121,12 +142,12 @@ def _ensure_sqlite_column(conn, table: str, column: str, ddl: str):
     if not _sqlite_column_exists(conn, table, column):
         try:
             conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {ddl}"))
-            print(f"🧩 Migración SQLite: añadida columna {table}.{column}")
+            print(f"ðŸ§© MigraciÃ³n SQLite: aÃ±adida columna {table}.{column}")
         except Exception as e:
-            print(f"⚠️ No se pudo añadir columna {table}.{column}: {e}")
+            print(f"âš ï¸ No se pudo aÃ±adir columna {table}.{column}: {e}")
 
 def get_sqlite_connection():
-    """Obtener conexión directa con sqlite3 para funciones que lo requieren"""
+    """Obtener conexiÃ³n directa con sqlite3 para funciones que lo requieren"""
     db_path = os.environ.get('DATABASE_PATH', 'inefablestore.db')
     
     try:
@@ -139,69 +160,69 @@ def get_sqlite_connection():
         conn.row_factory = sqlite3.Row
         return conn
     except Exception as e:
-        print(f"❌ Error en conexión SQLite: {e}")
-        print(f"🔗 Ruta utilizada: {db_path}")
+        print(f"âŒ Error en conexiÃ³n SQLite: {e}")
+        print(f"ðŸ”— Ruta utilizada: {db_path}")
         raise e
 
 def enviar_correo_gift_card_completada(orden_info):
-    """Envía correo al usuario con el código de la Gift Card"""
+    """EnvÃ­a correo al usuario con el cÃ³digo de la Gift Card"""
     try:
-        # Configuración del correo
+        # ConfiguraciÃ³n del correo
         smtp_server = "smtp.gmail.com"
         smtp_port = 587
         email_usuario = "1yorbi1@gmail.com"
         email_password = os.environ.get('GMAIL_APP_PASSWORD')
 
-        print(f"🎁 Enviando Gift Card completada para orden #{orden_info['id']}")
-        print(f"📧 Destinatario: {orden_info['usuario_email']}")
+        print(f"ðŸŽ Enviando Gift Card completada para orden #{orden_info['id']}")
+        print(f"ðŸ“§ Destinatario: {orden_info['usuario_email']}")
 
         if not email_password:
-            print("❌ ERROR: No se encontró la contraseña de Gmail")
+            print("âŒ ERROR: No se encontrÃ³ la contraseÃ±a de Gmail")
             return False
 
         # Crear mensaje
         mensaje = MIMEMultipart()
         mensaje['From'] = email_usuario
         mensaje['To'] = orden_info['usuario_email']
-        mensaje['Subject'] = f"🎁 ¡Tu Gift Card está lista! - Orden #{orden_info['id']} - Inefable Store"
+        mensaje['Subject'] = f"ðŸŽ Â¡Tu Gift Card estÃ¡ lista! - Orden #{orden_info['id']} - tindostore"
 
-        # Cuerpo del mensaje específico para Gift Cards
+        # Cuerpo del mensaje especÃ­fico para Gift Cards
         cuerpo = f"""
-        ¡Hola! 🎁
+        Â¡Hola! ðŸŽ
 
-        ¡Excelentes noticias! Tu Gift Card ha sido procesada exitosamente.
+        Â¡Excelentes noticias! Tu Gift Card ha sido procesada exitosamente.
 
-        📋 Detalles de tu orden:
-        • Orden #: {orden_info['id']}
-        • Producto: {orden_info.get('juego_nombre', 'Gift Card')}
-        • Paquete: {orden_info['paquete']}
-        • Monto: ${orden_info['monto']}
-        • Estado: ✅ COMPLETADA
-        • Fecha de procesamiento: {datetime.now().strftime('%d/%m/%Y a las %H:%M')}
+        ðŸ“‹ Detalles de tu orden:
+        â€¢ Orden #: {orden_info['id']}
+        â€¢ Producto: {orden_info.get('juego_nombre', 'Gift Card')}
+        â€¢ Paquete: {orden_info['paquete']}
+        â€¢ Monto: ${orden_info['monto']}
+        â€¢ Estado: âœ… COMPLETADA
+        â€¢ Fecha de procesamiento: {datetime.now().strftime('%d/%m/%Y a las %H:%M')}
 
-        🎯 CÓDIGO DE TU GIFT CARD:
-        ════════════════════════════════════
-        🔑 {orden_info.get('codigo_producto', 'CÓDIGO NO DISPONIBLE')}
-        ════════════════════════════════════
+        ðŸŽ¯ CÃ“DIGO DE TU GIFT CARD:
+        â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        ðŸ”‘ {orden_info.get('codigo_producto', 'CÃ“DIGO NO DISPONIBLE')}
+        â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
-        📝 Instrucciones de uso:
-        • Guarda este código en un lugar seguro
-        • Utiliza este código en la plataforma correspondiente
-        • El código es de un solo uso
-        • Si tienes problemas para canjearlo, contáctanos
+        ðŸ“ Instrucciones de uso:
+        â€¢ Guarda este cÃ³digo en un lugar seguro
+        â€¢ Utiliza este cÃ³digo en la plataforma correspondiente
+        â€¢ El cÃ³digo es de un solo uso
+        â€¢ Si tienes problemas para canjearlo, contÃ¡ctanos
 
-        ⚠️ IMPORTANTE: Este código es personal e intransferible.
+        âš ï¸ IMPORTANTE: Este cÃ³digo es personal e intransferible.
         No lo compartas con nadie para evitar fraudes.
 
-        ¡Gracias por confiar en Inefable Store! 🚀
+        Â¡Gracias por confiar en tindostore! ðŸš€
 
         ---
-        Equipo de Inefable Store
+        Equipo de tindostore
         """
 
         mensaje.attach(MIMEText(cuerpo, 'plain'))
 
-        print("📤 Enviando Gift Card con código al usuario...")
+        print("ðŸ“¤ Enviando Gift Card con cÃ³digo al usuario...")
         # Enviar correo
         server = smtplib.SMTP(smtp_server, smtp_port)
         server.starttls()
@@ -210,27 +231,27 @@ def enviar_correo_gift_card_completada(orden_info):
         server.sendmail(email_usuario, orden_info['usuario_email'], texto)
         server.quit()
 
-        print(f"✅ Gift Card enviada exitosamente a: {orden_info['usuario_email']}")
+        print(f"âœ… Gift Card enviada exitosamente a: {orden_info['usuario_email']}")
         return True
 
     except Exception as e:
-        print(f"❌ Error al enviar Gift Card: {str(e)}")
+        print(f"âŒ Error al enviar Gift Card: {str(e)}")
         return False
 
 def enviar_correo_recarga_completada(orden_info):
-    """Envía correo al usuario confirmando que su recarga ha sido completada"""
+    """EnvÃ­a correo al usuario confirmando que su recarga ha sido completada"""
     try:
-        # Configuración del correo
+        # ConfiguraciÃ³n del correo
         smtp_server = "smtp.gmail.com"
         smtp_port = 587
         email_usuario = "1yorbi1@gmail.com"
         email_password = os.environ.get('GMAIL_APP_PASSWORD')
 
-        print(f"📨 Enviando confirmación de recarga completada para orden #{orden_info['id']}")
-        print(f"📧 Destinatario: {orden_info['usuario_email']}")
+        print(f"ðŸ“¨ Enviando confirmaciÃ³n de recarga completada para orden #{orden_info['id']}")
+        print(f"ðŸ“§ Destinatario: {orden_info['usuario_email']}")
 
         if not email_password:
-            print("❌ ERROR: No se encontró la contraseña de Gmail")
+            print("âŒ ERROR: No se encontrÃ³ la contraseÃ±a de Gmail")
             return False
 
         # Crear mensaje
@@ -238,9 +259,9 @@ def enviar_correo_recarga_completada(orden_info):
         mensaje['From'] = email_usuario
         mensaje['To'] = orden_info['usuario_email']
         # Asunto con marca Tindo Store
-        mensaje['Subject'] = f"Tu recarga está lista - Orden #{orden_info['id']} - Tindo Store"
+        mensaje['Subject'] = f"Tu recarga estÃ¡ lista - Orden #{orden_info['id']} - Tindo Store"
 
-        # Función local para formatear la fecha en español (evita depender del locale del sistema)
+        # FunciÃ³n local para formatear la fecha en espaÃ±ol (evita depender del locale del sistema)
         meses_es = [
             "enero", "febrero", "marzo", "abril", "mayo", "junio",
             "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
@@ -252,16 +273,16 @@ def enviar_correo_recarga_completada(orden_info):
         cuerpo = f"""
 Hola,
 
-Gracias por tu compra. Nos complace informarte que tu pedido ha sido procesado con éxito.
+Gracias por tu compra. Nos complace informarte que tu pedido ha sido procesado con Ã©xito.
 
 Detalles de la orden:  
-📅 Fecha: {fecha_es}  
-🎮 Producto: {orden_info.get('juego_nombre', 'N/A')}  
-🆔 ID de jugador: {orden_info.get('usuario_id', 'No especificado')}  
-💎 Paquete adquirido: {orden_info.get('paquete', 'N/A')}  
-💰 Costo: ${orden_info.get('monto', '0.00')} USD
+ðŸ“… Fecha: {fecha_es}  
+ðŸŽ® Producto: {orden_info.get('juego_nombre', 'N/A')}  
+ðŸ†” ID de jugador: {orden_info.get('usuario_id', 'No especificado')}  
+ðŸ’Ž Paquete adquirido: {orden_info.get('paquete', 'N/A')}  
+ðŸ’° Costo: ${orden_info.get('monto', '0.00')} USD
 
-Si necesitas asistencia o tienes alguna consulta, estamos aquí para ayudarte.
+Si necesitas asistencia o tienes alguna consulta, estamos aquÃ­ para ayudarte.
 
 Atentamente,  
 Equipo de Tindo Store
@@ -269,7 +290,7 @@ Equipo de Tindo Store
 
         mensaje.attach(MIMEText(cuerpo, 'plain'))
 
-        print("📤 Enviando correo de confirmación al usuario...")
+        print("ðŸ“¤ Enviando correo de confirmaciÃ³n al usuario...")
         # Enviar correo
         server = smtplib.SMTP(smtp_server, smtp_port)
         server.starttls()
@@ -278,34 +299,34 @@ Equipo de Tindo Store
         server.sendmail(email_usuario, orden_info['usuario_email'], texto)
         server.quit()
 
-        print(f"✅ Correo de confirmación enviado exitosamente a: {orden_info['usuario_email']}")
+        print(f"âœ… Correo de confirmaciÃ³n enviado exitosamente a: {orden_info['usuario_email']}")
         return True
 
     except Exception as e:
-        print(f"❌ Error al enviar correo de confirmación: {str(e)}")
+        print(f"âŒ Error al enviar correo de confirmaciÃ³n: {str(e)}")
         return False
 
 def enviar_correo_orden_rechazada(orden_info):
-    """Envía correo al usuario notificando que su orden ha sido rechazada por datos incorrectos"""
+    """EnvÃ­a correo al usuario notificando que su orden ha sido rechazada por datos incorrectos"""
     try:
-        # Configuración del correo
+        # ConfiguraciÃ³n del correo
         smtp_server = "smtp.gmail.com"
         smtp_port = 587
         email_usuario = "1yorbi1@gmail.com"
         email_password = os.environ.get('GMAIL_APP_PASSWORD')
 
-        print(f"📧 Enviando notificación de orden rechazada para orden #{orden_info['id']}")
-        print(f"📧 Destinatario: {orden_info['usuario_email']}")
+        print(f"ðŸ“§ Enviando notificaciÃ³n de orden rechazada para orden #{orden_info['id']}")
+        print(f"ðŸ“§ Destinatario: {orden_info['usuario_email']}")
 
         if not email_password:
-            print("❌ ERROR: No se encontró la contraseña de Gmail")
+            print("âŒ ERROR: No se encontrÃ³ la contraseÃ±a de Gmail")
             return False
 
         # Crear mensaje
         mensaje = MIMEMultipart()
         mensaje['From'] = email_usuario
         mensaje['To'] = orden_info['usuario_email']
-        mensaje['Subject'] = f"⚠️ Orden Rechazada - Datos Incorrectos - Orden #{orden_info['id']} - Inefable Store"
+        mensaje['Subject'] = f"âš ï¸ Orden Rechazada - Datos Incorrectos - Orden #{orden_info['id']} - tindostore"
 
         # Cuerpo del mensaje para orden rechazada
         cuerpo = f"""
@@ -313,42 +334,42 @@ def enviar_correo_orden_rechazada(orden_info):
 
         Lamentamos informarte que tu orden ha sido rechazada debido a datos incorrectos.
 
-        📋 Detalles de la orden rechazada:
-        • Orden #: {orden_info['id']}
-        • Juego: {orden_info.get('juego_nombre', 'N/A')}
-        • Paquete: {orden_info['paquete']}
-        • Monto: ${orden_info['monto']}
-        • Método de pago: {orden_info['metodo_pago']}
-        • Referencia proporcionada: {orden_info['referencia_pago']}
-        • Estado: ❌ RECHAZADA
-        • Fecha de rechazo: {datetime.now().strftime('%d/%m/%Y a las %H:%M')}
+        ðŸ“‹ Detalles de la orden rechazada:
+        â€¢ Orden #: {orden_info['id']}
+        â€¢ Juego: {orden_info.get('juego_nombre', 'N/A')}
+        â€¢ Paquete: {orden_info['paquete']}
+        â€¢ Monto: ${orden_info['monto']}
+        â€¢ MÃ©todo de pago: {orden_info['metodo_pago']}
+        â€¢ Referencia proporcionada: {orden_info['referencia_pago']}
+        â€¢ Estado: âŒ RECHAZADA
+        â€¢ Fecha de rechazo: {datetime.now().strftime('%d/%m/%Y a las %H:%M')}
 
-        ⚠️ Motivo del rechazo:
+        âš ï¸ Motivo del rechazo:
         No pudimos encontrar la referencia de pago proporcionada en nuestro sistema. 
         Esto puede deberse a:
         
-        • Referencia de pago incorrecta o incompleta
-        • El pago aún no se ha procesado
-        • Error al escribir la referencia
+        â€¢ Referencia de pago incorrecta o incompleta
+        â€¢ El pago aÃºn no se ha procesado
+        â€¢ Error al escribir la referencia
 
-        🔄 ¿Qué puedes hacer?
+        ðŸ”„ Â¿QuÃ© puedes hacer?
         1. Verifica que la referencia de pago sea correcta
-        2. Asegúrate de que el pago se haya completado exitosamente
-        3. Contacta con nosotros si estás seguro de que los datos son correctos
-        4. Realiza una nueva orden con la información correcta
+        2. AsegÃºrate de que el pago se haya completado exitosamente
+        3. Contacta con nosotros si estÃ¡s seguro de que los datos son correctos
+        4. Realiza una nueva orden con la informaciÃ³n correcta
 
-        📞 Contacto:
-        Si tienes alguna duda o necesitas ayuda, no dudes en contactarnos a través de nuestros canales de atención.
+        ðŸ“ž Contacto:
+        Si tienes alguna duda o necesitas ayuda, no dudes en contactarnos a travÃ©s de nuestros canales de atenciÃ³n.
 
-        Gracias por tu comprensión.
+        Gracias por tu comprensiÃ³n.
 
         ---
-        Equipo de Inefable Store
+        Equipo de tindostore
         """
 
         mensaje.attach(MIMEText(cuerpo, 'plain'))
 
-        print("📤 Enviando correo de orden rechazada al usuario...")
+        print("ðŸ“¤ Enviando correo de orden rechazada al usuario...")
         # Enviar correo
         server = smtplib.SMTP(smtp_server, smtp_port)
         server.starttls()
@@ -357,29 +378,29 @@ def enviar_correo_orden_rechazada(orden_info):
         server.sendmail(email_usuario, orden_info['usuario_email'], texto)
         server.quit()
 
-        print(f"✅ Correo de orden rechazada enviado exitosamente a: {orden_info['usuario_email']}")
+        print(f"âœ… Correo de orden rechazada enviado exitosamente a: {orden_info['usuario_email']}")
         return True
 
     except Exception as e:
-        print(f"❌ Error al enviar correo de orden rechazada: {str(e)}")
+        print(f"âŒ Error al enviar correo de orden rechazada: {str(e)}")
         return False
 
 def limpiar_ordenes_antiguas(usuario_email):
-    """Mantiene solo las últimas 40 órdenes por usuario, eliminando las más antiguas"""
+    """Mantiene solo las Ãºltimas 40 Ã³rdenes por usuario, eliminando las mÃ¡s antiguas"""
     conn = get_db_connection()
     try:
-        # Contar órdenes del usuario
+        # Contar Ã³rdenes del usuario
         result = conn.execute(text('''
             SELECT COUNT(*) FROM ordenes WHERE usuario_email = :email
         '''), {'email': usuario_email})
 
         total_ordenes = result.fetchone()[0]
 
-        # Si tiene más de 40 órdenes, eliminar las más antiguas
+        # Si tiene mÃ¡s de 40 Ã³rdenes, eliminar las mÃ¡s antiguas
         if total_ordenes > 40:
             ordenes_a_eliminar = total_ordenes - 40
 
-            # Obtener IDs de las órdenes más antiguas
+            # Obtener IDs de las Ã³rdenes mÃ¡s antiguas
             result = conn.execute(text('''
                 SELECT id FROM ordenes 
                 WHERE usuario_email = :email 
@@ -390,15 +411,15 @@ def limpiar_ordenes_antiguas(usuario_email):
             ids_a_eliminar = [row[0] for row in result.fetchall()]
 
             if ids_a_eliminar:
-                # Eliminar las órdenes más antiguas
+                # Eliminar las Ã³rdenes mÃ¡s antiguas
                 for orden_id in ids_a_eliminar:
                     conn.execute(text('DELETE FROM ordenes WHERE id = :id'), {'id': orden_id})
 
                 conn.commit()
-                print(f"🧹 Limpieza automática: Eliminadas {len(ids_a_eliminar)} órdenes antiguas del usuario {usuario_email}")
+                print(f"ðŸ§¹ Limpieza automÃ¡tica: Eliminadas {len(ids_a_eliminar)} Ã³rdenes antiguas del usuario {usuario_email}")
 
     except Exception as e:
-        print(f"❌ Error al limpiar órdenes antiguas: {e}")
+        print(f"âŒ Error al limpiar Ã³rdenes antiguas: {e}")
         conn.rollback()
     finally:
         conn.close()
@@ -413,12 +434,12 @@ def _ensure_db_initialized_once():
         try:
             init_db()
             _DB_INIT_DONE = True
-            print("✅ init_db ejecutado (before_request, una sola vez por worker)")
+            print("âœ… init_db ejecutado (before_request, una sola vez por worker)")
         except Exception as e:
-            # No bloquear la petición, pero loguear el error para diagnóstico
-            print(f"⚠️ Error ejecutando init_db en before_request: {e}")
+            # No bloquear la peticiÃ³n, pero loguear el error para diagnÃ³stico
+            print(f"âš ï¸ Error ejecutando init_db en before_request: {e}")
 
-# Endpoint público de salud para verificar conexión a SQLite en Render
+# Endpoint pÃºblico de salud para verificar conexiÃ³n a SQLite en Render
 @app.route('/health/db', methods=['GET'])
 def health_db():
     db_path = os.environ.get('DATABASE_PATH', 'inefablestore.db')
@@ -426,7 +447,7 @@ def health_db():
         'database_path': db_path,
         'db_file_exists': os.path.exists(db_path),
     }
-    # Intentar conexión y consultas básicas
+    # Intentar conexiÃ³n y consultas bÃ¡sicas
     try:
         # Probar con SQLAlchemy
         conn = get_db_connection()
@@ -446,7 +467,7 @@ def health_db():
     except Exception as e:
         info['sqlalchemy_connect'] = False
         info['error'] = str(e)
-    # También probar con sqlite3 directa
+    # TambiÃ©n probar con sqlite3 directa
     try:
         sconn = sqlite3.connect(db_path, timeout=5)
         try:
@@ -460,81 +481,81 @@ def health_db():
     return jsonify(info)
 
 def enviar_notificacion_orden(orden_data):
-    """Envía notificación por correo de nueva orden"""
+    """EnvÃ­a notificaciÃ³n por correo de nueva orden"""
     try:
-        # Configuración del correo
+        # ConfiguraciÃ³n del correo
         smtp_server = "smtp.gmail.com"
         smtp_port = 587
         email_usuario = "1yorbi1@gmail.com"
         email_password = os.environ.get('GMAIL_APP_PASSWORD')
 
-        print(f"🔧 Intentando enviar notificación para orden #{orden_data['id']}")
-        print(f"📧 Email configurado: {email_usuario}")
+        print(f"ðŸ”§ Intentando enviar notificaciÃ³n para orden #{orden_data['id']}")
+        print(f"ðŸ“§ Email configurado: {email_usuario}")
 
         if not email_password:
-            print("❌ ERROR: No se encontró la contraseña de Gmail en los secretos")
-            print("💡 Solución: Agrega el secreto 'GMAIL_APP_PASSWORD' en Replit")
-            print("💡 Usa una contraseña de aplicación de Gmail, no tu contraseña normal")
+            print("âŒ ERROR: No se encontrÃ³ la contraseÃ±a de Gmail en los secretos")
+            print("ðŸ’¡ SoluciÃ³n: Agrega el secreto 'GMAIL_APP_PASSWORD' en Replit")
+            print("ðŸ’¡ Usa una contraseÃ±a de aplicaciÃ³n de Gmail, no tu contraseÃ±a normal")
             return False
 
-        print("🔑 Contraseña de aplicación encontrada")
+        print("ðŸ”‘ ContraseÃ±a de aplicaciÃ³n encontrada")
 
         # Crear mensaje
         mensaje = MIMEMultipart()
         mensaje['From'] = email_usuario
         mensaje['To'] = email_usuario  # Enviamos a nosotros mismos
-        mensaje['Subject'] = f"🛒 Nueva Orden #{orden_data['id']} - Inefable Store"
+        mensaje['Subject'] = f"ðŸ›’ Nueva Orden #{orden_data['id']} - tindostore"
 
         # Cuerpo del mensaje
         cuerpo = f"""
-        ¡Nueva orden recibida en Inefable Store!
+        Â¡Nueva orden recibida en tindostore!
 
-        📋 Detalles de la Orden:
-        • ID: #{orden_data['id']}
-        • Juego: {orden_data.get('juego_nombre', 'N/A')}
-        • Paquete: {orden_data['paquete']}
-        • Monto: ${orden_data['monto']}
-        • Cliente: {orden_data['usuario_email']}
-        • Teléfono: {orden_data.get('usuario_telefono', 'No especificado')}
-        • ID del Usuario en el Juego: {orden_data.get('usuario_id', 'No especificado')}
-        • Método de Pago: {orden_data['metodo_pago']}
-        • Referencia: {orden_data['referencia_pago']}
-        • Estado: {orden_data['estado']}
-        • Fecha: {orden_data['fecha']}
+        ðŸ“‹ Detalles de la Orden:
+        â€¢ ID: #{orden_data['id']}
+        â€¢ Juego: {orden_data.get('juego_nombre', 'N/A')}
+        â€¢ Paquete: {orden_data['paquete']}
+        â€¢ Monto: ${orden_data['monto']}
+        â€¢ Cliente: {orden_data['usuario_email']}
+        â€¢ TelÃ©fono: {orden_data.get('usuario_telefono', 'No especificado')}
+        â€¢ ID del Usuario en el Juego: {orden_data.get('usuario_id', 'No especificado')}
+        â€¢ MÃ©todo de Pago: {orden_data['metodo_pago']}
+        â€¢ Referencia: {orden_data['referencia_pago']}
+        â€¢ Estado: {orden_data['estado']}
+        â€¢ Fecha: {orden_data['fecha']}
 
-        🎮 Accede al panel de administración para gestionar esta orden.
+        ðŸŽ® Accede al panel de administraciÃ³n para gestionar esta orden.
 
-        ¡Saludos del equipo de Inefable Store! 🚀
+        Â¡Saludos del equipo de tindostore! ðŸš€
         """
 
         mensaje.attach(MIMEText(cuerpo, 'plain'))
 
-        print("📨 Conectando al servidor SMTP...")
+        print("ðŸ“¨ Conectando al servidor SMTP...")
         # Enviar correo
         server = smtplib.SMTP(smtp_server, smtp_port)
         server.starttls()
-        print("🔐 Iniciando sesión...")
+        print("ðŸ” Iniciando sesiÃ³n...")
         server.login(email_usuario, email_password)
-        print("📤 Enviando correo...")
+        print("ðŸ“¤ Enviando correo...")
         texto = mensaje.as_string()
         server.sendmail(email_usuario, email_usuario, texto)
         server.quit()
 
-        print(f"✅ Notificación enviada exitosamente para orden #{orden_data['id']}")
-        print(f"📬 Revisa tu bandeja de entrada en: {email_usuario}")
+        print(f"âœ… NotificaciÃ³n enviada exitosamente para orden #{orden_data['id']}")
+        print(f"ðŸ“¬ Revisa tu bandeja de entrada en: {email_usuario}")
         return True
 
     except smtplib.SMTPAuthenticationError as e:
-        print(f"❌ ERROR DE AUTENTICACIÓN: {str(e)}")
-        print("💡 Verifica que tengas una contraseña de aplicación válida")
-        print("💡 Asegúrate de tener habilitada la verificación en 2 pasos")
+        print(f"âŒ ERROR DE AUTENTICACIÃ“N: {str(e)}")
+        print("ðŸ’¡ Verifica que tengas una contraseÃ±a de aplicaciÃ³n vÃ¡lida")
+        print("ðŸ’¡ AsegÃºrate de tener habilitada la verificaciÃ³n en 2 pasos")
         return False
     except smtplib.SMTPException as e:
-        print(f"❌ ERROR SMTP: {str(e)}")
+        print(f"âŒ ERROR SMTP: {str(e)}")
         return False
     except Exception as e:
-        print(f"❌ Error general al enviar notificación: {str(e)}")
-        print(f"🔍 Tipo de error: {type(e).__name__}")
+        print(f"âŒ Error general al enviar notificaciÃ³n: {str(e)}")
+        print(f"ðŸ” Tipo de error: {type(e).__name__}")
         return False
 
 def init_db():
@@ -556,7 +577,7 @@ def init_db():
             );
         '''))
 
-        # SQLite no soporta ADD COLUMN IF NOT EXISTS, pero las columnas ya están en CREATE TABLE
+        # SQLite no soporta ADD COLUMN IF NOT EXISTS, pero las columnas ya estÃ¡n en CREATE TABLE
 
         conn.execute(text('''
             CREATE TABLE IF NOT EXISTS paquetes (
@@ -630,7 +651,7 @@ def init_db():
             );
         '''))
 
-        # Migraciones SQLite: añadir columnas faltantes si la DB ya existía sin estas columnas
+        # Migraciones SQLite: aÃ±adir columnas faltantes si la DB ya existÃ­a sin estas columnas
         _ensure_sqlite_column(conn, 'juegos', 'categoria', "categoria TEXT DEFAULT 'juegos'")
         _ensure_sqlite_column(conn, 'juegos', 'orden', 'orden INTEGER DEFAULT 0')
         _ensure_sqlite_column(conn, 'juegos', 'etiquetas', 'etiquetas TEXT')
@@ -645,7 +666,7 @@ def init_db():
         _ensure_sqlite_column(conn, 'usuarios', 'telefono', 'telefono TEXT')
         _ensure_sqlite_column(conn, 'usuarios', 'es_admin', 'es_admin INTEGER DEFAULT 0')
 
-        # Normalizar rutas de imágenes guardadas antiguas
+        # Normalizar rutas de imÃ¡genes guardadas antiguas
         try:
             # Quitar prefijo '/static/' si existe (convierte '/static/images/x.jpg' -> 'images/x.jpg')
             conn.execute(text("""
@@ -659,9 +680,9 @@ def init_db():
                 SET ruta = REPLACE(ruta, '\\', '/')
                 WHERE instr(ruta, '\\') > 0
             """))
-            print("🧹 Migración: rutas de imágenes normalizadas")
+            print("ðŸ§¹ MigraciÃ³n: rutas de imÃ¡genes normalizadas")
         except Exception as e:
-            print(f"⚠️ No se pudo normalizar rutas de imágenes: {e}")
+            print(f"âš ï¸ No se pudo normalizar rutas de imÃ¡genes: {e}")
 
         # Verificar si ya hay productos
         result = conn.execute(text('SELECT COUNT(*) FROM juegos'))
@@ -675,7 +696,7 @@ def init_db():
                 VALUES (:nombre, :descripcion, :imagen, :categoria)
             '''), {
                 'nombre': 'Free Fire',
-                'descripcion': 'Juego de batalla real con acción intensa y gráficos increíbles',
+                'descripcion': 'Juego de batalla real con acciÃ³n intensa y grÃ¡ficos increÃ­bles',
                 'imagen': '/static/images/20250701_212818_free_fire.webp',
                 'categoria': 'juegos'
             })
@@ -703,7 +724,7 @@ def init_db():
                 VALUES (:nombre, :descripcion, :imagen, :categoria)
             '''), {
                 'nombre': 'PUBG Mobile',
-                'descripcion': 'Battle royale de última generación con mecánicas realistas',
+                'descripcion': 'Battle royale de Ãºltima generaciÃ³n con mecÃ¡nicas realistas',
                 'imagen': '/static/images/default-product.jpg',
                 'categoria': 'juegos'
             })
@@ -731,7 +752,7 @@ def init_db():
                 VALUES (:nombre, :descripcion, :imagen, :categoria)
             '''), {
                 'nombre': 'Call of Duty Mobile',
-                'descripcion': 'FPS de acción con multijugador competitivo y battle royale',
+                'descripcion': 'FPS de acciÃ³n con multijugador competitivo y battle royale',
                 'imagen': '/static/images/default-product.jpg',
                 'categoria': 'juegos'
             })
@@ -753,18 +774,18 @@ def init_db():
                     VALUES (:juego_id, :nombre, :precio, :orden)
                 '''), {'juego_id': cod_id, 'nombre': nombre, 'precio': precio, 'orden': orden})
 
-        # Insertar configuración básica si no existe
+        # Insertar configuraciÃ³n bÃ¡sica si no existe
         result = conn.execute(text('SELECT COUNT(*) FROM configuracion'))
         config_count = result.fetchone()[0]
 
         if config_count == 0:
             configs = [
                 ('tasa_usd_ves', '36.50'),
-                ('pago_movil', 'Banco: Banesco\nTelefono: 0412-1234567\nCédula: V-12345678\nNombre: Store Admin'),
+                ('pago_movil', 'Banco: Banesco\nTelefono: 0412-1234567\nCÃ©dula: V-12345678\nNombre: Store Admin'),
                 ('binance', 'Email: admin@inefablestore.com\nID Binance: 123456789'),
-                ('carousel1', 'https://via.placeholder.com/800x300/007bff/ffffff?text=🎮+Ofertas+Especiales+Free+Fire'),
-                ('carousel2', 'https://via.placeholder.com/800x300/28a745/ffffff?text=🔥+Mejores+Precios+PUBG'),
-                ('carousel3', 'https://via.placeholder.com/800x300/dc3545/ffffff?text=⚡+Entrega+Inmediata+COD')
+                ('carousel1', 'https://via.placeholder.com/800x300/007bff/ffffff?text=ðŸŽ®+Ofertas+Especiales+Free+Fire'),
+                ('carousel2', 'https://via.placeholder.com/800x300/28a745/ffffff?text=ðŸ”¥+Mejores+Precios+PUBG'),
+                ('carousel3', 'https://via.placeholder.com/800x300/dc3545/ffffff?text=âš¡+Entrega+Inmediata+COD')
             ]
 
             for campo, valor in configs:
@@ -793,14 +814,14 @@ def init_db():
                     'email': admin_email,
                     'password_hash': password_hash
                 })
-                print(f"✅ Usuario administrador creado: {admin_email}")
+                print(f"âœ… Usuario administrador creado: {admin_email}")
             else:
                 # Actualizar usuario existente para que sea admin
                 password_hash = generate_password_hash(admin_password)
                 conn.execute(text('''
                     UPDATE usuarios SET es_admin = 1, password_hash = :password_hash WHERE email = :email
                 '''), {'email': admin_email, 'password_hash': password_hash})
-                print(f"✅ Usuario actualizado como administrador: {admin_email}")
+                print(f"âœ… Usuario actualizado como administrador: {admin_email}")
 
         conn.commit()
 
@@ -815,7 +836,7 @@ def init_db():
 # =====================
 
 def _smtp_config():
-    """Obtiene configuración SMTP desde variables de entorno.
+    """Obtiene configuraciÃ³n SMTP desde variables de entorno.
     Para Gmail: smtp.gmail.com:587 TLS. Variables esperadas:
     SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, SMTP_FROM, SMTP_USE_TLS (1/0)
     """
@@ -838,7 +859,7 @@ def _send_email_safe(to_email: str, subject: str, html_body: str, text_body: str
         if not sender: missing.append('SMTP_FROM (o SMTP_USER)')
         if not password: missing.append('SMTP_PASSWORD')
         if not to_email: missing.append('DESTINATARIO (to_email)')
-        print('✉️ Aviso: SMTP no configurado completamente. Saltando envío de correo.')
+        print('âœ‰ï¸ Aviso: SMTP no configurado completamente. Saltando envÃ­o de correo.')
         print(f"Faltan: {', '.join(missing) if missing else 'campos desconocidos'}")
         print(f'Subject: {subject} | To: {to_email}')
         return False
@@ -851,7 +872,7 @@ def _send_email_safe(to_email: str, subject: str, html_body: str, text_body: str
         if text_body:
             msg.set_content(text_body)
         msg.add_alternative(html_body, subtype='html')
-        # Elegir modo de conexión: SSL puro (465) o STARTTLS (587) o plano
+        # Elegir modo de conexiÃ³n: SSL puro (465) o STARTTLS (587) o plano
         if use_ssl or port == 465:
             with smtplib.SMTP_SSL(host, port, timeout=30) as server:
                 server.login(user, password)
@@ -862,24 +883,24 @@ def _send_email_safe(to_email: str, subject: str, html_body: str, text_body: str
                     server.starttls()
                 server.login(user, password)
                 server.send_message(msg)
-        print(f'✅ Correo enviado a {to_email}: {subject}')
+        print(f'âœ… Correo enviado a {to_email}: {subject}')
         return True
     except Exception as e:
-        print(f'❌ Error enviando correo a {to_email}: {e}')
+        print(f'âŒ Error enviando correo a {to_email}: {e}')
         return False
 
 def enviar_correo_recarga_completada(orden: dict):
     # Asunto con marca Tindo Store
-    asunto = f"Tu recarga está lista - Orden #{orden.get('id','')} - Tindo Store"
+    asunto = f"Tu recarga estÃ¡ lista - Orden #{orden.get('id','')} - Tindo Store"
     to = orden.get('usuario_email')
-    # Formateo de fecha en español sin depender del locale del sistema
+    # Formateo de fecha en espaÃ±ol sin depender del locale del sistema
     meses_es = [
         "enero", "febrero", "marzo", "abril", "mayo", "junio",
         "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
     ]
     ahora = datetime.now()
     fecha_es = f"{ahora.day} de {meses_es[ahora.month - 1]} de {ahora.year}"
-    # Datos dinámicos
+    # Datos dinÃ¡micos
     juego = orden.get('juego_nombre', 'N/A')
     usuario_id = orden.get('usuario_id', 'No especificado')
     paquete = orden.get('paquete', 'N/A')
@@ -887,27 +908,27 @@ def enviar_correo_recarga_completada(orden: dict):
     # Cuerpo HTML con la plantilla solicitada
     html = f"""
     <p>Hola,</p>
-    <p>Gracias por tu compra. Nos complace informarte que tu pedido ha sido procesado con éxito.</p>
+    <p>Gracias por tu compra. Nos complace informarte que tu pedido ha sido procesado con Ã©xito.</p>
     <p><strong>Detalles de la orden:</strong><br/>
-    📅 Fecha: {fecha_es}<br/>
-    🎮 Producto: {juego}<br/>
-    🆔 ID de jugador: {usuario_id}<br/>
-    💎 Paquete adquirido: {paquete}<br/>
-    💰 Costo: ${monto} USD</p>
-    <p>Si necesitas asistencia o tienes alguna consulta, estamos aquí para ayudarte.</p>
+    ðŸ“… Fecha: {fecha_es}<br/>
+    ðŸŽ® Producto: {juego}<br/>
+    ðŸ†” ID de jugador: {usuario_id}<br/>
+    ðŸ’Ž Paquete adquirido: {paquete}<br/>
+    ðŸ’° Costo: ${monto} USD</p>
+    <p>Si necesitas asistencia o tienes alguna consulta, estamos aquÃ­ para ayudarte.</p>
     <p>Atentamente,<br/>
     <strong>Equipo de Tindo Store</strong></p>
     """
     text = (
         "Hola,\n\n"
-        "Gracias por tu compra. Nos complace informarte que tu pedido ha sido procesado con éxito.\n\n"
+        "Gracias por tu compra. Nos complace informarte que tu pedido ha sido procesado con Ã©xito.\n\n"
         "Detalles de la orden:\n"
         f"- Fecha: {fecha_es}\n"
         f"- Producto: {juego}\n"
         f"- ID de jugador: {usuario_id}\n"
         f"- Paquete adquirido: {paquete}\n"
         f"- Costo: ${monto} USD\n\n"
-        "Si necesitas asistencia o tienes alguna consulta, estamos aquí para ayudarte.\n\n"
+        "Si necesitas asistencia o tienes alguna consulta, estamos aquÃ­ para ayudarte.\n\n"
         "Atentamente,\nEquipo de Tindo Store"
     )
     _send_email_safe(to, asunto, html, text)
@@ -917,53 +938,53 @@ def enviar_correo_gift_card_completada(orden: dict):
     to = orden.get('usuario_email')
     codigo = orden.get('codigo_producto')
     html = f"""
-    <h2>¡Tu Gift Card está lista! 🎁</h2>
+    <h2>Â¡Tu Gift Card estÃ¡ lista! ðŸŽ</h2>
     <p>Producto: <b>{orden.get('juego_nombre','Gift Card')}</b></p>
-    <p>Código: <b style='font-size:18px'>{codigo}</b></p>
-    <p>Gracias por comprar en Inefablestore.</p>
+    <p>CÃ³digo: <b style='font-size:18px'>{codigo}</b></p>
+    <p>Gracias por comprar en tindostore.</p>
     """
-    _send_email_safe(to, asunto, html, f"Gift Card lista. Código: {codigo}")
+    _send_email_safe(to, asunto, html, f"Gift Card lista. CÃ³digo: {codigo}")
 
 def enviar_correo_orden_rechazada(orden: dict):
     asunto = f"Tu orden fue rechazada"
     to = orden.get('usuario_email')
     ref = orden.get('referencia_pago')
     html = f"""
-    <h2>Tu orden fue rechazada ⚠️</h2>
+    <h2>Tu orden fue rechazada âš ï¸</h2>
     <p>Juego: <b>{orden.get('juego_nombre','')}</b></p>
     <p>Paquete: <b>{orden.get('paquete','')}</b></p>
     <p>Referencia: <b>{ref}</b></p>
-    <p>Si crees que es un error, contáctanos respondiendo este correo.</p>
+    <p>Si crees que es un error, contÃ¡ctanos respondiendo este correo.</p>
     """
     _send_email_safe(to, asunto, html, f"Orden rechazada. Ref: {ref}")
 
 def enviar_notificacion_orden(orden: dict):
-    """Notifica creación de orden:
-    - Envía un correo de confirmación al comprador (usuario_email).
-    - Envía una copia resumida al correo de la tienda (SMTP_FROM/SMTP_USER).
+    """Notifica creaciÃ³n de orden:
+    - EnvÃ­a un correo de confirmaciÃ³n al comprador (usuario_email).
+    - EnvÃ­a una copia resumida al correo de la tienda (SMTP_FROM/SMTP_USER).
     """
     try:
         # Correo al comprador
         asunto_user = "Hemos recibido tu orden"
         html_user = f"""
-        <h2>¡Gracias por tu compra! 🧾</h2>
-        <p>Hemos recibido tu orden y está en estado <b>{orden.get('estado')}</b>.</p>
+        <h2>Â¡Gracias por tu compra! ðŸ§¾</h2>
+        <p>Hemos recibido tu orden y estÃ¡ en estado <b>{orden.get('estado')}</b>.</p>
         <ul>
           <li>Orden: <b>#{orden.get('id')}</b></li>
           <li>Juego: <b>{orden.get('juego_nombre','')}</b></li>
           <li>Paquete: <b>{orden.get('paquete','')}</b></li>
           <li>Monto: <b>{orden.get('monto')}</b></li>
-          <li>Método de pago: <b>{orden.get('metodo_pago')}</b></li>
+          <li>MÃ©todo de pago: <b>{orden.get('metodo_pago')}</b></li>
           <li>Referencia: <b>{orden.get('referencia_pago')}</b></li>
         </ul>
-        <p>Te avisaremos cuando esté procesada.</p>
+        <p>Te avisaremos cuando estÃ© procesada.</p>
         """
-        # Enviar al comprador si tiene email válido
+        # Enviar al comprador si tiene email vÃ¡lido
         to_user = (orden.get('usuario_email') or '').strip()
         if to_user:
             _send_email_safe(to_user, asunto_user, html_user)
         else:
-            print('✉️ Aviso: correo del comprador vacío o inválido, se omite envío al comprador.')
+            print('âœ‰ï¸ Aviso: correo del comprador vacÃ­o o invÃ¡lido, se omite envÃ­o al comprador.')
 
         # Correo a la tienda
         host, port, user, password, sender, use_tls, use_ssl = _smtp_config()
@@ -975,23 +996,23 @@ def enviar_notificacion_orden(orden: dict):
             <ul>
               <li>Orden: <b>#{orden.get('id')}</b></li>
               <li>Cliente: <b>{orden.get('usuario_email')}</b></li>
-              <li>Teléfono: <b>{orden.get('usuario_telefono') or ''}</b></li>
+              <li>TelÃ©fono: <b>{orden.get('usuario_telefono') or ''}</b></li>
               <li>Juego: <b>{orden.get('juego_nombre','')}</b></li>
               <li>Paquete: <b>{orden.get('paquete','')}</b></li>
               <li>Monto: <b>{orden.get('monto')}</b></li>
-              <li>Método de pago: <b>{orden.get('metodo_pago')}</b></li>
+              <li>MÃ©todo de pago: <b>{orden.get('metodo_pago')}</b></li>
               <li>Referencia: <b>{orden.get('referencia_pago')}</b></li>
               <li>Fecha: <b>{orden.get('fecha')}</b></li>
             </ul>
             """
             _send_email_safe(admin_mail, asunto_admin, html_admin)
         else:
-            print('✉️ Aviso: no se encontró SMTP_FROM ni SMTP_USER para notificar a la tienda. Se omite envío de copia a la tienda.')
+            print('âœ‰ï¸ Aviso: no se encontrÃ³ SMTP_FROM ni SMTP_USER para notificar a la tienda. Se omite envÃ­o de copia a la tienda.')
     except Exception as e:
-        print(f"❌ Error en enviar_notificacion_orden: {e}")
+        print(f"âŒ Error en enviar_notificacion_orden: {e}")
 
 def limpiar_ordenes_antiguas(usuario_email):
-    """Mantiene solo las últimas 40 órdenes del usuario para evitar acumulación."""
+    """Mantiene solo las Ãºltimas 40 Ã³rdenes del usuario para evitar acumulaciÃ³n."""
     try:
         conn = get_db_connection()
         try:
@@ -1009,7 +1030,7 @@ def limpiar_ordenes_antiguas(usuario_email):
         finally:
             conn.close()
     except Exception as e:
-        print(f"⚠️ Error limpiando órdenes antiguas: {e}")
+        print(f"âš ï¸ Error limpiando Ã³rdenes antiguas: {e}")
 
 @app.route('/')
 def index():
@@ -1018,24 +1039,31 @@ def index():
 # Manejador catch-all para rutas SPA - debe devolver siempre index.html
 @app.route('/<path:path>')
 def catch_all(path):
-    # Si es una ruta de API, devolver 404
-    if path.startswith('api/') or path.startswith('admin/') or path.startswith('static/'):
+    # Si es una ruta de API/administración/estática u otros endpoints del backend, no interceptar
+    protected_prefixes = (
+        'api/', 'admin/', 'static/', 'images/', 'valoracion', 'valoraciones', 'health'
+    )
+    protected_exact = {
+        'productos', 'config', 'usuario', 'usuario/historial',
+        'orden', 'login', 'logout', 'registro'
+    }
+    if path.startswith(protected_prefixes) or path in protected_exact:
         return "Not Found", 404
-    # Para cualquier otra ruta, devolver la página principal
+    # Para cualquier otra ruta, devolver la página principal (SPA)
     return render_template('index.html')
 
 @app.route('/admin')
 def admin():
-    # Cache busting para admin también
+    # Cache busting para admin tambiÃ©n
     cache_bust = str(int(time.time()))
     return render_template('admin.html', cache_bust=cache_bust)
 
-# ENDPOINT PARA CREAR ÓRDENES DESDE EL FRONTEND
+# ENDPOINT PARA CREAR Ã“RDENES DESDE EL FRONTEND
 @app.route('/orden', methods=['POST'])
 def create_orden():
-    # Verificar si el usuario está logueado
+    # Verificar si el usuario estÃ¡ logueado
     if 'user_id' not in session:
-        return jsonify({'error': 'Debes iniciar sesión para realizar una compra'}), 401
+        return jsonify({'error': 'Debes iniciar sesiÃ³n para realizar una compra'}), 401
 
     data = request.get_json()
     juego_id = data.get('juego_id')
@@ -1051,7 +1079,7 @@ def create_orden():
     conn = get_db_connection()
 
     try:
-        # Obtener el teléfono del usuario desde la base de datos
+        # Obtener el telÃ©fono del usuario desde la base de datos
         result_user = conn.execute(text('''
             SELECT telefono FROM usuarios WHERE email = :email
         '''), {'email': usuario_email})
@@ -1077,7 +1105,7 @@ def create_orden():
         result = conn.execute(text('SELECT last_insert_rowid()'))
         orden_id = result.scalar()
 
-        # Obtener datos completos de la orden para la notificación
+        # Obtener datos completos de la orden para la notificaciÃ³n
         result = conn.execute(text('''
             SELECT o.*, j.nombre as juego_nombre 
             FROM ordenes o 
@@ -1089,13 +1117,13 @@ def create_orden():
         conn.commit()
 
         # Debug: mostrar datos de la orden creada
-        print(f"🔍 Orden creada - ID: {orden_id}")
+        print(f"ðŸ” Orden creada - ID: {orden_id}")
         if orden_completa:
-            print(f"🔍 Datos orden completa: {dict(orden_completa._mapping)}")
+            print(f"ðŸ” Datos orden completa: {dict(orden_completa._mapping)}")
         else:
-            print("⚠️ No se pudo obtener orden_completa tras INSERT")
+            print("âš ï¸ No se pudo obtener orden_completa tras INSERT")
 
-        # Limpiar órdenes antiguas del usuario (mantener solo las últimas 40)
+        # Limpiar Ã³rdenes antiguas del usuario (mantener solo las Ãºltimas 40)
         limpiar_ordenes_antiguas(usuario_email)
 
     except Exception as e:
@@ -1104,9 +1132,9 @@ def create_orden():
     finally:
         conn.close()
 
-    # Enviar notificación por correo en un hilo separado para no bloquear la respuesta
+    # Enviar notificaciÃ³n por correo en un hilo separado para no bloquear la respuesta
     if orden_completa:
-        print("📧 Preparando envío de notificación por correo...")
+        print("ðŸ“§ Preparando envÃ­o de notificaciÃ³n por correo...")
         orden_data = {
             'id': orden_completa[0],
             'juego_id': orden_completa[1],
@@ -1121,22 +1149,22 @@ def create_orden():
             'fecha': orden_completa[10],
             'juego_nombre': orden_completa[11]
         }
-        print(f"📧 Datos para correo: {orden_data}")
+        print(f"ðŸ“§ Datos para correo: {orden_data}")
 
-        # Enviar notificación en hilo separado
-        print("📧 Iniciando hilo de envío de correo...")
+        # Enviar notificaciÃ³n en hilo separado
+        print("ðŸ“§ Iniciando hilo de envÃ­o de correo...")
         threading.Thread(target=enviar_notificacion_orden, args=(orden_data,)).start()
     else:
-        print("❌ No se enviará correo: orden_completa es None")
+        print("âŒ No se enviarÃ¡ correo: orden_completa es None")
 
     return jsonify({'message': 'Orden creada correctamente', 'id': orden_id})
 
 # Decorador para proteger endpoints de admin
 def admin_required(f):
     def decorated_function(*args, **kwargs):
-        # Verificar si el usuario está logueado
+        # Verificar si el usuario estÃ¡ logueado
         if 'user_id' not in session:
-            return jsonify({'error': 'Debes iniciar sesión'}), 401
+            return jsonify({'error': 'Debes iniciar sesiÃ³n'}), 401
 
         # Verificar si el usuario es administrador
         conn = get_db_connection()
@@ -1156,13 +1184,13 @@ def admin_required(f):
     decorated_function.__name__ = f.__name__
     return decorated_function
 
-# Endpoint ligero para verificar sesión de admin y conectividad a la DB
+# Endpoint ligero para verificar sesiÃ³n de admin y conectividad a la DB
 @app.route('/admin/ping', methods=['GET'])
 @admin_required
 def admin_ping():
     conn = get_db_connection()
     try:
-        # SELECT 1 para validar conexión
+        # SELECT 1 para validar conexiÃ³n
         conn.execute(text('SELECT 1'))
         return jsonify({
             'ok': True,
@@ -1175,7 +1203,7 @@ def admin_ping():
     finally:
         conn.close()
 
-# Probar envío de correo desde el panel admin
+# Probar envÃ­o de correo desde el panel admin
 @app.route('/admin/test-email', methods=['POST'])
 @admin_required
 def admin_test_email():
@@ -1185,10 +1213,10 @@ def admin_test_email():
         host, port, user, password, sender, use_tls, use_ssl = _smtp_config()
         destino = to or sender or user
         if not destino:
-            return jsonify({'ok': False, 'error': 'No se pudo determinar un destinatario. Configure SMTP_FROM o envíe {"to": "correo@destino"}.',
+            return jsonify({'ok': False, 'error': 'No se pudo determinar un destinatario. Configure SMTP_FROM o envÃ­e {"to": "correo@destino"}.',
                             'host': host, 'port': port, 'use_tls': use_tls, 'use_ssl': use_ssl}), 400
 
-        asunto = 'Prueba SMTP Inefablestore'
+        asunto = 'Prueba SMTP tindostore'
         html = '<h3>Correo de prueba</h3><p>Este es un correo de prueba desde el panel admin.</p>'
         ok = _send_email_safe(destino, asunto, html, 'Correo de prueba desde admin')
         status = 200 if ok else 500
@@ -1211,7 +1239,7 @@ def admin_test_email():
         return jsonify({'ok': False, 'error': f'Error inesperado en test-email: {str(e)}',
                         'host': host, 'port': port, 'use_tls': use_tls, 'use_ssl': use_ssl}), 500
 
-# ENDPOINTS PARA ÓRDENES
+# ENDPOINTS PARA Ã“RDENES
 @app.route('/admin/ordenes', methods=['GET'])
 @admin_required
 def get_ordenes():
@@ -1245,7 +1273,7 @@ def update_orden(orden_id):
     conn = get_db_connection()
 
     try:
-        # Obtener información completa de la orden antes de actualizar
+        # Obtener informaciÃ³n completa de la orden antes de actualizar
         result = conn.execute(text('''
             SELECT o.*, j.nombre as juego_nombre, j.categoria 
             FROM ordenes o 
@@ -1257,9 +1285,9 @@ def update_orden(orden_id):
         if not orden_info:
             return jsonify({'error': 'Orden no encontrada'}), 404
 
-        # Preparar la consulta de actualización
+        # Preparar la consulta de actualizaciÃ³n
         if codigo_producto is not None:
-            # Actualizar estado y código
+            # Actualizar estado y cÃ³digo
             conn.execute(text('UPDATE ordenes SET estado = :estado, codigo_producto = :codigo WHERE id = :orden_id'), 
                         {'estado': nuevo_estado, 'codigo': codigo_producto, 'orden_id': orden_id})
         else:
@@ -1269,14 +1297,14 @@ def update_orden(orden_id):
 
         conn.commit()
 
-        # Convertir orden_info a diccionario para envío de correo
+        # Convertir orden_info a diccionario para envÃ­o de correo
         orden_dict = dict(orden_info._mapping)
         if codigo_producto:
             orden_dict['codigo_producto'] = codigo_producto
 
-        # Si el nuevo estado es "procesado", enviar correo de confirmación al usuario
+        # Si el nuevo estado es "procesado", enviar correo de confirmaciÃ³n al usuario
         if nuevo_estado == 'procesado':
-            # Verificar si es Gift Card para enviar correo específico
+            # Verificar si es Gift Card para enviar correo especÃ­fico
             es_gift_card = (orden_dict.get('categoria') == 'gift-cards' or 
                            'gift' in (orden_dict.get('juego_nombre', '')).lower() or
                            'steam' in (orden_dict.get('juego_nombre', '')).lower())
@@ -1300,7 +1328,7 @@ def rechazar_orden(orden_id):
     conn = get_db_connection()
 
     try:
-        # Obtener información completa de la orden antes de rechazar
+        # Obtener informaciÃ³n completa de la orden antes de rechazar
         result = conn.execute(text('''
             SELECT o.*, j.nombre as juego_nombre, j.categoria 
             FROM ordenes o 
@@ -1318,13 +1346,13 @@ def rechazar_orden(orden_id):
         
         conn.commit()
 
-        # Convertir orden_info a diccionario para envío de correo
+        # Convertir orden_info a diccionario para envÃ­o de correo
         orden_dict = dict(orden_info._mapping)
 
-        # Enviar correo de notificación de rechazo al usuario
+        # Enviar correo de notificaciÃ³n de rechazo al usuario
         threading.Thread(target=enviar_correo_orden_rechazada, args=(orden_dict,)).start()
 
-        return jsonify({'message': 'Orden rechazada y correo de notificación enviado al usuario'})
+        return jsonify({'message': 'Orden rechazada y correo de notificaciÃ³n enviado al usuario'})
 
     except Exception as e:
         conn.rollback()
@@ -1346,7 +1374,7 @@ def get_productos():
         productos_list = []
         for producto in productos:
             producto_dict = dict(producto._mapping)
-            # Asegurar id válido (fallback a rowid si fuese None por alguna DB antigua)
+            # Asegurar id vÃ¡lido (fallback a rowid si fuese None por alguna DB antigua)
             if producto_dict.get('id') is None and producto_dict.get('_rowid') is not None:
                 producto_dict['id'] = producto_dict['_rowid']
             # Remover helper interno
@@ -1377,8 +1405,8 @@ def create_producto():
     paquetes = data.get('paquetes', [])
 
     # Debug: Imprimir los datos recibidos
-    print(f"🔍 Creando producto con categoría: {categoria}")
-    print(f"🔍 Datos completos: {data}")
+    print(f"ðŸ” Creando producto con categorÃ­a: {categoria}")
+    print(f"ðŸ” Datos completos: {data}")
 
     conn = get_db_connection()
     try:
@@ -1399,7 +1427,7 @@ def create_producto():
         result = conn.execute(text('SELECT last_insert_rowid()'))
         producto_id = result.scalar()
 
-        print(f"✅ Producto creado con ID: {producto_id}, categoría: {categoria}")
+        print(f"âœ… Producto creado con ID: {producto_id}, categorÃ­a: {categoria}")
 
         # Insertar paquetes
         for index, paquete in enumerate(paquetes):
@@ -1417,7 +1445,7 @@ def create_producto():
         conn.commit()
         return jsonify({'message': 'Producto creado correctamente', 'id': producto_id})
     except Exception as e:
-        print(f"❌ Error al crear producto: {str(e)}")
+        print(f"âŒ Error al crear producto: {str(e)}")
         conn.rollback()
         return jsonify({'error': f'Error al crear producto: {str(e)}'}), 500
     finally:
@@ -1508,11 +1536,11 @@ def delete_producto(producto_id):
         rowid = res._mapping.get('_rowid')
         real_id = res._mapping.get('id') if res._mapping.get('id') is not None else rowid
 
-        # Eliminar órdenes y paquetes asociados usando la clave resuelta
+        # Eliminar Ã³rdenes y paquetes asociados usando la clave resuelta
         conn.execute(text('DELETE FROM ordenes WHERE juego_id = :jid'), {'jid': real_id})
         conn.execute(text('DELETE FROM paquetes WHERE juego_id = :jid'), {'jid': real_id})
 
-        # Eliminar producto por id o rowid según corresponda
+        # Eliminar producto por id o rowid segÃºn corresponda
         if res._mapping.get('id') is None:
             conn.execute(text('DELETE FROM juegos WHERE rowid = :rid'), {'rid': rowid})
         else:
@@ -1527,12 +1555,12 @@ def delete_producto(producto_id):
     finally:
         conn.close()
 
-# ENDPOINT PÚBLICO PARA PRODUCTOS (FRONTEND DE USUARIOS)
+# ENDPOINT PÃšBLICO PARA PRODUCTOS (FRONTEND DE USUARIOS)
 @app.route('/productos', methods=['GET'])
 def get_productos_publico():
     conn = get_db_connection()
     try:
-        # Optimización: Una sola consulta con JOIN para obtener productos, paquetes y valoraciones
+        # OptimizaciÃ³n: Una sola consulta con JOIN para obtener productos, paquetes y valoraciones
         result = conn.execute(text('''
             SELECT 
                 j.rowid as _rowid,
@@ -1562,7 +1590,7 @@ def get_productos_publico():
             producto_id = row_dict['id'] if row_dict.get('id') is not None else row_dict.get('_rowid')
 
             if producto_id not in productos_dict:
-                # Asegurar que la categoría no sea None
+                # Asegurar que la categorÃ­a no sea None
                 categoria = row_dict.get('categoria') or 'juegos'
 
                 productos_dict[producto_id] = {
@@ -1578,8 +1606,8 @@ def get_productos_publico():
                     'paquetes': []
                 }
 
-                # Debug: imprimir categoría de cada producto
-                print(f"📦 Producto: {row_dict['nombre']} | Categoría: {categoria}")
+                # Debug: imprimir categorÃ­a de cada producto
+                print(f"ðŸ“¦ Producto: {row_dict['nombre']} | CategorÃ­a: {categoria}")
 
             # Agregar paquete si existe
             if row_dict['paquete_id'] is not None:
@@ -1594,19 +1622,19 @@ def get_productos_publico():
         # Convertir a lista
         productos_list = list(productos_dict.values())
 
-        # Debug: contar productos por categoría
+        # Debug: contar productos por categorÃ­a
         categorias_count = {}
         for producto in productos_list:
             cat = producto['categoria']
             categorias_count[cat] = categorias_count.get(cat, 0) + 1
 
-        print(f"📊 Productos por categoría: {categorias_count}")
+        print(f"ðŸ“Š Productos por categorÃ­a: {categorias_count}")
 
         return jsonify(productos_list)
     finally:
         conn.close()
 
-# ENDPOINT PÚBLICO PARA CONFIGURACIÓN (FRONTEND DE USUARIOS)
+# ENDPOINT PÃšBLICO PARA CONFIGURACIÃ“N (FRONTEND DE USUARIOS)
 @app.route('/config', methods=['GET'])
 def get_config_publico():
     conn = get_db_connection()
@@ -1614,7 +1642,7 @@ def get_config_publico():
         result = conn.execute(text('SELECT campo, valor FROM configuracion'))
         configs = result.fetchall()
 
-        # Convertir a diccionario usando índices numéricos
+        # Convertir a diccionario usando Ã­ndices numÃ©ricos
         config_dict = {}
         for config in configs:
             config_dict[config[0]] = config[1]  # campo, valor
@@ -1626,9 +1654,9 @@ def get_config_publico():
 # ENDPOINTS PARA VALORACIONES
 @app.route('/valoracion', methods=['POST'])
 def crear_valoracion():
-    # Verificar si el usuario está logueado
+    # Verificar si el usuario estÃ¡ logueado
     if 'user_id' not in session:
-        return jsonify({'error': 'Debes iniciar sesión para valorar'}), 401
+        return jsonify({'error': 'Debes iniciar sesiÃ³n para valorar'}), 401
 
     data = request.get_json()
     juego_id = data.get('juego_id')
@@ -1637,10 +1665,10 @@ def crear_valoracion():
 
     # Validaciones
     if not juego_id or not calificacion:
-        return jsonify({'error': 'Juego y calificación son requeridos'}), 400
+        return jsonify({'error': 'Juego y calificaciÃ³n son requeridos'}), 400
 
     if calificacion < 1 or calificacion > 5:
-        return jsonify({'error': 'La calificación debe ser entre 1 y 5 estrellas'}), 400
+        return jsonify({'error': 'La calificaciÃ³n debe ser entre 1 y 5 estrellas'}), 400
 
     usuario_email = session['user_email']
 
@@ -1657,7 +1685,7 @@ def crear_valoracion():
         if compras == 0:
             return jsonify({'error': 'Solo puedes valorar productos que hayas comprado'}), 403
 
-        # Insertar o actualizar valoración
+        # Insertar o actualizar valoraciÃ³n
         conn.execute(text('''
             INSERT INTO valoraciones (juego_id, usuario_email, calificacion, comentario)
             VALUES (:juego_id, :usuario_email, :calificacion, :comentario)
@@ -1671,11 +1699,11 @@ def crear_valoracion():
         })
 
         conn.commit()
-        return jsonify({'message': 'Valoración guardada correctamente'})
+        return jsonify({'message': 'ValoraciÃ³n guardada correctamente'})
 
     except Exception as e:
         conn.rollback()
-        return jsonify({'error': f'Error al guardar valoración: {str(e)}'}), 500
+        return jsonify({'error': f'Error al guardar valoraciÃ³n: {str(e)}'}), 500
     finally:
         conn.close()
 
@@ -1694,7 +1722,7 @@ def get_valoraciones_producto(juego_id):
 
         valoraciones = result.fetchall()
 
-        # Obtener estadísticas
+        # Obtener estadÃ­sticas
         stats_result = conn.execute(text('''
             SELECT 
                 AVG(calificacion) as promedio,
@@ -1724,7 +1752,7 @@ def get_valoraciones_producto(juego_id):
                     val_dict['usuario_email_oculto'] = '***'
             valoraciones_list.append(val_dict)
 
-        # Preparar estadísticas
+        # Preparar estadÃ­sticas
         stats_dict = dict(stats._mapping) if stats else {}
         if stats_dict.get('promedio'):
             stats_dict['promedio'] = round(float(stats_dict['promedio']), 1)
@@ -1739,9 +1767,9 @@ def get_valoraciones_producto(juego_id):
 
 @app.route('/valoracion/usuario/<int:juego_id>', methods=['GET'])
 def get_valoracion_usuario(juego_id):
-    # Verificar si el usuario está logueado
+    # Verificar si el usuario estÃ¡ logueado
     if 'user_id' not in session:
-        return jsonify({'error': 'Debes iniciar sesión'}), 401
+        return jsonify({'error': 'Debes iniciar sesiÃ³n'}), 401
 
     usuario_email = session['user_email']
 
@@ -1755,7 +1783,7 @@ def get_valoracion_usuario(juego_id):
 
         puede_valorar = result.fetchone()[0] > 0
 
-        # Obtener valoración existente del usuario
+        # Obtener valoraciÃ³n existente del usuario
         result = conn.execute(text('''
             SELECT * FROM valoraciones 
             WHERE juego_id = :juego_id AND usuario_email = :usuario_email
@@ -1772,7 +1800,7 @@ def get_valoracion_usuario(juego_id):
     finally:
         conn.close()
 
-# ENDPOINTS PARA IMÁGENES
+# ENDPOINTS PARA IMÃGENES
 @app.route('/admin/imagenes', methods=['GET'])
 @admin_required
 def get_imagenes():
@@ -1800,27 +1828,27 @@ def get_imagenes():
 @admin_required
 def upload_imagen():
     if 'imagen' not in request.files:
-        return jsonify({'error': 'No se seleccionó archivo'}), 400
+        return jsonify({'error': 'No se seleccionÃ³ archivo'}), 400
 
     file = request.files['imagen']
     tipo = request.form.get('tipo', 'producto')
 
     if file.filename == '':
-        return jsonify({'error': 'No se seleccionó archivo'}), 400
+        return jsonify({'error': 'No se seleccionÃ³ archivo'}), 400
 
     if file:
         # Validar que sea una imagen
         if not file.content_type.startswith('image/'):
             return jsonify({'error': 'El archivo debe ser una imagen'}), 400
 
-        # Validar tamaño (máximo 10MB)
+        # Validar tamaÃ±o (mÃ¡ximo 10MB)
         file.seek(0, 2)  # Ir al final del archivo
         file_size = file.tell()
         file.seek(0)  # Volver al inicio
 
         max_size = 10 * 1024 * 1024  # 10MB
         if file_size > max_size:
-            return jsonify({'error': 'La imagen es muy grande (máximo 10MB)'}), 400
+            return jsonify({'error': 'La imagen es muy grande (mÃ¡ximo 10MB)'}), 400
 
         filename = secure_filename(file.filename)
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_')
@@ -1863,7 +1891,7 @@ def upload_imagen():
 @app.route('/admin/imagenes/bulk', methods=['POST'])
 @admin_required
 def upload_imagenes_bulk():
-    """Endpoint para subida masiva de imágenes"""
+    """Endpoint para subida masiva de imÃ¡genes"""
     if 'imagenes' not in request.files:
         return jsonify({'error': 'No se seleccionaron archivos'}), 400
 
@@ -1888,17 +1916,17 @@ def upload_imagenes_bulk():
 
             # Validar que sea una imagen
             if not file.content_type.startswith('image/'):
-                errores.append(f'{file.filename}: No es una imagen válida')
+                errores.append(f'{file.filename}: No es una imagen vÃ¡lida')
                 continue
 
-            # Validar tamaño (máximo 10MB)
+            # Validar tamaÃ±o (mÃ¡ximo 10MB)
             file.seek(0, 2)
             file_size = file.tell()
             file.seek(0)
 
             max_size = 10 * 1024 * 1024  # 10MB
             if file_size > max_size:
-                errores.append(f'{file.filename}: Archivo muy grande (máximo 10MB)')
+                errores.append(f'{file.filename}: Archivo muy grande (mÃ¡ximo 10MB)')
                 continue
 
             filename = secure_filename(file.filename)
@@ -1927,7 +1955,7 @@ def upload_imagenes_bulk():
                 })
 
             except Exception as e:
-                # Si hay error, eliminar archivo si se creó
+                # Si hay error, eliminar archivo si se creÃ³
                 if os.path.exists(file_path):
                     os.remove(file_path)
                 errores.append(f'{file.filename}: Error al procesar - {str(e)}')
@@ -1935,7 +1963,7 @@ def upload_imagenes_bulk():
         conn.commit()
 
         return jsonify({
-            'message': f'Proceso completado. {len(resultados)} imágenes subidas, {len(errores)} errores.',
+            'message': f'Proceso completado. {len(resultados)} imÃ¡genes subidas, {len(errores)} errores.',
             'subidas': len(resultados),
             'errores': len(errores),
             'detalles_errores': errores,
@@ -1953,7 +1981,7 @@ def upload_imagenes_bulk():
 def delete_imagen(imagen_id):
     conn = get_db_connection()
     try:
-        # Obtener información de la imagen antes de eliminarla
+        # Obtener informaciÃ³n de la imagen antes de eliminarla
         result = conn.execute(text('SELECT * FROM imagenes WHERE id = :imagen_id'), 
                              {'imagen_id': imagen_id})
         imagen = result.fetchone()
@@ -1961,7 +1989,7 @@ def delete_imagen(imagen_id):
         if not imagen:
             return jsonify({'error': 'Imagen no encontrada'}), 404
 
-        # Eliminar archivo físico
+        # Eliminar archivo fÃ­sico
         imagen_dict = dict(imagen._mapping)
         # Soportar rutas antiguas con prefijo '/static/' y nuevas 'images/...'
         ruta_db = imagen_dict['ruta'] or ''
@@ -1984,7 +2012,7 @@ def delete_imagen(imagen_id):
     finally:
         conn.close()
 
-# ENDPOINTS PARA CONFIGURACIÓN
+# ENDPOINTS PARA CONFIGURACIÃ“N
 @app.route('/admin/config', methods=['GET'])
 @admin_required
 def get_config():
@@ -1993,7 +2021,7 @@ def get_config():
         result = conn.execute(text('SELECT campo, valor FROM configuracion'))
         configs = result.fetchall()
 
-        # Convertir a diccionario usando índices numéricos
+        # Convertir a diccionario usando Ã­ndices numÃ©ricos
         config_dict = {}
         for config in configs:
             config_dict[config[0]] = config[1]  # campo, valor
@@ -2017,11 +2045,11 @@ def update_config():
             '''), {'campo': campo, 'valor': valor})
 
         conn.commit()
-        return jsonify({'message': 'Configuración actualizada correctamente'})
+        return jsonify({'message': 'ConfiguraciÃ³n actualizada correctamente'})
     finally:
         conn.close()
 
-# ENDPOINTS DE AUTENTICACIÓN
+# ENDPOINTS DE AUTENTICACIÃ“N
 @app.route('/registro', methods=['POST'])
 def registro():
     data = request.get_json()
@@ -2039,7 +2067,7 @@ def registro():
         result = conn.execute(text('SELECT id FROM usuarios WHERE email = :email'), 
                              {'email': email})
         if result.fetchone():
-            return jsonify({'error': 'El email ya está registrado'}), 400
+            return jsonify({'error': 'El email ya estÃ¡ registrado'}), 400
 
         # Crear nuevo usuario
         password_hash = generate_password_hash(password)
@@ -2067,7 +2095,7 @@ def login():
     password = data.get('password')
 
     if not email or not password:
-        return jsonify({'error': 'Email y contraseña son requeridos'}), 400
+        return jsonify({'error': 'Email y contraseÃ±a son requeridos'}), 400
 
     conn = get_db_connection()
     try:
@@ -2079,7 +2107,7 @@ def login():
             user = dict(row._mapping)
             pwd_hash = user.get('password_hash')
             if pwd_hash and check_password_hash(pwd_hash, password):
-                # Guardar sesión permanente con tiempo de expiración
+                # Guardar sesiÃ³n permanente con tiempo de expiraciÃ³n
                 session.permanent = True
                 session['user_id'] = user['id']
                 session['user_email'] = user['email']
@@ -2098,7 +2126,7 @@ def login():
                         fecha_registro_out = str(fecha_registro)
 
                 return jsonify({
-                    'message': 'Sesión iniciada correctamente',
+                    'message': 'SesiÃ³n iniciada correctamente',
                     'usuario': {
                         'id': user['id'],
                         'nombre': user['nombre'],
@@ -2108,21 +2136,21 @@ def login():
                     }
                 })
 
-        return jsonify({'error': 'Email o contraseña incorrectos'}), 401
+        return jsonify({'error': 'Email o contraseÃ±a incorrectos'}), 401
     finally:
         conn.close()
 
 @app.route('/logout', methods=['POST'])
 def logout():
     session.clear()
-    return jsonify({'message': 'Sesión cerrada correctamente'})
+    return jsonify({'message': 'SesiÃ³n cerrada correctamente'})
 
 
 
 @app.route('/usuario')
 def obtener_usuario():
     if 'user_id' not in session:
-        return jsonify({'error': 'No hay sesión activa'}), 401
+        return jsonify({'error': 'No hay sesiÃ³n activa'}), 401
 
     conn = get_db_connection()
     try:
@@ -2166,7 +2194,7 @@ def obtener_usuario():
 @app.route('/usuario/historial', methods=['GET'])
 def get_historial_compras():
     if 'user_id' not in session:
-        return jsonify({'error': 'No hay sesión activa'}), 401
+        return jsonify({'error': 'No hay sesiÃ³n activa'}), 401
 
     conn = get_db_connection()
     try:
@@ -2194,7 +2222,7 @@ def get_historial_compras():
 
 @app.route('/images/<path:filename>')
 def serve_image(filename):
-    """Endpoint para servir imágenes desde la base de datos"""
+    """Endpoint para servir imÃ¡genes desde la base de datos"""
     # Limpiar el nombre del archivo para evitar problemas de seguridad
     filename = secure_filename(filename)
 
@@ -2206,7 +2234,7 @@ def serve_image(filename):
         imagen = result.fetchone()
 
         if imagen:
-            # La ruta ya incluye /static/, así que redirigir directamente
+            # La ruta ya incluye /static/, asÃ­ que redirigir directamente
             return redirect(imagen[0])
         else:
             # Si no se encuentra, devolver imagen por defecto disponible
@@ -2218,7 +2246,7 @@ def serve_image(filename):
     finally:
         conn.close()
 
-# Configurar headers para evitar caché en desarrollo
+# Configurar headers para evitar cachÃ© en desarrollo
 @app.after_request
 def after_request(response):
     # Solo en modo debug/desarrollo
@@ -2229,7 +2257,7 @@ def after_request(response):
     return response
 
 if __name__ == '__main__':
-    # Crear directorio para imágenes
+    # Crear directorio para imÃ¡genes
     os.makedirs('static/images', exist_ok=True)
 
     # Inicializar base de datos
@@ -2240,5 +2268,7 @@ if __name__ == '__main__':
         print(f"Error al inicializar la base de datos: {e}")
 
     port = int(os.environ.get('PORT', 5000))
-    print(f'🚀 Iniciando servidor en puerto {port}')
+    print(f'ðŸš€ Iniciando servidor en puerto {port}')
     app.run(host='0.0.0.0', port=port, debug=True)
+
+

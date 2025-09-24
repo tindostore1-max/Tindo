@@ -6056,3 +6056,23 @@ header {
 }
 
 /*The image in the details tab will now be a perfect square.*/
+/* === Fix: Alinear descripción de producto LTR/izquierda === */
+.product-description,
+.reviews-section .review-tab-content,
+.reviews-section .review-tab-content p {
+  text-align: left !important;
+  text-indent: 0 !important;
+  direction: ltr !important;
+  white-space: pre-wrap !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+/* === Fix: Normalizar espacios al inicio en la descripción de detalles === */
+.reviews-section .review-tab-content p {
+  white-space: pre-line !important; /* conserva saltos de línea pero colapsa espacios */
+  text-indent: 0 !important;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}

@@ -1,4 +1,4 @@
-// Forzar envío de cookies de sesión en todas las peticiones same-origin
+// Forzar envÃ­o de cookies de sesiÃ³n en todas las peticiones same-origin
 (() => {
   try {
     const originalFetch = window.fetch;
@@ -33,6 +33,21 @@ let gamesCarouselItems = [];
 let giftCardsCarouselIndex = 0;
 let giftCardsCarouselItems = [];
 
+// Normalizar texto de descripciÃ³n: quitar sangrÃ­as y espacios iniciales por lÃ­nea
+function normalizeDescripcion(texto) {
+    try {
+        if (!texto) return '';
+        let t = String(texto)
+            .replace(/\r\n/g, '\n')
+            .replace(/\t/g, ' ');
+        // Quitar espacios al inicio de cada lÃ­nea
+        t = t.replace(/^\s+/gm, '');
+        return t.trim();
+    } catch (e) {
+        return texto || '';
+    }
+}
+
 // Funciones para persistencia del carrito
 function guardarCarritoEnStorage() {
     try {
@@ -42,7 +57,7 @@ function guardarCarritoEnStorage() {
     }
 }
 
-// Mostrar más/menos paquetes en la sección de detalles
+// Mostrar mÃ¡s/menos paquetes en la secciÃ³n de detalles
 function toggleMostrarMasPaquetes(productoId) {
     try {
         const list = document.getElementById(`package-list-${productoId}`);
@@ -80,7 +95,7 @@ function toggleMostrarMasPaquetes(productoId) {
         list.setAttribute('data-expanded', expanded ? 'false' : 'true');
         btn.textContent = expanded ? 'Mostrar más' : 'Mostrar menos';
 
-        // Mantener una selección válida: seleccionar el primero si no hay ninguno
+        // Mantener una selecciÃ³n vÃ¡lida: seleccionar el primero si no hay ninguno
         setTimeout(() => {
             const seleccionado = document.querySelector(`#package-list-${productoId} .package-item.selected`);
             if (!seleccionado) {
@@ -126,13 +141,13 @@ let productosCache = null;
 let cacheTimestamp = null;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
 
-// Flag para evitar múltiples cargas simultáneas
+// Flag para evitar mÃºltiples cargas simultÃ¡neas
 let cargandoDatos = false;
 
-// Función para verificar si todo está cargado
+// FunciÃ³n para verificar si todo estÃ¡ cargado
 function verificarCargaCompleta() {
     if (configuracionCargada && productosCargados && sesionVerificada && interfazLista) {
-        console.log('✅ Carga completa - todos los recursos listos');
+        console.log('âœ… Carga completa - todos los recursos listos');
 
         // Mostrar todo el contenido de forma suave
         setTimeout(() => {
@@ -157,7 +172,7 @@ function verificarCargaCompleta() {
     }
 }
 
-// Función para cargar elementos críticos primero
+// FunciÃ³n para cargar elementos crÃ­ticos primero
 function cargarElementosCriticos() {
     // Mostrar contenido inmediatamente sin desvanecimientos
     const mainContainer = document.querySelector('.container');
@@ -166,10 +181,10 @@ function cargarElementosCriticos() {
         mainContainer.style.transition = 'none';
     }
 
-    // Precargar logo desde cache si está disponible
+    // Precargar logo desde cache si estÃ¡ disponible
     cargarCacheDesdeStorage();
     
-    // Mostrar logo inmediatamente - usar cache si está disponible
+    // Mostrar logo inmediatamente - usar cache si estÃ¡ disponible
     const logoImg = document.getElementById('logo-img');
     if (logoImg) {
         logoImg.style.display = 'block';
@@ -198,7 +213,7 @@ function cargarElementosCriticos() {
         console.log('Logo inicial mostrado');
     }
 
-    // Precargar carrusel desde cache si está disponible
+    // Precargar carrusel desde cache si estÃ¡ disponible
     precargarCarruselDesdeCache();
 
     // Mostrar carrusel inmediatamente
@@ -215,9 +230,9 @@ function cargarElementosCriticos() {
     }
 }
 
-// Inicialización optimizada
+// InicializaciÃ³n optimizada
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Iniciando carga optimizada...');
+    console.log('ðŸš€ Iniciando carga optimizada...');
 
     // Verificar si hay mensaje de Google OAuth
     const urlParams = new URLSearchParams(window.location.search);
@@ -237,19 +252,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 1000);
     }
 
-    // 1. Cargar elementos críticos inmediatamente (incluye precarga de logo y carrusel)
+    // 1. Cargar elementos crÃ­ticos inmediatamente (incluye precarga de logo y carrusel)
     cargarElementosCriticos();
 
-    // 3. Inicializar eventos básicos
+    // 3. Inicializar eventos bÃ¡sicos
     inicializarEventos();
 
-    // 4. Cargar datos en paralelo SIEMPRE para mantener actualizada la información
+    // 4. Cargar datos en paralelo SIEMPRE para mantener actualizada la informaciÃ³n
     if (!cargandoDatos) {
         cargandoDatos = true;
         
-        // Si hay cache válido, usar para mostrar contenido inmediato
+        // Si hay cache vÃ¡lido, usar para mostrar contenido inmediato
         if (cacheValido()) {
-            console.log('📦 Usando datos del cache para mostrar contenido inmediato');
+            console.log('ðŸ“¦ Usando datos del cache para mostrar contenido inmediato');
             configuracion = configCache;
             productos = productosCache;
             configuracionCargada = true;
@@ -263,26 +278,26 @@ document.addEventListener('DOMContentLoaded', function() {
             cargarProductosOptimizado(),
             verificarSesionOptimizada()
         ]).then(() => {
-            console.log('✅ Carga de datos completada');
+            console.log('âœ… Carga de datos completada');
             interfazLista = true;
             verificarCargaCompleta();
             cargandoDatos = false;
             
-            // Solo actualizar logo y carrusel si cambió la configuración
+            // Solo actualizar logo y carrusel si cambiÃ³ la configuraciÃ³n
             if (configuracion) {
                 actualizarLogo();
                 actualizarImagenesCarrusel();
             }
         }).catch(error => {
-            console.error('❌ Error en carga:', error);
+            console.error('âŒ Error en carga:', error);
             interfazLista = true;
             cargandoDatos = false;
         });
     }
 
-    // 4. Tareas no críticas después del render
+    // 4. Tareas no crÃ­ticas despuÃ©s del render
     setTimeout(() => {
-        // Inicializar carrusel automático
+        // Inicializar carrusel automÃ¡tico
         inicializarCarrusel();
 
         // Actualizar contador del carrito
@@ -318,7 +333,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Moneda inicial establecida:', monedaActual);
         }
 
-        // Inicializar eventos táctiles
+        // Inicializar eventos tÃ¡ctiles
         inicializarSwipeCarruseles();
 
         // Inicializar notificaciones de ayuda
@@ -327,7 +342,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Manejar la ruta actual
         manejarRutaActual();
 
-        // Activar categoría desde URL o por defecto
+        // Activar categorÃ­a desde URL o por defecto
         if (window.categoriaDesdeURL) {
             filtrarProductos(window.categoriaDesdeURL);
             window.categoriaDesdeURL = null;
@@ -344,7 +359,7 @@ document.addEventListener('DOMContentLoaded', function() {
 let slideIndex = 1;
 
 function inicializarCarrusel() {
-    // Cambiar slide automáticamente cada 5 segundos
+    // Cambiar slide automÃ¡ticamente cada 5 segundos
     setInterval(function() {
         slideIndex++;
         if (slideIndex > 3) slideIndex = 1;
@@ -375,38 +390,38 @@ function showSlide(n) {
     }
 }
 
-// Versión optimizada de verificar sesión
+// VersiÃ³n optimizada de verificar sesiÃ³n
 async function verificarSesionOptimizada() {
     try {
         const response = await fetch('/usuario');
         if (response.ok) {
             const data = await response.json();
             console.log('Usuario logueado encontrado:', data.usuario);
-            // Actualizar interfaz inmediatamente para evitar problemas de sincronización
+            // Actualizar interfaz inmediatamente para evitar problemas de sincronizaciÃ³n
             actualizarInterfazUsuario(data.usuario);
         } else {
-            console.log('No hay sesión activa, código:', response.status);
+            console.log('No hay sesiÃ³n activa, cÃ³digo:', response.status);
         }
         sesionVerificada = true;
     } catch (error) {
-        console.log('Error al verificar sesión:', error);
+        console.log('Error al verificar sesiÃ³n:', error);
         sesionVerificada = true;
     }
 }
 
-// Verificar si hay sesión activa (mantener para compatibilidad)
+// Verificar si hay sesiÃ³n activa (mantener para compatibilidad)
 async function verificarSesion() {
     return verificarSesionOptimizada();
 }
 
-// Función para manejar la ruta actual del navegador
+// FunciÃ³n para manejar la ruta actual del navegador
 function manejarRutaActual() {
     const path = window.location.pathname;
     const hash = window.location.hash.replace('#', '');
 
     console.log('Manejando ruta actual:', { path, hash });
 
-    // Mapear rutas a pestañas
+    // Mapear rutas a pestaÃ±as
     const rutasPestanas = {
         '/': 'catalogo',
         '/catalogo': 'catalogo',
@@ -417,7 +432,7 @@ function manejarRutaActual() {
         '/admin': 'admin'
     };
 
-    // Determinar qué pestaña mostrar
+    // Determinar quÃ© pestaÃ±a mostrar
     let pestanaActiva = 'catalogo'; // Por defecto
     let productoId = null;
     let categoriaSeleccionada = null;
@@ -430,26 +445,26 @@ function manejarRutaActual() {
             productoId = parseInt(id);
         }
     }
-    // Verificar si es una categoría válida
+    // Verificar si es una categorÃ­a vÃ¡lida
     else if (hash && ['todos', 'juegos', 'gift-cards'].includes(hash)) {
         pestanaActiva = 'catalogo';
         categoriaSeleccionada = hash;
     }
-    // Si hay hash válido, usarlo como pestaña
+    // Si hay hash vÃ¡lido, usarlo como pestaÃ±a
     else if (hash && ['catalogo', 'carrito', 'pago', 'login', 'detalles'].includes(hash)) {
         pestanaActiva = hash;
     } else if (rutasPestanas[path]) {
         pestanaActiva = rutasPestanas[path];
     }
 
-    console.log('Pestaña activa determinada:', pestanaActiva, 'Producto ID:', productoId);
+    console.log('PestaÃ±a activa determinada:', pestanaActiva, 'Producto ID:', productoId);
 
     // Si es detalles con ID de producto, cargar el producto
     if (pestanaActiva === 'detalles' && productoId) {
         // Esperar a que los productos se carguen
         const cargarProductoDesdeURL = () => {
             if (productos.length === 0) {
-                // Si aún no se han cargado los productos, esperar un poco más
+                // Si aÃºn no se han cargado los productos, esperar un poco mÃ¡s
                 setTimeout(cargarProductoDesdeURL, 100);
                 return;
             }
@@ -458,11 +473,11 @@ function manejarRutaActual() {
             if (producto) {
                 console.log('Producto encontrado en URL:', producto.nombre);
                 // Cargar el producto directamente sin llamar a verDetalleProducto
-                // para evitar recursión
+                // para evitar recursiÃ³n
                 productoSeleccionado = producto;
                 mostrarDetalleProductoDesdeURL(producto);
             } else {
-                console.log('Producto no encontrado, redirigiendo al catálogo');
+                console.log('Producto no encontrado, redirigiendo al catÃ¡logo');
                 mostrarTab('catalogo');
             }
         };
@@ -471,34 +486,34 @@ function manejarRutaActual() {
         return;
     }
 
-    // Si hay una categoría seleccionada en la URL, activarla
+    // Si hay una categorÃ­a seleccionada en la URL, activarla
     if (categoriaSeleccionada && pestanaActiva === 'catalogo') {
-        // Guardar la categoría para usar después de cargar los productos
+        // Guardar la categorÃ­a para usar despuÃ©s de cargar los productos
         window.categoriaDesdeURL = categoriaSeleccionada;
-        console.log('Categoría desde URL:', categoriaSeleccionada);
+        console.log('CategorÃ­a desde URL:', categoriaSeleccionada);
     }
 
-    // Verificar que la pestaña existe antes de mostrarla
+    // Verificar que la pestaÃ±a existe antes de mostrarla
     const elementoPestana = document.getElementById(pestanaActiva);
     if (elementoPestana) {
-        // Si es la pestaña de detalles pero no hay producto seleccionado, ir al catálogo
+        // Si es la pestaÃ±a de detalles pero no hay producto seleccionado, ir al catÃ¡logo
         if (pestanaActiva === 'detalles' && !productoSeleccionado) {
-            console.log('Redirigiendo a catálogo porque no hay producto seleccionado');
+            console.log('Redirigiendo a catÃ¡logo porque no hay producto seleccionado');
             mostrarTab('catalogo');
             return;
         }
         mostrarTab(pestanaActiva);
     } else {
-        console.warn('Pestaña no encontrada:', pestanaActiva);
-        // Fallback a catálogo si la pestaña no existe
+        console.warn('PestaÃ±a no encontrada:', pestanaActiva);
+        // Fallback a catÃ¡logo si la pestaÃ±a no existe
         mostrarTab('catalogo');
     }
 }
 
-// Función para actualizar la URL sin recargar
+// FunciÃ³n para actualizar la URL sin recargar
 function actualizarURL(tabName) {
     if (tabName === 'catalogo') {
-        // Si estamos en catálogo, usar la categoría actual en lugar de la raíz
+        // Si estamos en catÃ¡logo, usar la categorÃ­a actual en lugar de la raÃ­z
         if (filtroActual && filtroActual !== 'todos') {
             window.history.replaceState({}, '', `#${filtroActual}`);
         } else {
@@ -511,16 +526,16 @@ function actualizarURL(tabName) {
     }
 }
 
-// Manejar el botón atrás del navegador
+// Manejar el botÃ³n atrÃ¡s del navegador
 window.addEventListener('popstate', function(event) {
     manejarRutaActual();
 });
 
-// Funciones de navegación
+// Funciones de navegaciÃ³n
 function mostrarTab(tabName, element) {
     console.log('Mostrando tab:', tabName);
 
-    // Si es carrito en móvil, abrir sidebar lateral
+    // Si es carrito en mÃ³vil, abrir sidebar lateral
     if (tabName === 'carrito' && window.innerWidth <= 768) {
         abrirCarritoLateral();
         return;
@@ -531,10 +546,10 @@ function mostrarTab(tabName, element) {
         return;
     }
 
-    // Verificar que la pestaña existe
+    // Verificar que la pestaÃ±a existe
     const targetSection = document.getElementById(tabName);
     if (!targetSection) {
-        console.error('Pestaña no encontrada:', tabName);
+        console.error('PestaÃ±a no encontrada:', tabName);
         return;
     }
 
@@ -544,7 +559,7 @@ function mostrarTab(tabName, element) {
         section.classList.remove('active');
     });
 
-    // Quitar clase active SOLO de los botones de navegación (no de categorías)
+    // Quitar clase active SOLO de los botones de navegaciÃ³n (no de categorÃ­as)
     const navBtns = document.querySelectorAll('.nav-btn');
     const desktopNavBtns = document.querySelectorAll('.desktop-nav-btn');
 
@@ -556,22 +571,22 @@ function mostrarTab(tabName, element) {
         btn.classList.remove('active');
     });
 
-    // Mostrar sección seleccionada
+    // Mostrar secciÃ³n seleccionada
     targetSection.classList.add('active');
 
-    // Activar botones específicos según la pestaña
+    // Activar botones especÃ­ficos segÃºn la pestaÃ±a
     if (tabName === 'catalogo') {
         document.querySelectorAll('.nav-btn[onclick*="catalogo"], .desktop-nav-btn[onclick*="catalogo"]').forEach(btn => {
             btn.classList.add('active');
         });
 
-        // Siempre activar el filtro "Todos" cuando se hace clic en el botón Catálogo
+        // Siempre activar el filtro "Todos" cuando se hace clic en el botÃ³n CatÃ¡logo
         setTimeout(() => {
             filtrarProductos('todos');
         }, 50);
 
     } else if (tabName === 'carrito') {
-        // Solo activar botón móvil del carrito, no el desktop
+        // Solo activar botÃ³n mÃ³vil del carrito, no el desktop
         document.querySelectorAll('.nav-btn[onclick*="carrito"]').forEach(btn => {
             btn.classList.add('active');
         });
@@ -584,15 +599,15 @@ function mostrarTab(tabName, element) {
     // Actualizar URL del navegador
     actualizarURL(tabName);
 
-    // Cargar datos específicos según la pestaña
+    // Cargar datos especÃ­ficos segÃºn la pestaÃ±a
     if (tabName === 'carrito') {
         mostrarCarrito();
     } else if (tabName === 'pago') {
         prepararPago();
     } else if (tabName === 'detalles') {
-        // Si estamos en detalles pero no hay producto seleccionado, ir al catálogo
+        // Si estamos en detalles pero no hay producto seleccionado, ir al catÃ¡logo
         if (!productoSeleccionado) {
-            console.log('No hay producto seleccionado, redirigiendo al catálogo');
+            console.log('No hay producto seleccionado, redirigiendo al catÃ¡logo');
             setTimeout(() => {
                 mostrarTab('catalogo');
             }, 100);
@@ -603,9 +618,9 @@ function mostrarTab(tabName, element) {
     console.log('Tab mostrada exitosamente:', tabName);
 }
 
-// Función para mostrar alertas
+// FunciÃ³n para mostrar alertas
 function mostrarAlerta(mensaje, tipo = 'success') {
-    // En dispositivos móviles, usar notificación flotante
+    // En dispositivos mÃ³viles, usar notificaciÃ³n flotante
     if (window.innerWidth <= 768) {
         mostrarNotificacionFlotante(mensaje, tipo);
         return;
@@ -624,31 +639,31 @@ function mostrarAlerta(mensaje, tipo = 'success') {
     }, 4000);
 }
 
-// Función para mostrar notificación flotante en móviles
+// FunciÃ³n para mostrar notificaciÃ³n flotante en mÃ³viles
 function mostrarNotificacionFlotante(mensaje, tipo = 'success') {
-    // Remover notificación anterior si existe
+    // Remover notificaciÃ³n anterior si existe
     const existingNotification = document.querySelector('.mobile-notification');
     if (existingNotification) {
         existingNotification.remove();
     }
 
-    // Crear nueva notificación
+    // Crear nueva notificaciÃ³n
     const notification = document.createElement('div');
     notification.className = `mobile-notification ${tipo}`;
 
     // Seleccionar icono según el tipo
-    let icon = '✓';
+    let icon = '✔';
     if (tipo === 'error') {
-        icon = '✕';
+        icon = '✖';
     } else if (tipo === 'success') {
-        icon = '✓';
+        icon = '✔';
     }
 
-    // Limpiar mensaje para que sea más conciso
+    // Limpiar mensaje para que sea mÃ¡s conciso
     let mensajeLimpio = mensaje;
-    if (mensaje.includes('🎉') || mensaje.includes('✨') || mensaje.includes('🛒')) {
+    if (mensaje.includes('🎉') || mensaje.includes('✨') || mensaje.includes('🏷️')) {
         // Simplificar mensajes largos
-        if (mensaje.includes('se agregó exitosamente')) {
+        if (mensaje.includes('se agregÃ³ exitosamente')) {
             mensajeLimpio = 'Producto agregado al carrito';
         } else if (mensaje.includes('cantidad aumentada')) {
             mensajeLimpio = 'Cantidad actualizada';
@@ -656,7 +671,7 @@ function mostrarNotificacionFlotante(mensaje, tipo = 'success') {
             mensajeLimpio = 'Producto eliminado';
         } else {
             // Remover emojis y simplificar
-            mensajeLimpio = mensaje.replace(/[🎉✨🛒⚠️✅📉🗑️💱]/g, '').trim();
+            mensajeLimpio = mensaje.replace(/[🎉✨🏷️⚠️✅📦🗑️💱]/g, '').trim();
         }
     }
 
@@ -668,12 +683,12 @@ function mostrarNotificacionFlotante(mensaje, tipo = 'success') {
     // Agregar al DOM
     document.body.appendChild(notification);
 
-    // Mostrar con animación
+    // Mostrar con animaciÃ³n
     setTimeout(() => {
         notification.classList.add('show');
     }, 100);
 
-    // Ocultar después de 2.5 segundos
+    // Ocultar despuÃ©s de 2.5 segundos
     setTimeout(() => {
         notification.classList.add('hide');
         setTimeout(() => {
@@ -683,7 +698,7 @@ function mostrarNotificacionFlotante(mensaje, tipo = 'success') {
         }, 400);
     }, 2500);
 
-    // Permitir cerrar tocando la notificación
+    // Permitir cerrar tocando la notificaciÃ³n
     notification.addEventListener('click', () => {
         notification.classList.add('hide');
         setTimeout(() => {
@@ -694,14 +709,14 @@ function mostrarNotificacionFlotante(mensaje, tipo = 'success') {
     });
 }
 
-// Versión optimizada de cargar configuración
+// VersiÃ³n optimizada de cargar configuraciÃ³n
 async function cargarConfiguracionOptimizada() {
     try {
         // Siempre cargar la tasa de cambio desde el servidor (sin cache)
         const response = await fetch('/config');
 
         if (!response.ok) {
-            console.warn('No se pudo cargar la configuración del servidor');
+            console.warn('No se pudo cargar la configuraciÃ³n del servidor');
             // Si hay cache para otros elementos, usarlo pero sin la tasa
             if (configCache && cacheValido()) {
                 configuracion = { ...configCache };
@@ -709,11 +724,11 @@ async function cargarConfiguracionOptimizada() {
                 actualizarLogo();
                 setTimeout(() => actualizarImagenesCarrusel(), 500);
             } else {
-                // Configuración por defecto sin cambiar la tasa
+                // ConfiguraciÃ³n por defecto sin cambiar la tasa
                 configuracion = {
                     tasa_usd_ves: tasaUSDVES.toString(),
-                    pago_movil: 'Información no disponible',
-                    binance: 'Información no disponible',
+                    pago_movil: 'InformaciÃ³n no disponible',
+                    binance: 'InformaciÃ³n no disponible',
                     logo: '',
                     carousel1: '',
                     carousel2: '',
@@ -726,16 +741,16 @@ async function cargarConfiguracionOptimizada() {
 
         const nuevaConfiguracion = await response.json();
 
-        console.log('Configuración cargada desde servidor (tasa en tiempo real):', nuevaConfiguracion);
+        console.log('ConfiguraciÃ³n cargada desde servidor (tasa en tiempo real):', nuevaConfiguracion);
 
         // SIEMPRE actualizar la tasa desde el servidor (tiempo real)
         if (nuevaConfiguracion.tasa_usd_ves && parseFloat(nuevaConfiguracion.tasa_usd_ves) > 0) {
             const nuevaTasa = parseFloat(nuevaConfiguracion.tasa_usd_ves);
             tasaUSDVES = nuevaTasa;
-            console.log('✅ Tasa de cambio actualizada desde el servidor:', tasaUSDVES);
-            console.log('✅ Verificación: 10 USD = Bs.', (10 * nuevaTasa).toFixed(2));
+            console.log('âœ… Tasa de cambio actualizada desde el servidor:', tasaUSDVES);
+            console.log('âœ… VerificaciÃ³n: 10 USD = Bs.', (10 * nuevaTasa).toFixed(2));
         } else {
-            console.warn('Tasa inválida en configuración del servidor, manteniendo tasa actual:', tasaUSDVES);
+            console.warn('Tasa invÃ¡lida en configuraciÃ³n del servidor, manteniendo tasa actual:', tasaUSDVES);
         }
 
         configuracion = nuevaConfiguracion;
@@ -743,10 +758,10 @@ async function cargarConfiguracionOptimizada() {
         // Actualizar logo inmediatamente
         actualizarLogo();
 
-        // Actualizar imágenes del carrusel inmediatamente
+        // Actualizar imÃ¡genes del carrusel inmediatamente
         actualizarImagenesCarrusel();
 
-        // Verificar cálculos después de cargar configuración
+        // Verificar cÃ¡lculos despuÃ©s de cargar configuraciÃ³n
         setTimeout(() => {
             verificarCalculos();
         }, 500);
@@ -760,13 +775,13 @@ async function cargarConfiguracionOptimizada() {
 
         configuracionCargada = true;
     } catch (error) {
-        console.warn('Error al cargar configuración:', error.message || 'Error desconocido');
+        console.warn('Error al cargar configuraciÃ³n:', error.message || 'Error desconocido');
         // No resetear la tasa en caso de error, solo mantener la actual
         if (!configuracion) {
             configuracion = {
                 tasa_usd_ves: tasaUSDVES.toString(),
-                pago_movil: 'Información no disponible',
-                binance: 'Información no disponible',
+                pago_movil: 'InformaciÃ³n no disponible',
+                binance: 'InformaciÃ³n no disponible',
                 logo: '',
                 carousel1: '',
                 carousel2: '',
@@ -777,12 +792,12 @@ async function cargarConfiguracionOptimizada() {
     }
 }
 
-// Cargar configuración del sistema (mantener para compatibilidad)
+// Cargar configuraciÃ³n del sistema (mantener para compatibilidad)
 async function cargarConfiguracion() {
     return cargarConfiguracionOptimizada();
 }
 
-// Función separada para actualizar el logo
+// FunciÃ³n separada para actualizar el logo
 function actualizarLogo() {
     const logoImg = document.getElementById('logo-img');
     if (!logoImg) {
@@ -790,7 +805,7 @@ function actualizarLogo() {
         return;
     }
 
-    console.log('Actualizando logo con configuración:', configuracion);
+    console.log('Actualizando logo con configuraciÃ³n:', configuracion);
 
     // Siempre mostrar el elemento primero
     logoImg.style.display = 'block';
@@ -817,7 +832,7 @@ function actualizarLogo() {
             img.src = logoUrl;
         }
     } else {
-        // Solo cambiar si no está ya el logo por defecto
+        // Solo cambiar si no estÃ¡ ya el logo por defecto
         if (!logoImg.src.includes('placeholder.com')) {
             logoImg.src = 'https://via.placeholder.com/200x60/007bff/ffffff?text=INEFABLESTORE';
             logoImg.style.opacity = '1';
@@ -826,16 +841,16 @@ function actualizarLogo() {
     }
 }
 
-// Función para aplicar configuración por defecto (manteniendo tasa actual)
+// FunciÃ³n para aplicar configuraciÃ³n por defecto (manteniendo tasa actual)
 function aplicarConfiguracionPorDefecto() {
     // No resetear la tasa, mantener la actual o usar la del servidor
     const tasaActual = tasaUSDVES || 142.00;
     
     configuracion = {
         tasa_usd_ves: tasaActual.toString(),
-        pago_movil: 'Información no disponible',
-        binance: 'Información no disponible',
-        logo: '', // Logo vacío para activar el placeholder
+        pago_movil: 'InformaciÃ³n no disponible',
+        binance: 'InformaciÃ³n no disponible',
+        logo: '', // Logo vacÃ­o para activar el placeholder
         carousel1: '',
         carousel2: '',
         carousel3: ''
@@ -846,21 +861,21 @@ function aplicarConfiguracionPorDefecto() {
         tasaUSDVES = tasaActual;
     }
     
-    console.log('Configuración por defecto aplicada, manteniendo tasa:', tasaUSDVES);
+    console.log('ConfiguraciÃ³n por defecto aplicada, manteniendo tasa:', tasaUSDVES);
     actualizarLogo();
     actualizarImagenesCarrusel();
 }
 
-// Función para actualizar las imágenes del carrusel
+// FunciÃ³n para actualizar las imÃ¡genes del carrusel
 function actualizarImagenesCarrusel() {
     const slides = document.querySelectorAll('.carousel-slide img');
 
     if (!slides.length || !configuracion) {
-        console.log('No hay slides o configuración para actualizar carrusel');
+        console.log('No hay slides o configuraciÃ³n para actualizar carrusel');
         return;
     }
 
-    console.log('Actualizando carrusel con configuración:', {
+    console.log('Actualizando carrusel con configuraciÃ³n:', {
         carousel1: configuracion.carousel1,
         carousel2: configuracion.carousel2,
         carousel3: configuracion.carousel3
@@ -869,7 +884,7 @@ function actualizarImagenesCarrusel() {
     function prepararUrlImagen(url) {
         if (!url || url.trim() === '') return null;
 
-        // Si es una URL completa (http/https), usarla tal como está
+        // Si es una URL completa (http/https), usarla tal como estÃ¡
         if (url.startsWith('http://') || url.startsWith('https://')) {
             return url;
         }
@@ -879,7 +894,7 @@ function actualizarImagenesCarrusel() {
             return `/static/${url}`;
         }
 
-        // Si ya tiene '/static/', usarla tal como está
+        // Si ya tiene '/static/', usarla tal como estÃ¡
         if (url.startsWith('/static/')) {
             return url;
         }
@@ -888,7 +903,7 @@ function actualizarImagenesCarrusel() {
         return `/static/${url}`;
     }
 
-    // Función para cargar imagen de forma suave
+    // FunciÃ³n para cargar imagen de forma suave
     function cargarImagenCarrusel(slide, url, index) {
         if (!slide) return;
 
@@ -923,12 +938,12 @@ function actualizarImagenesCarrusel() {
         }
     }
 
-    // Configurar imágenes del carrusel
+    // Configurar imÃ¡genes del carrusel
     cargarImagenCarrusel(slides[0], prepararUrlImagen(configuracion.carousel1), 0);
     cargarImagenCarrusel(slides[1], prepararUrlImagen(configuracion.carousel2), 1);
     cargarImagenCarrusel(slides[2], prepararUrlImagen(configuracion.carousel3), 2);
 
-    // Asegurar que el carrusel esté visible
+    // Asegurar que el carrusel estÃ© visible
     const carouselContainer = document.querySelector('.carousel-container');
     if (carouselContainer) {
         carouselContainer.style.opacity = '1';
@@ -936,10 +951,10 @@ function actualizarImagenesCarrusel() {
     }
 }
 
-// Versión optimizada de cargar productos
+// VersiÃ³n optimizada de cargar productos
 async function cargarProductosOptimizado() {
     try {
-        // Si hay cache válido, mostrarlo de inmediato para una carga rápida,
+        // Si hay cache vÃ¡lido, mostrarlo de inmediato para una carga rÃ¡pida,
         // pero NO regresar: siempre vamos a buscar datos frescos para reflejar
         // productos nuevos o cambios desde el panel admin.
         if (productosCache && cacheValido()) {
@@ -959,7 +974,7 @@ async function cargarProductosOptimizado() {
 
         console.log('Productos cargados desde servidor:', productos.length, 'productos');
 
-        // Guardar en cache junto con configuración
+        // Guardar en cache junto con configuraciÃ³n
         if (configuracion) {
             guardarEnCache(configuracion, productos);
         }
@@ -975,7 +990,7 @@ async function cargarProductosOptimizado() {
             productosGrid.innerHTML = `
                 <div class="no-products">
                     <h3>Error al cargar productos</h3>
-                    <p>No se pudieron cargar los productos. Verifica la conexión e intenta recargar la página.</p>
+                    <p>No se pudieron cargar los productos. Verifica la conexiÃ³n e intenta recargar la pÃ¡gina.</p>
                     <button class="btn btn-primary" onclick="location.reload()">🔄 Recargar Página</button>
                 </div>
             `;
@@ -984,21 +999,21 @@ async function cargarProductosOptimizado() {
     }
 }
 
-// Función para cargar configuración inicial
+// FunciÃ³n para cargar configuraciÃ³n inicial
 async function cargarConfiguracion() {
     try {
         const response = await fetch('/config');
         if (response.ok) {
             const config = await response.json();
             configCache = config;
-            console.log('Configuración cargada:', config);
+            console.log('ConfiguraciÃ³n cargada:', config);
         }
     } catch (error) {
-        console.error('Error al cargar configuración:', error);
+        console.error('Error al cargar configuraciÃ³n:', error);
     }
 }
 
-// Función para mostrar productos en el grid
+// FunciÃ³n para mostrar productos en el grid
 function mostrarProductos() {
     const productosGrid = document.getElementById('productos-grid');
     if (!productosCache || productosCache.length === 0) {
@@ -1036,13 +1051,13 @@ function mostrarProductos() {
     productosGrid.innerHTML = html;
 }
 
-// Función para seleccionar producto
+// FunciÃ³n para seleccionar producto
 function seleccionarProducto(productoId) {
     const producto = productosCache.find(p => p.id === productoId);
     if (producto) {
         // Mostrar modal de compra o redirigir
         console.log('Producto seleccionado:', producto);
-        // Aquí puedes agregar la lógica para mostrar el modal de compra
+        // AquÃ­ puedes agregar la lÃ³gica para mostrar el modal de compra
     }
 }
 
@@ -1054,7 +1069,7 @@ async function cargarProductos() {
 // Variable para almacenar el filtro actual
 let filtroActual = 'todos';
 
-// Funciones para manejar el menú hamburguesa de categorías móvil
+// Funciones para manejar el menÃº hamburguesa de categorÃ­as mÃ³vil
 function toggleMobileCategoryMenu() {
     const menu = document.getElementById('mobile-category-menu');
     const hamburger = document.querySelector('.mobile-category-hamburger');
@@ -1065,7 +1080,7 @@ function toggleMobileCategoryMenu() {
         menu.style.display = 'block';
         menu.classList.add('show');
         hamburger.classList.add('active');
-        // Mejorar control del scroll en móviles
+        // Mejorar control del scroll en mÃ³viles
         if (window.innerWidth <= 768) {
             document.body.style.position = 'fixed';
             document.body.style.width = '100%';
@@ -1096,11 +1111,11 @@ function closeMobileCategoryMenu() {
     }, 300);
 }
 
-// Variables para la notificación de ayuda
+// Variables para la notificaciÃ³n de ayuda
 let ayudaNotificationInterval = null;
 let ayudaNotificationVisible = false;
 
-// Función para toggle del dropdown de redes sociales
+// FunciÃ³n para toggle del dropdown de redes sociales
 function toggleMobileSocial() {
     const toggle = document.querySelector('.mobile-social-toggle');
     const dropdown = document.getElementById('mobile-social-dropdown');
@@ -1120,9 +1135,9 @@ function toggleMobileSocial() {
     }
 }
 
-// Función para mostrar notificación de ayuda
+// FunciÃ³n para mostrar notificaciÃ³n de ayuda
 function mostrarNotificacionAyuda() {
-    // No mostrar si ya hay una visible o si el dropdown está abierto
+    // No mostrar si ya hay una visible o si el dropdown estÃ¡ abierto
     const dropdown = document.getElementById('mobile-social-dropdown');
     if (ayudaNotificationVisible || (dropdown && dropdown.classList.contains('show'))) {
         return;
@@ -1131,34 +1146,34 @@ function mostrarNotificacionAyuda() {
     const toggle = document.querySelector('.mobile-social-toggle');
     if (!toggle) return;
 
-    // Crear notificación
+    // Crear notificaciÃ³n
     const notification = document.createElement('div');
     notification.className = 'ayuda-notification';
     notification.innerHTML = `
         <div class="ayuda-notification-content">
             <span class="ayuda-icon">💬</span>
             <span class="ayuda-text">¿Necesitas ayuda para realizar una recarga? Escríbenos</span>
-            <button class="ayuda-close" onclick="cerrarNotificacionAyuda()">✕</button>
+            <button class="ayuda-close" onclick="cerrarNotificacionAyuda()">✖</button>
         </div>
     `;
 
-    // Insertar después del botón de redes
+    // Insertar despuÃ©s del botÃ³n de redes
     toggle.parentNode.insertBefore(notification, toggle.nextSibling);
 
     ayudaNotificationVisible = true;
 
-    // Mostrar con animación
+    // Mostrar con animaciÃ³n
     setTimeout(() => {
         notification.classList.add('show');
     }, 100);
 
-    // Auto-ocultar después de 8 segundos
+    // Auto-ocultar despuÃ©s de 8 segundos
     setTimeout(() => {
         cerrarNotificacionAyuda();
     }, 8000);
 }
 
-// Función para cerrar notificación de ayuda
+// FunciÃ³n para cerrar notificaciÃ³n de ayuda
 function cerrarNotificacionAyuda() {
     const notification = document.querySelector('.ayuda-notification');
     if (notification) {
@@ -1172,19 +1187,19 @@ function cerrarNotificacionAyuda() {
     }
 }
 
-// Función para inicializar notificaciones periódicas de ayuda
+// FunciÃ³n para inicializar notificaciones periÃ³dicas de ayuda
 function inicializarNotificacionesAyuda() {
-    // Solo en móviles
+    // Solo en mÃ³viles
     if (window.innerWidth > 768) return;
 
-    // Mostrar primera notificación después de 30 segundos
+    // Mostrar primera notificaciÃ³n despuÃ©s de 30 segundos
     setTimeout(() => {
         mostrarNotificacionAyuda();
     }, 30000);
 
     // Luego cada 2-3 minutos aleatoriamente
     ayudaNotificationInterval = setInterval(() => {
-        // Probabilidad del 60% de mostrar la notificación
+        // Probabilidad del 60% de mostrar la notificaciÃ³n
         if (Math.random() < 0.6) {
             mostrarNotificacionAyuda();
         }
@@ -1202,9 +1217,9 @@ function closeMobileSocial() {
     }
 }
 
-// Cerrar menús si se hace clic fuera del contenido
+// Cerrar menÃºs si se hace clic fuera del contenido
 document.addEventListener('click', function(e) {
-    // Menú de categorías
+    // MenÃº de categorÃ­as
     const menu = document.getElementById('mobile-category-menu');
     const hamburger = document.querySelector('.mobile-category-hamburger');
     const menuContent = document.querySelector('.mobile-category-menu-content');
@@ -1226,22 +1241,22 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// Función para filtrar productos por categoría
+// FunciÃ³n para filtrar productos por categorÃ­a
 function filtrarProductos(categoria, element) {
-    // Si ya estamos en la misma categoría y no hay elemento específico, no hacer nada
+    // Si ya estamos en la misma categorÃ­a y no hay elemento especÃ­fico, no hacer nada
     if (filtroActual === categoria && !element) {
         return;
     }
 
     filtroActual = categoria;
 
-    // Actualizar URL con la categoría seleccionada
+    // Actualizar URL con la categorÃ­a seleccionada
     window.history.replaceState({}, '', `#${categoria}`);
 
-    // Si no estamos en la pestaña de catálogo, cambiar a ella primero
+    // Si no estamos en la pestaÃ±a de catÃ¡logo, cambiar a ella primero
     const catalogoSection = document.getElementById('catalogo');
     if (!catalogoSection || !catalogoSection.classList.contains('active')) {
-        // Asegurar que el botón de catálogo esté activo
+        // Asegurar que el botÃ³n de catÃ¡logo estÃ© activo
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.classList.remove('active');
         });
@@ -1249,28 +1264,28 @@ function filtrarProductos(categoria, element) {
             btn.classList.add('active');
         });
 
-        // Mostrar sección catálogo
+        // Mostrar secciÃ³n catÃ¡logo
         document.querySelectorAll('.tab-section').forEach(section => {
             section.classList.remove('active');
         });
         catalogoSection.classList.add('active');
     }
 
-    // Actualizar categorías del header (desktop)
+    // Actualizar categorÃ­as del header (desktop)
     document.querySelectorAll('.desktop-category-btn').forEach(btn => {
         btn.classList.remove('active');
     });
 
-    // Actualizar items móviles activos
+    // Actualizar items mÃ³viles activos
     document.querySelectorAll('.mobile-category-item').forEach(item => {
         item.classList.remove('active');
     });
 
-    // Activar pestaña/item seleccionado
+    // Activar pestaÃ±a/item seleccionado
     if (element) {
         element.classList.add('active');
     } else {
-        // Si no se pasó un elemento específico, activar el botón correspondiente a la categoría
+        // Si no se pasÃ³ un elemento especÃ­fico, activar el botÃ³n correspondiente a la categorÃ­a
         const btnDesktop = document.querySelector(`.desktop-category-btn[onclick*="${categoria}"]`);
         if (btnDesktop) {
             btnDesktop.classList.add('active');
@@ -1286,7 +1301,7 @@ function filtrarProductos(categoria, element) {
     mostrarProductos();
 }
 
-// Mostrar productos en el catálogo
+// Mostrar productos en el catÃ¡logo
 function mostrarProductos() {
     const grid = document.getElementById('productos-grid');
     grid.className = 'product-grid';
@@ -1301,7 +1316,7 @@ function mostrarProductos() {
     grid.style.display = 'grid';
     grid.style.opacity = '1';
 
-    // Si es la categoría "todos", mostrar carrusel horizontal de juegos
+    // Si es la categorÃ­a "todos", mostrar carrusel horizontal de juegos
     if (!filtroActual || filtroActual === 'todos') {
         const juegos = productos.filter(producto => producto.categoria === 'juegos');
 
@@ -1330,7 +1345,7 @@ function mostrarProductos() {
                 imagenUrl = 'https://via.placeholder.com/300x200/007bff/ffffff?text=Producto';
             }
 
-            // Calcular precio mínimo y máximo
+            // Calcular precio mÃ­nimo y mÃ¡ximo
             let precioMinimo = 0;
             let precioMaximo = 0;
             if (juego.paquetes && Array.isArray(juego.paquetes) && juego.paquetes.length > 0) {
@@ -1377,7 +1392,7 @@ function mostrarProductos() {
             `;
         });
 
-        // Mostrar todas las tarjetas tanto en móvil como en desktop
+        // Mostrar todas las tarjetas tanto en mÃ³vil como en desktop
         const esMobil = window.innerWidth <= 768;
         const juegosParaMostrar = juegos; // Mostrar todos los juegos
         // Poblar gift cards disponibles desde la lista completa de productos
@@ -1395,7 +1410,7 @@ function mostrarProductos() {
                 imagenUrl = 'https://via.placeholder.com/300x200/007bff/ffffff?text=Producto';
             }
 
-            // Calcular precio mínimo y máximo
+            // Calcular precio mÃ­nimo y mÃ¡ximo
             let precioMinimo = 0;
             let precioMaximo = 0;
             if (juego.paquetes && Array.isArray(juego.paquetes) && juego.paquetes.length > 0) {
@@ -1454,7 +1469,7 @@ function mostrarProductos() {
                     imagenUrl = 'https://via.placeholder.com/300x200/007bff/ffffff?text=Producto';
                 }
 
-                // Calcular precio mínimo y máximo
+                // Calcular precio mÃ­nimo y mÃ¡ximo
                 let precioMinimo = 0;
                 let precioMaximo = 0;
                 if (giftCard.paquetes && Array.isArray(giftCard.paquetes) && giftCard.paquetes.length > 0) {
@@ -1496,7 +1511,7 @@ function mostrarProductos() {
         grid.innerHTML = `
             <div class="section-header">
                 <h3 class="section-title">Recarga de juegos</h3>
-                ${juegos.length > 2 ? `<button class="section-more-btn" onclick="mostrarTodosLosJuegos()">Ver más</button>` : ''}
+                ${juegos.length > 2 ? `<button class="section-more-btn" onclick="mostrarTodosLosJuegos()">Ver mÃ¡s</button>` : ''}
             </div>
             <div class="todos-carousel-wrapper">
                 <div class="todos-carousel-track" id="todos-carousel-track">
@@ -1511,7 +1526,7 @@ function mostrarProductos() {
             ${giftCardsHtmlLimitado ? `
             <div class="section-header" style="margin-top: 40px;">
                 <h3 class="section-title">Gift Cards</h3>
-                ${giftCardsParaMostrar.length > 2 ? `<button class="section-more-btn" onclick="mostrarTodasLasGiftCards()">Ver más</button>` : ''}
+                ${giftCardsParaMostrar.length > 2 ? `<button class="section-more-btn" onclick="mostrarTodasLasGiftCards()">Ver mÃ¡s</button>` : ''}
             </div>
             <div class="todos-carousel-wrapper">
                 <div class="todos-carousel-track" id="giftcards-todos-carousel-track">
@@ -1525,12 +1540,12 @@ function mostrarProductos() {
             ` : ''}
         `;
 
-        // Inicializar índice del carrusel solo en desktop
+        // Inicializar Ã­ndice del carrusel solo en desktop
         if (!esMobil) {
             window.todosCarouselIndex = 0;
             window.todosCarouselItems = juegos;
 
-            // Inicializar eventos táctiles después de crear el HTML
+            // Inicializar eventos tÃ¡ctiles despuÃ©s de crear el HTML
             setTimeout(() => {
                 inicializarSwipeCarruseles();
             }, 100);
@@ -1539,22 +1554,22 @@ function mostrarProductos() {
         return;
     }
 
-    // Filtrar productos según la categoría seleccionada
+    // Filtrar productos segÃºn la categorÃ­a seleccionada
     let productosFiltrados = productos;
     if (filtroActual === 'gift-cards') {
         productosFiltrados = productos.filter(producto => {
-            console.log('🔍 Producto:', producto.nombre, 'Categoría:', producto.categoria);
+            console.log('ðŸ” Producto:', producto.nombre, 'CategorÃ­a:', producto.categoria);
             return producto.categoria === 'gift-cards';
         });
-        console.log('🎁 Gift Cards filtradas:', productosFiltrados.length);
+        console.log('ðŸŽ Gift Cards filtradas:', productosFiltrados.length);
     } else if (filtroActual === 'juegos') {
         productosFiltrados = productos.filter(producto => {
             return producto.categoria === 'juegos' || !producto.categoria || producto.categoria === '';
         });
-        console.log('🎮 Juegos filtrados:', productosFiltrados.length);
+        console.log('ðŸŽ® Juegos filtrados:', productosFiltrados.length);
     }
     
-    console.log('📊 Total productos filtrados:', productosFiltrados.length, 'para categoría:', filtroActual);
+    console.log('ðŸ“Š Total productos filtrados:', productosFiltrados.length, 'para categorÃ­a:', filtroActual);
 
     if (productosFiltrados.length === 0) {
         grid.innerHTML = `
@@ -1577,7 +1592,7 @@ function mostrarProductos() {
             imagenUrl = 'https://via.placeholder.com/300x200/007bff/ffffff?text=Producto';
         }
 
-        // Calcular precio mínimo y máximo
+        // Calcular precio mÃ­nimo y mÃ¡ximo
         let precioMinimo = 0;
         let precioMaximo = 0;
         if (producto.paquetes && Array.isArray(producto.paquetes) && producto.paquetes.length > 0) {
@@ -1621,7 +1636,7 @@ function mostrarProductos() {
                 ${etiquetasHtml ? `<div class="product-tags">${etiquetasHtml}</div>` : ''}
                 <img src="${imagenUrl}" alt="${producto.nombre || 'Producto'}" class="product-image" onerror="this.src='/static/images/20250706_020025_20250705_163435_Recurso-40.png'; this.onerror=null;">
                 <div class="product-name">${producto.nombre || 'Producto sin nombre'}</div>
-                <div class="product-description">${producto.descripcion || 'Sin descripción'}</div>
+                <div class="product-description">${producto.descripcion || 'Sin descripciÃ³n'}</div>
                 ${paquetesPreviewHtml}
                 ${mostrarValoracionEnTarjeta(producto)}
                 <div class="price-desde">${rangoPrecio}</div>
@@ -1632,13 +1647,13 @@ function mostrarProductos() {
     grid.innerHTML = html;
 }
 
-// Función para mostrar detalles del producto desde la URL (sin redirección)
+// FunciÃ³n para mostrar detalles del producto desde la URL (sin redirecciÃ³n)
 function mostrarDetalleProductoDesdeURL(producto) {
-    // Generar el mismo HTML que verDetalleProducto pero sin cambiar la pestaña
+    // Generar el mismo HTML que verDetalleProducto pero sin cambiar la pestaÃ±a
     const detalleHTML = generarHTMLDetalleProducto(producto);
     document.getElementById('producto-detalle').innerHTML = detalleHTML;
 
-    // Mostrar la pestaña de detalles
+    // Mostrar la pestaÃ±a de detalles
     mostrarTab('detalles');
 
     // Auto-seleccionar el primer paquete disponible
@@ -1649,11 +1664,11 @@ function mostrarDetalleProductoDesdeURL(producto) {
         }
     }, 100);
 
-    // Cargar valoraciones después de mostrar el producto
+    // Cargar valoraciones despuÃ©s de mostrar el producto
     cargarValoracionesProducto(producto.id);
 }
 
-// Función para mostrar valoraciones en tarjetas de productos
+// FunciÃ³n para mostrar valoraciones en tarjetas de productos
 function mostrarValoracionEnTarjeta(producto) {
     if (!producto.promedio_valoracion || !producto.total_valoraciones) {
         return '';
@@ -1688,7 +1703,7 @@ function mostrarValoracionEnTarjeta(producto) {
     `;
 }
 
-// Función para generar HTML de detalles de producto (reutilizable)
+// FunciÃ³n para generar HTML de detalles de producto (reutilizable)
 function generarHTMLDetalleProducto(producto) {
     // Corregir ruta de imagen
     let imagenUrl = producto.imagen || '';
@@ -1699,10 +1714,10 @@ function generarHTMLDetalleProducto(producto) {
         imagenUrl = 'https://via.placeholder.com/400x300/007bff/ffffff?text=Producto';
     }
 
-    // Determinar si mostrar el formulario de ID según la categoría
+    // Determinar si mostrar el formulario de ID segÃºn la categorÃ­a
     const mostrarFormularioId = producto.categoria !== 'gift-cards';
 
-    // Generar HTML para los paquetes (sin iconos, solo título y precio)
+    // Generar HTML para los paquetes (sin iconos, solo tÃ­tulo y precio)
     const LIMITE_INICIAL_PAQUETES = 8;
     let paquetesHtml = '';
     if (producto.paquetes && Array.isArray(producto.paquetes) && producto.paquetes.length > 0) {
@@ -1724,7 +1739,7 @@ function generarHTMLDetalleProducto(producto) {
         paquetesHtml = '<p style="color: #cccccc; text-align: center; grid-column: 1 / -1;">No hay paquetes disponibles para este producto</p>';
     }
 
-    // Generar valoraciones para mostrar debajo del título
+    // Generar valoraciones para mostrar debajo del tÃ­tulo
     let valoracionesDetalleHtml = '';
     if (producto.promedio_valoracion && producto.total_valoraciones) {
         const promedio = parseFloat(producto.promedio_valoracion);
@@ -1759,10 +1774,10 @@ function generarHTMLDetalleProducto(producto) {
                 <div class="details-image-container" style="flex: 0 0 400px;">
                     <img src="${imagenUrl}" alt="${producto.nombre || 'Producto'}" class="selected-product-image" style="width: 100%; height: 300px; object-fit: cover; border-radius: 12px;" onerror="this.src='https://via.placeholder.com/400x300/007bff/ffffff?text=Producto'">
 
-                    <!-- Título del juego debajo de la imagen -->
+                    <!-- TÃ­tulo del juego debajo de la imagen -->
                     <h1 style="color: #ffffff; font-size: 28px; margin: 15px 0 8px 0; font-weight: 700; text-align: center;">${producto.nombre || 'Producto'}</h1>
 
-                    <!-- Valoraciones debajo del título -->
+                    <!-- Valoraciones debajo del tÃ­tulo -->
                     ${valoracionesDetalleHtml}
 
                 </div>
@@ -1804,7 +1819,7 @@ function generarHTMLDetalleProducto(producto) {
                 </div>
             </div>
 
-            <!-- Sistema de Pestañas para Descripción y Valoraciones -->
+            <!-- Sistema de PestaÃ±as para DescripciÃ³n y Valoraciones -->
             <div class="reviews-section" style="margin-top: 25px;">
                 <!-- Pestañas de navegación -->
                 <div class="review-tabs">
@@ -1820,7 +1835,7 @@ function generarHTMLDetalleProducto(producto) {
                 <div id="descripcion-tab-${producto.id}" class="review-tab-content active">
                     <div style="padding: 20px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
                         <h4 style="color: #ffffff; margin-bottom: 15px; font-size: 18px;">📝 Descripción del Producto</h4>
-                        <p style="color: #cccccc; font-size: 16px; line-height: 1.6; margin: 0; white-space: pre-wrap; word-wrap: break-word;">
+                        <p style="color: #cccccc; font-size: 16px; line-height: 1.6; margin: 0; white-space: pre-line; word-wrap: break-word;">
                             ${producto.descripcion || 'Este producto no tiene descripción disponible.'}
                         </p>
                     </div>
@@ -1831,13 +1846,13 @@ function generarHTMLDetalleProducto(producto) {
                     <div class="reviews-header">
                         <h3 class="reviews-title">⭐ Valoraciones y Reseñas</h3>
                         <div class="reviews-stats" id="reviews-stats-${producto.id}">
-                            <!-- Las estadísticas se cargarán dinámicamente -->
+                            <!-- Las estadÃ­sticas se cargarÃ¡n dinÃ¡micamente -->
                         </div>
                     </div>
 
-                    <!-- Formulario de valoración o mensaje de login -->
+                    <!-- Formulario de valoraciÃ³n o mensaje de login -->
                     <div id="rating-form-container-${producto.id}">
-                        <!-- Se cargará dinámicamente según el estado de sesión -->
+                        <!-- Se cargarÃ¡ dinÃ¡micamente segÃºn el estado de sesiÃ³n -->
                     </div>
 
                     <!-- Lista de valoraciones -->
@@ -1860,7 +1875,7 @@ function verDetalleProducto(productoId) {
 
     productoSeleccionado = producto;
 
-    // Usar la función reutilizable para generar el HTML
+    // Usar la funciÃ³n reutilizable para generar el HTML
     const html = generarHTMLDetalleProducto(producto);
     document.getElementById('producto-detalle').innerHTML = html;
     mostrarTab('detalles');
@@ -1873,34 +1888,34 @@ function verDetalleProducto(productoId) {
         }
     }, 100);
 
-    // Cargar valoraciones después de mostrar el producto
+    // Cargar valoraciones despuÃ©s de mostrar el producto
     cargarValoracionesProducto(producto.id);
 
-    // Actualizar botón activo manualmente
+    // Actualizar botÃ³n activo manualmente
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
 }
 
-// Convertir precio según moneda seleccionada (siempre usa tasa tiempo real)
+// Convertir precio segÃºn moneda seleccionada (siempre usa tasa tiempo real)
 function convertirPrecio(precioUSD) {
     const precio = parseFloat(precioUSD) || 0;
     
     if (monedaActual === 'VES') {
-        // SIEMPRE usar la tasa de la configuración como fuente principal
+        // SIEMPRE usar la tasa de la configuraciÃ³n como fuente principal
         let tasaActual = 142; // Valor por defecto
         
         if (configuracion && configuracion.tasa_usd_ves) {
             const tasaConfig = parseFloat(configuracion.tasa_usd_ves);
             if (tasaConfig > 0) {
                 tasaActual = tasaConfig;
-                console.log(`💱 Usando tasa de configuración: ${tasaActual}`);
+                console.log(`ðŸ’± Usando tasa de configuraciÃ³n: ${tasaActual}`);
             }
         } else if (tasaUSDVES && tasaUSDVES > 0) {
             tasaActual = tasaUSDVES;
-            console.log(`💱 Usando tasa global: ${tasaActual}`);
+            console.log(`ðŸ’± Usando tasa global: ${tasaActual}`);
         }
         
         const precioVES = (precio * tasaActual).toFixed(2);
-        console.log(`💱 Conversión FINAL: $${precio} USD × ${tasaActual} = Bs. ${precioVES} VES`);
+        console.log(`ðŸ’± ConversiÃ³n FINAL: $${precio} USD Ã— ${tasaActual} = Bs. ${precioVES} VES`);
         return `Bs. ${precioVES}`;
     }
     return `$${precio.toFixed(2)}`;
@@ -1909,9 +1924,9 @@ function convertirPrecio(precioUSD) {
 // Variables para el paquete seleccionado
 let paqueteSeleccionado = null;
 
-// Función para seleccionar un paquete
+// FunciÃ³n para seleccionar un paquete
 function seleccionarPaquete(elemento) {
-    // Remover selección anterior
+    // Remover selecciÃ³n anterior
     document.querySelectorAll('.pkg-selectable, .package-selectable').forEach(pkg => {
         pkg.classList.remove('selected');
         // Resetear estilos compactos base
@@ -1935,14 +1950,14 @@ function seleccionarPaquete(elemento) {
     elemento.style.minHeight = '';
     elemento.style.height = '';
 
-    // Guardar información del paquete seleccionado
+    // Guardar informaciÃ³n del paquete seleccionado
     paqueteSeleccionado = {
         id: elemento.getAttribute('data-package-id'),
         nombre: elemento.getAttribute('data-package-name'),
         precio: parseFloat(elemento.getAttribute('data-package-price'))
     };
 
-    // Habilitar botón de agregar al carrito
+    // Habilitar botÃ³n de agregar al carrito
     const botonAgregar = document.getElementById('btn-agregar-carrito');
 
     if (botonAgregar) {
@@ -1952,7 +1967,7 @@ function seleccionarPaquete(elemento) {
     }
 }
 
-// Función para agregar el paquete seleccionado al carrito
+// FunciÃ³n para agregar el paquete seleccionado al carrito
 function agregarPaqueteSeleccionado() {
     if (!paqueteSeleccionado) {
         mostrarAlerta('⚠️ Por favor selecciona un paquete primero', 'error');
@@ -1975,7 +1990,7 @@ function agregarPaqueteSeleccionado() {
             usuarioIdInput.style.borderColor = '#28a745';
             usuarioIdInput.style.boxShadow = 'inset 0 2px 8px rgba(40, 167, 69, 0.1)';
 
-            // Quitar el estilo de error después de 3 segundos
+            // Quitar el estilo de error despuÃ©s de 3 segundos
             setTimeout(() => {
                 usuarioIdInput.style.borderColor = '#28a745';
                 usuarioIdInput.style.boxShadow = 'inset 0 2px 8px rgba(40, 167, 69, 0.1)';
@@ -1994,7 +2009,7 @@ function agregarPaqueteSeleccionado() {
     }
 
     const item = {
-        id: Date.now(), // ID único para el item del carrito
+        id: Date.now(), // ID Ãºnico para el item del carrito
         productoId: producto.id,
         productoNombre: producto.nombre,
         paqueteNombre: paqueteSeleccionado.nombre,
@@ -2016,13 +2031,13 @@ function agregarPaqueteSeleccionado() {
         mostrarAlerta(`✨ Se aumentó la cantidad de ${paqueteSeleccionado.nombre} en tu carrito (${existeItem.cantidad} unidades)`, 'success');
     } else {
         carrito.push(item);
-        mostrarAlerta(`🎉 ¡Perfecto! ${paqueteSeleccionado.nombre} se agregó exitosamente a tu carrito. ¡Continúa comprando o procede al pago! 🛒✨`, 'success');
+        mostrarAlerta(`🎉 ¡Perfecto! ${paqueteSeleccionado.nombre} se agregó exitosamente a tu carrito. ¡Continúa comprando o procede al pago! 🏷️✨`, 'success');
     }
 
     guardarCarritoEnStorage();
     actualizarContadorCarrito();
 
-    // Efecto visual en el botón único
+    // Efecto visual en el botÃ³n Ãºnico
     const btnAgregar = document.getElementById('btn-agregar-carrito');
     if (btnAgregar) {
         const originalText = btnAgregar.innerHTML;
@@ -2050,7 +2065,7 @@ function actualizarContadorCarrito() {
         mobileCounter.textContent = total;
     }
 
-    // Actualizar también el contador desktop
+    // Actualizar tambiÃ©n el contador desktop
     const desktopCounter = document.getElementById('cart-count-desktop');
     if (desktopCounter) {
         desktopCounter.textContent = total;
@@ -2067,7 +2082,7 @@ function actualizarContadorCarrito() {
                 crearTooltipCarrito();
             }, 100);
         } else {
-            // Forzar actualización del contenido
+            // Forzar actualizaciÃ³n del contenido
             setTimeout(() => {
                 actualizarTooltipCarrito();
             }, 50);
@@ -2136,7 +2151,7 @@ function mostrarCarrito() {
 
 // Cambiar cantidad de un item
 function cambiarCantidad(itemId, cambio) {
-    // Convertir itemId a número para comparar correctamente
+    // Convertir itemId a nÃºmero para comparar correctamente
     const numericItemId = parseInt(itemId);
     const item = carrito.find(i => parseInt(i.id) === numericItemId);
 
@@ -2154,24 +2169,24 @@ function cambiarCantidad(itemId, cambio) {
         mostrarCarrito();
         actualizarContadorCarrito();
 
-        // Actualizar carrito lateral si está abierto
+        // Actualizar carrito lateral si estÃ¡ abierto
         const overlay = document.getElementById('mobile-cart-overlay');
         if (overlay && overlay.classList.contains('show')) {
             mostrarCarritoLateral();
         }
 
-        // Mostrar mensaje de actualización
+        // Mostrar mensaje de actualizaciÃ³n
         if (cambio > 0) {
             mostrarAlerta(`✅ Cantidad aumentada a ${item.cantidad}`, 'success');
         } else {
-            mostrarAlerta(`📉 Cantidad reducida a ${item.cantidad}`, 'success');
+            mostrarAlerta(`📦 Cantidad reducida a ${item.cantidad}`, 'success');
         }
     }
 }
 
 // Eliminar item del carrito
 function eliminarDelCarrito(itemId) {
-    // Convertir itemId a número para comparar correctamente
+    // Convertir itemId a nÃºmero para comparar correctamente
     const numericItemId = parseInt(itemId);
     const itemAEliminar = carrito.find(item => parseInt(item.id) === numericItemId);
 
@@ -2185,13 +2200,13 @@ function eliminarDelCarrito(itemId) {
     mostrarCarrito();
     actualizarContadorCarrito();
 
-    // Actualizar carrito lateral si está abierto
+    // Actualizar carrito lateral si estÃ¡ abierto
     const overlay = document.getElementById('mobile-cart-overlay');
     if (overlay && overlay.classList.contains('show')) {
         mostrarCarritoLateral();
     }
 
-    // Mostrar mensaje de confirmación
+    // Mostrar mensaje de confirmaciÃ³n
     mostrarAlerta(`🗑️ ${itemAEliminar.paqueteNombre} eliminado del carrito`, 'success');
 }
 
@@ -2202,7 +2217,7 @@ async function procederAlPago() {
         return;
     }
 
-    // Verificar si el usuario está logueado antes de proceder al pago
+    // Verificar si el usuario estÃ¡ logueado antes de proceder al pago
     try {
         const response = await fetch('/usuario');
         if (!response.ok) {
@@ -2210,26 +2225,26 @@ async function procederAlPago() {
             mostrarTab('login');
             return;
         }
-        // Si está logueado, proceder al pago
+        // Si estÃ¡ logueado, proceder al pago
         mostrarTab('pago');
     } catch (error) {
-        mostrarAlerta('Debes iniciar sesión para realizar una compra', 'error');
+        mostrarAlerta('Debes iniciar sesiÃ³n para realizar una compra', 'error');
         mostrarTab('login');
     }
 }
 
-// Preparar información de pago
+// Preparar informaciÃ³n de pago
 function prepararPago() {
     // Cargar total del carrito
     const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
 
-    // Mostrar el total en la página de pago
+    // Mostrar el total en la pÃ¡gina de pago
     mostrarTotalPago(total);
 
-    // Actualizar métodos de pago según la moneda
+    // Actualizar mÃ©todos de pago segÃºn la moneda
     actualizarMetodosPagoSegunMoneda();
 
-    // Auto-seleccionar método de pago según la moneda después de un pequeño delay
+    // Auto-seleccionar mÃ©todo de pago segÃºn la moneda despuÃ©s de un pequeÃ±o delay
     setTimeout(() => {
         if (monedaActual === 'VES') {
             seleccionarMetodoPago('Pago Móvil');
@@ -2250,14 +2265,14 @@ function prepararPago() {
     }
 }
 
-// Función para actualizar métodos de pago según la moneda seleccionada
+// FunciÃ³n para actualizar mÃ©todos de pago segÃºn la moneda seleccionada
 function actualizarMetodosPagoSegunMoneda() {
     const btnPagoMovil = document.getElementById('btn-pago-movil');
     const btnBinance = document.getElementById('btn-binance');
     const infoPago = document.getElementById('info-pago');
     const metodoPagoInput = document.getElementById('metodo-pago');
 
-    // Limpiar selección anterior
+    // Limpiar selecciÃ³n anterior
     if (btnPagoMovil) btnPagoMovil.classList.remove('selected');
     if (btnBinance) btnBinance.classList.remove('selected');
     if (infoPago) infoPago.style.display = 'none';
@@ -2286,7 +2301,7 @@ function actualizarMetodosPagoSegunMoneda() {
         if (btnPagoMovil) {
             btnPagoMovil.style.display = 'none';
         }
-        // Auto-seleccionar Binance si estamos en la página de pago
+        // Auto-seleccionar Binance si estamos en la pÃ¡gina de pago
         const pagoSection = document.getElementById('pago');
         if (pagoSection && pagoSection.classList.contains('active')) {
             setTimeout(() => seleccionarMetodoPago('Binance'), 50);
@@ -2298,9 +2313,9 @@ function actualizarMetodosPagoSegunMoneda() {
 let timerInterval = null;
 let tiempoRestante = 50 * 60; // 50 minutos en segundos
 
-// Función para seleccionar método de pago
+// FunciÃ³n para seleccionar mÃ©todo de pago
 function seleccionarMetodoPago(metodo) {
-    // Remover selección anterior
+    // Remover selecciÃ³n anterior
     document.querySelectorAll('.payment-method-btn').forEach(btn => {
         btn.classList.remove('selected');
     });
@@ -2312,7 +2327,7 @@ function seleccionarMetodoPago(metodo) {
     // Actualizar campo oculto
     document.getElementById('metodo-pago').value = metodo;
 
-    // Mostrar información del método de pago
+    // Mostrar informaciÃ³n del mÃ©todo de pago
     const infoPago = document.getElementById('info-pago');
 
     if (metodo === 'Pago Móvil') {
@@ -2325,7 +2340,7 @@ function seleccionarMetodoPago(metodo) {
         let cedula = 'No especificado';
         let nombre = 'No especificado';
 
-        // Extraer información de cada línea
+        // Extraer informaciÃ³n de cada lÃ­nea
         lineasPagoMovil.forEach(linea => {
             if (linea.includes('Banco:')) {
                 banco = linea.replace('Banco:', '').trim();
@@ -2354,13 +2369,13 @@ function seleccionarMetodoPago(metodo) {
         iniciarTemporizadorPago();
     } else if (metodo === 'Binance') {
         // Procesar datos de Binance```javascript
-        const binanceData = configuracion.binance || 'Información no disponible';
+        const binanceData = configuracion.binance || 'InformaciÃ³n no disponible';
         const lineasBinance = binanceData.split('\n');
 
         let email = 'No especificado';
         let idBinance = 'No especificado';
 
-        // Extraer información de cada línea
+        // Extraer informaciÃ³n de cada lÃ­nea
         lineasBinance.forEach(linea => {
             if (linea.includes('Email:')) {
                 email = linea.replace('Email:', '').trim();
@@ -2374,7 +2389,7 @@ function seleccionarMetodoPago(metodo) {
             <p><strong>Email:</strong> ${email}</p>
             <p><strong>ID Binance:</strong> ${idBinance}</p>
             <p style="margin-top: 15px; color: #20c997; font-weight: 600;">
-                Realiza la transferencia y coloca el ID de transacción en el campo de abajo
+                Realiza la transferencia y coloca el ID de transacciÃ³n en el campo de abajo
             </p>
         `;
         infoPago.style.display = 'block';
@@ -2392,7 +2407,7 @@ function mostrarTotalPago(total) {
     }
 }
 
-// Actualizar precios en la página de detalles cuando cambia la moneda
+// Actualizar precios en la pÃ¡gina de detalles cuando cambia la moneda
 function actualizarPreciosDetalles() {
     if (!productoSeleccionado) return;
 
@@ -2408,24 +2423,24 @@ function actualizarPreciosDetalles() {
         }
     });
 
-    // La información del paquete seleccionado ya no se muestra
+    // La informaciÃ³n del paquete seleccionado ya no se muestra
 }
 
-// Función de verificación de cálculos
+// FunciÃ³n de verificaciÃ³n de cÃ¡lculos
 function verificarCalculos() {
     console.log('🔍 VERIFICACIÓN DE CÁLCULOS:');
     console.log('- Moneda actual:', monedaActual);
     console.log('- Tasa global tasaUSDVES:', tasaUSDVES);
-    console.log('- Tasa en configuración:', configuracion?.tasa_usd_ves);
+    console.log('- Tasa en configuraciÃ³n:', configuracion?.tasa_usd_ves);
     
     // Prueba con 10 USD
     const resultadoPrueba = convertirPrecio(10);
     console.log('- Resultado de 10 USD:', resultadoPrueba);
     
-    // Cálculo manual para verificar
+    // CÃ¡lculo manual para verificar
     const tasaParaCalculo = configuracion?.tasa_usd_ves ? parseFloat(configuracion.tasa_usd_ves) : tasaUSDVES;
     const calculoManual = (10 * tasaParaCalculo).toFixed(2);
-    console.log('- Cálculo manual 10 USD × ' + tasaParaCalculo + ':', calculoManual);
+    console.log('- CÃ¡lculo manual 10 USD Ã— ' + tasaParaCalculo + ':', calculoManual);
 }
 
 
@@ -2437,25 +2452,25 @@ function inicializarEventos() {
     document.getElementById('selector-moneda').addEventListener('change', function() {
         monedaActual = this.value;
         
-        console.log('Moneda cambiada a:', monedaActual, 'Usando tasa de configuración:', configuracion.tasa_usd_ves);
+        console.log('Moneda cambiada a:', monedaActual, 'Usando tasa de configuraciÃ³n:', configuracion.tasa_usd_ves);
         
-        // Forzar actualización inmediata de la vista
+        // Forzar actualizaciÃ³n inmediata de la vista
         setTimeout(() => {
             mostrarProductos();
             mostrarCarrito();
 
-            // Actualizar precios en página de detalles si está visible
+            // Actualizar precios en pÃ¡gina de detalles si estÃ¡ visible
             const detallesSection = document.getElementById('detalles');
             if (detallesSection && detallesSection.classList.contains('active') && productoSeleccionado) {
                 actualizarPreciosDetalles();
             }
 
-            // Actualizar total en la página de pago si está visible
+            // Actualizar total en la pÃ¡gina de pago si estÃ¡ visible
             const pagoSection = document.getElementById('pago');
             if (pagoSection && pagoSection.classList.contains('active')) {
                 const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
                 mostrarTotalPago(total);
-                // Actualizar métodos de pago según la nueva moneda
+                // Actualizar mÃ©todos de pago segÃºn la nueva moneda
                 actualizarMetodosPagoSegunMoneda();
             }
 
@@ -2469,7 +2484,7 @@ function inicializarEventos() {
         mostrarAlerta(`💱 Moneda cambiada a ${monedaActual} (Tasa: ${tasaActual})`, 'success');
     });
 
-    // Event listener para el checkbox de términos y condiciones
+    // Event listener para el checkbox de tÃ©rminos y condiciones
     document.addEventListener('change', function(e) {
         if (e.target && e.target.id === 'terminos-checkbox') {
             const submitBtn = document.getElementById('submit-payment-btn');
@@ -2524,15 +2539,15 @@ async function procesarPago() {
 
     try {
         // Mostrar mensaje de carga
-        mostrarMensajePago('⏳ Procesando tu pago, por favor espera...', 'loading');
+        mostrarMensajePago('â³ Procesando tu pago, por favor espera...', 'loading');
 
-        // Deshabilitar botón mientras procesa
+        // Deshabilitar botÃ³n mientras procesa
         if (submitBtn) {
             submitBtn.disabled = true;
             submitBtn.style.opacity = '0.6';
         }
 
-        // Verificar si el usuario está logueado
+        // Verificar si el usuario estÃ¡ logueado
         const sessionResponse = await fetch('/usuario');
         if (!sessionResponse.ok) {
             mostrarMensajePago('Debes iniciar sesión para realizar una compra. Ve a la pestaña "Mi Cuenta" para entrar.', 'error');
@@ -2565,7 +2580,7 @@ async function procesarPago() {
                 const errorMessage = errorData.error || `Error del servidor: ${response.status}`;
 
                 if (response.status === 401) {
-                    mostrarMensajePago('Tu sesión ha expirado. Por favor inicia sesión nuevamente.', 'error');
+                    mostrarMensajePago('Tu sesiÃ³n ha expirado. Por favor inicia sesiÃ³n nuevamente.', 'error');
                     setTimeout(() => mostrarTab('login'), 2000);
                     return;
                 }
@@ -2577,25 +2592,25 @@ async function procesarPago() {
         // Detener temporizador
         detenerTemporizador();
 
-        // Limpiar carrito y mostrar éxito
+        // Limpiar carrito y mostrar Ã©xito
         carrito = [];
         limpiarCarritoStorage();
         actualizarContadorCarrito();
         document.getElementById('form-pago').reset();
 
-        // Mostrar mensaje de éxito con duración extendida
-        mostrarMensajePago('✅ ¡Pago procesado exitosamente! Te contactaremos pronto para confirmar tu pedido.', 'success');
+        // Mostrar mensaje de Ã©xito con duraciÃ³n extendida
+        mostrarMensajePago('âœ… Â¡Pago procesado exitosamente! Te contactaremos pronto para confirmar tu pedido.', 'success');
 
-        // Redirigir al catálogo después de unos segundos
+        // Redirigir al catÃ¡logo despuÃ©s de unos segundos
         setTimeout(() => {
             mostrarTab('catalogo');
         }, 6000);
 
     } catch (error) {
         console.error('Error al procesar pago:', error);
-        mostrarMensajePago(`❌ Error al procesar el pago: ${error.message || 'Error desconocido'}`, 'error');
+        mostrarMensajePago(`âŒ Error al procesar el pago: ${error.message || 'Error desconocido'}`, 'error');
     } finally {
-        // Reactivar botón
+        // Reactivar botÃ³n
         if (submitBtn) {
             submitBtn.disabled = false;
             submitBtn.style.opacity = '1';
@@ -2603,7 +2618,7 @@ async function procesarPago() {
     }
 }
 
-// Función para mostrar mensajes de pago debajo del botón
+// FunciÃ³n para mostrar mensajes de pago debajo del botÃ³n
 function mostrarMensajePago(mensaje, tipo) {
     const mensajePago = document.getElementById('mensaje-pago');
 
@@ -2613,8 +2628,8 @@ function mostrarMensajePago(mensaje, tipo) {
     mensajePago.className = `payment-message ${tipo}`;
     mensajePago.style.display = 'block';
 
-    // Auto-ocultar mensajes de error después de 5 segundos
-    // Los mensajes de éxito se mantienen visibles hasta la redirección
+    // Auto-ocultar mensajes de error despuÃ©s de 5 segundos
+    // Los mensajes de Ã©xito se mantienen visibles hasta la redirecciÃ³n
     if (tipo === 'error') {
         setTimeout(() => {
             mensajePago.style.display = 'none';
@@ -2657,7 +2672,7 @@ async function procesarLogin() {
         const data = await response.json();
 
         if (response.ok) {
-            mostrarAlerta('Sesión iniciada correctamente');
+            mostrarAlerta('SesiÃ³n iniciada correctamente');
             const formElement = document.getElementById('form-login');
             if (formElement) {
                 formElement.reset();
@@ -2665,11 +2680,11 @@ async function procesarLogin() {
             // Actualizar interfaz para usuario logueado
             actualizarInterfazUsuario(data.usuario);
         } else {
-            mostrarAlerta(data.error || 'Error al iniciar sesión', 'error');
+            mostrarAlerta(data.error || 'Error al iniciar sesiÃ³n', 'error');
         }
     } catch (error) {
-        console.error('Error al iniciar sesión:', error);
-        mostrarAlerta('Error de conexión', 'error');
+        console.error('Error al iniciar sesiÃ³n:', error);
+        mostrarAlerta('Error de conexiÃ³n', 'error');
     }
 }
 
@@ -2712,20 +2727,20 @@ async function procesarRegistro() {
             if (formElement) {
                 formElement.reset();
             }
-            // Cambiar a pestaña de login
+            // Cambiar a pestaÃ±a de login
             mostrarAuthTab('login-form');
         } else {
             mostrarAlerta(data.error || 'Error al registrarse', 'error');
         }
     } catch (error) {
         console.error('Error al registrarse:', error);
-        mostrarAlerta('Error de conexión', 'error');
+        mostrarAlerta('Error de conexiÃ³n', 'error');
     }
 }
 
 // Actualizar interfaz para usuario logueado
 function actualizarInterfazUsuario(usuario) {
-    // Guardar información del usuario en una variable global para usar en otras partes
+    // Guardar informaciÃ³n del usuario en una variable global para usar en otras partes
     window.session = {
         user_id: usuario.id,
         user_email: usuario.email,
@@ -2740,7 +2755,7 @@ function actualizarInterfazUsuario(usuario) {
         return;
     }
 
-    // Crear botón de administrador si el usuario es admin
+    // Crear botÃ³n de administrador si el usuario es admin
     let botonAdminHtml = '';
     if (usuario.es_admin) {
         botonAdminHtml = `
@@ -2750,7 +2765,7 @@ function actualizarInterfazUsuario(usuario) {
         `;
     }
 
-    // Cambiar contenido de la pestaña de cuenta inmediatamente
+    // Cambiar contenido de la pestaÃ±a de cuenta inmediatamente
     loginSection.innerHTML = `
         <div class="auth-section">
             <h2 style="color: #ffffff; text-align: center; font-size: 28px; margin-bottom: 30px;">👤 Mi Cuenta</h2>
@@ -2781,7 +2796,7 @@ function actualizarInterfazUsuario(usuario) {
         </div>
     `;
 
-    // Si estamos en la página de pago, actualizar el email automáticamente
+    // Si estamos en la pÃ¡gina de pago, actualizar el email automÃ¡ticamente
     const pagoSection = document.getElementById('pago');
     if (pagoSection && pagoSection.classList.contains('active')) {
         const emailInput = document.getElementById('pago-email');
@@ -2796,7 +2811,7 @@ function actualizarInterfazUsuario(usuario) {
     console.log('Interfaz de usuario actualizada para:', usuario.nombre, 'Es admin:', usuario.es_admin);
 }
 
-// Cerrar sesión
+// Cerrar sesiÃ³n
 async function cerrarSesion() {
     try {
         const response = await fetch('/logout', {
@@ -2804,24 +2819,24 @@ async function cerrarSesion() {
         });
 
         if (response.ok) {
-            // Limpiar información de sesión
+            // Limpiar informaciÃ³n de sesiÃ³n
             window.session = null;
-            mostrarAlerta('Sesión cerrada correctamente');
-            location.reload(); // Recargar página
+            mostrarAlerta('SesiÃ³n cerrada correctamente');
+            location.reload(); // Recargar pÃ¡gina
         }
     } catch (error) {
-        console.error('Error al cerrar sesión:', error);
-        mostrarAlerta('Error al cerrar sesión', 'error');
+        console.error('Error al cerrar sesiÃ³n:', error);
+        mostrarAlerta('Error al cerrar sesiÃ³n', 'error');
     }
 }
 
-// Variables para paginación del historial
+// Variables para paginaciÃ³n del historial
 let historialCurrentPage = 1;
 let historialItemsPerPage = 5;
 let historialTotalItems = 0;
 let historialData = [];
 
-// Mostrar historial de compras con paginación
+// Mostrar historial de compras con paginaciÃ³n
 async function mostrarHistorialCompras() {
     const historialDiv = document.getElementById('historial-compras');
     const listaCompras = document.getElementById('lista-compras');
@@ -2845,15 +2860,15 @@ async function mostrarHistorialCompras() {
         if (historialData.length === 0) {
             listaCompras.innerHTML = `
                 <div class="no-purchases">
-                    <i>🛒</i>
-                    <h3>No tienes compras aún</h3>
-                    <p>Cuando realices tu primera compra, aparecerá aquí.</p>
+                    <i>ðŸ›’</i>
+                    <h3>No tienes compras aÃºn</h3>
+                    <p>Cuando realices tu primera compra, aparecerÃ¡ aquÃ­.</p>
                 </div>
             `;
             return;
         }
 
-        // Crear controles de paginación
+        // Crear controles de paginaciÃ³n
         const paginationControls = `
             <div class="historial-pagination-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
                 <div style="display: flex; gap: 10px; align-items: center;">
@@ -2866,19 +2881,19 @@ async function mostrarHistorialCompras() {
                 </div>
                 
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <button id="historial-prev-page" class="btn btn-sm" onclick="previousHistorialPage()" disabled style="padding: 8px 15px; font-size: 12px; background: rgba(255,255,255,0.1); color: #ffffff; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;">⬅️ Anterior</button>
+                    <button id="historial-prev-page" class="btn btn-sm" onclick="previousHistorialPage()" disabled style="padding: 8px 15px; font-size: 12px; background: rgba(255,255,255,0.1); color: #ffffff; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;">◀ Anterior</button>
                     <span id="historial-page-info" style="margin: 0 10px; font-size: 14px; color: #ffffff;">Página 1 de 1</span>
-                    <button id="historial-next-page" class="btn btn-sm" onclick="nextHistorialPage()" disabled style="padding: 8px 15px; font-size: 12px; background: rgba(255,255,255,0.1); color: #ffffff; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;">Siguiente ➡️</button>
+                    <button id="historial-next-page" class="btn btn-sm" onclick="nextHistorialPage()" disabled style="padding: 8px 15px; font-size: 12px; background: rgba(255,255,255,0.1); color: #ffffff; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;">Siguiente ▶</button>
                 </div>
             </div>
             <div id="historial-items-container">
-                <!-- Aquí se cargarán las compras paginadas -->
+                <!-- AquÃ­ se cargarÃ¡n las compras paginadas -->
             </div>
         `;
 
         listaCompras.innerHTML = paginationControls;
 
-        // Cargar la primera página
+        // Cargar la primera pÃ¡gina
         loadHistorialPage();
 
     } catch (error) {
@@ -2887,7 +2902,7 @@ async function mostrarHistorialCompras() {
     }
 }
 
-// Cargar página específica del historial
+// Cargar pÃ¡gina especÃ­fica del historial
 function loadHistorialPage() {
     const container = document.getElementById('historial-items-container');
     if (!container) return;
@@ -2914,7 +2929,7 @@ function loadHistorialPage() {
             imagenUrl = 'https://via.placeholder.com/60x60/007bff/ffffff?text=Juego';
         }
 
-        // Verificar si es Gift Card y tiene código
+        // Verificar si es Gift Card y tiene cÃ³digo
         const esGiftCard = compra.categoria === 'gift-cards' || 
                           (compra.juego_nombre && compra.juego_nombre.toLowerCase().includes('gift'));
 
@@ -2960,11 +2975,11 @@ function loadHistorialPage() {
     updateHistorialPaginationControls();
 }
 
-// Actualizar controles de paginación del historial
+// Actualizar controles de paginaciÃ³n del historial
 function updateHistorialPaginationControls() {
     const totalPages = Math.ceil(historialTotalItems / historialItemsPerPage);
     
-    // Actualizar información de página
+    // Actualizar informaciÃ³n de pÃ¡gina
     const pageInfo = document.getElementById('historial-page-info');
     if (pageInfo) {
         pageInfo.textContent = `Página ${historialCurrentPage} de ${totalPages}`;
@@ -2984,24 +2999,24 @@ function updateHistorialPaginationControls() {
         nextBtn.style.opacity = historialCurrentPage >= totalPages ? '0.5' : '1';
     }
 
-    // Actualizar selector de items por página
+    // Actualizar selector de items por pÃ¡gina
     const perPageSelect = document.getElementById('historial-per-page');
     if (perPageSelect) {
         perPageSelect.value = historialItemsPerPage;
     }
 }
 
-// Cambiar número de items por página en el historial
+// Cambiar nÃºmero de items por pÃ¡gina en el historial
 function changeHistorialPerPage() {
     const select = document.getElementById('historial-per-page');
     if (select) {
         historialItemsPerPage = parseInt(select.value);
-        historialCurrentPage = 1; // Volver a la primera página
+        historialCurrentPage = 1; // Volver a la primera pÃ¡gina
         loadHistorialPage();
     }
 }
 
-// Ir a la página anterior del historial
+// Ir a la pÃ¡gina anterior del historial
 function previousHistorialPage() {
     if (historialCurrentPage > 1) {
         historialCurrentPage--;
@@ -3009,7 +3024,7 @@ function previousHistorialPage() {
     }
 }
 
-// Ir a la siguiente página del historial
+// Ir a la siguiente pÃ¡gina del historial
 function nextHistorialPage() {
     const totalPages = Math.ceil(historialTotalItems / historialItemsPerPage);
     if (historialCurrentPage < totalPages) {
@@ -3018,10 +3033,10 @@ function nextHistorialPage() {
     }
 }
 
-// Función para copiar código de Gift Card
+// FunciÃ³n para copiar cÃ³digo de Gift Card
 function copiarCodigo(codigo) {
     navigator.clipboard.writeText(codigo).then(() => {
-        mostrarAlerta('Código copiado al portapapeles', 'success');
+        mostrarAlerta('CÃ³digo copiado al portapapeles', 'success');
     }).catch(() => {
         // Fallback para navegadores que no soportan clipboard API
         const textArea = document.createElement('textarea');
@@ -3030,11 +3045,11 @@ function copiarCodigo(codigo) {
         textArea.select();
         document.execCommand('copy');
         document.body.removeChild(textArea);
-        mostrarAlerta('Código copiado al portapapeles', 'success');
+        mostrarAlerta('CÃ³digo copiado al portapapeles', 'success');
     });
 }
 
-// Función para copiar texto genérico
+// FunciÃ³n para copiar texto genÃ©rico
 function copiarTexto(texto) {
     navigator.clipboard.writeText(texto).then(() => {
         mostrarAlerta('Texto copiado al portapapeles', 'success');
@@ -3050,20 +3065,20 @@ function copiarTexto(texto) {
     });
 }
 
-// Función para cambiar entre pestañas de descripción y valoraciones
+// FunciÃ³n para cambiar entre pestaÃ±as de descripciÃ³n y valoraciones
 function mostrarTabReview(tab, productoId) {
-    // Remover clase active de todas las pestañas
+    // Remover clase active de todas las pestaÃ±as
     const tabs = document.querySelectorAll('.review-tab');
     tabs.forEach(t => t.classList.remove('active'));
     
-    // Ocultar todo el contenido de pestañas
+    // Ocultar todo el contenido de pestaÃ±as
     const contents = document.querySelectorAll(`#descripcion-tab-${productoId}, #valoraciones-tab-${productoId}`);
     contents.forEach(c => {
         c.classList.remove('active');
         c.style.display = 'none';
     });
     
-    // Activar pestaña seleccionada
+    // Activar pestaÃ±a seleccionada
     const selectedTab = document.querySelector(`.review-tab[onclick*="${tab}"][onclick*="${productoId}"]`);
     if (selectedTab) {
         selectedTab.classList.add('active');
@@ -3076,7 +3091,7 @@ function mostrarTabReview(tab, productoId) {
         selectedContent.style.display = 'block';
     }
     
-    // Si es la pestaña de valoraciones y aún no se han cargado, cargarlas
+    // Si es la pestaÃ±a de valoraciones y aÃºn no se han cargado, cargarlas
     if (tab === 'valoraciones') {
         const reviewsList = document.getElementById(`reviews-list-${productoId}`);
         if (reviewsList && reviewsList.innerHTML.includes('Cargando valoraciones...')) {
@@ -3104,7 +3119,7 @@ function crearCarruselJuegos() {
             imagenUrl = 'https://via.placeholder.com/300x200/007bff/ffffff?text=Producto';
         }
 
-        // Calcular precio mínimo y máximo
+        // Calcular precio mÃ­nimo y mÃ¡ximo
         let precioMinimo = 0;
         let precioMaximo = 0;
         if (juego.paquetes && Array.isArray(juego.paquetes) && juego.paquetes.length > 0) {
@@ -3152,8 +3167,8 @@ function crearCarruselJuegos() {
 
     return `
         <div class="section-header">
-            <h3 class="section-title">🎮 Juegos Destacados</h3>
-            <button class="section-more-btn" onclick="mostrarTodosLosJuegos()">Ver más</button>
+            <h3 class="section-title">ðŸŽ® Juegos Destacados</h3>
+            <button class="section-more-btn" onclick="mostrarTodosLosJuegos()">Ver mÃ¡s</button>
         </div>
         <div class="games-section">
             <div class="games-carousel-container">
@@ -3161,15 +3176,15 @@ function crearCarruselJuegos() {
                     ${cardsHtml}
                 </div>
                 ${juegos.length > 3 ? `
-                    <button class="games-carousel-nav prev" onclick="moverCarruselJuegos(-1)">‹</button>
-                    <button class="games-carousel-nav next" onclick="moverCarruselJuegos(1)">›</button>
+                    <button class="games-carousel-nav prev" onclick="moverCarruselJuegos(-1)">â€¹</button>
+                    <button class="games-carousel-nav next" onclick="moverCarruselJuegos(1)">â€º</button>
                 ` : ''}
             </div>
         </div>
     `;
 }
 
-// Función para crear sección de Gift Cards
+// FunciÃ³n para crear secciÃ³n de Gift Cards
 function crearSeccionGiftCards() {
     const giftCards = productos.filter(producto => producto.categoria === 'gift-cards');
     if (giftCards.length === 0) return '';
@@ -3185,7 +3200,7 @@ function crearSeccionGiftCards() {
             imagenUrl = 'https://via.placeholder.com/300x200/007bff/ffffff?text=Producto';
         }
 
-        // Calcular precio mínimo y máximo
+        // Calcular precio mÃ­nimo y mÃ¡ximo
         let precioMinimo = 0;
         let precioMaximo = 0;
         if (giftCard.paquetes && Array.isArray(giftCard.paquetes) && giftCard.paquetes.length > 0) {
@@ -3224,7 +3239,7 @@ function crearSeccionGiftCards() {
 
     return `
         <div class="section-header">
-            <h3 class="section-title">🎁 Gift Cards</h3>
+            <h3 class="section-title">ðŸŽ Gift Cards</h3>
             <button class="section-more-btn" onclick="mostrarTodasLasGiftCards()">Ver Todos</button>
         </div>
         <div class="games-section">
@@ -3233,8 +3248,8 @@ function crearSeccionGiftCards() {
                     ${cardsHtml}
                 </div>
                 ${giftCards.length > 3 ? `
-                    <button class="games-carousel-nav prev" onclick="moverCarruselGiftCards(-1)">‹</button>
-                    <button class="games-carousel-nav next" onclick="moverCarruselGiftCards(1)">›</button>
+                    <button class="games-carousel-nav prev" onclick="moverCarruselGiftCards(-1)">â€¹</button>
+                    <button class="games-carousel-nav next" onclick="moverCarruselGiftCards(1)">â€º</button>
                 ` : ''}
             </div>
         </div>
@@ -3249,7 +3264,7 @@ function moverCarruselJuegos(direccion) {
     const containerWidth = track.parentElement.offsetWidth;
     const visibleCards = Math.floor(containerWidth / cardWidth);
     
-    // En móvil, usar todas las tarjetas pero limitar el movimiento
+    // En mÃ³vil, usar todas las tarjetas pero limitar el movimiento
     const totalCards = gamesCarouselItems.length;
     
     // Si hay menos tarjetas que las visibles, no permitir movimiento
@@ -3261,7 +3276,7 @@ function moverCarruselJuegos(direccion) {
 
     gamesCarouselIndex += direccion;
 
-    // Calcular el máximo índice sin limitación artificial
+    // Calcular el mÃ¡ximo Ã­ndice sin limitaciÃ³n artificial
     const maxIndex = Math.max(0, totalCards - visibleCards);
 
     if (gamesCarouselIndex < 0) {
@@ -3271,7 +3286,7 @@ function moverCarruselJuegos(direccion) {
         gamesCarouselIndex = maxIndex;
     }
 
-    // Calcular translación normal
+    // Calcular translaciÃ³n normal
     const translateX = -gamesCarouselIndex * cardWidth;
     track.style.transform = `translateX(${translateX}px)`;
 }
@@ -3314,7 +3329,7 @@ function moverCarruselTodos(direccion) {
     const containerWidth = track.parentElement.offsetWidth;
     const visibleCards = Math.floor(containerWidth / cardWidth);
     
-    // En móvil, usar todas las tarjetas pero limitar el movimiento
+    // En mÃ³vil, usar todas las tarjetas pero limitar el movimiento
     const totalCards = window.todosCarouselItems.length;
     
     // Si hay menos tarjetas que las visibles, no permitir movimiento
@@ -3326,7 +3341,7 @@ function moverCarruselTodos(direccion) {
 
     window.todosCarouselIndex += direccion;
 
-    // Calcular el máximo índice para que la última tarjeta quede perfectamente alineada
+    // Calcular el mÃ¡ximo Ã­ndice para que la Ãºltima tarjeta quede perfectamente alineada
     const maxIndex = totalCards - visibleCards;
 
     if (window.todosCarouselIndex < 0) {
@@ -3336,11 +3351,11 @@ function moverCarruselTodos(direccion) {
         window.todosCarouselIndex = maxIndex;
     }
 
-    // Calcular translación normal
+    // Calcular translaciÃ³n normal
     const translateX = -window.todosCarouselIndex * cardWidth;
     track.style.transform = `translateX(${translateX}px)`;
 
-    // Verificar si mostrar botón "Ver más"
+    // Verificar si mostrar botÃ³n "Ver mÃ¡s"
     verificarBotonVerMas('todos');
 }
 
@@ -3351,7 +3366,7 @@ function moverCarruselGiftCardsTodos(direccion) {
     const giftCards = productos.filter(producto => producto.categoria === 'gift-cards');
     if (giftCards.length === 0) return;
 
-    // Inicializar índice si no existe
+    // Inicializar Ã­ndice si no existe
     if (typeof window.giftCardsTodosCarouselIndex === 'undefined') {
         window.giftCardsTodosCarouselIndex = 0;
     }
@@ -3360,7 +3375,7 @@ function moverCarruselGiftCardsTodos(direccion) {
     const containerWidth = track.parentElement.offsetWidth;
     const visibleCards = Math.floor(containerWidth / cardWidth);
     
-    // En móvil, usar todas las tarjetas pero limitar el movimiento
+    // En mÃ³vil, usar todas las tarjetas pero limitar el movimiento
     const totalCards = giftCards.length;
     
     // Si hay menos tarjetas que las visibles, no permitir movimiento
@@ -3372,7 +3387,7 @@ function moverCarruselGiftCardsTodos(direccion) {
 
     window.giftCardsTodosCarouselIndex += direccion;
 
-    // Calcular el máximo índice para que la última tarjeta quede perfectamente alineada
+    // Calcular el mÃ¡ximo Ã­ndice para que la Ãºltima tarjeta quede perfectamente alineada
     const maxIndex = totalCards - visibleCards;
 
     if (window.giftCardsTodosCarouselIndex < 0) {
@@ -3382,23 +3397,23 @@ function moverCarruselGiftCardsTodos(direccion) {
         window.giftCardsTodosCarouselIndex = maxIndex;
     }
 
-    // Calcular translación normal
+    // Calcular translaciÃ³n normal
     const translateX = -window.giftCardsTodosCarouselIndex * cardWidth;
     track.style.transform = `translateX(${translateX}px)`;
 
-    // Verificar si mostrar botón "Ver más"
+    // Verificar si mostrar botÃ³n "Ver mÃ¡s"
     verificarBotonVerMas('giftcards-todos');
 }
 
-// Función para verificar y mostrar el botón "Ver más" (ya no necesaria, botón siempre en header)
+// FunciÃ³n para verificar y mostrar el botÃ³n "Ver mÃ¡s" (ya no necesaria, botÃ³n siempre en header)
 function verificarBotonVerMas(tipo) {
-    // Esta función ya no es necesaria porque el botón "Ver más" 
-    // ahora siempre está en la esquina superior del section-header
+    // Esta funciÃ³n ya no es necesaria porque el botÃ³n "Ver mÃ¡s" 
+    // ahora siempre estÃ¡ en la esquina superior del section-header
     return;
 }
 
 function mostrarTodosLosJuegos() {
-    // Si ya estamos en la categoría juegos, solo hacer scroll
+    // Si ya estamos en la categorÃ­a juegos, solo hacer scroll
     if (filtroActual === 'juegos') {
         setTimeout(() => {
             const productosGrid = document.getElementById('productos-grid');
@@ -3409,10 +3424,10 @@ function mostrarTodosLosJuegos() {
         return;
     }
 
-    // Activar pestaña de juegos y mostrar catálogo
+    // Activar pestaÃ±a de juegos y mostrar catÃ¡logo
     filtrarProductos('juegos');
 
-    // Asegurar que estamos en la pestaña de catálogo
+    // Asegurar que estamos en la pestaÃ±a de catÃ¡logo
     if (!document.getElementById('catalogo').classList.contains('active')) {
         mostrarTab('catalogo');
     }
@@ -3427,7 +3442,7 @@ function mostrarTodosLosJuegos() {
 }
 
 function mostrarTodasLasGiftCards() {
-    // Si ya estamos en la categoría gift-cards, solo hacer scroll
+    // Si ya estamos en la categorÃ­a gift-cards, solo hacer scroll
     if (filtroActual === 'gift-cards') {
         setTimeout(() => {
             const productosGrid = document.getElementById('productos-grid');
@@ -3438,10 +3453,10 @@ function mostrarTodasLasGiftCards() {
         return;
     }
 
-    // Activar pestaña de gift cards y mostrar catálogo
+    // Activar pestaÃ±a de gift cards y mostrar catÃ¡logo
     filtrarProductos('gift-cards');
 
-    // Asegurar que estamos en la pestaña de catálogo
+    // Asegurar que estamos en la pestaÃ±a de catÃ¡logo
     if (!document.getElementById('catalogo').classList.contains('active')) {
         mostrarTab('catalogo');
     }
@@ -3455,7 +3470,7 @@ function mostrarTodasLasGiftCards() {
     }, 300);
 }
 
-// Función para manejar tabs de autenticación
+// FunciÃ³n para manejar tabs de autenticaciÃ³n
 function mostrarAuthTab(tabName, element) {
     // Verificar que los elementos existen antes de manipularlos
     const authContents = document.querySelectorAll('.auth-content');
@@ -3463,7 +3478,7 @@ function mostrarAuthTab(tabName, element) {
     const targetContent = document.getElementById(tabName);
 
     if (!authContents.length || !authTabs.length || !targetContent) {
-        console.error('Elementos de autenticación no encontrados');
+        console.error('Elementos de autenticaciÃ³n no encontrados');
         return;
     }
 
@@ -3486,7 +3501,7 @@ function mostrarAuthTab(tabName, element) {
     }
 }
 
-// Función para cerrar notificación programáticamente
+// FunciÃ³n para cerrar notificaciÃ³n programÃ¡ticamente
 function cerrarNotificacion() {
     const notification = document.querySelector('.mobile-notification.show');
     if (notification) {
@@ -3499,7 +3514,7 @@ function cerrarNotificacion() {
     }
 }
 
-// Función para cambiar slides del carrusel (plusSlides para flechas)
+// FunciÃ³n para cambiar slides del carrusel (plusSlides para flechas)
 function plusSlides(n) {
     slideIndex += n;
     if (slideIndex > 3) slideIndex = 1;
@@ -3507,14 +3522,14 @@ function plusSlides(n) {
     showSlide(slideIndex);
 }
 
-// Variables para control táctil de carruseles
+// Variables para control tÃ¡ctil de carruseles
 let touchStartX = 0;
 let touchEndX = 0;
 let currentCarousel = null;
 
-// Función para inicializar eventos táctiles en carruseles
+// FunciÃ³n para inicializar eventos tÃ¡ctiles en carruseles
 function inicializarSwipeCarruseles() {
-    // Carrusel principal (imágenes)
+    // Carrusel principal (imÃ¡genes)
     const carouselMain = document.querySelector('.carousel');
     if (carouselMain) {
         setupCarouselSwipe(carouselMain, 'main');
@@ -3545,7 +3560,7 @@ function inicializarSwipeCarruseles() {
     }
 }
 
-// Función para configurar swipe en un carrusel específico
+// FunciÃ³n para configurar swipe en un carrusel especÃ­fico
 function setupCarouselSwipe(element, type) {
     element.addEventListener('touchstart', function(e) {
         touchStartX = e.changedTouches[0].screenX;
@@ -3558,9 +3573,9 @@ function setupCarouselSwipe(element, type) {
     }, { passive: true });
 }
 
-// Función para manejar el swipe
+// FunciÃ³n para manejar el swipe
 function handleSwipe() {
-    const swipeThreshold = 50; // Mínimo de píxeles para considerar un swipe
+    const swipeThreshold = 50; // MÃ­nimo de pÃ­xeles para considerar un swipe
     const swipeDistance = touchStartX - touchEndX;
 
     if (Math.abs(swipeDistance) < swipeThreshold) return;
@@ -3595,7 +3610,7 @@ function handleSwipe() {
     currentCarousel = null;
 }
 
-// Función para iniciar el temporizador de pago
+// FunciÃ³n para iniciar el temporizador de pago
 function iniciarTemporizadorPago() {
     // Limpiar temporizador existente si hay uno
     if (timerInterval) {
@@ -3612,7 +3627,7 @@ function iniciarTemporizadorPago() {
         timerElement.id = 'payment-timer';
         timerElement.className = 'payment-timer';
         
-        // Insertar después de la información de pago
+        // Insertar despuÃ©s de la informaciÃ³n de pago
         const infoPago = document.getElementById('info-pago');
         if (infoPago && infoPago.parentNode) {
             infoPago.parentNode.insertBefore(timerElement, infoPago.nextSibling);
@@ -3635,7 +3650,7 @@ function iniciarTemporizadorPago() {
     }, 1000);
 }
 
-// Función para actualizar la visualización del temporizador
+// FunciÃ³n para actualizar la visualizaciÃ³n del temporizador
 function actualizarTemporizador() {
     const timerElement = document.getElementById('payment-timer');
     if (!timerElement) return;
@@ -3649,7 +3664,7 @@ function actualizarTemporizador() {
 
     if (tiempoRestante <= 120) { // 2 minutos
         estadoClase = 'timer-critical';
-        warningText = '⚠️ ¡Tiempo crítico! Completa tu pago ahora';
+        warningText = 'âš ï¸ Â¡Tiempo crÃ­tico! Completa tu pago ahora';
     } else if (tiempoRestante <= 300) { // 5 minutos
         estadoClase = 'timer-warning-active';
         warningText = '⏰ Tiempo limitado - No olvides completar tu pago';
@@ -3659,7 +3674,7 @@ function actualizarTemporizador() {
 
     timerElement.innerHTML = `
         <div class="timer-header">
-            <span class="timer-icon">⏰</span>
+            <span class="timer-icon">⏳</span>
             <span class="timer-title">Tiempo restante para completar el pago</span>
         </div>
         <div class="timer-display ${estadoClase}">
@@ -3674,7 +3689,7 @@ function actualizarTemporizador() {
     timerElement.className = `payment-timer ${tiempoRestante <= 0 ? 'timer-expired-state' : ''}`;
 }
 
-// Función cuando se agota el tiempo
+// FunciÃ³n cuando se agota el tiempo
 function tiempoAgotado() {
     const timerElement = document.getElementById('payment-timer');
     const submitBtn = document.getElementById('submit-payment-btn');
@@ -3683,53 +3698,53 @@ function tiempoAgotado() {
         timerElement.className = 'payment-timer timer-expired-state';
         timerElement.innerHTML = `
             <div class="timer-header">
-                <span class="timer-icon">⏰</span>
+                <span class="timer-icon">â°</span>
                 <span class="timer-title">Tiempo agotado</span>
             </div>
             <div class="timer-expired">
-                ⏰ TIEMPO AGOTADO
+                â° TIEMPO AGOTADO
             </div>
             <div class="timer-warning">
                 El tiempo para completar el pago ha expirado. 
                 <button onclick="reiniciarTemporizador()" style="background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 8px; margin-left: 10px; cursor: pointer;">
-                    🔄 Reiniciar
+                    ðŸ”„ Reiniciar
                 </button>
                 <button onclick="mostrarTab('carrito')" style="background: #007bff; color: white; border: none; padding: 8px 15px; border-radius: 8px; margin-left: 5px; cursor: pointer;">
-                    🛒 Volver al Carrito
+                    ðŸ›’ Volver al Carrito
                 </button>
             </div>
         `;
     }
 
-    // Deshabilitar botón de pago
+    // Deshabilitar botÃ³n de pago
     if (submitBtn) {
         submitBtn.disabled = true;
         submitBtn.style.opacity = '0.5';
-        submitBtn.textContent = '⏰ Tiempo Agotado';
+        submitBtn.textContent = 'â° Tiempo Agotado';
     }
 
     // Mostrar alerta
-    mostrarAlerta('⏰ El tiempo para completar el pago ha expirado. Puedes reiniciar el temporizador si aún deseas continuar.', 'error');
+    mostrarAlerta('â° El tiempo para completar el pago ha expirado. Puedes reiniciar el temporizador si aÃºn deseas continuar.', 'error');
 }
 
-// Función para reiniciar el temporizador
+// FunciÃ³n para reiniciar el temporizador
 function reiniciarTemporizador() {
     const submitBtn = document.getElementById('submit-payment-btn');
     
-    // Reactivar botón de pago
+    // Reactivar botÃ³n de pago
     if (submitBtn) {
         submitBtn.disabled = false;
         submitBtn.style.opacity = '1';
-        submitBtn.textContent = '✅ Confirmar Pago';
+        submitBtn.textContent = 'âœ… Confirmar Pago';
     }
 
     // Reiniciar temporizador
     iniciarTemporizadorPago();
     
-    mostrarAlerta('🔄 Temporizador reiniciado. Tienes 50 minutos para completar el pago.', 'success');
+    mostrarAlerta('ðŸ”„ Temporizador reiniciado. Tienes 50 minutos para completar el pago.', 'success');
 }
 
-// Función para detener el temporizador (cuando el pago es exitoso)
+// FunciÃ³n para detener el temporizador (cuando el pago es exitoso)
 function detenerTemporizador() {
     if (timerInterval) {
         clearInterval(timerInterval);
@@ -3742,17 +3757,17 @@ function detenerTemporizador() {
     }
 }
 
-// Función para mostrar términos y condiciones
+// FunciÃ³n para mostrar tÃ©rminos y condiciones
 function mostrarTerminos() {
     const terminos = `
-    📋 TÉRMINOS Y CONDICIONES - INEFABLESTORE
+    ðŸ“‹ TÃ‰RMINOS Y CONDICIONES - INEFABLESTORE
 
-    1. ACEPTACIÓN DE TÉRMINOS
-    Al realizar una compra en Inefablestore, aceptas estos términos y condiciones.
+    1. ACEPTACIÃ“N DE TÃ‰RMINOS
+    Al realizar una compra en Inefablestore, aceptas estos tÃ©rminos y condiciones.
 
     2. PRODUCTOS Y SERVICIOS
-    • Ofrecemos recargas de juegos móviles y gift cards digitales
-    • Los productos son entregados digitalmente
+    â€¢ Ofrecemos recargas de juegos mÃ³viles y gift cards digitales
+    â€¢ Los productos son entregados digitalmente
     • Las entregas se realizan en un plazo de 5 a 30 minutos
 
     3. PAGOS
@@ -3760,30 +3775,30 @@ function mostrarTerminos() {
     • Todos los pagos deben ser verificados antes de la entrega
     • No se aceptan devoluciones una vez entregado el producto
 
-    4. POLÍTICA DE REEMBOLSOS
-    • Solo se procesan reembolsos por errores de nuestra parte
-    • Los códigos ya entregados no son reembolsables
-    • Las disputas deben reportarse dentro de 24 horas
+    4. POLÃTICA DE REEMBOLSOS
+    â€¢ Solo se procesan reembolsos por errores de nuestra parte
+    â€¢ Los cÃ³digos ya entregados no son reembolsables
+    â€¢ Las disputas deben reportarse dentro de 24 horas
 
     5. RESPONSABILIDADES
-    • El cliente debe proporcionar información correcta
-    • Inefablestore no se hace responsable por cuentas suspendidas
-    • El uso de nuestros servicios es bajo tu propio riesgo
+    â€¢ El cliente debe proporcionar informaciÃ³n correcta
+    â€¢ Inefablestore no se hace responsable por cuentas suspendidas
+    â€¢ El uso de nuestros servicios es bajo tu propio riesgo
 
     6. PRIVACIDAD
-    • Protegemos tu información personal
-    • No compartimos datos con terceros
-    • Solo usamos tu información para procesar órdenes
+    â€¢ Protegemos tu informaciÃ³n personal
+    â€¢ No compartimos datos con terceros
+    â€¢ Solo usamos tu informaciÃ³n para procesar Ã³rdenes
 
     7. CONTACTO
-    Para consultas o soporte, contáctanos a través de nuestros canales oficiales.
+    Para consultas o soporte, contÃ¡ctanos a travÃ©s de nuestros canales oficiales.
 
-    Al marcar la casilla, confirmas que has leído y aceptas estos términos.
+    Al marcar la casilla, confirmas que has leÃ­do y aceptas estos tÃ©rminos.
     `;
 
     // Mostrar en una alerta personalizada o modal
     if (window.innerWidth <= 768) {
-        // En móviles, usar un alert simple
+        // En mÃ³viles, usar un alert simple
         alert(terminos);
     } else {
         // En desktop, crear un modal personalizado
@@ -3792,11 +3807,11 @@ function mostrarTerminos() {
         modal.innerHTML = `
             <div class="terms-modal-content">
                 <div class="terms-modal-header">
-                    <h3>📋 Términos y Condiciones</h3>
-                    <button onclick="cerrarModalTerminos()" class="close-modal">✕</button>
+                    <h3>ðŸ“‹ TÃ©rminos y Condiciones</h3>
+                    <button onclick="cerrarModalTerminos()" class="close-modal">âœ•</button>
                 </div>
                 <div class="terms-modal-body">
-                    <pre style="white-space: pre-wrap; color: #ffffff; line-height: 1.6; font-family: inherit;">${terminos}</pre>
+                    <pre style="white-space: pre-line; color: #ffffff; line-height: 1.6; font-family: inherit;">${terminos}</pre>
                 </div>
                 <div class="terms-modal-footer">
                     <button onclick="cerrarModalTerminos()" class="btn btn-primary">Cerrar</button>
@@ -3868,7 +3883,7 @@ function mostrarTerminos() {
     }
 }
 
-// Función para cerrar el modal de términos
+// FunciÃ³n para cerrar el modal de tÃ©rminos
 function cerrarModalTerminos() {
     const modal = document.querySelector('.terms-modal');
     if (modal) {
@@ -3876,7 +3891,7 @@ function cerrarModalTerminos() {
     }
 }
 
-// Funciones para el carrito lateral en móviles
+// Funciones para el carrito lateral en mÃ³viles
 function abrirCarritoLateral() {
     // Crear overlay del carrito si no existe
     let overlay = document.getElementById('mobile-cart-overlay');
@@ -3920,7 +3935,7 @@ function crearCarritoLateral() {
         <div class="mobile-cart-sidebar">
             <div class="mobile-cart-header">
                 <h3>🛒 Tu Carrito</h3>
-                <button class="close-mobile-cart" onclick="cerrarCarritoLateral()">✕</button>
+                <button class="close-mobile-cart" onclick="cerrarCarritoLateral()">✖</button>
             </div>
             <div class="mobile-cart-content">
                 <div class="mobile-cart-items" id="mobile-cart-items">
@@ -4008,7 +4023,7 @@ function mostrarCarritoLateral() {
 
 function procederAlPagoDesdeCarritoLateral() {
     if (carrito.length === 0) {
-        mostrarAlerta('Tu carrito está vacío', 'error');
+        mostrarAlerta('Tu carrito estÃ¡ vacÃ­o', 'error');
         return;
     }
 
@@ -4019,16 +4034,16 @@ function procederAlPagoDesdeCarritoLateral() {
     procederAlPago();
 }
 
-// Función para mostrar el footer con animación
+// FunciÃ³n para mostrar el footer con animaciÃ³n
 function mostrarFooterCopyright() {
     const footer = document.querySelector('.copyright-footer');
     if (footer) {
-        // Mostrar inmediatamente con animación suave
+        // Mostrar inmediatamente con animaciÃ³n suave
         footer.style.opacity = '0';
         footer.style.transform = 'translateY(20px)';
         footer.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
 
-        // Aplicar animación inmediatamente
+        // Aplicar animaciÃ³n inmediatamente
         requestAnimationFrame(() => {
             footer.style.opacity = '1';
             footer.style.transform = 'translateY(0)';
@@ -4041,7 +4056,7 @@ function crearTooltipCarrito() {
     // Solo en desktop
     if (window.innerWidth <= 768) return;
 
-    // Verificar si ya existe - no recrear si ya está presente
+    // Verificar si ya existe - no recrear si ya estÃ¡ presente
     const existingTooltip = document.getElementById('cart-tooltip');
     if (existingTooltip) {
         console.log('Tooltip ya existe, actualizando contenido...');
@@ -4060,7 +4075,7 @@ function crearTooltipCarrito() {
             <h4>🛒 Tu Carrito (${carrito.reduce((sum, item) => sum + item.cantidad, 0)} items)</h4>
             <div class="cart-tooltip-actions">
                 <button onclick="limpiarCarritoCompleto()" class="cart-tooltip-clear" title="Limpiar carrito">🗑️</button>
-                <button onclick="cerrarTooltipCarrito()" class="cart-tooltip-close" title="Cerrar">✕</button>
+                <button onclick="cerrarTooltipCarrito()" class="cart-tooltip-close" title="Cerrar">✖</button>
             </div>
         </div>
         <div class="cart-tooltip-content" id="cart-tooltip-content">
@@ -4079,7 +4094,7 @@ function crearTooltipCarrito() {
         </div>
     `;
 
-    // Agregar el tooltip al botón del carrito desktop
+    // Agregar el tooltip al botÃ³n del carrito desktop
     const cartButton = document.querySelector('.desktop-nav-btn[title="Carrito"]');
     if (cartButton) {
         cartButton.appendChild(tooltip);
@@ -4087,8 +4102,8 @@ function crearTooltipCarrito() {
         actualizarTooltipCarrito();
         console.log('Tooltip del carrito creado exitosamente con', carrito.length, 'items');
     } else {
-        console.error('No se encontró el botón del carrito desktop, buscando alternativas...');
-        // Buscar de manera más amplia
+        console.error('No se encontrÃ³ el botÃ³n del carrito desktop, buscando alternativas...');
+        // Buscar de manera mÃ¡s amplia
         const allDesktopBtns = document.querySelectorAll('.desktop-nav-btn');
         let cartBtn = null;
 
@@ -4102,14 +4117,14 @@ function crearTooltipCarrito() {
             cartBtn.appendChild(tooltip);
             configurarEventosTooltip();
             actualizarTooltipCarrito();
-            console.log('Tooltip del carrito creado en botón alternativo');
+            console.log('Tooltip del carrito creado en botÃ³n alternativo');
         } else {
-            console.error('No se pudo encontrar ningún botón de carrito desktop');
+            console.error('No se pudo encontrar ningÃºn botÃ³n de carrito desktop');
         }
     }
 }
 
-// Función separada para configurar eventos del tooltip
+// FunciÃ³n separada para configurar eventos del tooltip
 function configurarEventosTooltip() {
     const cartButton = document.querySelector('.desktop-nav-btn[title="Carrito"]');
     const tooltip = document.getElementById('cart-tooltip');
@@ -4124,7 +4139,7 @@ function configurarEventosTooltip() {
     // Marcar como configurado
     cartButton.dataset.tooltipConfigured = 'true';
 
-    // Agregar eventos al botón
+    // Agregar eventos al botÃ³n
     cartButton.addEventListener('mouseenter', mostrarTooltipCarrito);
     cartButton.addEventListener('mouseleave', iniciarOcultarTooltip);
 
@@ -4262,7 +4277,7 @@ function actualizarTooltipCarrito() {
 }
 
 function cambiarCantidadTooltip(itemId, cambio) {
-    // Prevenir múltiples clicks rápidos
+    // Prevenir mÃºltiples clicks rÃ¡pidos
     const btnElement = event?.target;
     if (btnElement) {
         btnElement.disabled = true;
@@ -4271,7 +4286,7 @@ function cambiarCantidadTooltip(itemId, cambio) {
         }, 100);
     }
 
-    // Convertir itemId a número para comparar correctamente
+    // Convertir itemId a nÃºmero para comparar correctamente
     const numericItemId = parseInt(itemId);
     const item = carrito.find(i => parseInt(i.id) === numericItemId);
 
@@ -4295,16 +4310,16 @@ function cambiarCantidadTooltip(itemId, cambio) {
     // Actualizar tooltip inmediatamente
     actualizarTooltipCarrito();
 
-    // Mostrar mensaje de actualización
+    // Mostrar mensaje de actualizaciÃ³n
     if (cambio > 0) {
-        mostrarAlerta(`✅ Cantidad aumentada a ${item.cantidad}`, 'success');
+        mostrarAlerta(`âœ… Cantidad aumentada a ${item.cantidad}`, 'success');
     } else {
-        mostrarAlerta(`📉 Cantidad reducida a ${item.cantidad}`, 'success');
+        mostrarAlerta(`ðŸ“‰ Cantidad reducida a ${item.cantidad}`, 'success');
     }
 }
 
 function eliminarDelCarritoTooltip(itemId) {
-    // Convertir itemId a número para comparar correctamente
+    // Convertir itemId a nÃºmero para comparar correctamente
     const numericItemId = parseInt(itemId);
     const itemAEliminar = carrito.find(item => parseInt(item.id) === numericItemId);
 
@@ -4321,12 +4336,12 @@ function eliminarDelCarritoTooltip(itemId) {
     guardarCarritoEnStorage();
     actualizarContadorCarrito();
 
-    // Actualizar tooltip con un pequeño delay
+    // Actualizar tooltip con un pequeÃ±o delay
     setTimeout(() => {
         actualizarTooltipCarrito();
     }, 50);
 
-    // Mostrar mensaje de confirmación
+    // Mostrar mensaje de confirmaciÃ³n
     mostrarAlerta(`🗑️ ${nombreItem} eliminado del carrito`, 'success');
 }
 
@@ -4341,11 +4356,11 @@ function procederAlPagoDesdeTooltip() {
     procederAlPago();
 }
 
-// Función para limpiar todo el carrito desde el tooltip
+// FunciÃ³n para limpiar todo el carrito desde el tooltip
 function limpiarCarritoCompleto() {
     if (carrito.length === 0) return;
 
-    if (confirm('¿Estás seguro de que quieres limpiar todo el carrito?')) {
+    if (confirm('Â¿EstÃ¡s seguro de que quieres limpiar todo el carrito?')) {
         carrito = [];
         limpiarCarritoStorage();
         actualizarContadorCarrito();
@@ -4354,7 +4369,7 @@ function limpiarCarritoCompleto() {
     }
 }
 
-// Función para cerrar el tooltip manualmente
+// FunciÃ³n para cerrar el tooltip manualmente
 function cerrarTooltipCarrito() {
     const tooltip = document.getElementById('cart-tooltip');
     if (tooltip) {
@@ -4368,12 +4383,12 @@ function cerrarTooltipCarrito() {
     }
 }
 
-// Función para abrir el carrito completo desde el tooltip
+// FunciÃ³n para abrir el carrito completo desde el tooltip
 function abrirCarritoCompleto() {
     // Ocultar tooltip
     cerrarTooltipCarrito();
 
-    // Ir a la pestaña del carrito
+    // Ir a la pestaÃ±a del carrito
     mostrarTab('carrito');
 }
 
@@ -4393,31 +4408,31 @@ function actualizarHeaderTooltip() {
     }
 }
 
-// Función para validar cache (excluye tasa de cambio para que siempre sea tiempo real)
+// FunciÃ³n para validar cache (excluye tasa de cambio para que siempre sea tiempo real)
 function cacheValido() {
     if (!configCache || !productosCache || !cacheTimestamp) {
         return false;
     }
 
     // NO validar la tasa de cambio porque siempre se obtiene en tiempo real del servidor
-    // Solo validar que el cache tenga estructura básica
+    // Solo validar que el cache tenga estructura bÃ¡sica
     const tiempoActual = Date.now();
     const esValido = (tiempoActual - cacheTimestamp) < CACHE_DURATION;
     
     if (!esValido) {
-        console.log('Cache expirado, será renovado (tasa siempre tiempo real)');
+        console.log('Cache expirado, serÃ¡ renovado (tasa siempre tiempo real)');
     }
     
     return esValido;
 }
 
-// Función para guardar en cache con timestamp
+// FunciÃ³n para guardar en cache con timestamp
 function guardarEnCache(config, productos) {
     configCache = config;
     productosCache = productos;
     cacheTimestamp = Date.now();
 
-    // Guardar también en localStorage para persistencia entre sesiones
+    // Guardar tambiÃ©n en localStorage para persistencia entre sesiones
     try {
         localStorage.setItem('inefablestore_cache', JSON.stringify({
             config: config,
@@ -4429,7 +4444,7 @@ function guardarEnCache(config, productos) {
     }
 }
 
-// Función para cargar cache desde localStorage
+// FunciÃ³n para cargar cache desde localStorage
 function cargarCacheDesdeStorage() {
     try {
         const cacheData = localStorage.getItem('inefablestore_cache');
@@ -4446,7 +4461,7 @@ function cargarCacheDesdeStorage() {
     return false;
 }
 
-// Función para precargar carrusel desde cache inmediatamente
+// FunciÃ³n para precargar carrusel desde cache inmediatamente
 function precargarCarruselDesdeCache() {
     if (!configCache) return;
     
@@ -4491,7 +4506,7 @@ function precargarCarruselDesdeCache() {
         }
     }
     
-    // Precargar imágenes del carrusel desde cache
+    // Precargar imÃ¡genes del carrusel desde cache
     cargarImagenCarruselCache(slides[0], prepararUrlImagen(configCache.carousel1), 0);
     cargarImagenCarruselCache(slides[1], prepararUrlImagen(configCache.carousel2), 1);
     cargarImagenCarruselCache(slides[2], prepararUrlImagen(configCache.carousel3), 2);
@@ -4499,15 +4514,15 @@ function precargarCarruselDesdeCache() {
 
 // Cargar cache al inicio
 if (cargarCacheDesdeStorage()) {
-    console.log('💾 Cache cargado desde localStorage');
+    console.log('ðŸ’¾ Cache cargado desde localStorage');
 }
 
 
 
 // Funciones de placeholder removidas para evitar parpadeo visual
-// El contenido se carga directamente cuando los datos están listos
+// El contenido se carga directamente cuando los datos estÃ¡n listos
 
-// Función para ordenar productos en el panel de administración
+// FunciÃ³n para ordenar productos en el panel de administraciÃ³n
 async function ordenarProductosAdmin() {
     try {
         // Obtener productos del admin
@@ -4521,7 +4536,7 @@ async function ordenarProductosAdmin() {
 
         // Verificar si hay productos ordenados
         if (!productos || !Array.isArray(productos)) {
-            throw new Error('No se recibieron productos ordenados válidos');
+            throw new Error('No se recibieron productos ordenados vÃ¡lidos');
         }
 
         // Actualizar variable global de productos
@@ -4543,14 +4558,14 @@ async function ordenarProductosAdmin() {
 // Variables globales para valoraciones
 let valoracionSeleccionada = 0;
 
-// Función para cargar valoraciones de un producto
+// FunciÃ³n para cargar valoraciones de un producto
 async function cargarValoracionesProducto(juego_id) {
     try {
         // Cargar valoraciones del producto
         const response = await fetch(`/valoraciones/${juego_id}`);
         const data = await response.json();
 
-        // Actualizar estadísticas
+        // Actualizar estadÃ­sticas
         actualizarEstadisticasValoraciones(juego_id, data.estadisticas);
 
         // Cargar formulario o mensaje de login
@@ -4572,8 +4587,8 @@ async function cargarValoracionesProducto(juego_id) {
     }
 }
 
-// Función para generar estrellas con relleno gradual
-function generarEstrellas(promedio, tamaño = 'normal') {
+// FunciÃ³n para generar estrellas con relleno gradual
+function generarEstrellas(promedio, tamano = 'normal') {
     let estrellas = '';
     for (let i = 1; i <= 5; i++) {
         let claseEstrella = 'star empty';
@@ -4589,7 +4604,7 @@ function generarEstrellas(promedio, tamaño = 'normal') {
     return estrellas;
 }
 
-// Función para actualizar estadísticas de valoraciones
+// FunciÃ³n para actualizar estadÃ­sticas de valoraciones
 function actualizarEstadisticasValoraciones(juego_id, estadisticas) {
     const statsContainer = document.getElementById(`reviews-stats-${juego_id}`);
     if (!statsContainer) return;
@@ -4619,28 +4634,28 @@ function actualizarEstadisticasValoraciones(juego_id, estadisticas) {
         return;
     }
 
-    // Lógica para mostrar estrellas progresivamente según número de reseñas
+    // LÃ³gica para mostrar estrellas progresivamente segÃºn nÃºmero de reseÃ±as
     let estrellasAMostrar = 0;
     let numeroMostrar = promedio.toFixed(1);
     let textoConfiabilidad = '';
 
     if (total === 1) {
-        estrellasAMostrar = Math.min(1, promedio); // Máximo 1 estrella
-        textoConfiabilidad = ' (1 valoración)';
+        estrellasAMostrar = Math.min(1, promedio); // MÃ¡ximo 1 estrella
+        textoConfiabilidad = ' (1 valoraciÃ³n)';
     } else if (total === 2) {
-        estrellasAMostrar = Math.min(2, promedio); // Máximo 2 estrellas
+        estrellasAMostrar = Math.min(2, promedio); // MÃ¡ximo 2 estrellas
         textoConfiabilidad = ' (2 valoraciones)';
     } else if (total === 3) {
-        estrellasAMostrar = Math.min(3, promedio); // Máximo 3 estrellas
+        estrellasAMostrar = Math.min(3, promedio); // MÃ¡ximo 3 estrellas
         textoConfiabilidad = ' (3 valoraciones)';
     } else if (total === 4) {
-        estrellasAMostrar = Math.min(4, promedio); // Máximo 4 estrellas
+        estrellasAMostrar = Math.min(4, promedio); // MÃ¡ximo 4 estrellas
         textoConfiabilidad = ' (4 valoraciones)';
     } else if (total === 5) {
-        estrellasAMostrar = Math.min(4.5, promedio); // Máximo 4.5 estrellas
+        estrellasAMostrar = Math.min(4.5, promedio); // MÃ¡ximo 4.5 estrellas
         textoConfiabilidad = ' (5 valoraciones)';
     } else if (total >= 6) {
-        estrellasAMostrar = promedio; // Estrellas completas sin restricción
+        estrellasAMostrar = promedio; // Estrellas completas sin restricciÃ³n
         textoConfiabilidad = ` (${total} valoraciones)`;
     }
 
@@ -4648,12 +4663,12 @@ function actualizarEstadisticasValoraciones(juego_id, estadisticas) {
         <div class="overall-rating">
             <div class="overall-stars">${generarEstrellas(estrellasAMostrar)}</div>
             <p class="overall-number">${numeroMostrar}</p>
-            <p class="total-reviews">${total} valoración${total !== 1 ? 'es' : ''}${textoConfiabilidad}</p>
+            <p class="total-reviews">${total} valoraciÃ³n${total !== 1 ? 'es' : ''}${textoConfiabilidad}</p>
         </div>
     `;
 }
 
-// Función para cargar el formulario de valoración
+// FunciÃ³n para cargar el formulario de valoraciÃ³n
 async function cargarFormularioValoracion(juego_id) {
     const formContainer = document.getElementById(`rating-form-container-${juego_id}`);
     if (!formContainer) return;
@@ -4666,9 +4681,9 @@ async function cargarFormularioValoracion(juego_id) {
             // Usuario no logueado
             formContainer.innerHTML = `
                 <div class="login-to-review">
-                    <p class="login-to-review-text">Inicia sesión para valorar este producto</p>
+                    <p class="login-to-review-text">Inicia sesiÃ³n para valorar este producto</p>
                     <button class="login-to-review-btn" onclick="mostrarTab('login')">
-                        🔑 Iniciar Sesión
+                        ðŸ”‘ Iniciar SesiÃ³n
                     </button>
                 </div>
             `;
@@ -4715,29 +4730,29 @@ async function cargarFormularioValoracion(juego_id) {
                     id="submit-rating-${juego_id}"
                     onclick="enviarValoracion(${juego_id})"
                     ${calificacionActual === 0 ? 'disabled' : ''}>
-                    ${valoracionExistente ? '💾 Actualizar Valoración' : '📝 Enviar Valoración'}
+                    ${valoracionExistente ? '💾 Actualizar Valoración' : '📩 Enviar Valoración'}
                 </button>
             </div>
         `;
 
-        // Establecer valoración seleccionada
+        // Establecer valoraciÃ³n seleccionada
         valoracionSeleccionada = calificacionActual;
 
     } catch (error) {
-        console.error('Error al cargar formulario de valoración:', error);
+        console.error('Error al cargar formulario de valoraciÃ³n:', error);
         formContainer.innerHTML = `
             <div style="text-align: center; padding: 20px; color: #dc3545;">
-                <p>Error al cargar el formulario de valoración</p>
+                <p>Error al cargar el formulario de valoraciÃ³n</p>
             </div>
         `;
     }
 }
 
-// Función para seleccionar estrella
+// FunciÃ³n para seleccionar estrella
 function seleccionarEstrella(rating, juego_id) {
     valoracionSeleccionada = rating;
     
-    // Actualizar visualización de estrellas
+    // Actualizar visualizaciÃ³n de estrellas
     const starContainer = document.querySelector(`.star-rating[data-juego-id="${juego_id}"]`);
     if (starContainer) {
         const stars = starContainer.querySelectorAll('.star-input');
@@ -4750,26 +4765,26 @@ function seleccionarEstrella(rating, juego_id) {
         });
     }
 
-    // Habilitar botón de envío
+    // Habilitar botÃ³n de envÃ­o
     const submitBtn = document.getElementById(`submit-rating-${juego_id}`);
     if (submitBtn) {
         submitBtn.disabled = false;
     }
 }
 
-// Función para enviar valoración
+// FunciÃ³n para enviar valoraciÃ³n
 async function enviarValoracion(juego_id) {
     const comentario = document.getElementById(`rating-comment-${juego_id}`)?.value.trim() || '';
     
     if (valoracionSeleccionada === 0) {
-        mostrarAlerta('Por favor selecciona una calificación', 'error');
+        mostrarAlerta('Por favor selecciona una calificaciÃ³n', 'error');
         return;
     }
 
     const submitBtn = document.getElementById(`submit-rating-${juego_id}`);
     if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.textContent = '⏳ Enviando...';
+        submitBtn.textContent = 'â³ Enviando...';
     }
 
     try {
@@ -4792,21 +4807,21 @@ async function enviarValoracion(juego_id) {
             // Recargar las valoraciones
             cargarValoracionesProducto(juego_id);
         } else {
-            mostrarAlerta(data.error || 'Error al guardar valoración', 'error');
+            mostrarAlerta(data.error || 'Error al guardar valoraciÃ³n', 'error');
         }
 
     } catch (error) {
-        console.error('Error al enviar valoración:', error);
-        mostrarAlerta('Error de conexión', 'error');
+        console.error('Error al enviar valoraciÃ³n:', error);
+        mostrarAlerta('Error de conexiÃ³n', 'error');
     } finally {
         if (submitBtn) {
             submitBtn.disabled = false;
-            submitBtn.textContent = '📝 Enviar Valoración';
+            submitBtn.textContent = '📩 Enviar Valoración';
         }
     }
 }
 
-// Función para mostrar lista de valoraciones
+// FunciÃ³n para mostrar lista de valoraciones
 function mostrarListaValoraciones(juego_id, valoraciones) {
     const reviewsList = document.getElementById(`reviews-list-${juego_id}`);
     if (!reviewsList) return;
@@ -4831,7 +4846,7 @@ function mostrarListaValoraciones(juego_id, valoraciones) {
             day: 'numeric'
         });
 
-        // Nombre del usuario (usar nombre completo si está disponible, sino email oculto)
+        // Nombre del usuario (usar nombre completo si estÃ¡ disponible, sino email oculto)
         const nombreUsuario = valoracion.usuario_nombre || valoracion.usuario_email_oculto || 'Usuario';
 
         html += `
@@ -4851,9 +4866,9 @@ function mostrarListaValoraciones(juego_id, valoraciones) {
     reviewsList.innerHTML = html;
 }
 
-// Función para mostrar promedio de valoraciones en las tarjetas de producto
+// FunciÃ³n para mostrar promedio de valoraciones en las tarjetas de producto
 function mostrarValoracionEnTarjeta(producto) {
-    // Si no hay valoraciones, mostrar solo estrellas vacías
+    // Si no hay valoraciones, mostrar solo estrellas vacÃ­as
     if (!producto.promedio_valoracion || producto.total_valoraciones === 0) {
         return `
             <div class="product-rating">
@@ -4865,7 +4880,7 @@ function mostrarValoracionEnTarjeta(producto) {
     const promedio = parseFloat(producto.promedio_valoracion);
     const total = parseInt(producto.total_valoraciones);
 
-    // Aplicar lógica progresiva para tarjetas también
+    // Aplicar lÃ³gica progresiva para tarjetas tambiÃ©n
     let estrellasAMostrar = 0;
 
     if (total === 0) {
