@@ -121,7 +121,7 @@ function toggleMostrarMasPaquetes(productoId) {
                      data-package-price=\"${precio}\"
                      style=\"position:relative; background:#1b1b1b; border:2px solid rgba(255,255,255,0.08); border-radius:12px; padding:10px; cursor:pointer; transition:border-color 0.15s ease, box-shadow 0.15s ease; min-height:90px; height:90px; width:160px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; overflow:visible;\">
                     <div class=\"pkg-title\" style=\"font-weight:700; font-size:14px; color:#ffffff; text-align:center; max-width:90%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; position:relative; z-index:2;\">${paquete.nombre}</div>
-                    <div class=\"pkg-price\" style=\"position:relative; z-index:2; font-weight:800; color:#21c55d; background:rgba(33,197,93,0.12); border:1.5px solid rgba(33,197,93,0.5); padding:4px 10px; border-radius:10px;\">${convertirPrecio(precio)}</div>
+                    <div class=\"pkg-price\" style=\"position:relative; z-index:2; font-weight:800; color:#ffffff; background:transparent; border:none; padding:4px 10px; border-radius:10px;\">${convertirPrecio(precio)}</div>
                 </div>
             `;
         }).join('');
@@ -1399,7 +1399,7 @@ function mostrarProductos() {
             // Mostrar solo precio inicial con "Desde"
             let rangoPrecio = '';
             if (monedaActual === 'VES') {
-                rangoPrecio = `Desde Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)}`;
+                rangoPrecio = `Desde ${convertirPrecio(precioMinimo)}`;
             } else {
                 rangoPrecio = `Desde $${precioMinimo.toFixed(2)}`;
             }
@@ -1523,7 +1523,7 @@ function mostrarProductos() {
                 // Mostrar solo precio inicial con "Desde"
                 let rangoPrecio = '';
                 if (monedaActual === 'VES') {
-                    rangoPrecio = `Desde Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)}`;
+                    rangoPrecio = `Desde ${convertirPrecio(precioMinimo)}`;
                 } else {
                     rangoPrecio = `Desde $${precioMinimo.toFixed(2)}`;
                 }
@@ -1646,7 +1646,7 @@ function mostrarProductos() {
         // Mostrar solo precio inicial con "Desde"
         let rangoPrecio = '';
         if (monedaActual === 'VES') {
-            rangoPrecio = `Desde Bs. ${(precioMinimo * tasaUSDVES).toFixed(2)}`;
+            rangoPrecio = `Desde ${convertirPrecio(precioMinimo)}`;
         } else {
             rangoPrecio = `Desde $${precioMinimo.toFixed(2)}`;
         }
@@ -1773,7 +1773,7 @@ function generarHTMLDetalleProducto(producto) {
                      data-package-price="${precio}"
                      style="position:relative; background:#1b1b1b; border:2px solid rgba(255,255,255,0.08); border-radius:12px; padding:10px; cursor:pointer; transition:border-color 0.15s ease, box-shadow 0.15s ease; min-height:90px; height:90px; width:160px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; overflow:visible;">
                     <div class="pkg-title" style="font-weight:700; font-size:14px; color:#ffffff; text-align:center; max-width:90%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; position:relative; z-index:2;">${paquete.nombre}</div>
-                    <div class="pkg-price" style="position:relative; z-index:2; font-weight:800; color:#21c55d; background:rgba(33,197,93,0.12); border:1.5px solid rgba(33,197,93,0.5); padding:4px 10px; border-radius:10px;">${convertirPrecio(precio)}</div>
+                    <div class="pkg-price" style="position:relative; z-index:2; font-weight:800; color:#ffffff; background:transparent; border:none; padding:4px 10px; border-radius:10px;">${convertirPrecio(precio)}</div>
                 </div>
             `;
         }).join('');
@@ -1829,7 +1829,7 @@ function generarHTMLDetalleProducto(producto) {
                         ${mostrarFormularioId ? `
                         <div style="margin-bottom: 15px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 15px;">
                             <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
-                                <div style="background:#17a2b8; color:#fff; font-weight:800; border-radius:6px; padding:2px 8px;">1</div>
+                                <div style="background:#dc3545; color:#fff; font-weight:800; border-radius:6px; padding:2px 8px;">1</div>
                                 <div style="font-weight:700; color:#fff;">Ingresa tus datos</div>
                             </div>
                             <label for="usuario-id-juego" style="display: block; margin-bottom: 6px; font-weight: 600; color: #ffffff; font-size: 14px;">ID de Usuario en el Juego:</label>
@@ -1838,7 +1838,7 @@ function generarHTMLDetalleProducto(producto) {
                         ` : ''}
 
                         <div style="margin: 10px 0 8px 0; display:flex; align-items:center; gap:8px;">
-                            <div style="background:#28a745; color:#fff; font-weight:800; border-radius:6px; padding:2px 8px;">2</div>
+                            <div style="background:#dc3545; color:#fff; font-weight:800; border-radius:6px; padding:2px 8px;">2</div>
                             <div style="font-weight:700; color:#fff;">Selecciona tu producto</div>
                         </div>
 
@@ -1853,7 +1853,7 @@ function generarHTMLDetalleProducto(producto) {
                         ` : ''}
 
                         <div style="margin-top: 16px;">
-                            <button id="btn-agregar-carrito" onclick="agregarPaqueteSeleccionado()" class="btn btn-success" style="width: 100%; padding: 15px 20px; font-size: 16px; font-weight: 700; background: linear-gradient(135deg, #28a745, #20c997); border: none; border-radius: 10px; color: white; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3); opacity: 0.6;" disabled>
+                            <button id="btn-agregar-carrito" onclick="agregarPaqueteSeleccionado()" class="btn btn-success" style="width: 100%; padding: 15px 20px; font-size: 16px; font-weight: 700; background: linear-gradient(135deg, #dc3545, #c82333); border: none; border-radius: 10px; color: white; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 6px 20px rgba(220, 53, 69, 0.3); opacity: 0.6;" disabled>
                                 🛒 Agregar al Carrito
                             </button>
                         </div>
@@ -1949,15 +1949,16 @@ function convertirPrecio(precioUSD) {
             const tasaConfig = parseFloat(configuracion.tasa_usd_ves);
             if (tasaConfig > 0) {
                 tasaActual = tasaConfig;
-                console.log(`ðŸ’± Usando tasa de configuraciÃ³n: ${tasaActual}`);
+                console.log(`Usando tasa de configuración: ${tasaActual}`);
             }
         } else if (tasaUSDVES && tasaUSDVES > 0) {
             tasaActual = tasaUSDVES;
-            console.log(`ðŸ’± Usando tasa global: ${tasaActual}`);
+            console.log(`Usando tasa global: ${tasaActual}`);
         }
         
-        const precioVES = (precio * tasaActual).toFixed(2);
-        console.log(`ðŸ’± ConversiÃ³n FINAL: $${precio} USD Ã— ${tasaActual} = Bs. ${precioVES} VES`);
+        const precioVESNum = Math.round(precio * tasaActual);
+        const precioVES = new Intl.NumberFormat('es-VE').format(precioVESNum);
+        console.log(`Conversion FINAL: $${precio} USD x ${tasaActual} = Bs. ${precioVES} VES (redondeado)`);
         return `Bs. ${precioVES}`;
     }
     return `$${precio.toFixed(2)}`;
@@ -1976,6 +1977,8 @@ function seleccionarPaquete(elemento) {
         pkg.style.borderColor = 'rgba(255,255,255,0.08)';
         pkg.style.transform = '';
         pkg.style.boxShadow = '';
+        pkg.style.outline = '';
+        pkg.style.outlineOffset = '';
         // No modificar alturas para no encoger las tarjetas
         pkg.style.minHeight = '';
         pkg.style.height = '';
@@ -1983,11 +1986,14 @@ function seleccionarPaquete(elemento) {
 
     // Seleccionar el paquete actual
     elemento.classList.add('selected');
-    // Estilos seleccionados manteniendo compacidad
+    // Estilos seleccionados (rojo, MUY visible)
     elemento.style.background = '#1b1b1b';
-    elemento.style.borderColor = '#28a745';
+    elemento.style.borderColor = '#dc3545';
+    elemento.style.borderWidth = '2px';
     elemento.style.transform = '';
-    elemento.style.boxShadow = '0 0 12px rgba(40,167,69,0.25)';
+    elemento.style.boxShadow = '0 6px 20px rgba(220,53,69,0.25)';
+    elemento.style.outline = '3px solid #dc3545';
+    elemento.style.outlineOffset = '3px';
     // Mantener altura original de la tarjeta
     elemento.style.minHeight = '';
     elemento.style.height = '';
@@ -2029,13 +2035,13 @@ function agregarPaqueteSeleccionado() {
         if (!usuarioId) {
             mostrarAlerta('⚠️ Por favor ingresa tu ID de usuario del juego antes de agregar al carrito', 'error');
             usuarioIdInput.focus();
-            usuarioIdInput.style.borderColor = '#28a745';
-            usuarioIdInput.style.boxShadow = 'inset 0 2px 8px rgba(40, 167, 69, 0.1)';
+            usuarioIdInput.style.borderColor = '#dc3545';
+            usuarioIdInput.style.boxShadow = 'inset 0 2px 8px rgba(220, 53, 69, 0.15)';
 
             // Quitar el estilo de error despuÃ©s de 3 segundos
             setTimeout(() => {
-                usuarioIdInput.style.borderColor = '#28a745';
-                usuarioIdInput.style.boxShadow = 'inset 0 2px 8px rgba(40, 167, 69, 0.1)';
+                usuarioIdInput.style.borderColor = '#dc3545';
+                usuarioIdInput.style.boxShadow = 'inset 0 2px 8px rgba(220, 53, 69, 0.15)';
             }, 3000);
             return;
         }
@@ -2086,7 +2092,7 @@ function agregarPaqueteSeleccionado() {
         const originalBackground = btnAgregar.style.background;
 
         btnAgregar.innerHTML = '✅ ¡Agregado al Carrito!';
-        btnAgregar.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+        btnAgregar.style.background = 'linear-gradient(135deg, #dc3545, #c82333)';
         btnAgregar.disabled = true;
         btnAgregar.style.opacity = '0.8';
 
@@ -2396,12 +2402,12 @@ function seleccionarMetodoPago(metodo) {
         });
 
         infoPago.innerHTML = `
-            <h4>Datos para Pago Móvil:</h4>
+            <h4 style="color:#ffffff;">Datos para Pago Móvil:</h4>
             <p><strong>Banco:</strong> ${banco}</p>
             <p><strong>Teléfono:</strong> ${telefono}</p>
             <p><strong>Cédula:</strong> ${cedula}</p>
             <p><strong>Nombre:</strong> ${nombre}</p>
-            <p style="margin-top: 15px; color: #20c997; font-weight: 600;">
+            <p style="margin-top: 15px; color: #ffffff; font-weight: 600;">
                 Realiza el pago y coloca la referencia en el campo de abajo
             </p>
         `;
@@ -2427,11 +2433,11 @@ function seleccionarMetodoPago(metodo) {
         });
 
         infoPago.innerHTML = `
-            <h4>Datos para Binance:</h4>
+            <h4 style="color:#ffffff;">Datos para Binance:</h4>
             <p><strong>Email:</strong> ${email}</p>
             <p><strong>ID Binance:</strong> ${idBinance}</p>
-            <p style="margin-top: 15px; color: #20c997; font-weight: 600;">
-                Realiza la transferencia y coloca el ID de transacciÃ³n en el campo de abajo
+            <p style="margin-top: 15px; color: #ffffff; font-weight: 600;">
+                <span style="color: #ffffff;">Realiza la transferencia y coloca el ID de transacción en el campo de abajo</span>
             </p>
         `;
         infoPago.style.display = 'block';
