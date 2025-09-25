@@ -4,6 +4,15 @@
     box-sizing: border-box;
 }
 
+/* Caja contenedora gris de la sección de reseñas (marco exterior) */
+.details-panel + .reviews-section,
+.reviews-section {
+    background: #1a1a1a !important;
+    border: 1px solid #2a2a2a !important;
+    border-radius: 14px !important;
+    padding: 12px !important;
+}
+
 /* ==========================
    Overrides: Paquetes sin selectores ni checkmarks
    ========================== */
@@ -52,8 +61,8 @@
 
 .details-panel .pkg-card {
     position: relative;
-    background: #1b1b1b;
-    border: 2px solid rgba(255,255,255,0.08);
+    background: #1a1a1a; /* más claro que el fondo para destacar */
+    border: 1px solid #2a2a2a;
     border-radius: 14px;
     height: 96px;
     width: 180px;
@@ -62,7 +71,7 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+    transition: border-color 0.18s ease, background-color 0.18s ease, transform 0.18s ease;
     overflow: visible;
 }
 
@@ -225,9 +234,9 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #2c2c2c 0%, #404040 100%);
+    background: #121212; /* Negro oscuro uniforme (dark) */
     min-height: 100vh;
-    color: #333;
+    color: #e5e5e5;
     /* Mejorar scroll táctil en móviles */
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
@@ -239,6 +248,51 @@ html {
     margin: 0 !important;
     padding: 0 !important;
     overflow-x: hidden;
+}
+
+/* ==========================
+   Contraste en tema oscuro (fondo negro)
+   ========================== */
+/* Texto base más claro para mejorar legibilidad */
+body, p, li, label, input, select, textarea { color: #e5e5e5; }
+
+/* Títulos y encabezados destacados */
+h1, h2, h3, h4, h5, h6, .section-title { color: #ffffff; }
+
+/* Botones secundarios y enlaces visibles sobre negro */
+a { color: #9bd3ff; }
+a:hover { color: #c6e6ff; }
+
+/* Tarjetas y áreas de contenido: elevar contraste del texto */
+.games-carousel-card, .todos-carousel-card, .details-panel .pkg-card { color: #f2f2f2; }
+
+/* Estados vacíos y textos secundarios */
+.purchase-history .no-purchases h3 { color: #ffffff; }
+.purchase-history .no-purchases p { color: #cfcfcf; }
+
+/* Contenido principal sin sombras visibles sobre negro */
+.content { color: #e5e5e5; }
+
+/* Footer de copyright */
+.copyright-text { color: #bdbdbd; }
+
+/* Footer inferior (copyright) */
+.copyright-footer {
+    background: #1a1a1a;
+    border-top: 1px solid #2a2a2a;
+    padding: 12px 16px;
+    color: #bdbdbd;
+}
+.copyright-footer .copyright-social-title { color: #d0d0d0; }
+.copyright-footer .copyright-social-buttons button { background: transparent; border: 1px solid #2a2a2a; }
+
+/* Móvil: asegurar contraste del footer inferior */
+@media (max-width: 768px) {
+    .copyright-footer {
+        background: #1a1a1a;
+        border-top: 1px solid #2a2a2a;
+        padding-bottom: 72px; /* margen visual por encima del footer fijo de navegación */
+    }
 }
 
 .container {
@@ -257,15 +311,15 @@ header {
     left: 0;
     right: 0;
     z-index: 1000;
-    background: rgba(60, 60, 60, 0.5);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: #1a1a1a; /* gris oscuro para destacar del fondo */
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     padding: 15px 20px;
-    box-shadow: 0 2px 20px rgba(0,0,0,0.2);
+    box-shadow: none; /* sin brillo */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid #2c2c2c;
 }
 
 .header-right {
@@ -576,16 +630,103 @@ header {
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(30, 30, 30, 0.4);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: #1a1a1a !important; /* gris oscuro */
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     padding: 8px 15px;
-    box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
+    box-shadow: none;
     display: flex;
     justify-content: space-around;
     align-items: center;
     z-index: 1000;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid #2c2c2c !important;
+    box-shadow: none !important;
+}
+
+/* Botones del footer móvil: evitar fondos translúcidos que aclaren el área */
+.footer-nav .nav-btn { background: transparent !important; }
+.footer-nav .nav-btn.active { background: #202020 !important; }
+
+/* ==========================
+   Detalles: contenedores en gris oscuro
+   ========================== */
+.details-panel .details-info-container > div,
+.details-panel .details-description,
+.details-panel .details-image-container,
+.details-panel .step-box,
+.details-panel .step-container {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+}
+
+/* Contenedor general de la vista de detalles (la caja más clara que encierra todo) */
+.details-panel {
+    background: #1a1a1a !important; /* más claro que el fondo para que destaque */
+    border: 1px solid #2a2a2a !important;
+    border-radius: 14px !important;
+    padding: 12px !important;
+    box-shadow: none !important;
+}
+
+/* Forzar caja de Descripción (override de inline styles) */
+.reviews-section .review-tab-content > div {
+    background: #1a1a1a !important;
+    border: 1px solid #2a2a2a !important;
+    border-radius: 12px !important;
+    box-shadow: none !important;
+}
+
+/* Barra de pestañas (Descripción / Valoraciones) en gris oscuro */
+.reviews-section .review-tabs {
+    display: flex;
+    gap: 10px;
+    background: #1a1a1a !important;
+    border: 1px solid #2a2a2a !important;
+    border-radius: 12px;
+    padding: 8px 12px !important;
+    align-items: center;
+    box-shadow: none !important;
+}
+
+.reviews-section .review-tab {
+    background: transparent;
+    color: #e5e5e5;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.reviews-section .review-tab:hover {
+    background: #202020;
+    color: #ffffff;
+}
+
+.reviews-section .review-tab.active {
+    background: #202020;
+    color: #ffffff;
+    border: 1px solid #3a3a3a;
+}
+
+/* Normalizar bordes en toda la sección para evitar tonos marrones */
+.reviews-section,
+.reviews-section *,
+.details-panel .details-info-container > div,
+.details-panel .details-image-container,
+.details-panel .pkg-card {
+    border-color: #2a2a2a !important;
+    box-shadow: none !important;
+}
+
+/* Línea divisoria bajo las pestañas (si existe) */
+.reviews-section hr,
+.reviews-section .tabs-divider,
+.reviews-section .divider {
+    border: none;
+    border-top: 1px solid #2a2a2a;
 }
 
 .nav-btn {
@@ -920,11 +1061,11 @@ header {
     height: 340px;
     min-height: 340px;
     max-height: 340px;
-    background: #4a4a4a;
+    background: #1a1a1a; /* más claro que el fondo para destacar */
     border-radius: 15px;
     padding: 15px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    border: 1px solid #666;
+    box-shadow: none; /* sin brillo */
+    border: 1px solid #2a2a2a;
     transition: transform 0.3s ease;
     cursor: pointer;
     display: flex;
@@ -934,7 +1075,8 @@ header {
 
 .games-carousel-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    background: #202020;
+    border-color: #3a3a3a;
 }
 
 .games-carousel-card .product-image {
@@ -1051,11 +1193,11 @@ header {
     height: 260px;
     min-height: 260px;
     max-height: 260px;
-    background: #4a4a4a;
+    background: #1a1a1a; /* más claro que el fondo */
     border-radius: 15px;
     padding: 15px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    border: 1px solid #666;
+    box-shadow: none;
+    border: 1px solid #2a2a2a;
     transition: transform 0.3s ease;
     cursor: pointer;
     display: flex;
@@ -1065,7 +1207,8 @@ header {
 
 .todos-carousel-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    background: #202020;
+    border-color: #3a3a3a;
 }
 
 .todos-carousel-card .product-image {
@@ -2854,12 +2997,12 @@ header {
 
 /* Estilos mejorados para la pestaña Mi Cuenta */
 .auth-section {
-    background: linear-gradient(135deg, #4a4a4a 0%, #3a3a3a 100%);
+    background: #141414; /* tarjeta oscura coherente con el tema */
     border-radius: 20px;
     padding: 30px;
     margin: 20px auto;
     box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-    border: 1px solid #666;
+    border: 1px solid #2a2a2a;
     max-width: 500px; /* Limitar ancho máximo en desktop */
 }
 
@@ -3029,14 +3172,14 @@ header {
 }
 
 .account-btn-primary {
-    background: linear-gradient(135deg, #007bff, #0056b3);
+    background: linear-gradient(135deg, #28a745, #20c997); /* verde marca para login */
     color: white;
-    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
 }
 
 .account-btn-primary:hover {
     transform: translateY(-3px);
-    box-shadow: 0 12px 35px rgba(0, 123, 255, 0.4);
+    box-shadow: 0 12px 35px rgba(40, 167, 69, 0.4);
 }
 
 .account-btn-danger {
@@ -3048,6 +3191,55 @@ header {
 .account-btn-danger:hover {
     transform: translateY(-3px);
     box-shadow: 0 12px 35px rgba(220, 53, 69, 0.4);
+}
+
+/* Botón de Login con Google en tema oscuro */
+.google-login-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 16px 22px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: #1a1a1a;
+    color: #e5e5e5;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.google-login-button:hover {
+    background: #202020;
+    border-color: rgba(255,255,255,0.2);
+    transform: translateY(-2px);
+}
+
+/* Forzar campos de formulario oscuros dentro del login para evitar estilos claros previos */
+#login .form-control,
+.auth-section .form-control {
+    width: 100%;
+    padding: 15px 20px;
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.06);
+    color: #e5e5e5;
+    transition: border-color 0.3s ease, background-color 0.2s ease;
+    backdrop-filter: blur(10px);
+}
+
+#login .form-control:focus,
+.auth-section .form-control:focus {
+    outline: none;
+    border-color: #28a745;
+    box-shadow: 0 0 18px rgba(40, 167, 69, 0.2);
+    background: rgba(255,255,255,0.08);
+}
+
+#login .form-control::placeholder,
+.auth-section .form-control::placeholder {
+    color: #9aa0a6;
 }
 
 /* Historial de compras mejorado */

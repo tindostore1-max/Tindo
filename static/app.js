@@ -19,6 +19,41 @@
   }
 })();
 
+// ---- Utilidad para corregir "mojibake" (símbolos raros por mala codificación) ----
+// Convierte textos tipo "aÃºn" -> "aún" y corrige emojis que aparecen como "ðŸ¤–".
+// Técnica: interpreta el string actual como bytes Latin-1 y los decodifica como UTF-8.
+function fixMojibake(str) {
+  try {
+    if (typeof str !== 'string') return str;
+    // Evitar trabajo cuando no hay patrones típicos de mojibake
+    if (!/[ÂÃðâ]/.test(str)) return str;
+    // escape() transforma cada char <256 en %xx y decodeURIComponent lo interpreta como UTF-8
+    const fixed = decodeURIComponent(escape(str));
+    return fixed;
+  } catch (_) {
+    return str;
+  }
+}
+
+// Recorre el DOM y corrige nodos de texto visibles
+function fixMojibakeInDOM(root = document.body) {
+  try {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+    const candidates = [];
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      if (node && node.nodeValue && /[ÂÃðâ]/.test(node.nodeValue)) {
+        candidates.push(node);
+      }
+    }
+    for (const node of candidates) {
+      node.nodeValue = fixMojibake(node.nodeValue);
+    }
+  } catch (e) {
+    // silencioso
+  }
+}
+
 // Variables globales
 let productos = [];
 let carrito = cargarCarritoDesdeStorage();
@@ -232,7 +267,10 @@ function cargarElementosCriticos() {
 
 // InicializaciÃ³n optimizada
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('ðŸš€ Iniciando carga optimizada...');
+    console.log('🚀 Iniciando carga optimizada...');
+
+    // Corregir posibles textos ya renderizados con mojibake al cargar
+    fixMojibakeInDOM();
 
     // Verificar si hay mensaje de Google OAuth
     const urlParams = new URLSearchParams(window.location.search);
@@ -264,7 +302,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Si hay cache vÃ¡lido, usar para mostrar contenido inmediato
         if (cacheValido()) {
-            console.log('ðŸ“¦ Usando datos del cache para mostrar contenido inmediato');
+            console.log('📦 Usando datos del cache para mostrar contenido inmediato');
             configuracion = configCache;
             productos = productosCache;
             configuracionCargada = true;
@@ -278,7 +316,7 @@ document.addEventListener('DOMContentLoaded', function() {
             cargarProductosOptimizado(),
             verificarSesionOptimizada()
         ]).then(() => {
-            console.log('âœ… Carga de datos completada');
+            console.log('✅ Carga de datos completada');
             interfazLista = true;
             verificarCargaCompleta();
             cargandoDatos = false;
@@ -289,17 +327,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 actualizarImagenesCarrusel();
             }
         }).catch(error => {
-            console.error('âŒ Error en carga:', error);
+            console.error('❌ Error en carga:', error);
             interfazLista = true;
             cargandoDatos = false;
         });
     }
-
+    
     // 4. Tareas no crÃ­ticas despuÃ©s del render
     setTimeout(() => {
         // Inicializar carrusel automÃ¡tico
         inicializarCarrusel();
-
         // Actualizar contador del carrito
         actualizarContadorCarrito();
 
@@ -349,6 +386,9 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (!filtroActual) {
             filtrarProductos('todos');
         }
+
+        // Corregir nuevamente cualquier texto inyectado tras el primer render
+        fixMojibakeInDOM();
 
         // Mostrar footer
         mostrarFooterCopyright();
@@ -629,7 +669,7 @@ function mostrarAlerta(mensaje, tipo = 'success') {
     // En desktop, usar alerta normal
     const alertDiv = document.createElement('div');
     alertDiv.className = `alert alert-${tipo}`;
-    alertDiv.textContent = mensaje;
+    alertDiv.textContent = fixMojibake(mensaje);
 
     const contenido = document.querySelector('.content');
     contenido.insertBefore(alertDiv, contenido.firstChild);
@@ -641,6 +681,8 @@ function mostrarAlerta(mensaje, tipo = 'success') {
 
 // FunciÃ³n para mostrar notificaciÃ³n flotante en mÃ³viles
 function mostrarNotificacionFlotante(mensaje, tipo = 'success') {
+    // Intentar corregir mojibake del mensaje desde la fuente
+    mensaje = fixMojibake(mensaje);
     // Remover notificaciÃ³n anterior si existe
     const existingNotification = document.querySelector('.mobile-notification');
     if (existingNotification) {
@@ -660,10 +702,10 @@ function mostrarNotificacionFlotante(mensaje, tipo = 'success') {
     }
 
     // Limpiar mensaje para que sea mÃ¡s conciso
-    let mensajeLimpio = mensaje;
+    let mensajeLimpio = fixMojibake(mensaje);
     if (mensaje.includes('🎉') || mensaje.includes('✨') || mensaje.includes('🏷️')) {
         // Simplificar mensajes largos
-        if (mensaje.includes('se agregÃ³ exitosamente')) {
+        if (mensaje.includes('se agregó exitosamente') || mensaje.includes('se agregÃ³ exitosamente')) {
             mensajeLimpio = 'Producto agregado al carrito';
         } else if (mensaje.includes('cantidad aumentada')) {
             mensajeLimpio = 'Cantidad actualizada';
@@ -2780,7 +2822,7 @@ function actualizarInterfazUsuario(usuario) {
             <div class="account-actions">
                 ${botonAdminHtml}
                 <button class="account-btn account-btn-primary" onclick="mostrarHistorialCompras()">
-                    📋 Ver Historial de Compras
+                    &#128203; Ver Historial de Compras
                 </button>
                 <button class="account-btn account-btn-danger" onclick="cerrarSesion()">
                     🚪 Cerrar Sesión
@@ -2788,7 +2830,7 @@ function actualizarInterfazUsuario(usuario) {
             </div>
 
             <div id="historial-compras" class="purchase-history" style="display: none;">
-                <h3>📋 Historial de Compras</h3>
+                <h3>&#128203; Historial de Compras</h3>
                 <div id="lista-compras">
                     <div class="loading">Cargando historial...</div>
                 </div>
@@ -2860,9 +2902,9 @@ async function mostrarHistorialCompras() {
         if (historialData.length === 0) {
             listaCompras.innerHTML = `
                 <div class="no-purchases">
-                    <i>ðŸ›’</i>
-                    <h3>No tienes compras aÃºn</h3>
-                    <p>Cuando realices tu primera compra, aparecerÃ¡ aquÃ­.</p>
+                    <i>🛒</i>
+                    <h3>No tienes compras aún</h3>
+                    <p>Cuando realices tu primera compra, aparecerá aquí.</p>
                 </div>
             `;
             return;
